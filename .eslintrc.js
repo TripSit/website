@@ -2,7 +2,7 @@
 
 module.exports = {
   root: true,
-  extends: ['next', 'airbnb'],
+  extends: ['airbnb'],
   rules: {
     'react/jsx-filename-extension': 0,
     'react/jsx-props-no-spreading': 0,

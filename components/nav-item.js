@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import Link from 'next/link';
 import { Nav } from 'react-bootstrap';
 
-function NavItem({ children, className, href }) {
+function HomeNavItem({ children, className, href }) {
   return (
     <Nav.Item as="li" className={className}>
       <Link href={href} passHref>
@@ -12,14 +12,14 @@ function NavItem({ children, className, href }) {
   );
 }
 
-NavItem.propTypes = {
+HomeNavItem.propTypes = {
   children: PropTypes.node.isRequired,
   className: PropTypes.string,
   href: PropTypes.string.isRequired,
 };
 
-NavItem.defaultProps = {
+HomeNavItem.defaultProps = {
   className: null,
 };
 
-export default NavItem;
+export default HomeNavItem;

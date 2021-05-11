@@ -1,63 +1,66 @@
-// import Head from 'next/head';
-import Image from 'next/image';
+import styled from 'styled-components';
+import { Navbar as BsNavbar, Nav, Image } from 'react-bootstrap';
 import Head from '../components/head';
+import NavItem from '../components/home-nav-item';
 
-export default function Home() {
+const PageLayout = styled.div`
+  display: flex;
+  flex-direction: column;
+  background-color: #060606;
+`;
+
+const BannerContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
+`;
+
+const Navbar = styled(BsNavbar)`
+  display: flex;
+  flex-direction: column;
+
+  ul {
+    display: flex;
+    flex-direction: column;
+    height: 3rem;
+  }
+
+  a {
+    color: #f7f7f7;
+  }
+`;
+
+const AttentionNavItem = styled(NavItem)`
+  background-color: #a55;
+`;
+
+export default function HomePage() {
   return (
     <>
       <Head title="Harm Reduction Through Education" />
+      <PageLayout>
+        <BannerContainer>
+          <Image src="/images/tripsit-logo.svg" alt="Tripsit's Logo" />
+        </BannerContainer>
 
-      <main>
-        <h1>
-          Welcome to
-          {' '}
-          <a href="https://nextjs.org">Next.js!</a>
-        </h1>
-
-        <p>
-          Get started by editing
-          {' '}
-          <code>pages/index.js</code>
-        </p>
-
-        <div>
-          <a href="https://nextjs.org/docs">
-            <h2>Documentation &rarr;</h2>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn">
-            <h2>Learn &rarr;</h2>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a href="https://github.com/vercel/next.js/tree/master/examples">
-            <h2>Examples &rarr;</h2>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app">
-            <h2>Deploy &rarr;</h2>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
-
-      <footer>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by
-          {' '}
-          <span>
-            <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
-          </span>
-        </a>
-      </footer>
+        <Navbar as="header">
+          <Nav as="ul">
+            <NavItem href="#">Placeholder</NavItem>
+            <NavItem href="#">Placeholder</NavItem>
+            <NavItem href="#">Placeholder</NavItem>
+            <NavItem href="#">General Chat</NavItem>
+            <AttentionNavItem href="#">Immidiate Assistance</AttentionNavItem>
+          </Nav>
+          <Nav as="ul">
+            <NavItem href="#">Placeholder</NavItem>
+            <NavItem href="#">Placeholder</NavItem>
+            <NavItem href="#">Placeholder</NavItem>
+            <NavItem href="#">Placeholder</NavItem>
+            <NavItem href="/contact">Contact</NavItem>
+          </Nav>
+        </Navbar>
+      </PageLayout>
     </>
   );
 }

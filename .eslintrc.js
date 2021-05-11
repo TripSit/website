@@ -2,18 +2,13 @@
 
 module.exports = {
   root: true,
-  extends: ['airbnb'],
-  parser: 'babel-eslint',
-  env: {
-    node: true,
-    browser: true,
-  },
+  extends: ['next', 'airbnb'],
   rules: {
     'react/jsx-filename-extension': 0,
     'react/jsx-props-no-spreading': 0,
     'react/react-in-jsx-scope': 0,
     'react/forbid-prop-types': 0,
-    'react/jsx-one-expression-per-line': [2, { allow: 'single-child' }],
+    'react/jsx-one-expression-per-line': 0,
   },
   overrides: [
     {

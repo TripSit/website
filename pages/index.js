@@ -1,12 +1,27 @@
-import styled from 'styled-components';
+import styled, { createGlobalStyle } from 'styled-components';
 import { Navbar as BsNavbar, Nav, Image } from 'react-bootstrap';
 import Head from '../components/head';
 import NavItem from '../components/home-nav-item';
 
+const Styles = createGlobalStyle`
+  body {
+    background-color: #060606;
+  }
+`;
+
 const PageLayout = styled.div`
-  display: flex;
-  flex-direction: column;
-  background-color: #060606;
+  display: grid;
+  grid-template-rows: 3rem auto 3rem;
+
+  @media (max-width: 767px) {
+    > header {
+      order: 1;
+    }
+
+    > footer {
+      order: 2;
+    }
+  }
 `;
 
 const BannerContainer = styled.div`
@@ -21,9 +36,11 @@ const Navbar = styled(BsNavbar)`
   flex-direction: column;
 
   ul {
-    display: flex;
-    flex-direction: column;
     height: 3rem;
+    @media (max-width: 767px) {
+      flex-direction: column;
+      flex-wrap: nowrap;
+    }
   }
 
   a {
@@ -39,19 +56,24 @@ export default function HomePage() {
   return (
     <>
       <Head title="Harm Reduction Through Education" />
+      <Styles />
       <PageLayout>
+
+        <Navbar as="header">
+          <Nav as="ul">
+            <AttentionNavItem href="#">Immidiate Assistance</AttentionNavItem>
+            <NavItem href="#">General Chat</NavItem>
+            <NavItem href="#">Placeholder</NavItem>
+            <NavItem href="#">Placeholder</NavItem>
+            <NavItem href="#">Placeholder</NavItem>
+          </Nav>
+        </Navbar>
+
         <BannerContainer>
           <Image src="/images/tripsit-logo.svg" alt="Tripsit's Logo" />
         </BannerContainer>
 
-        <Navbar as="header">
-          <Nav as="ul">
-            <NavItem href="#">Placeholder</NavItem>
-            <NavItem href="#">Placeholder</NavItem>
-            <NavItem href="#">Placeholder</NavItem>
-            <NavItem href="#">General Chat</NavItem>
-            <AttentionNavItem href="#">Immidiate Assistance</AttentionNavItem>
-          </Nav>
+        <Navbar as="footer">
           <Nav as="ul">
             <NavItem href="#">Placeholder</NavItem>
             <NavItem href="#">Placeholder</NavItem>

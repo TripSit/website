@@ -7,6 +7,7 @@ const GlobalStyles = createGlobalStyle`
   body,
   #__next {
     min-height: 100vh;
+    width: 100vw;
   }
 `;
 

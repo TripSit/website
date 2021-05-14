@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import { Container } from 'react-bootstrap';
 import Header from '../page-header';
 
 const Grid = styled.div`
@@ -22,10 +23,10 @@ function DefaultLayout({ children, heading }) {
   return (
     <Grid>
       <Header />
-      <main>
+      <Container as="main">
         <h1>{heading}</h1>
         {children}
-      </main>
+      </Container>
     </Grid>
   );
 }

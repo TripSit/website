@@ -4,6 +4,7 @@ module.exports = {
   root: true,
   extends: ['airbnb'],
   rules: {
+    'no-console': 0,
     'react/jsx-filename-extension': 0,
     'react/jsx-props-no-spreading': 0,
     'react/react-in-jsx-scope': 0,
@@ -29,6 +30,7 @@ module.exports = {
       files: [
         '.eslintrc.js',
         'next.config.js',
+        'babel.config.js',
         'jest.config.js',
       ],
       parserOptions: { sourceType: 'script' },

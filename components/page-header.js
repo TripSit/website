@@ -12,7 +12,7 @@ export default function PageHeader() {
     <Navbar as="header">
       <Link href="/" passHref>
         <Navbar.Brand>
-          <Image src="/images/tripsipt-logo.svg" alt="Tripsit's Logo" />
+          <Image src="/images/tripsit-logo.svg" alt="Tripsit's Logo" />
         </Navbar.Brand>
       </Link>
 
@@ -22,7 +22,7 @@ export default function PageHeader() {
           <NavItem href="https://drugs.tripsit.me/">Factsheets</NavItem>
           <NavItem href="https://wiki.tripsit.me/wiki/Main_Page">Wiki</NavItem>
           <NavItem href="https://tripsit.me/donate/">Donate</NavItem>
-          <NavItem href="/contact">Contact</NavItem>
+          <NavItem href="/contact-us">Contact Us</NavItem>
         </Nav>
       </nav>
     </Navbar>

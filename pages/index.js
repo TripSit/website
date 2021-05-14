@@ -1,7 +1,7 @@
 import styled, { createGlobalStyle } from 'styled-components';
 import { Navbar as BsNavbar, Nav, Image } from 'react-bootstrap';
 import Head from '../components/head';
-import NavItem from '../components/home-nav-item';
+import NavItem from '../components/nav-item';
 
 const Styles = createGlobalStyle`
   body {
@@ -79,7 +79,7 @@ export default function HomePage() {
             <NavItem href="#">Placeholder</NavItem>
             <NavItem href="#">Placeholder</NavItem>
             <NavItem href="#">Placeholder</NavItem>
-            <NavItem href="/contact">Contact</NavItem>
+            <NavItem href="/contact-us">Contact Us</NavItem>
           </Nav>
         </Navbar>
       </PageLayout>

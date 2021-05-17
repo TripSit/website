@@ -2,13 +2,13 @@ import { useRouter } from 'next/router';
 import { Button, Row, Col } from 'react-bootstrap';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
-import apiClient from '../api-client';
+import apiClient from '../utils/api-client';
 import Head from '../components/head';
 import DefaultLayout from '../components/layouts/default';
 import { TextControl } from '../components/controls';
 
 const validationSchema = Yup.object({
-  nick: Yup.string().required(),
+  nick: Yup.string().max(32).required(),
   password: Yup.string().min(6).required(),
   confirmPassword: Yup.string().oneOf([Yup.ref('password'), null], 'Passwords must match'),
 }).required();
@@ -17,7 +17,7 @@ export default function RegisterPage() {
   const router = useRouter();
 
   async function onSubmit({ confirmPassword, ...values }) {
-    return apiClient.post('/user', values)
+    return apiClient.post('/api/user', values)
       .then(() => {
         router.push('/login');
       })
@@ -41,7 +41,7 @@ export default function RegisterPage() {
           }}
         >
           {({ isSubmitting, handleSubmit }) => (
-            <Form method="post" action="/api/register" onSubmit={handleSubmit}>
+            <Form method="post" action="/api/user" onSubmit={handleSubmit}>
               <Row>
                 <Col xs={12}>
                   <TextControl

@@ -11,6 +11,7 @@
     "axios": "^0.21.1",
     "bootstrap": "^5.0.0",
     "formik": "^2.2.6",
+    "luxon": "^1.27.0",
     "next": "10.2.0",
     "next-iron-session": "^4.1.13",
     "prop-types": "^15.7.2",

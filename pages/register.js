@@ -49,6 +49,7 @@ export default function RegisterPage() {
                     label="Nick"
                     disabled={isSubmitting}
                     placeholder="Tripsitter123"
+                    required
                   />
                 </Col>
               </Row>
@@ -60,6 +61,7 @@ export default function RegisterPage() {
                     label="Password"
                     type="password"
                     disabled={isSubmitting}
+                    required
                   />
                 </Col>
                 <Col xs={12} md={6}>
@@ -68,6 +70,7 @@ export default function RegisterPage() {
                     label="Confirm Password"
                     type="password"
                     disabled={isSubmitting}
+                    required
                   />
                 </Col>
               </Row>

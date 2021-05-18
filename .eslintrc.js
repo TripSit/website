@@ -5,6 +5,7 @@ module.exports = {
   extends: ['airbnb'],
   rules: {
     'no-console': 0,
+    'prefer-destructuring': 0,
     'react/jsx-filename-extension': 0,
     'react/jsx-props-no-spreading': 0,
     'react/react-in-jsx-scope': 0,
@@ -14,12 +15,12 @@ module.exports = {
   overrides: [
     {
       files: [
-        '**/__tests__/*.test.js',
+        '**/__tests__/*.spec.js',
         '**/__mocks__/*.js',
         'jest.setup.js',
       ],
       plugins: ['jest'],
-      env: { jest: true },
+      env: { 'jest/globals': true },
       rules: {
         'import/no-extraneous-dependencies': [2, {
           devDependencies: true,

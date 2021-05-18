@@ -45,6 +45,7 @@ export default function LoginPage() {
                     label="Username"
                     disabled={isSubmitting}
                     placeholder="Tripsitter123"
+                    required
                   />
                 </Col>
 
@@ -54,6 +55,7 @@ export default function LoginPage() {
                     label="Password"
                     type="password"
                     disabled={isSubmitting}
+                    required
                   />
                 </Col>
               </Row>

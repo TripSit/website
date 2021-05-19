@@ -11,6 +11,8 @@ module.exports = {
     'react/react-in-jsx-scope': 0,
     'react/forbid-prop-types': 0,
     'react/jsx-one-expression-per-line': 0,
+    'react/jsx-indent': 0,
+    'react/jsx-closing-tag-location': 0,
   },
   overrides: [
     {

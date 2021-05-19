@@ -78,7 +78,6 @@ export default function RegisterPage() {
               <Button type="submit" variant="success" disabled={isSubmitting}>
                 Create Account
               </Button>
-
             </Form>
           )}
         </Formik>

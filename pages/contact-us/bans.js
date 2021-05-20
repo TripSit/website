@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { Button, Row, Col } from 'react-bootstrap';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
+import useNotify from '../../hooks/use-notify';
+import apiClient from '../../utils/api-client';
 import Head from '../../components/head';
 import DefaultLayout from '../../components/layouts/default';
 import { TextControl, FormFooterControls } from '../../components/controls';
-import apiClient from '../../utils/api-client';
 
 const validationSchema = Yup.object({
   understanding: Yup.string().min(10).required(),
@@ -15,14 +16,16 @@ const validationSchema = Yup.object({
 
 export default function BansContactPage() {
   const [isShowingSuccess, setIsShowingSuccess] = useState(false);
+  const notify = useNotify();
 
   async function onSubmit(values) {
     return apiClient.post('/api/contact-us/bans', values)
       .then(() => {
         setIsShowingSuccess(true);
       })
-      .catch((error) => {
+      .catch(error => {
         console.error(error);
+        notify('Unknown error submitting your ban.', { variant: 'danger' });
       });
   }
 

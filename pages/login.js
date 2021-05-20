@@ -1,6 +1,7 @@
 import { Button, Row, Col } from 'react-bootstrap';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
+import useNotify from '../hooks/use-notify';
 import apiClient from '../utils/api-client';
 import Head from '../components/head';
 import DefaultLayout from '../components/layouts/default';
@@ -13,14 +14,16 @@ const validationSchema = Yup.object({
 }).required();
 
 export default function LoginPage() {
+  const notify = useNotify();
+
   async function onSubmit(values) {
     return apiClient.post('/api/login', values)
       .then(() => {
         console.log('Redirect user to last page they were on...');
       })
-      .catch((error) => {
+      .catch(error => {
         console.error(error);
-        // TODO: Error notifications
+        notify('Unknown error when trying to login.', { variant: 'danger' });
       });
   }
 
@@ -42,7 +45,7 @@ export default function LoginPage() {
                 <Col xs={12} md={6}>
                   <TextControl
                     name="nick"
-                    label="Username"
+                    label="Nick"
                     disabled={isSubmitting}
                     placeholder="Tripsitter123"
                     required

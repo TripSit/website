@@ -1,6 +1,8 @@
 import 'bootstrap/dist/css/bootstrap.css';
 import PropTypes from 'prop-types';
 import { createGlobalStyle } from 'styled-components';
+import '../yup-locales';
+import Notifications from '../components/notifications';
 
 const GlobalStyles = createGlobalStyle`
   html,
@@ -15,7 +17,9 @@ function TripsitApp({ Component, pageProps }) {
   return (
     <>
       <GlobalStyles />
-      <Component {...pageProps} />
+      <Notifications>
+        <Component {...pageProps} />
+      </Notifications>
     </>
   );
 }

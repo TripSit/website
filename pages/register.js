@@ -2,6 +2,7 @@ import { useRouter } from 'next/router';
 import { Button, Row, Col } from 'react-bootstrap';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
+import useNotify from '../hooks/use-notify';
 import apiClient from '../utils/api-client';
 import Head from '../components/head';
 import DefaultLayout from '../components/layouts/default';
@@ -15,15 +16,16 @@ const validationSchema = Yup.object({
 
 export default function RegisterPage() {
   const router = useRouter();
+  const notify = useNotify();
 
   async function onSubmit({ confirmPassword, ...values }) {
     return apiClient.post('/api/user', values)
       .then(() => {
         router.push('/login');
       })
-      .catch((error) => {
+      .catch(error => {
         console.error(error);
-        // TODO: Error notifications
+        notify('Unknown error trying to register user.', { variant: 'danger' });
       });
   }
 
@@ -70,7 +72,6 @@ export default function RegisterPage() {
                     label="Confirm Password"
                     type="password"
                     disabled={isSubmitting}
-                    required
                   />
                 </Col>
               </Row>

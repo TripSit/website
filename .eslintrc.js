@@ -6,6 +6,7 @@ module.exports = {
   rules: {
     'no-console': 0,
     'prefer-destructuring': 0,
+    'arrow-parens': [2, 'as-needed'],
     'react/jsx-filename-extension': 0,
     'react/jsx-props-no-spreading': 0,
     'react/react-in-jsx-scope': 0,

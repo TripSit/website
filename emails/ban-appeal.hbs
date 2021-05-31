@@ -1,0 +1,33 @@
+<mjml>
+  <mj-head>
+    <mj-attributes>
+      <mj-include path="./includes/attributes.mjml" />
+    </mj-attributes>
+  </mj-head>
+  <mj-body>
+    <mj-text mj-class="title">Ban Appeal</mj-text>
+
+    <mj-section>
+      <mj-column>
+        <mj-text mj-class="heading">Understanding</mj-text>
+        <mj-text mj-class="body-text">{{understanding}}</mj-text>
+      </mj-column>
+    </mj-section>
+
+    {{#if clarification}}
+      <mj-section>
+        <mj-column>
+          <mj-text mj-class="heading">Clarification</mj-text>
+          <mj-text mj-class="body-text">{{clarification}}</mj-text>
+        </mj-column>
+      </mj-section>
+    {{/if}}
+
+    <mj-section>
+      <mj-column>
+        <mj-text mj-class="heading">Assurance</mj-text>
+        <mj-text mj-class="body-text">{{assurance}}</mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

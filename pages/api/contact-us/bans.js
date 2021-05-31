@@ -1,10 +1,20 @@
-import getEmailContents from '../../../emails';
+import sendEmail from '../../../emails';
 import withSession from '../../../utils/api/with-session';
-import sendEmail from '../../../utils/api/send-email';
 
 async function banAppealApiRoute(req, res) {
-  const emailContents = await getEmailContents('ban-appeal');
-  await sendEmail('Ban Appeal', 'appeal@tripsit.me', emailContents);
+  await sendEmail(
+    'ban-appeal',
+    {
+      subject: 'Ban Appeal',
+      from: 'appeal@tripsit.me',
+      to: 'foo@example.com', // TODO
+    },
+    {
+      understanding: req.body.understanding,
+      clarification: req.body.clarification,
+      assurance: req.body.assurance,
+    },
+  );
   res.sendStatus(201);
 }
 

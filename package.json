@@ -15,6 +15,7 @@
     "bootstrap": "^5.0.0",
     "dotenv": "^9.0.2",
     "formik": "^2.2.6",
+    "handlebars": "^4.7.7",
     "luxon": "^1.27.0",
     "mjml": "^4.9.3",
     "nanoid": "^3.1.23",

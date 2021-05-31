@@ -1,0 +1,22 @@
+<mjml>
+  <mj-head>
+    <mj-include path="./include/attributes.mjml" />
+  </mj-head>
+  <mj-body>
+    <mj-text mj-class="title">Welcome to Tripsit {{nick}}</mj-text>
+
+    <mj-section>
+      <mj-column>
+        <mj-text mj-class="body-text">
+          Thank you for registering with TripSit. Verifying your email address is not required
+          however it will allow you to easily recover your account through features such as
+          resetting your password. To finish the verification process please click on the button
+          below.
+        </mj-text>
+        <mj-button font-size="16px" font-weight="bold" href="{{validationLink}}">
+          Validate
+        </mj-button>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

@@ -1,0 +1,4 @@
+<mj-all font-family="Helvetica,Arial,sans-serif" />
+<mj-class name="title" font-size="30px" font-weight="bold" />
+<mj-class name="heading" font-size="20px" font-weight="bold" />
+<mj-class name="body-text" font-size="14px" />

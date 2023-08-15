@@ -1,0 +1,14 @@
+{
+    "eslint.codeActionsOnSave.rules": null,
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+    },
+    "eslint.validate": [
+        "javascript",
+        "typescript",
+    ],
+    "cSpell.words": [
+        "luxon",
+        "sonarjs"
+    ],
+}

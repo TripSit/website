@@ -1,0 +1,51 @@
+version: '3.9'
+
+name: service
+
+########################### EXTENSION FIELDS
+# Common environment values
+x-environment: &default-tz-puid-pgid
+  TZ: 'America/Chicago'
+  PUID: '1000'
+  PGID: '1000'
+
+# Keys common to some of the dependent services/apps
+x-common-keys-apps: &common-keys-apps
+  security_opt:
+    - no-new-privileges:true
+  restart: unless-stopped
+
+########################### SERVICES
+services:
+  website:
+    <<: *common-keys-apps
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+      # Only will build development stage from our dockerfile
+      target: development
+    container_name: website
+    working_dir: /usr/src/app
+    environment:
+      <<: *default-tz-puid-pgid
+    volumes:
+      - ./src:/usr/src/app/src
+      - ./public:/usr/src/app/public
+    networks:
+      website-net:
+    labels:
+      - com.centurylinklabs.watchtower.enable=false
+      - traefik.enable=true
+      - traefik.docker.network=website-net
+      - traefik.http.services.website-svc.loadbalancer.server.port=3000
+
+      - traefik.http.routers.website-cloudflare.rule=Host(`${DNS_DOMAIN}`)
+      - traefik.http.routers.website-cloudflare.service=website-svc
+      - traefik.http.routers.website-cloudflare.tls.certresolver=letsencrypt
+      - traefik.http.routers.website-cloudflare.middlewares=default@file
+      - traefik.http.routers.website-cloudflare.entrypoints=websecure
+
+########################### NETWORKS
+networks:
+  website-net:
+    name: website-net

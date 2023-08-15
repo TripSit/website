@@ -1,14 +1,38 @@
 {
+    "editor.defaultFormatter": "rvest.vs-code-prettier-eslint",
+    "editor.formatOnPaste": false, // required 
+    "editor.formatOnType": false, // required
+    "editor.formatOnSave": true, // optional 
+    "editor.formatOnSaveMode": "file", // required to format on save
+    "files.autoSave": "onFocusChange", // optional but recommended
+    "vs-code-prettier-eslint.prettierLast": "false", // set as "true" to run 'prettier' last not first
     "eslint.codeActionsOnSave.rules": null,
     "editor.codeActionsOnSave": {
         "source.fixAll.eslint": true
     },
+    "editor.rulers": [
+        100,
+    ],
     "eslint.validate": [
         "javascript",
         "typescript",
     ],
     "cSpell.words": [
+        "boxicons",
+        "Factsheets",
+        "getstarted",
+        "glightbox",
         "luxon",
-        "sonarjs"
+        "Moodle",
+        "parens",
+        "pkgd",
+        "purecounter",
+        "remixicon",
+        "scrollto",
+        "sonarjs",
+        "swiper",
+        "tailwindcss",
+        "vbtype"
     ],
 }
+

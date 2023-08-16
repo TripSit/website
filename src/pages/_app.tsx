@@ -34,12 +34,12 @@ const ParticlesBg = dynamic(() => import("particles-bg"), {
 // };
 
 const particleEffects = [
-  { type: "lines" },
-  { type: "thick", num: 100 },
-  { type: "cobweb", color: "#00", num: 150 },
-  { type: "tadpole", num: 100 },
-  // { type: "color", color: "#fff", num: 200 },
-  // { type: "ball", num: 20 },
+  // { type: "lines" },
+  // { type: "thick", num: 100 },
+  { type: "cobweb", color: "#FFFFFF", num: 150 },
+  // { type: "tadpole", num: 100 },
+  // { type: "color" },
+  // { type: "ball" },
   // { type: "circle", num: 50 },
   // { type: "polygon", num: 10 },
   // { type: "square", num: 100 },
@@ -60,7 +60,12 @@ function getRandomEffect() {
 
 export default function App({ Component, pageProps }: AppProps) {
   useEffect(() => {
-    AOS.init();
+    AOS.init({
+      duration: 1000,
+      easing: "ease-in-out",
+      once: true,
+      mirror: false,
+    });
   }, []);
 
   const effect = getRandomEffect();

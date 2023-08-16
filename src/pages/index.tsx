@@ -1,18 +1,16 @@
 // import Head from 'next/head';
 import Image from "next/image";
+// import PureCounterComponent from "@/components/PureCounter";
+import { Navigation, Pagination, Scrollbar, A11y } from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import client1 from "../../public/assets/img/clients/client-1.png";
-import client2 from "../../public/assets/img/clients/client-2.png";
-import client3 from "../../public/assets/img/clients/client-3.png";
-import client4 from "../../public/assets/img/clients/client-4.png";
-import client5 from "../../public/assets/img/clients/client-5.png";
-import client6 from "../../public/assets/img/clients/client-6.png";
-import testimonial1 from "../../public/assets/img/testimonials/testimonials-1.jpg";
-import testimonial2 from "../../public/assets/img/testimonials/testimonials-2.jpg";
-import testimonial3 from "../../public/assets/img/testimonials/testimonials-3.jpg";
-import testimonial4 from "../../public/assets/img/testimonials/testimonials-4.jpg";
-import testimonial5 from "../../public/assets/img/testimonials/testimonials-5.jpg";
+import bluelightLogo from "../../public/assets/img/clients/bluelight.jpg";
+import seiLogo from "../../public/assets/img/clients/sei.png";
+import rdrugsLogo from "../../public/assets/img/clients/rdrugs.png";
+import pwLogo from "../../public/assets/img/clients/pw.png";
+import mapsLogo from "../../public/assets/img/clients/maps.png";
+import dancesafeLogo from "../../public/assets/img/clients/dancesafeBlack.png";
 import portfolio1 from "../../public/assets/img/portfolio/portfolio-1.jpg";
 import portfolio2 from "../../public/assets/img/portfolio/portfolio-2.jpg";
 import portfolio3 from "../../public/assets/img/portfolio/portfolio-3.jpg";
@@ -26,7 +24,44 @@ import team1 from "../../public/assets/img/team/team-1.jpg";
 import team2 from "../../public/assets/img/team/team-2.jpg";
 import team3 from "../../public/assets/img/team/team-3.jpg";
 import team4 from "../../public/assets/img/team/team-4.jpg";
-import aboutVideo from "../../public/assets/img/about-video.jpg";
+import comboChart from "../../public/assets/img/comboChart.png";
+import logo from "../../public/assets/img/logo.png";
+
+import CounterNew from "../components/Counter";
+
+// Import Swiper styles
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+import "swiper/css/scrollbar";
+
+const serviceYears = {
+  startNum: 0,
+  endNum: 11,
+  duration: 4,
+  delay: 1,
+};
+
+const discordMembers = {
+  startNum: 0,
+  endNum: 6347,
+  duration: 4,
+  delay: 1,
+};
+
+const databaseDrugs = {
+  startNum: 0,
+  endNum: 780,
+  duration: 4,
+  delay: 1,
+};
+
+const subredditSubscribers = {
+  startNum: 0,
+  endNum: 57468,
+  duration: 4,
+  delay: 1,
+};
 
 export default function Home() {
   return (
@@ -40,7 +75,11 @@ export default function Home() {
         >
           <div className="row justify-content-center">
             <div className="col-xl-7 col-lg-9 text-center">
-              <h1>TripSit</h1>
+              <h1>
+                <a href="https://tripsit.io" className="logo">
+                  <Image src={logo} alt="" className="img-fluid" width={400} />
+                </a>
+              </h1>
               <h2>Harm Reduction Through Education</h2>
             </div>
           </div>
@@ -136,39 +175,40 @@ export default function Home() {
             <div className="section-title">
               <h2>About Us</h2>
               <p>
-                Magnam dolores commodi suscipit. Necessitatibus eius consequatur
-                ex aliquid fuga eum quidem.{" "}
+                In a world where help often falls short, TripSit bridges the
+                gap. We&apos;re on a mission to dispel drug-use taboos and equip
+                individuals with the resources to stay safe.{" "}
               </p>
             </div>
 
             <div className="row content">
               <div className="col-lg-6">
-                <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                </p>
+                <p>Our core ideas are simple:</p>
                 <ul>
                   <li>
-                    <i className="ri-check-double-line"></i> Ullamco laboris
-                    nisi ut aliquip ex ea commodo consequat
+                    <i className="ri-check-double-line"></i> Accept that people
+                    will use substances, regardless of legality or social
+                    stigma.
                   </li>
                   <li>
-                    <i className="ri-check-double-line"></i> Duis aute irure
-                    dolor in reprehenderit in voluptate velit
+                    <i className="ri-check-double-line"></i> Know it is possible
+                    to use substances while reducing harmful practices.
                   </li>
                   <li>
-                    <i className="ri-check-double-line"></i> Ullamco laboris
-                    nisi ut aliquip ex ea commodo consequat
+                    <i className="ri-check-double-line"></i> Understand that
+                    education on how to stay safe is the best way to reduce
+                    harm.
                   </li>
                 </ul>
               </div>
               <div className="col-lg-6 pt-4 pt-lg-0">
                 <p>
-                  Ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis
-                  aute irure dolor in reprehenderit in voluptate velit esse
-                  cillum dolore eu fugiat nulla pariatur. Excepteur sint
-                  occaecat cupidatat non proident, sunt in culpa qui officia
-                  deserunt mollit anim id est laborum.
+                  At TripSit, we focus on the open discussion and implementation
+                  of harm reduction strategies. We not only advocate for tools
+                  like test kits but also offer guidance for safer drug usage.
+                  Our platform encourages dialogue about scientific, medical,
+                  and philosophical perspectives on drugs, providing advice
+                  drawn from our collective life experiences.
                 </p>
                 <a href="#" className="btn-learn-more">
                   Learn More
@@ -183,49 +223,39 @@ export default function Home() {
             <div className="row justify-content-end">
               <div className="col-lg-3 col-md-5 col-6 d-md-flex align-items-md-stretch">
                 <div className="count-box">
-                  <span
-                    data-purecounter-start="0"
-                    data-purecounter-end="65"
-                    data-purecounter-duration="2"
-                    className="purecounter"
-                  ></span>
-                  <p>Happy Clients</p>
+                  <span>
+                    <CounterNew data={serviceYears} />
+                  </span>
+                  {/* <span data-purecounter-start="0" data-purecounter-end="65" data-purecounter-duration="2" class="purecounter"></span> */}
+                  {/* <span className="purecounter">testing</span> */}
+                  <p>Years of Service</p>
                 </div>
               </div>
 
               <div className="col-lg-3 col-md-5 col-6 d-md-flex align-items-md-stretch">
                 <div className="count-box">
-                  <span
-                    data-purecounter-start="0"
-                    data-purecounter-end="85"
-                    data-purecounter-duration="2"
-                    className="purecounter"
-                  ></span>
-                  <p>Projects</p>
+                  <span>
+                    <CounterNew data={discordMembers} />
+                  </span>
+                  <p>Discord Members</p>
                 </div>
               </div>
 
               <div className="col-lg-3 col-md-5 col-6 d-md-flex align-items-md-stretch">
                 <div className="count-box">
-                  <span
-                    data-purecounter-start="0"
-                    data-purecounter-end="30"
-                    data-purecounter-duration="2"
-                    className="purecounter"
-                  ></span>
-                  <p>Years of experience</p>
+                  <span>
+                    <CounterNew data={databaseDrugs} />
+                  </span>
+                  <p>Drugs in our Database</p>
                 </div>
               </div>
 
               <div className="col-lg-3 col-md-5 col-6 d-md-flex align-items-md-stretch">
                 <div className="count-box">
-                  <span
-                    data-purecounter-start="0"
-                    data-purecounter-end="20"
-                    data-purecounter-duration="2"
-                    className="purecounter"
-                  ></span>
-                  <p>Awards</p>
+                  <span>
+                    <CounterNew data={subredditSubscribers} />
+                  </span>
+                  <p>Subreddit Subscribers</p>
                 </div>
               </div>
             </div>
@@ -240,9 +270,9 @@ export default function Home() {
                 data-aos="fade-right"
                 data-aos-delay="100"
               >
-                <Image src={aboutVideo} className="img-fluid" alt="" />
+                <Image src={comboChart} className="img-fluid" alt="" />
                 <a
-                  href="https://www.youtube.com/watch?v=jDDaplaOz7Q"
+                  href="https://combo.tripsit.me/"
                   className="glightbox play-btn mb-4"
                   data-vbtype="video"
                   data-autoplay="true"
@@ -254,40 +284,40 @@ export default function Home() {
                 data-aos="fade-left"
                 data-aos-delay="100"
               >
-                <h3>
-                  Voluptatem dignissimos provident quasi corporis voluptates sit
-                  assumenda.
-                </h3>
+                <h3>Our Combo Chart is a cornerstone of the HR scene.</h3>
                 <p className="fst-italic">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                  We give permissions to print and distribute our chart for
+                  non-profit usage. <br />
+                  Full details are on the
+                  <a href="https://wiki.tripsit.me/wiki/Drug_combinations#Use_.26_Attribution ">
+                    {" "}
+                    usage page
+                  </a>{" "}
+                  but it boils down to:
                 </p>
                 <ul>
                   <li>
-                    <i className="bx bx-check-double"></i> Ullamco laboris nisi
-                    ut aliquip ex ea commodo consequat.
+                    <i className="bx bx-check-double"></i> Do not make a profit
+                    off our work. We don&apos;t do this for profit and neither
+                    should you.
                   </li>
                   <li>
-                    <i className="bx bx-check-double"></i> Duis aute irure dolor
-                    in reprehenderit in voluptate velit.
+                    <i className="bx bx-check-double"></i> Keep our logo on the
+                    chart. We don&apos;t ask for money, but we deserve the
+                    recognition.
                   </li>
                   <li>
-                    <i className="bx bx-check-double"></i> Voluptate repellendus
-                    pariatur reprehenderit corporis sint.
-                  </li>
-                  <li>
-                    <i className="bx bx-check-double"></i> Ullamco laboris nisi
-                    ut aliquip ex ea commodo consequat. Duis aute irure dolor in
-                    reprehenderit in voluptate trideta storacalaperda mastiro
-                    dolore eu fugiat nulla pariatur.
+                    <i className="bx bx-check-double"></i> Do not change the
+                    data. We worked hard on this and can&apos;t verify
+                    adjustments.
                   </li>
                 </ul>
                 <p>
-                  Ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis
-                  aute irure dolor in reprehenderit in voluptate velit esse
-                  cillum dolore eu fugiat nulla pariatur. Excepteur sint
-                  occaecat cupidatat non proident, sunt in culpa qui officia
-                  deserunt mollit anim id est laborum
+                  Otherwise, we give permission to print out and distribute this
+                  chart to whoever wants to. Make your own posters, print it on
+                  a t-shirt, or even make a giant banner and display it as a
+                  festival! We just want the information out there where it can
+                  help people.
                 </p>
               </div>
             </div>
@@ -296,47 +326,75 @@ export default function Home() {
 
         <section id="clients" className="clients section-bg">
           <div className="container">
+            <p>
+              <i>TripSit is friends with...</i>
+            </p>
             <div className="row">
               <div
                 className="col-lg-2 col-md-4 col-6 d-flex align-items-center justify-content-center"
                 data-aos="zoom-in"
               >
-                <Image src={client1} className="img-fluid" alt="" />
+                <Image src={pwLogo} className="img-fluid" alt="" height={100} />
               </div>
 
               <div
                 className="col-lg-2 col-md-4 col-6 d-flex align-items-center justify-content-center"
                 data-aos="zoom-in"
               >
-                <Image src={client2} className="img-fluid" alt="" />
+                <Image
+                  src={bluelightLogo}
+                  className="img-fluid"
+                  alt=""
+                  height={100}
+                />
               </div>
 
               <div
                 className="col-lg-2 col-md-4 col-6 d-flex align-items-center justify-content-center"
                 data-aos="zoom-in"
               >
-                <Image src={client3} className="img-fluid" alt="" />
+                <Image
+                  src={seiLogo}
+                  className="img-fluid"
+                  alt=""
+                  height={100}
+                />
               </div>
 
               <div
                 className="col-lg-2 col-md-4 col-6 d-flex align-items-center justify-content-center"
                 data-aos="zoom-in"
               >
-                <Image src={client4} className="img-fluid" alt="" />
+                <Image
+                  src={rdrugsLogo}
+                  className="img-fluid"
+                  alt=""
+                  height={100}
+                />
               </div>
 
               <div
                 className="col-lg-2 col-md-4 col-6 d-flex align-items-center justify-content-center"
                 data-aos="zoom-in"
               >
-                <Image src={client5} className="img-fluid" alt="" />
+                <Image
+                  src={mapsLogo}
+                  className="img-fluid"
+                  alt=""
+                  height={100}
+                />
               </div>
 
               <div
                 className="col-lg-2 col-md-4 col-6 d-flex align-items-center justify-content-center"
                 data-aos="zoom-in"
               >
-                <Image src={client6} className="img-fluid" alt="" />
+                <Image
+                  src={dancesafeLogo}
+                  className="img-fluid"
+                  alt=""
+                  height={100}
+                />
               </div>
             </div>
           </div>
@@ -347,10 +405,9 @@ export default function Home() {
             <div className="section-title">
               <h2>Testimonials</h2>
               <p>
-                Magnam dolores commodi suscipit. Necessitatibus eius consequatur
-                ex aliquid fuga eum quidem. Sit sint consectetur velit. Quisquam
-                quos quisquam cupiditate. Et nemo qui impedit suscipit alias ea.
-                Quia fugiat sit in iste officiis commodi quidem hic quas.
+                We are so proud of our volunteer force and the work they do! The
+                amount of empathy, compassion and knowledge they bring to the
+                table is astounding. We are so lucky to have them!
               </p>
             </div>
 
@@ -359,107 +416,127 @@ export default function Home() {
               data-aos="fade-up"
               data-aos-delay="100"
             >
-              <div className="swiper-wrapper">
-                <div className="swiper-slide">
+              <Swiper
+                // install Swiper modules
+                modules={[Navigation, Pagination, Scrollbar, A11y]}
+                spaceBetween={50}
+                slidesPerView={3}
+                navigation
+                pagination={{ clickable: true }}
+                scrollbar={{ draggable: true }}
+                // eslint-disable-next-line arrow-parens
+                onSwiper={(swiper) => console.log(swiper)}
+                onSlideChange={() => console.log("slide change")}
+              >
+                <SwiperSlide>
+                  <div className="testimonial-item">
+                    <p>
+                      <i className="bx bxs-quote-alt-left quote-icon-left"></i>I
+                      wanted to give a big kudos and air five...you know, covid
+                      haha...to everyone on the tripsit team. Even the community
+                      helpers. I&apos;ve been watching for a bit and so happy
+                      even people who don&apos;t know each other make people
+                      feel safe and loved. Everyone is going through so much!
+                      This is a fun, safe, and helpful environment that I am
+                      proud to witness first hand. So thank you so much for
+                      keeping this network around when the rest of the world
+                      keeps turning to shit. People come and go but this truly
+                      feels like a network family. So awesome job everyone. If
+                      you haven&apos;t been told in awhile, well then I am so
+                      proud of you! ❤️
+                      <i className="bx bxs-quote-alt-right quote-icon-right"></i>
+                    </p>
+                    <h3>loki_queen333</h3>
+                    <h4>Discord Member</h4>
+                  </div>
+                </SwiperSlide>
+                <SwiperSlide>
+                  <div className="testimonial-item">
+                    <p>
+                      <i className="bx bxs-quote-alt-left quote-icon-left"></i>I
+                      just want to give huge hugs to every member of the TRIPSIT
+                      TEAM for being so active member here ❤️ I love you guys
+                      for being here, helping people and giving your free time
+                      to grow a positive community for everyone to share their
+                      stories and lifes that are surrounded by drugs. Places
+                      like this make the world a better place when you
+                      aren&apos;t demonized by anyone, which is amazing!
+                      <i className="bx bxs-quote-alt-right quote-icon-right"></i>
+                    </p>
+                    <h3>Misted</h3>
+                    <h4>Discord Member</h4>
+                  </div>
+                </SwiperSlide>
+                <SwiperSlide>
+                  <div className="testimonial-item">
+                    <p>
+                      <i className="bx bxs-quote-alt-left quote-icon-left"></i>I
+                      admire everyone&apos;s commitment to #TriPSiT throughout
+                      the years. And i am immensely proud and glad for the
+                      assistance\social ground\venting possibility~..,
+                      throughout the many many years. The educative
+                      vigor\interests\additions, in regards to advancement of
+                      both the www-site, Discord, and especially the IRC, in
+                      assisting and informing, is amazing. And i know a lot of
+                      people have had real life-altering\life-saving,
+                      experiences throughout the many years. I thank you kindly,
+                      warmly, and genuinely lovingly, for being. Having this use
+                      of a truly humane service, is fabulous and joyfully
+                      positive in regards to aiding humans on this spinball of a
+                      planet
+                      <i className="bx bxs-quote-alt-right quote-icon-right"></i>
+                    </p>
+                    <h3>Squonk</h3>
+                    <h4>Discord Member</h4>
+                  </div>
+                </SwiperSlide>
+                <SwiperSlide>
                   <div className="testimonial-item">
                     <p>
                       <i className="bx bxs-quote-alt-left quote-icon-left"></i>
-                      Proin iaculis purus consequat sem cure digni ssim donec
-                      porttitora entum suscipit rhoncus. Accusantium quam,
-                      ultricies eget id, aliquam eget nibh et. Maecen aliquam,
-                      risus at semper.
+                      I&apos;d just like to thank everyone that is a part of
+                      Team TripSit for all of your continued efforts to make
+                      Tripsit a better and more useful service, everyday!
+                      I&apos;m sure I speak for everyone when I say that
+                      we&apos;re all very grateful that you all exist! I hope
+                      you&apos;re all having a wonderful day!
                       <i className="bx bxs-quote-alt-right quote-icon-right"></i>
                     </p>
-                    <Image
-                      src={testimonial1}
-                      className="testimonial-img"
-                      alt=""
-                    />
-                    <h3>Saul Goodman</h3>
-                    <h4>Ceo &amp; Founder</h4>
+                    <h3>Bloopiness</h3>
+                    <h4>Discord Member</h4>
                   </div>
-                </div>
-
-                <div className="swiper-slide">
+                </SwiperSlide>
+                <SwiperSlide>
                   <div className="testimonial-item">
                     <p>
                       <i className="bx bxs-quote-alt-left quote-icon-left"></i>
-                      Export tempor illum tamen malis malis eram quae irure esse
-                      labore quem cillum quid cillum eram malis quorum velit
-                      fore eram velit sunt aliqua noster fugiat irure amet legam
-                      anim culpa.
+                      You’re all fucking wonderful people. I can’t emphasize
+                      this enough: I am glad to be friends with all of you. I
+                      haven’t gotten in a single fight since being on here.
+                      There’s just so much love. Thank you. I wouldn’t be here
+                      without all of you.
                       <i className="bx bxs-quote-alt-right quote-icon-right"></i>
                     </p>
-                    <Image
-                      src={testimonial2}
-                      className="testimonial-img"
-                      alt=""
-                    />
-                    <h3>Sara Wilsson</h3>
-                    <h4>Designer</h4>
+                    <h3>Benjamin</h3>
+                    <h4>Discord Member</h4>
                   </div>
-                </div>
-
-                <div className="swiper-slide">
+                </SwiperSlide>
+                <SwiperSlide>
                   <div className="testimonial-item">
                     <p>
                       <i className="bx bxs-quote-alt-left quote-icon-left"></i>
-                      Enim nisi quem export duis labore cillum quae magna enim
-                      sint quorum nulla quem veniam duis minim tempor labore
-                      quem eram duis noster aute amet eram fore quis sint minim.
+                      Thank you all for being here and taking the time to help
+                      people trough different things and big love to this
+                      community. i practiced way safer use with drugs and
+                      don&apos;t have the need anymore to overdo it keep it up
+                      ❤️ 💯
                       <i className="bx bxs-quote-alt-right quote-icon-right"></i>
                     </p>
-                    <Image
-                      src={testimonial3}
-                      className="testimonial-img"
-                      alt=""
-                    />
-                    <h3>Jena Karlis</h3>
-                    <h4>Store Owner</h4>
+                    <h3>Eagle</h3>
+                    <h4>Discord Member</h4>
                   </div>
-                </div>
-
-                <div className="swiper-slide">
-                  <div className="testimonial-item">
-                    <p>
-                      <i className="bx bxs-quote-alt-left quote-icon-left"></i>
-                      Fugiat enim eram quae cillum dolore dolor amet nulla culpa
-                      multos export minim fugiat minim velit minim dolor enim
-                      duis veniam ipsum anim magna sunt elit fore quem dolore
-                      labore illum veniam.
-                      <i className="bx bxs-quote-alt-right quote-icon-right"></i>
-                    </p>
-                    <Image
-                      src={testimonial4}
-                      className="testimonial-img"
-                      alt=""
-                    />
-                    <h3>Matt Brandon</h3>
-                    <h4>Freelancer</h4>
-                  </div>
-                </div>
-
-                <div className="swiper-slide">
-                  <div className="testimonial-item">
-                    <p>
-                      <i className="bx bxs-quote-alt-left quote-icon-left"></i>
-                      Quis quorum aliqua sint quem legam fore sunt eram irure
-                      aliqua veniam tempor noster veniam enim culpa labore duis
-                      sunt culpa nulla illum cillum fugiat legam esse veniam
-                      culpa fore nisi cillum quid.
-                      <i className="bx bxs-quote-alt-right quote-icon-right"></i>
-                    </p>
-                    <Image
-                      src={testimonial5}
-                      className="testimonial-img"
-                      alt=""
-                    />
-                    <h3>John Larson</h3>
-                    <h4>Entrepreneur</h4>
-                  </div>
-                </div>
-              </div>
-              <div className="swiper-pagination"></div>
+                </SwiperSlide>
+              </Swiper>
             </div>
           </div>
         </section>

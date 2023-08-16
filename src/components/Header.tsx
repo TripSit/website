@@ -3,14 +3,17 @@ import logo from "../../public/assets/img/logo.png";
 
 function Header() {
   return (
-    <header id="header" className="fixed-top">
+    <header
+      id="header"
+      className="fixed-top navbar navbar-expand-lg bg-dark"
+      data-bs-theme="dark"
+    >
       <div className="container d-flex align-items-center justify-content-between">
-        {/* <h1 className="logo"><a href="index.html">TripSit</a></h1> */}
         <a href="https://tripsit.io" className="logo">
           <Image src={logo} alt="" className="img-fluid" width={120} />
         </a>
 
-        <nav id="navbar" className="navbar">
+        <nav id="navbar" className="navbar navbar-expand-lg bg-dark">
           <ul>
             <li>
               <a className="nav-link scrollto active" href="#hero">

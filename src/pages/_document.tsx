@@ -21,12 +21,12 @@ class MyDocument extends Document {
         <body>
           <Main />
           {/* <!-- Vendor JS Files --> */}
-          <Script src="assets/vendor/purecounter/purecounter_vanilla.js"></Script>
           <Script src="assets/vendor/aos/aos.js"></Script>
           <Script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></Script>
           <Script src="assets/vendor/glightbox/js/glightbox.min.js"></Script>
           <Script src="assets/vendor/isotope-layout/isotope.pkgd.min.js"></Script>
-          <Script src="assets/vendor/swiper/swiper-bundle.min.js"></Script>
+          <Script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-element-bundle.min.js"></Script>
+          {/* <Script src="assets/vendor/swiper/swiper-bundle.min.js"></Script> */}
           <Script src="assets/vendor/php-email-form/validate.js"></Script>
 
           {/* <!-- Template Main JS File --> */}

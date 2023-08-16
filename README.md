@@ -1,34 +1,48 @@
+# TripSit's Website
+
+Welcome to TripSit's Main Website, brought to you by THC.
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-## Getting Started
+## Development - Getting Started
 
-First, run the development server:
+You have two options:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-```
+### Codespace
+The easiest way to get going is to create a codespace.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+This will automatically set up a development environment for you, and you can start editing the code right away.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1) Create codespace from the repo
+2) Run `npm install` to makes sure it installed properly ig, this was an issue when i tried, ill loop back eventually
+3) Run `npm run .dev` to start the development server.
+4) Github will pop up with a thing you can click to be taken to the live site where you can see your changes.
+5) Develop and commit as normal, your changes should be refreshed automatically.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+### Local development
+The preferred way to have full control (and perhaps more resources) is local development.
 
-## Learn More
+1) Git clone the repo
+2) Install dependencies with `npm install`
 
-To learn more about Next.js, take a look at the following resources:
+Then you have two choices:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+#### Docker Deployment
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+The preferred way to deploy is with docker. 
+This ensures that we're running on the same system with no conflicts.
 
-## Deploy on Vercel
+1) Run the `npm start website` command to build the docker image
+2) Run the `npm run logs` command to see the logs from the container
+3) Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+#### Local Deployment
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+If you cannot run docker for whatever reason, or you're in codespace.
+
+1) run the `npm run .dev` command
+2) Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+**There is no support for this method, use a codespace before you use this method**
+
+But it worked on my system (tm) when im running on an ubuntu vps, so give it a shot.

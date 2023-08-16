@@ -30,7 +30,7 @@ COPY --chown=node:node . .
 # USER node
 
 # For container development, the following command runs forever, so we can inspect the container
-CMD npx next dev
+CMD ["npm", "run", ".dev"]
 
 ###################
 # BUILD FOR PRODUCTION
@@ -50,21 +50,17 @@ RUN date
 # Create app directory
 WORKDIR /usr/src/app
 
-# Run the build command which creates the production bundle
-# This comes before the next command cuz ts is a dev requirement and we don't want it in the production image
-RUN npm install -g --save-dev typescript
-
 # In order to run `npm run build` we need access to the Nest CLI which is a dev dependency. In the previous development stage we ran `npm ci` which installed all dependencies, so we can copy over the node_modules directory from the development image
 COPY --chown=node:node --from=development /usr/src/app/node_modules ./node_modules
 
 # Copy over the existing source code
 COPY --chown=node:node . .
 
+# Running `npm ci` removes the existing node_modules directory and passing in --only=production ensures that only the production dependencies are installed. This ensures that the node_modules directory is as optimized as possible
+RUN npm ci --omit:dev && npm cache clean --force
+
 # Build the production bundle
 RUN npx next build
-
-# Running `npm ci` removes the existing node_modules directory and passing in --only=production ensures that only the production dependencies are installed. This ensures that the node_modules directory is as optimized as possible
-# RUN npm ci --omit:dev && npm cache clean --force
 
 ###################
 # PRODUCTION
@@ -83,17 +79,12 @@ RUN date
 # Create app directory
 WORKDIR /usr/src/app
 
-# Install pm2
-RUN npm install pm2 -g
-
 # # Copy the bundled code from the build stage to the production image
+COPY --chown=node:node --from=build /usr/src/app/.next ./.next
+COPY --chown=node:node --from=build /usr/src/app/public  ./public 
 COPY --chown=node:node --from=build /usr/src/app/node_modules ./node_modules
-COPY --chown=node:node --from=build /usr/src/app/build ./build
+COPY --chown=node:node --from=build /usr/src/app/package.json ./
 
-# USER node
+USER node
 
-# Start the bot using the production build
-# CMD ["pm2-runtime", "build/start.js"]
-
-
-RUN npx next start
+CMD ["npm", "run", ".start"]

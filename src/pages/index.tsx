@@ -7,6 +7,7 @@ import React from "react";
 import Collapsible from "react-collapsible";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import Head from "../components/Head";
 import bluelightLogo from "../../public/assets/img/clients/bluelight.jpg";
 import seiLogo from "../../public/assets/img/clients/sei.png";
 import rdrugsLogo from "../../public/assets/img/clients/rdrugs.png";
@@ -69,6 +70,7 @@ export default function Home() {
   return (
     <div>
       <Header />
+      <Head />
       <section id="hero" className="d-flex align-items-center">
         <div
           className="container position-relative"

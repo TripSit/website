@@ -5,17 +5,7 @@ function Footer() {
         <div className="container">
           <div className="row">
             <div className="col-lg-3 col-md-6 footer-contact">
-              <h3>OnePage</h3>
-              <p>
-                A108 Adam Street <br />
-                New York, NY 535022
-                <br />
-                United States <br />
-                <strong>Phone:</strong> <span>+1 5589 55488 55</span>
-                <br />
-                <strong>Email:</strong> <span>info@example.com</span>
-                <br />
-              </p>
+              <h3>TripSit</h3>
             </div>
 
             <div className="col-lg-2 col-md-6 footer-links">
@@ -86,12 +76,13 @@ function Footer() {
           <div className="copyright">
             &copy; Copyright{" "}
             <strong>
-              <span>OnePage</span>
+              <span>TripSit</span>
             </strong>
             . All Rights Reserved
           </div>
           <div className="credits">
-            Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
+            Made with ❤️ by <a href="https://github.com/LunaUrsa">Moonbear</a>{" "}
+            and Team TripSit
           </div>
         </div>
         <div className="social-links text-center text-md-right pt-3 pt-md-0">

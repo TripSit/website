@@ -3,6 +3,8 @@ import Image from "next/image";
 // import PureCounterComponent from "@/components/PureCounter";
 import { Navigation, Pagination, Scrollbar, A11y } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
+import React from "react";
+import Collapsible from "react-collapsible";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import bluelightLogo from "../../public/assets/img/clients/bluelight.jpg";
@@ -10,20 +12,20 @@ import seiLogo from "../../public/assets/img/clients/sei.png";
 import rdrugsLogo from "../../public/assets/img/clients/rdrugs.png";
 import pwLogo from "../../public/assets/img/clients/pw.png";
 import mapsLogo from "../../public/assets/img/clients/maps.png";
-import dancesafeLogo from "../../public/assets/img/clients/dancesafeBlack.png";
-import portfolio1 from "../../public/assets/img/portfolio/portfolio-1.jpg";
-import portfolio2 from "../../public/assets/img/portfolio/portfolio-2.jpg";
-import portfolio3 from "../../public/assets/img/portfolio/portfolio-3.jpg";
-import portfolio4 from "../../public/assets/img/portfolio/portfolio-4.jpg";
-import portfolio5 from "../../public/assets/img/portfolio/portfolio-5.jpg";
-import portfolio6 from "../../public/assets/img/portfolio/portfolio-6.jpg";
-import portfolio7 from "../../public/assets/img/portfolio/portfolio-7.jpg";
-import portfolio8 from "../../public/assets/img/portfolio/portfolio-8.jpg";
-import portfolio9 from "../../public/assets/img/portfolio/portfolio-9.jpg";
-import team1 from "../../public/assets/img/team/team-1.jpg";
-import team2 from "../../public/assets/img/team/team-2.jpg";
-import team3 from "../../public/assets/img/team/team-3.jpg";
-import team4 from "../../public/assets/img/team/team-4.jpg";
+import dancesafeLogo from "../../public/assets/img/clients/dancesafeYellow.png";
+// import portfolio1 from "../../public/assets/img/portfolio/portfolio-1.jpg";
+// import portfolio2 from "../../public/assets/img/portfolio/portfolio-2.jpg";
+// import portfolio3 from "../../public/assets/img/portfolio/portfolio-3.jpg";
+// import portfolio4 from "../../public/assets/img/portfolio/portfolio-4.jpg";
+// import portfolio5 from "../../public/assets/img/portfolio/portfolio-5.jpg";
+// import portfolio6 from "../../public/assets/img/portfolio/portfolio-6.jpg";
+// import portfolio7 from "../../public/assets/img/portfolio/portfolio-7.jpg";
+// import portfolio8 from "../../public/assets/img/portfolio/portfolio-8.jpg";
+// import portfolio9 from "../../public/assets/img/portfolio/portfolio-9.jpg";
+// import team1 from "../../public/assets/img/team/team-1.jpg";
+// import team2 from "../../public/assets/img/team/team-2.jpg";
+// import team3 from "../../public/assets/img/team/team-3.jpg";
+// import team4 from "../../public/assets/img/team/team-4.jpg";
 import comboChart from "../../public/assets/img/comboChart.png";
 import logo from "../../public/assets/img/logo.png";
 
@@ -218,7 +220,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="counts" className="counts section-bg">
+        <section id="counts" className="counts">
           <div className="container">
             <div className="row justify-content-end">
               <div className="col-lg-3 col-md-5 col-6 d-md-flex align-items-md-stretch">
@@ -271,12 +273,7 @@ export default function Home() {
                 data-aos-delay="100"
               >
                 <Image src={comboChart} className="img-fluid" alt="" />
-                <a
-                  href="https://combo.tripsit.me/"
-                  className="glightbox play-btn mb-4"
-                  data-vbtype="video"
-                  data-autoplay="true"
-                ></a>
+                <a href="https://combo.tripsit.me/" className="mb-4"></a>
               </div>
 
               <div
@@ -324,7 +321,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="clients" className="clients section-bg">
+        <section id="clients" className="clients">
           <div className="container">
             <p>
               <i>TripSit is friends with...</i>
@@ -541,15 +538,13 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="services" className="services section-bg">
+        <section id="services" className="services">
           <div className="container" data-aos="fade-up">
             <div className="section-title">
-              <h2>Sevices</h2>
+              <h2>Services</h2>
               <p>
-                Magnam dolores commodi suscipit. Necessitatibus eius consequatur
-                ex aliquid fuga eum quidem. Sit sint consectetur velit. Quisquam
-                quos quisquam cupiditate. Et nemo qui impedit suscipit alias ea.
-                Quia fugiat sit in iste officiis commodi quidem hic quas.
+                TripSit offers various services, all free of charge, and
+                maintained by the community.
               </p>
             </div>
 
@@ -577,11 +572,11 @@ export default function Home() {
                     <i className="bx bxl-dribbble"></i>
                   </div>
                   <h4>
-                    <a href="">Lorem Ipsum</a>
+                    <a href="">Combo App</a>
                   </h4>
                   <p>
-                    Voluptatum deleniti atque corrupti quos dolores et quas
-                    molestias excepturi
+                    Our combo chart if fuckin&apos; sweet mate. Check it out
+                    here.
                   </p>
                 </div>
               </div>
@@ -609,12 +604,9 @@ export default function Home() {
                     <i className="bx bx-file"></i>
                   </div>
                   <h4>
-                    <a href="">Sed Perspiciatis</a>
+                    <a href="">Drug Factsheets</a>
                   </h4>
-                  <p>
-                    Duis aute irure dolor in reprehenderit in voluptate velit
-                    esse cillum dolore
-                  </p>
+                  <p>Our factsheet are quick references to substances.</p>
                 </div>
               </div>
 
@@ -641,11 +633,13 @@ export default function Home() {
                     <i className="bx bx-tachometer"></i>
                   </div>
                   <h4>
-                    <a href="">Magni Dolores</a>
+                    <a href="">Substance Wiki</a>
                   </h4>
                   <p>
-                    Excepteur sint occaecat cupidatat non proident, sunt in
-                    culpa qui officia
+                    Our wiki is choc full of drug and herbal information.
+                    Account registration is open and informed changes are
+                    welcome. Want to help out here? Join the discord #content
+                    room to coodrinate with the team!
                   </p>
                 </div>
               </div>
@@ -673,12 +667,9 @@ export default function Home() {
                     <i className="bx bx-layer"></i>
                   </div>
                   <h4>
-                    <a href="">Nemo Enim</a>
+                    <a href="">Benzo Converter</a>
                   </h4>
-                  <p>
-                    At vero eos et accusamus et iusto odio dignissimos ducimus
-                    qui blanditiis
-                  </p>
+                  <p>Roughly convert one benzodiazepine type into another.</p>
                 </div>
               </div>
 
@@ -705,11 +696,11 @@ export default function Home() {
                     <i className="bx bx-slideshow"></i>
                   </div>
                   <h4>
-                    <a href="">Dele Cardo</a>
+                    <a href="">DXM Calculator</a>
                   </h4>
                   <p>
-                    Quis consequatur saepe eligendi voluptatem consequatur dolor
-                    consequuntur
+                    Calculate the ideal safe dosage for DXM based on your body
+                    weight.
                   </p>
                 </div>
               </div>
@@ -737,11 +728,115 @@ export default function Home() {
                     <i className="bx bx-arch"></i>
                   </div>
                   <h4>
-                    <a href="">Divera Don</a>
+                    <a href="">Volumetric Converter</a>
                   </h4>
                   <p>
-                    Modi nostrum vel laborum. Porro fugit error sit minus
-                    sapiente sit aspernatur
+                    When dealing with powders that are active on the microgram
+                    (ug) scale, it can be safer to make a solution (liquid)
+                    containing your substance. This spreads out the substance
+                    and makes it easier to dose a smaller amount.
+                  </p>
+                </div>
+              </div>
+
+              <div
+                className="col-lg-4 col-md-6 d-flex align-items-stretch mt-4"
+                data-aos="zoom-in"
+                data-aos-delay="100"
+              >
+                <div className="icon-box iconbox-yellow">
+                  <div className="icon">
+                    <svg
+                      width="100"
+                      height="100"
+                      viewBox="0 0 600 600"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        stroke="none"
+                        strokeWidth="0"
+                        fill="#f5f5f5"
+                        d="M300,503.46388370962813C374.79870501325706,506.71871716319447,464.8034551963731,527.1746412648533,510.4981551193396,467.86667711651364C555.9287308511215,408.9015244558933,512.6030010748507,327.5744911775523,490.211057578863,256.5855673507754C471.097692560561,195.9906835881958,447.69079081568157,138.11976852964426,395.19560036434837,102.3242989838813C329.3053358748298,57.3949838291264,248.02791733380457,8.279543830951368,175.87071277845988,42.242879143198664C103.41431057327972,76.34704239035025,93.79494320519305,170.9812938413882,81.28167332365135,250.07896920659033C70.17666984294237,320.27484674793965,64.84698225790005,396.69656628748305,111.28512138212992,450.4950937839243C156.20124167950087,502.5303643271138,231.32542653798444,500.4755392045468,300,503.46388370962813"
+                      ></path>
+                    </svg>
+                    <i className="bx bx-layer"></i>
+                  </div>
+                  <h4>
+                    <a href="">Learning Platform</a>
+                  </h4>
+                  <p>
+                    Our learning platform gives the community a place to take
+                    courses and prove they know what they&apos;re taling about.
+                    Our open source philosophy allows almost anyone to create a
+                    course if they wanted.
+                  </p>
+                </div>
+              </div>
+
+              <div
+                className="col-lg-4 col-md-6 d-flex align-items-stretch mt-4"
+                data-aos="zoom-in"
+                data-aos-delay="200"
+              >
+                <div className="icon-box iconbox-red">
+                  <div className="icon">
+                    <svg
+                      width="100"
+                      height="100"
+                      viewBox="0 0 600 600"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        stroke="none"
+                        strokeWidth="0"
+                        fill="#f5f5f5"
+                        d="M300,532.3542879108572C369.38199826031484,532.3153073249985,429.10787420159085,491.63046689027357,474.5244479745417,439.17860296908856C522.8885846962883,383.3225815378663,569.1668002868075,314.3205725914397,550.7432151929288,242.7694973846089C532.6665558377875,172.5657663291529,456.2379748765914,142.6223662098291,390.3689995646985,112.34683881706744C326.66090330228417,83.06452184765237,258.84405631176094,53.51806209861945,193.32584062364296,78.48882559362697C121.61183558270385,105.82097193414197,62.805066853699245,167.19869350419734,48.57481801355237,242.6138429142374C34.843463184063346,315.3850353017275,76.69343916112496,383.4422959591041,125.22947124332185,439.3748458443577C170.7312796277747,491.8107796887764,230.57421082200815,532.3932930995766,300,532.3542879108572"
+                      ></path>
+                    </svg>
+                    <i className="bx bx-slideshow"></i>
+                  </div>
+                  <h4>
+                    <a href="">TripSit Discord Bot</a>
+                  </h4>
+                  <p>
+                    Our discord bot is a moderation tool and tripsit-session
+                    handling system all-in-one. It aims to help not only
+                    TripSit, but any discord guild that wants to add it. Want to
+                    make your own TripSit franchise? Now anyone has the tools to
+                    do that, and development is open source, so community
+                    feedback is always welcome and used!
+                  </p>
+                </div>
+              </div>
+
+              <div
+                className="col-lg-4 col-md-6 d-flex align-items-stretch mt-4"
+                data-aos="zoom-in"
+                data-aos-delay="300"
+              >
+                <div className="icon-box iconbox-teal">
+                  <div className="icon">
+                    <svg
+                      width="100"
+                      height="100"
+                      viewBox="0 0 600 600"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        stroke="none"
+                        strokeWidth="0"
+                        fill="#f5f5f5"
+                        d="M300,566.797414625762C385.7384707136149,576.1784315230908,478.7894351017131,552.8928747891023,531.9192734346935,484.94944893311C584.6109503024035,417.5663521118492,582.489472248146,322.67544863468447,553.9536738515405,242.03673114598146C529.1557734026468,171.96086150256528,465.24506316201064,127.66468636344209,395.9583748389544,100.7403814666027C334.2173773831606,76.7482773500951,269.4350130405921,84.62216499799875,207.1952322260088,107.2889140133804C132.92018162631612,134.33871894543012,41.79353780512637,160.00259165414826,22.644507872594943,236.69541883565114C3.319112789854554,314.0945973066697,72.72355303640163,379.243833228382,124.04198916343866,440.3218312028393C172.9286146004772,498.5055451809895,224.45579914871206,558.5317968840102,300,566.797414625762"
+                      ></path>
+                    </svg>
+                    <i className="bx bx-arch"></i>
+                  </div>
+                  <h4>
+                    <a href="">Android Mobile App</a>
+                  </h4>
+                  <p>
+                    Take our drug information on-the-go and have offline access
+                    to our factsheets and combo information.
                   </p>
                 </div>
               </div>
@@ -752,22 +847,23 @@ export default function Home() {
         <section id="cta" className="cta">
           <div className="container" data-aos="zoom-in">
             <div className="text-center">
-              <h3>Call To Action</h3>
+              <h3>Want to help out?</h3>
               <p>
                 {" "}
-                Duis aute irure dolor in reprehenderit in voluptate velit esse
-                cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
-                cupidatat non proident, sunt in culpa qui officia deserunt
-                mollit anim id est laborum.
+                We are always looking for talented people with all sorts of
+                skill sets. We have multiple development projects that need
+                maintenance, and our drug information can always use additions
+                of new substances. Everything needs to be tested and proof-read.
+                The smallest contribution is apprecated!
               </p>
               <a className="cta-btn" href="#">
-                Call To Action
+                How to Help TripSit
               </a>
             </div>
           </div>
         </section>
 
-        <section id="portfolio" className="portfolio">
+        {/* <section id="portfolio" className="portfolio">
           <div className="container" data-aos="fade-up">
             <div className="section-title">
               <h2>Portfolio</h2>
@@ -1005,9 +1101,9 @@ export default function Home() {
               </div>
             </div>
           </div>
-        </section>
+        </section> */}
 
-        <section id="team" className="team section-bg">
+        {/* <section id="team" className="team">
           <div className="container" data-aos="fade-up">
             <div className="section-title">
               <h2>Team</h2>
@@ -1141,9 +1237,9 @@ export default function Home() {
               </div>
             </div>
           </div>
-        </section>
+        </section> */}
 
-        <section id="pricing" className="pricing">
+        {/* <section id="pricing" className="pricing">
           <div className="container" data-aos="fade-up">
             <div className="section-title">
               <h2>Pricing</h2>
@@ -1232,152 +1328,86 @@ export default function Home() {
               </div>
             </div>
           </div>
-        </section>
+        </section> */}
 
-        <section id="faq" className="faq section-bg">
+        <section id="faq" className="faq">
           <div className="container" data-aos="fade-up">
             <div className="section-title">
               <h2>Frequently Asked Questions</h2>
               <p>
-                Magnam dolores commodi suscipit. Necessitatibus eius consequatur
-                ex aliquid fuga eum quidem. Sit sint consectetur velit. Quisquam
-                quos quisquam cupiditate. Et nemo qui impedit suscipit alias ea.
-                Quia fugiat sit in iste officiis commodi quidem hic quas.
+                Answers to our most commonly asked questions. Is your question
+                not here? Send us a contact form below!
               </p>
             </div>
 
             <div className="faq-list">
               <ul>
                 <li data-aos="fade-up">
-                  <i className="bx bx-help-circle icon-help"></i>{" "}
-                  <a
-                    data-bs-toggle="collapse"
-                    className="collapse"
-                    data-bs-target="#faq-list-1"
+                  <Collapsible
+                    trigger="Can I print the combo chart?"
+                    triggerTagName="a"
+                    open
                   >
-                    Non consectetur a erat nam at lectus urna duis?{" "}
-                    <i className="bx bx-chevron-down icon-show"></i>
-                    <i className="bx bx-chevron-up icon-close"></i>
-                  </a>
-                  <div
-                    id="faq-list-1"
-                    className="collapse show"
-                    data-bs-parent=".faq-list"
-                  >
-                    <p>
-                      Feugiat pretium nibh ipsum consequat. Tempus iaculis urna
-                      id volutpat lacus laoreet non curabitur gravida. Venenatis
-                      lectus magna fringilla urna porttitor rhoncus dolor purus
-                      non.
-                    </p>
-                  </div>
+                    <p>Abolsultely! Check out the combo chart section above.</p>
+                  </Collapsible>
                 </li>
 
                 <li data-aos="fade-up" data-aos-delay="100">
-                  <i className="bx bx-help-circle icon-help"></i>{" "}
-                  <a
-                    data-bs-toggle="collapse"
-                    data-bs-target="#faq-list-2"
-                    className="collapsed"
-                  >
-                    Feugiat scelerisque varius morbi enim nunc?{" "}
-                    <i className="bx bx-chevron-down icon-show"></i>
-                    <i className="bx bx-chevron-up icon-close"></i>
-                  </a>
-                  <div
-                    id="faq-list-2"
-                    className="collapse"
-                    data-bs-parent=".faq-list"
+                  <Collapsible
+                    trigger="What happened to the IRC?"
+                    triggerTagName="a"
                   >
                     <p>
-                      Dolor sit amet consectetur adipiscing elit pellentesque
-                      habitant morbi. Id interdum velit laoreet id donec
-                      ultrices. Fringilla phasellus faucibus scelerisque
-                      eleifend donec pretium. Est pellentesque elit ullamcorper
-                      dignissim. Mauris ultrices eros in cursus turpis massa
-                      tincidunt dui.
+                      There are many issues we could not resolve after a decade
+                      of trying to work with IRC, and it became impossible to
+                      sustain a quality chat with the amount of resources we
+                      have.
+                      <br />
+                      <br /> Instead, Discord has provided the much-needed
+                      security and quality of life features we wish IRC could
+                      have given us, and our discord bot has already
+                      revolutionized the harm reduction communities of Bluelight
+                      and r/Drugs.
+                      <br />
+                      <br /> The IRC is still available, but it&apos;s
+                      restricted to those who had an existing account. New
+                      accounts can be created on a case-by-case basis, but the
+                      we have no plans to bring the IRC back to the open public.
+                      However, the IRC is completely bridged to discord, so
+                      there&apos;s nothing to miss, and we&apos;re working on a
+                      Matrix server that shold resolve privacy concerns with
+                      using discord and our team&apos;s concerns with using
+                      legacy software.
                     </p>
-                  </div>
+                  </Collapsible>
                 </li>
 
                 <li data-aos="fade-up" data-aos-delay="200">
-                  <i className="bx bx-help-circle icon-help"></i>{" "}
-                  <a
-                    data-bs-toggle="collapse"
-                    data-bs-target="#faq-list-3"
-                    className="collapsed"
-                  >
-                    Dolor sit amet consectetur adipiscing elit?{" "}
-                    <i className="bx bx-chevron-down icon-show"></i>
-                    <i className="bx bx-chevron-up icon-close"></i>
-                  </a>
-                  <div
-                    id="faq-list-3"
-                    className="collapse"
-                    data-bs-parent=".faq-list"
+                  <Collapsible
+                    trigger="Can I interview TripSit?"
+                    triggerTagName="a"
                   >
                     <p>
-                      Eleifend mi in nulla posuere sollicitudin aliquam ultrices
-                      sagittis orci. Faucibus pulvinar elementum integer enim.
-                      Sem nulla pharetra diam sit amet nisl suscipit. Rutrum
-                      tellus pellentesque eu tincidunt. Lectus urna duis
-                      convallis convallis tellus. Urna molestie at elementum eu
-                      facilisis sed odio morbi quis
+                      As a volunteer organization whos members all work
+                      full-time, we do not have a lot of free time to schedule
+                      interviews, but we are open to questions. The best way to
+                      contact the team is through the discord.
                     </p>
-                  </div>
+                  </Collapsible>
                 </li>
 
                 <li data-aos="fade-up" data-aos-delay="300">
-                  <i className="bx bx-help-circle icon-help"></i>{" "}
-                  <a
-                    data-bs-toggle="collapse"
-                    data-bs-target="#faq-list-4"
-                    className="collapsed"
-                  >
-                    Tempus quam pellentesque nec nam aliquam sem et tortor
-                    consequat? <i className="bx bx-chevron-down icon-show"></i>
-                    <i className="bx bx-chevron-up icon-close"></i>
-                  </a>
-                  <div
-                    id="faq-list-4"
-                    className="collapse"
-                    data-bs-parent=".faq-list"
+                  <Collapsible
+                    trigger="I sent an email and you didn't respond, what gives?"
+                    triggerTagName="a"
                   >
                     <p>
-                      Molestie a iaculis at erat pellentesque adipiscing
-                      commodo. Dignissim suspendisse in est ante in. Nunc vel
-                      risus commodo viverra maecenas accumsan. Sit amet nisl
-                      suscipit adipiscing bibendum est. Purus gravida quis
-                      blandit turpis cursus in.
+                      Yeah, we suck at email, but we&apos;re working on it. We
+                      are a very small volunteer team and email slips through
+                      the cracks a lot. Discord is the best place to reach the
+                      team.
                     </p>
-                  </div>
-                </li>
-
-                <li data-aos="fade-up" data-aos-delay="400">
-                  <i className="bx bx-help-circle icon-help"></i>{" "}
-                  <a
-                    data-bs-toggle="collapse"
-                    data-bs-target="#faq-list-5"
-                    className="collapsed"
-                  >
-                    Tortor vitae purus faucibus ornare. Varius vel pharetra vel
-                    turpis nunc eget lorem dolor?{" "}
-                    <i className="bx bx-chevron-down icon-show"></i>
-                    <i className="bx bx-chevron-up icon-close"></i>
-                  </a>
-                  <div
-                    id="faq-list-5"
-                    className="collapse"
-                    data-bs-parent=".faq-list"
-                  >
-                    <p>
-                      Laoreet sit amet cursus sit amet dictum sit amet justo.
-                      Mauris vitae ultricies leo integer malesuada nunc vel.
-                      Tincidunt eget nullam non nisi est sit amet. Turpis nunc
-                      eget lorem dolor sed. Ut venenatis tellus in metus
-                      vulputate eu scelerisque.
-                    </p>
-                  </div>
+                  </Collapsible>
                 </li>
               </ul>
             </div>
@@ -1389,10 +1419,8 @@ export default function Home() {
             <div className="section-title">
               <h2>Contact</h2>
               <p>
-                Magnam dolores commodi suscipit. Necessitatibus eius consequatur
-                ex aliquid fuga eum quidem. Sit sint consectetur velit. Quisquam
-                quos quisquam cupiditate. Et nemo qui impedit suscipit alias ea.
-                Quia fugiat sit in iste officiis commodi quidem hic quas.
+                The best way to contact the team is to join the Discord. You can
+                also send us a message with the contact form below!
               </p>
             </div>
 
@@ -1401,20 +1429,20 @@ export default function Home() {
                 <div className="info">
                   <div className="address">
                     <i className="bi bi-geo-alt"></i>
-                    <h4>Location:</h4>
-                    <p>A108 Adam Street, New York, NY 535022</p>
+                    <h4>Discord:</h4>
+                    <p>https://www.discord.gg/tripsit</p>
                   </div>
 
                   <div className="email">
                     <i className="bi bi-envelope"></i>
-                    <h4>Email:</h4>
-                    <p>info@example.com</p>
+                    <h4>Reddit:</h4>
+                    <p>https://www.reddit.com/r/TripSit/</p>
                   </div>
 
                   <div className="phone">
                     <i className="bi bi-phone"></i>
-                    <h4>Call:</h4>
-                    <p>+1 5589 55488 55s</p>
+                    <h4>IRC:</h4>
+                    <p>irc.tripsit.me</p>
                   </div>
                 </div>
               </div>

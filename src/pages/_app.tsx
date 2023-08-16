@@ -34,17 +34,17 @@ const ParticlesBg = dynamic(() => import("particles-bg"), {
 // };
 
 const particleEffects = [
-  // { type: "lines" },
-  // { type: "thick", num: 100 },
-  { type: "cobweb", color: "#FFFFFF", num: 150 },
-  // { type: "tadpole", num: 100 },
-  // { type: "color" },
-  // { type: "ball" },
-  // { type: "circle", num: 50 },
-  // { type: "polygon", num: 10 },
-  // { type: "square", num: 100 },
-  // { type: "fountain", num: 60 },
-  // { type: "random" },
+  // { type: "lines" }, // Small trailers
+  // { type: "thick" }, // Large trails
+  // { type: "cobweb", color: "#FFFFFF" }, // Must set color to white
+  // { type: "tadpole" },
+  // { type: "circle" },
+  // { type: "color" }, // Needs to be slowed down before we can use
+  // { type: "ball" }, // Slow down
+  // { type: "polygon" }, // Slow down
+  // { type: "square" }, // Slow down
+  // { type: "fountain" }, // Slow down
+  { type: "random" },
   // { type: "custom", colorConfig },
 ] as {
   type: TypeProp;

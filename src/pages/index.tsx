@@ -1,10 +1,8 @@
-// import Head from 'next/head';
 import Image from "next/image";
-// import PureCounterComponent from "@/components/PureCounter";
 import { Navigation, Pagination, Scrollbar, A11y } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import React from "react";
-import Collapsible from "react-collapsible";
+import { Tooltip, Accordion, AccordionItem } from "@nextui-org/react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Head from "../components/Head";
@@ -14,29 +12,28 @@ import rdrugsLogo from "../../public/assets/img/clients/rdrugs.png";
 import pwLogo from "../../public/assets/img/clients/pw.png";
 import mapsLogo from "../../public/assets/img/clients/maps.png";
 import dancesafeLogo from "../../public/assets/img/clients/dancesafeYellow.png";
-// import portfolio1 from "../../public/assets/img/portfolio/portfolio-1.jpg";
-// import portfolio2 from "../../public/assets/img/portfolio/portfolio-2.jpg";
-// import portfolio3 from "../../public/assets/img/portfolio/portfolio-3.jpg";
-// import portfolio4 from "../../public/assets/img/portfolio/portfolio-4.jpg";
-// import portfolio5 from "../../public/assets/img/portfolio/portfolio-5.jpg";
-// import portfolio6 from "../../public/assets/img/portfolio/portfolio-6.jpg";
-// import portfolio7 from "../../public/assets/img/portfolio/portfolio-7.jpg";
-// import portfolio8 from "../../public/assets/img/portfolio/portfolio-8.jpg";
-// import portfolio9 from "../../public/assets/img/portfolio/portfolio-9.jpg";
-// import team1 from "../../public/assets/img/team/team-1.jpg";
-// import team2 from "../../public/assets/img/team/team-2.jpg";
-// import team3 from "../../public/assets/img/team/team-3.jpg";
-// import team4 from "../../public/assets/img/team/team-4.jpg";
 import comboChart from "../../public/assets/img/comboChart.png";
 import logo from "../../public/assets/img/logo.png";
 
-import CounterNew from "../components/Counter";
+import Counter from "../components/Counter";
 
 // Import Swiper styles
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/scrollbar";
+
+const accordionClassNames = {
+  base: "accBase",
+  heading: "accHeading",
+  trigger: "accTrigger",
+  titleWrapper: "accWrapper",
+  title: "accTitle",
+  subtitle: "accSubtitle",
+  startContent: "accContent",
+  indicator: "accIndicator",
+  content: "accContent",
+};
 
 const serviceYears = {
   startNum: 0,
@@ -68,7 +65,7 @@ const subredditSubscribers = {
 
 export default function Home() {
   return (
-    <div>
+    <div data-bs-theme="dark">
       <Header />
       <Head />
       <section id="hero" className="d-flex align-items-center">
@@ -165,7 +162,7 @@ export default function Home() {
                 </h4>
                 <p className="description">
                   Our free learning platform gives you valuable skills starting
-                  with our first course &quot;Intro to Tripsitting&quot;
+                  with our first course &quot;Intro to TripSitting&quot;
                 </p>
               </div>
             </div>
@@ -228,10 +225,8 @@ export default function Home() {
               <div className="col-lg-3 col-md-5 col-6 d-md-flex align-items-md-stretch">
                 <div className="count-box">
                   <span>
-                    <CounterNew data={serviceYears} />
+                    <Counter data={serviceYears} />
                   </span>
-                  {/* <span data-purecounter-start="0" data-purecounter-end="65" data-purecounter-duration="2" class="purecounter"></span> */}
-                  {/* <span className="purecounter">testing</span> */}
                   <p>Years of Service</p>
                 </div>
               </div>
@@ -239,7 +234,7 @@ export default function Home() {
               <div className="col-lg-3 col-md-5 col-6 d-md-flex align-items-md-stretch">
                 <div className="count-box">
                   <span>
-                    <CounterNew data={discordMembers} />
+                    <Counter data={discordMembers} />
                   </span>
                   <p>Discord Members</p>
                 </div>
@@ -248,7 +243,7 @@ export default function Home() {
               <div className="col-lg-3 col-md-5 col-6 d-md-flex align-items-md-stretch">
                 <div className="count-box">
                   <span>
-                    <CounterNew data={databaseDrugs} />
+                    <Counter data={databaseDrugs} />
                   </span>
                   <p>Drugs in our Database</p>
                 </div>
@@ -257,7 +252,7 @@ export default function Home() {
               <div className="col-lg-3 col-md-5 col-6 d-md-flex align-items-md-stretch">
                 <div className="count-box">
                   <span>
-                    <CounterNew data={subredditSubscribers} />
+                    <Counter data={subredditSubscribers} />
                   </span>
                   <p>Subreddit Subscribers</p>
                 </div>
@@ -287,12 +282,8 @@ export default function Home() {
                 <p className="fst-italic">
                   We give permissions to print and distribute our chart for
                   non-profit usage. <br />
-                  Full details are on the
-                  <a href="https://wiki.tripsit.me/wiki/Drug_combinations#Use_.26_Attribution ">
-                    {" "}
-                    usage page
-                  </a>{" "}
-                  but it boils down to:
+                  Full details of usage rights are in our FAQ below, but it
+                  boils down to:
                 </p>
                 <ul>
                   <li>
@@ -333,67 +324,120 @@ export default function Home() {
                 className="col-lg-2 col-md-4 col-6 d-flex align-items-center justify-content-center"
                 data-aos="zoom-in"
               >
-                <Image src={pwLogo} className="img-fluid" alt="" height={100} />
+                <a
+                  href="https://psychonautwiki.org/wiki/Main_Page"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Tooltip content="Psychonaut Wiki" placement="bottom">
+                    <Image
+                      src={pwLogo}
+                      className="img-fluid"
+                      alt=""
+                      height={100}
+                    />
+                  </Tooltip>
+                </a>
               </div>
 
               <div
                 className="col-lg-2 col-md-4 col-6 d-flex align-items-center justify-content-center"
                 data-aos="zoom-in"
               >
-                <Image
-                  src={bluelightLogo}
-                  className="img-fluid"
-                  alt=""
-                  height={100}
-                />
+                <a
+                  href="https://bluelight.org/xf/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Tooltip content="Bluelight" placement="bottom">
+                    <Image
+                      src={bluelightLogo}
+                      className="img-fluid"
+                      alt=""
+                      height={100}
+                    />
+                  </Tooltip>
+                </a>
               </div>
 
               <div
                 className="col-lg-2 col-md-4 col-6 d-flex align-items-center justify-content-center"
                 data-aos="zoom-in"
               >
-                <Image
-                  src={seiLogo}
-                  className="img-fluid"
-                  alt=""
-                  height={100}
-                />
+                <a
+                  href="https://effectindex.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Tooltip content="Subject Effect Index" placement="bottom">
+                    <Image
+                      src={seiLogo}
+                      className="img-fluid"
+                      alt=""
+                      height={100}
+                    />
+                  </Tooltip>
+                </a>
               </div>
 
               <div
                 className="col-lg-2 col-md-4 col-6 d-flex align-items-center justify-content-center"
                 data-aos="zoom-in"
               >
-                <Image
-                  src={rdrugsLogo}
-                  className="img-fluid"
-                  alt=""
-                  height={100}
-                />
+                <a
+                  href="https://reddit.com/r/drugs"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Tooltip content="r/Drugs" placement="bottom">
+                    <Image
+                      src={rdrugsLogo}
+                      className="img-fluid"
+                      alt=""
+                      height={100}
+                    />
+                  </Tooltip>
+                </a>
               </div>
 
               <div
                 className="col-lg-2 col-md-4 col-6 d-flex align-items-center justify-content-center"
                 data-aos="zoom-in"
               >
-                <Image
-                  src={mapsLogo}
-                  className="img-fluid"
-                  alt=""
-                  height={100}
-                />
+                <a
+                  href="https://maps.org/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Tooltip content="MAPS" placement="bottom">
+                    <Image
+                      src={mapsLogo}
+                      className="img-fluid"
+                      alt=""
+                      height={100}
+                    />
+                  </Tooltip>
+                </a>
               </div>
 
               <div
                 className="col-lg-2 col-md-4 col-6 d-flex align-items-center justify-content-center"
                 data-aos="zoom-in"
               >
-                <Image
-                  src={dancesafeLogo}
-                  className="img-fluid"
-                  alt=""
-                  height={100}
-                />
+                <a
+                  href="https://dancesafe.org/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Tooltip content="Dance Safe" placement="bottom">
+                    <Image
+                      src={dancesafeLogo}
+                      className="img-fluid"
+                      alt=""
+                      height={100}
+                    />
+                  </Tooltip>
+                </a>
               </div>
             </div>
           </div>
@@ -423,16 +467,13 @@ export default function Home() {
                 navigation
                 pagination={{ clickable: true }}
                 scrollbar={{ draggable: true }}
-                // eslint-disable-next-line arrow-parens
-                onSwiper={(swiper) => console.log(swiper)}
-                onSlideChange={() => console.log("slide change")}
               >
                 <SwiperSlide>
                   <div className="testimonial-item">
                     <p>
                       <i className="bx bxs-quote-alt-left quote-icon-left"></i>I
                       wanted to give a big kudos and air five...you know, covid
-                      haha...to everyone on the tripsit team. Even the community
+                      haha...to everyone on the TripSit team. Even the community
                       helpers. I&apos;ve been watching for a bit and so happy
                       even people who don&apos;t know each other make people
                       feel safe and loved. Everyone is going through so much!
@@ -453,11 +494,11 @@ export default function Home() {
                   <div className="testimonial-item">
                     <p>
                       <i className="bx bxs-quote-alt-left quote-icon-left"></i>I
-                      just want to give huge hugs to every member of the TRIPSIT
-                      TEAM for being so active member here ❤️ I love you guys
+                      just want to give huge hugs to every member of the TripSit
+                      Team for being so active member here ❤️ I love you guys
                       for being here, helping people and giving your free time
                       to grow a positive community for everyone to share their
-                      stories and lifes that are surrounded by drugs. Places
+                      stories and lives that are surrounded by drugs. Places
                       like this make the world a better place when you
                       aren&apos;t demonized by anyone, which is amazing!
                       <i className="bx bxs-quote-alt-right quote-icon-right"></i>
@@ -495,7 +536,7 @@ export default function Home() {
                       <i className="bx bxs-quote-alt-left quote-icon-left"></i>
                       I&apos;d just like to thank everyone that is a part of
                       Team TripSit for all of your continued efforts to make
-                      Tripsit a better and more useful service, everyday!
+                      TripSit a better and more useful service, everyday!
                       I&apos;m sure I speak for everyone when I say that
                       we&apos;re all very grateful that you all exist! I hope
                       you&apos;re all having a wonderful day!
@@ -540,12 +581,12 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="services" className="services">
+        <section id="resources" className="resources">
           <div className="container" data-aos="fade-up">
             <div className="section-title">
-              <h2>Services</h2>
+              <h2>Resources</h2>
               <p>
-                TripSit offers various services, all free of charge, and
+                TripSit offers various resources, all free of charge, and
                 maintained by the community.
               </p>
             </div>
@@ -577,7 +618,7 @@ export default function Home() {
                     <a href="">Combo App</a>
                   </h4>
                   <p>
-                    Our combo chart if fuckin&apos; sweet mate. Check it out
+                    Our combo chart is fuckin&apos; sweet mate. Check it out
                     here.
                   </p>
                 </div>
@@ -608,7 +649,7 @@ export default function Home() {
                   <h4>
                     <a href="">Drug Factsheets</a>
                   </h4>
-                  <p>Our factsheet are quick references to substances.</p>
+                  <p>Our factsheets are quick references to substances.</p>
                 </div>
               </div>
 
@@ -641,7 +682,7 @@ export default function Home() {
                     Our wiki is choc full of drug and herbal information.
                     Account registration is open and informed changes are
                     welcome. Want to help out here? Join the discord #content
-                    room to coodrinate with the team!
+                    room to coordinate with the team!
                   </p>
                 </div>
               </div>
@@ -768,7 +809,7 @@ export default function Home() {
                   </h4>
                   <p>
                     Our learning platform gives the community a place to take
-                    courses and prove they know what they&apos;re taling about.
+                    courses and prove they know what they&apos;re talking about.
                     Our open source philosophy allows almost anyone to create a
                     course if they wanted.
                   </p>
@@ -801,7 +842,7 @@ export default function Home() {
                     <a href="">TripSit Discord Bot</a>
                   </h4>
                   <p>
-                    Our discord bot is a moderation tool and tripsit-session
+                    Our discord bot is a moderation tool and TripSit-session
                     handling system all-in-one. It aims to help not only
                     TripSit, but any discord guild that wants to add it. Want to
                     make your own TripSit franchise? Now anyone has the tools to
@@ -846,487 +887,193 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="cta" className="cta">
+        {/* <section id="cta" className="cta">
           <div className="container" data-aos="zoom-in">
             <div className="text-center">
               <h3>Want to help out?</h3>
               <p>
-                {" "}
-                We are always looking for talented people with all sorts of
-                skill sets. We have multiple development projects that need
-                maintenance, and our drug information can always use additions
-                of new substances. Everything needs to be tested and proof-read.
-                The smallest contribution is apprecated!
+                TripSit is a very small org run by volunteers. Everyone can help
+                keep the mission going with their own skill set, including just
+                being a awesome and chatting in the lounge. We have multiple
+                development projects that need maintenance, and our drug
+                information can always use additions of new substances.
+                Everything needs to be tested and proof-read, and the smallest
+                contribution is appreciated!
               </p>
-              <a className="cta-btn" href="#">
-                How to Help TripSit
-              </a>
-            </div>
-          </div>
-        </section>
-
-        {/* <section id="portfolio" className="portfolio">
-          <div className="container" data-aos="fade-up">
-            <div className="section-title">
-              <h2>Portfolio</h2>
-              <p>
-                Magnam dolores commodi suscipit. Necessitatibus eius consequatur
-                ex aliquid fuga eum quidem. Sit sint consectetur velit. Quisquam
-                quos quisquam cupiditate. Et nemo qui impedit suscipit alias ea.
-                Quia fugiat sit in iste officiis commodi quidem hic quas.
-              </p>
-            </div>
-
-            <div className="row" data-aos="fade-up" data-aos-delay="150">
-              <div className="col-lg-12 d-flex justify-content-center">
-                <ul id="portfolio-flters">
-                  <li data-filter="*" className="filter-active">
-                    All
+              <div className="cta-list">
+                <ul>
+                  <li data-aos="fade-up">
+                    <Collapsible
+                      trigger="Join the community"
+                      triggerTagName="h5"
+                      open
+                    >
+                      <p>
+                        Our community is full of awesome, positive people who
+                        likely share a few common interests, excluding the
+                        obvious. We have a{" "}
+                        <a href="https://steamcommunity.com/groups/TripSit">
+                          Steam community{" "}
+                        </a>
+                        to play games and various channels showing off our pets,
+                        food, and artistic creations. We would not exist without
+                        our incredible community!{" "}
+                        <a href="https://discord.gg/tripsit">
+                          Join the discord
+                        </a>
+                        , say hi, and get to know the group; you won’t regret
+                        it!
+                      </p>
+                      <p>
+                        Discord is also where coordination on other projects and
+                        our open-source development happens. Even if you just
+                        want to watch the progress, Discord is where that
+                        happens!
+                      </p>
+                    </Collapsible>
                   </li>
-                  <li data-filter=".filter-app">App</li>
-                  <li data-filter=".filter-card">Card</li>
-                  <li data-filter=".filter-web">Web</li>
+
+                  <li data-aos="fade-up" data-aos-delay="100">
+                    <Collapsible trigger="Become a Helper" triggerTagName="h5">
+                      <p>
+                        If you are like us and desire to help people, you may be
+                        what we are looking for. We are always looking for new
+                        TripSit Team members, and that journey starts with our
+                        Intro to TripSitting course on our learning platform.
+                        This free course gets you started on being a decent
+                        TripSitter and allows you to “link” your discord account
+                        with your learning platform progress.
+                      </p>
+                      <p>
+                        Once you complete the course, you can become a helper
+                        and start helping out in TripSit sessions. Assist enough
+                        as a Helper, and we’ll invite you to the team as a full
+                        TripSitter!
+                      </p>
+                    </Collapsible>
+                  </li>
+
+                  <li data-aos="fade-up" data-aos-delay="200">
+                    <Collapsible
+                      trigger="Help with Research"
+                      triggerTagName="h5"
+                    >
+                      <p>
+                        Make sure to{" "}
+                        <a href="https://discord.gg/tripsit">
+                          Join the discord
+                        </a>{" "}
+                        and say hi in the #content room where we discuss all our
+                        research projects!
+                      </p>
+                      <p>
+                        New substances are always being created, and we can
+                        always use new articles or updates to our wiki.
+                        <a href="https://wiki.tripsit.me/index.php?title=Special:CreateAccount">
+                          Registration is open
+                        </a>{" "}
+                        , and updates are posted to our Discord for tracking and
+                        auditing.{" "}
+                      </p>
+                      <p>
+                        Our learning platform enables us to create harm
+                        reduction courses and provide them to the community for
+                        free. New course ideas are always floating around in
+                        various states of progress, and if anyone creates a
+                        draft course, we can add it to the site.<p></p>Our drug
+                        factsheet database can also use updates and additions,
+                        check out the Development section for more info on this.
+                      </p>
+                    </Collapsible>
+                  </li>
+
+                  <li data-aos="fade-up" data-aos-delay="300">
+                    <Collapsible
+                      trigger="Assist with Development"
+                      triggerTagName="h5"
+                    >
+                      <h3>Services</h3>
+                      <p>
+                        All of our development is public on GitHub, and
+                        everything is coded in Javascript.
+                      </p>
+                      <ul>
+                        <li>
+                          <a href="https://github.com/TripSit/TripBot/tree/main/src/api">
+                            API
+                          </a>
+                        </li>
+                        <li>
+                          <a href="https://github.com/TripSit/Benzo-Calculator">
+                            Benzo Converter
+                          </a>
+                        </li>
+                        <li>
+                          <a href="https://github.com/TripSit/combogen">
+                            Comboapp
+                          </a>
+                        </li>
+                        <a href="https://github.com/TripSit/DXM-Calculator/">
+                          DXM Calculator
+                        </a>
+                        <li>
+                          <a href="https://github.com/TripSit/factsheets/">
+                            Factsheets
+                          </a>
+                        </li>
+                        <a href="https://volume.tripsit.me/">
+                          Volumetric Converter
+                        </a>
+                        <li>
+                          <a href="https://github.com/TripSit/webchat/">
+                            Webchat
+                          </a>
+                        </li>
+                        <li>
+                          <a href="https://github.com/TripSit/TripBot">
+                            TripBot
+                          </a>
+                        </li>
+                        <li>
+                          <a href="https://github.com/TripSit/tripbot-website">
+                            Tripbot&apos;s Website
+                          </a>
+                        </li>
+                      </ul>
+                      <p>
+                        These projects have been converted to docker containers,
+                        but more work is needed to add some standard
+                        functionality to each container to make each project
+                        more uniform. Tasks include:
+                      </p>
+                      Add Sonar linting. <br></br>Add Sentry error monitoring.
+                      <br></br>
+                      Add Google Analytics.<br></br>
+                      Add Donation buttons (Patreon/Kofi).<br></br>
+                      Add Github actions (CodeQL).<br></br>
+                      Add CI (Drone).<br></br>
+                      Convert to Typescript.<br></br>
+                      Convert to GitHub pages (when possible).<br></br>
+                      Integrate into new website<br></br>
+                      Please remember that TripSit is over a decade old with
+                      legacy systems and a patchwork of documentation and code.
+                      It may not be super easy to jump into the stuff we need to
+                      do, but if you have patience and are willing to learn,
+                      anything is possible.
+                      <b>We’re also open to new project ideas!</b>
+                      <b>Android App</b>
+                      Our Android app works! That’s about all the good I can say
+                      about it right now. Think you can do better? Please do.
+                      The code is public here:
+                      https://github.com/TripSit/tripsit-mobile
+                      <b>Main Website</b>
+                      This website is a NextJS project that intends to allow
+                      future development to integrate our various services into
+                      a single application. Even the smallest pull request is
+                      appreciated! https://github.com/TripSit/website
+                    </Collapsible>
+                  </li>
                 </ul>
-              </div>
-            </div>
-
-            <div
-              className="row portfolio-container"
-              data-aos="fade-up"
-              data-aos-delay="300"
-            >
-              <div className="col-lg-4 col-md-6 portfolio-item filter-app">
-                <div className="portfolio-wrap">
-                  <Image src={portfolio1} className="img-fluid" alt="" />
-                  <div className="portfolio-info">
-                    <h4>App 1</h4>
-                    <p>App</p>
-                    <div className="portfolio-links">
-                      <a
-                        href="assets/img/portfolio/portfolio-1.jpg"
-                        data-gallery="portfolioGallery"
-                        className="portfolio-lightbox"
-                        title="App 1"
-                      >
-                        <i className="bx bx-plus"></i>
-                      </a>
-                      <a href="portfolio-details.html" title="More Details">
-                        <i className="bx bx-link"></i>
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="col-lg-4 col-md-6 portfolio-item filter-web">
-                <div className="portfolio-wrap">
-                  <Image src={portfolio2} className="img-fluid" alt="" />
-                  <div className="portfolio-info">
-                    <h4>Web 3</h4>
-                    <p>Web</p>
-                    <div className="portfolio-links">
-                      <a
-                        href="assets/img/portfolio/portfolio-2.jpg"
-                        data-gallery="portfolioGallery"
-                        className="portfolio-lightbox"
-                        title="Web 3"
-                      >
-                        <i className="bx bx-plus"></i>
-                      </a>
-                      <a href="portfolio-details.html" title="More Details">
-                        <i className="bx bx-link"></i>
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="col-lg-4 col-md-6 portfolio-item filter-app">
-                <div className="portfolio-wrap">
-                  <Image src={portfolio3} className="img-fluid" alt="" />
-                  <div className="portfolio-info">
-                    <h4>App 2</h4>
-                    <p>App</p>
-                    <div className="portfolio-links">
-                      <a
-                        href="assets/img/portfolio/portfolio-3.jpg"
-                        data-gallery="portfolioGallery"
-                        className="portfolio-lightbox"
-                        title="App 2"
-                      >
-                        <i className="bx bx-plus"></i>
-                      </a>
-                      <a href="portfolio-details.html" title="More Details">
-                        <i className="bx bx-link"></i>
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="col-lg-4 col-md-6 portfolio-item filter-card">
-                <div className="portfolio-wrap">
-                  <Image src={portfolio4} className="img-fluid" alt="" />
-                  <div className="portfolio-info">
-                    <h4>Card 2</h4>
-                    <p>Card</p>
-                    <div className="portfolio-links">
-                      <a
-                        href="assets/img/portfolio/portfolio-4.jpg"
-                        data-gallery="portfolioGallery"
-                        className="portfolio-lightbox"
-                        title="Card 2"
-                      >
-                        <i className="bx bx-plus"></i>
-                      </a>
-                      <a href="portfolio-details.html" title="More Details">
-                        <i className="bx bx-link"></i>
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="col-lg-4 col-md-6 portfolio-item filter-web">
-                <div className="portfolio-wrap">
-                  <Image src={portfolio5} className="img-fluid" alt="" />
-                  <div className="portfolio-info">
-                    <h4>Web 2</h4>
-                    <p>Web</p>
-                    <div className="portfolio-links">
-                      <a
-                        href="assets/img/portfolio/portfolio-5.jpg"
-                        data-gallery="portfolioGallery"
-                        className="portfolio-lightbox"
-                        title="Web 2"
-                      >
-                        <i className="bx bx-plus"></i>
-                      </a>
-                      <a href="portfolio-details.html" title="More Details">
-                        <i className="bx bx-link"></i>
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="col-lg-4 col-md-6 portfolio-item filter-app">
-                <div className="portfolio-wrap">
-                  <Image src={portfolio6} className="img-fluid" alt="" />
-                  <div className="portfolio-info">
-                    <h4>App 3</h4>
-                    <p>App</p>
-                    <div className="portfolio-links">
-                      <a
-                        href="assets/img/portfolio/portfolio-6.jpg"
-                        data-gallery="portfolioGallery"
-                        className="portfolio-lightbox"
-                        title="App 3"
-                      >
-                        <i className="bx bx-plus"></i>
-                      </a>
-                      <a href="portfolio-details.html" title="More Details">
-                        <i className="bx bx-link"></i>
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="col-lg-4 col-md-6 portfolio-item filter-card">
-                <div className="portfolio-wrap">
-                  <Image src={portfolio7} className="img-fluid" alt="" />
-                  <div className="portfolio-info">
-                    <h4>Card 1</h4>
-                    <p>Card</p>
-                    <div className="portfolio-links">
-                      <a
-                        href="assets/img/portfolio/portfolio-7.jpg"
-                        data-gallery="portfolioGallery"
-                        className="portfolio-lightbox"
-                        title="Card 1"
-                      >
-                        <i className="bx bx-plus"></i>
-                      </a>
-                      <a href="portfolio-details.html" title="More Details">
-                        <i className="bx bx-link"></i>
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="col-lg-4 col-md-6 portfolio-item filter-card">
-                <div className="portfolio-wrap">
-                  <Image src={portfolio8} className="img-fluid" alt="" />
-                  <div className="portfolio-info">
-                    <h4>Card 3</h4>
-                    <p>Card</p>
-                    <div className="portfolio-links">
-                      <a
-                        href="assets/img/portfolio/portfolio-8.jpg"
-                        data-gallery="portfolioGallery"
-                        className="portfolio-lightbox"
-                        title="Card 3"
-                      >
-                        <i className="bx bx-plus"></i>
-                      </a>
-                      <a href="portfolio-details.html" title="More Details">
-                        <i className="bx bx-link"></i>
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="col-lg-4 col-md-6 portfolio-item filter-web">
-                <div className="portfolio-wrap">
-                  <Image src={portfolio9} className="img-fluid" alt="" />
-                  <div className="portfolio-info">
-                    <h4>Web 3</h4>
-                    <p>Web</p>
-                    <div className="portfolio-links">
-                      <a
-                        href="assets/img/portfolio/portfolio-9.jpg"
-                        data-gallery="portfolioGallery"
-                        className="portfolio-lightbox"
-                        title="Web 3"
-                      >
-                        <i className="bx bx-plus"></i>
-                      </a>
-                      <a href="portfolio-details.html" title="More Details">
-                        <i className="bx bx-link"></i>
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section> */}
-
-        {/* <section id="team" className="team">
-          <div className="container" data-aos="fade-up">
-            <div className="section-title">
-              <h2>Team</h2>
-              <p>
-                Magnam dolores commodi suscipit. Necessitatibus eius consequatur
-                ex aliquid fuga eum quidem. Sit sint consectetur velit. Quisquam
-                quos quisquam cupiditate. Et nemo qui impedit suscipit alias ea.
-                Quia fugiat sit in iste officiis commodi quidem hic quas.
-              </p>
-            </div>
-
-            <div className="row">
-              <div
-                className="col-lg-3 col-md-6 d-flex align-items-stretch"
-                data-aos="fade-up"
-                data-aos-delay="100"
-              >
-                <div className="member">
-                  <div className="member-img">
-                    <Image src={team1} className="img-fluid" alt="" />
-                    <div className="social">
-                      <a href="">
-                        <i className="bi bi-twitter"></i>
-                      </a>
-                      <a href="">
-                        <i className="bi bi-facebook"></i>
-                      </a>
-                      <a href="">
-                        <i className="bi bi-instagram"></i>
-                      </a>
-                      <a href="">
-                        <i className="bi bi-linkedin"></i>
-                      </a>
-                    </div>
-                  </div>
-                  <div className="member-info">
-                    <h4>Walter White</h4>
-                    <span>Chief Executive Officer</span>
-                  </div>
-                </div>
-              </div>
-
-              <div
-                className="col-lg-3 col-md-6 d-flex align-items-stretch"
-                data-aos="fade-up"
-                data-aos-delay="200"
-              >
-                <div className="member">
-                  <div className="member-img">
-                    <Image src={team2} className="img-fluid" alt="" />
-                    <div className="social">
-                      <a href="">
-                        <i className="bi bi-twitter"></i>
-                      </a>
-                      <a href="">
-                        <i className="bi bi-facebook"></i>
-                      </a>
-                      <a href="">
-                        <i className="bi bi-instagram"></i>
-                      </a>
-                      <a href="">
-                        <i className="bi bi-linkedin"></i>
-                      </a>
-                    </div>
-                  </div>
-                  <div className="member-info">
-                    <h4>Sarah Jhonson</h4>
-                    <span>Product Manager</span>
-                  </div>
-                </div>
-              </div>
-
-              <div
-                className="col-lg-3 col-md-6 d-flex align-items-stretch"
-                data-aos="fade-up"
-                data-aos-delay="300"
-              >
-                <div className="member">
-                  <div className="member-img">
-                    <Image src={team3} className="img-fluid" alt="" />
-                    <div className="social">
-                      <a href="">
-                        <i className="bi bi-twitter"></i>
-                      </a>
-                      <a href="">
-                        <i className="bi bi-facebook"></i>
-                      </a>
-                      <a href="">
-                        <i className="bi bi-instagram"></i>
-                      </a>
-                      <a href="">
-                        <i className="bi bi-linkedin"></i>
-                      </a>
-                    </div>
-                  </div>
-                  <div className="member-info">
-                    <h4>William Anderson</h4>
-                    <span>CTO</span>
-                  </div>
-                </div>
-              </div>
-
-              <div
-                className="col-lg-3 col-md-6 d-flex align-items-stretch"
-                data-aos="fade-up"
-                data-aos-delay="400"
-              >
-                <div className="member">
-                  <div className="member-img">
-                    <Image src={team4} className="img-fluid" alt="" />
-                    <div className="social">
-                      <a href="">
-                        <i className="bi bi-twitter"></i>
-                      </a>
-                      <a href="">
-                        <i className="bi bi-facebook"></i>
-                      </a>
-                      <a href="">
-                        <i className="bi bi-instagram"></i>
-                      </a>
-                      <a href="">
-                        <i className="bi bi-linkedin"></i>
-                      </a>
-                    </div>
-                  </div>
-                  <div className="member-info">
-                    <h4>Amanda Jepson</h4>
-                    <span>Accountant</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section> */}
-
-        {/* <section id="pricing" className="pricing">
-          <div className="container" data-aos="fade-up">
-            <div className="section-title">
-              <h2>Pricing</h2>
-              <p>
-                Magnam dolores commodi suscipit. Necessitatibus eius consequatur
-                ex aliquid fuga eum quidem. Sit sint consectetur velit. Quisquam
-                quos quisquam cupiditate. Et nemo qui impedit suscipit alias ea.
-                Quia fugiat sit in iste officiis commodi quidem hic quas.
-              </p>
-            </div>
-
-            <div className="row">
-              <div
-                className="col-lg-4 col-md-6"
-                data-aos="zoom-im"
-                data-aos-delay="100"
-              >
-                <div className="box">
-                  <h3>Free</h3>
-                  <h4>
-                    <sup>$</sup>0<span> / month</span>
-                  </h4>
-                  <ul>
-                    <li>Aida dere</li>
-                    <li>Nec feugiat nisl</li>
-                    <li>Nulla at volutpat dola</li>
-                    <li className="na">Pharetra massa</li>
-                    <li className="na">Massa ultricies mi</li>
-                  </ul>
-                  <div className="btn-wrap">
-                    <a href="#" className="btn-buy">
-                      Buy Now
-                    </a>
-                  </div>
-                </div>
-              </div>
-
-              <div
-                className="col-lg-4 col-md-6 mt-4 mt-md-0"
-                data-aos="zoom-in"
-                data-aos-delay="100"
-              >
-                <div className="box featured">
-                  <h3>Business</h3>
-                  <h4>
-                    <sup>$</sup>19<span> / month</span>
-                  </h4>
-                  <ul>
-                    <li>Aida dere</li>
-                    <li>Nec feugiat nisl</li>
-                    <li>Nulla at volutpat dola</li>
-                    <li>Pharetra massa</li>
-                    <li className="na">Massa ultricies mi</li>
-                  </ul>
-                  <div className="btn-wrap">
-                    <a href="#" className="btn-buy">
-                      Buy Now
-                    </a>
-                  </div>
-                </div>
-              </div>
-
-              <div
-                className="col-lg-4 col-md-6 mt-4 mt-lg-0"
-                data-aos="zoom-in"
-                data-aos-delay="100"
-              >
-                <div className="box">
-                  <h3>Developer</h3>
-                  <h4>
-                    <sup>$</sup>29<span> / month</span>
-                  </h4>
-                  <ul>
-                    <li>Aida dere</li>
-                    <li>Nec feugiat nisl</li>
-                    <li>Nulla at volutpat dola</li>
-                    <li>Pharetra massa</li>
-                    <li>Massa ultricies mi</li>
-                  </ul>
-                  <div className="btn-wrap">
-                    <a href="#" className="btn-buy">
-                      Buy Now
-                    </a>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -1343,75 +1090,131 @@ export default function Home() {
             </div>
 
             <div className="faq-list">
-              <ul>
-                <li data-aos="fade-up">
-                  <Collapsible
-                    trigger="Can I print the combo chart?"
-                    triggerTagName="a"
-                    open
-                  >
-                    <p>Abolsultely! Check out the combo chart section above.</p>
-                  </Collapsible>
-                </li>
-
-                <li data-aos="fade-up" data-aos-delay="100">
-                  <Collapsible
-                    trigger="What happened to the IRC?"
-                    triggerTagName="a"
-                  >
-                    <p>
-                      There are many issues we could not resolve after a decade
-                      of trying to work with IRC, and it became impossible to
-                      sustain a quality chat with the amount of resources we
-                      have.
-                      <br />
-                      <br /> Instead, Discord has provided the much-needed
-                      security and quality of life features we wish IRC could
-                      have given us, and our discord bot has already
-                      revolutionized the harm reduction communities of Bluelight
-                      and r/Drugs.
-                      <br />
-                      <br /> The IRC is still available, but it&apos;s
-                      restricted to those who had an existing account. New
-                      accounts can be created on a case-by-case basis, but the
-                      we have no plans to bring the IRC back to the open public.
-                      However, the IRC is completely bridged to discord, so
-                      there&apos;s nothing to miss, and we&apos;re working on a
-                      Matrix server that shold resolve privacy concerns with
-                      using discord and our team&apos;s concerns with using
-                      legacy software.
-                    </p>
-                  </Collapsible>
-                </li>
-
-                <li data-aos="fade-up" data-aos-delay="200">
-                  <Collapsible
-                    trigger="Can I interview TripSit?"
-                    triggerTagName="a"
-                  >
-                    <p>
-                      As a volunteer organization whos members all work
-                      full-time, we do not have a lot of free time to schedule
-                      interviews, but we are open to questions. The best way to
-                      contact the team is through the discord.
-                    </p>
-                  </Collapsible>
-                </li>
-
-                <li data-aos="fade-up" data-aos-delay="300">
-                  <Collapsible
-                    trigger="I sent an email and you didn't respond, what gives?"
-                    triggerTagName="a"
-                  >
-                    <p>
-                      Yeah, we suck at email, but we&apos;re working on it. We
-                      are a very small volunteer team and email slips through
-                      the cracks a lot. Discord is the best place to reach the
-                      team.
-                    </p>
-                  </Collapsible>
-                </li>
-              </ul>
+              <Accordion>
+                <AccordionItem
+                  key="1"
+                  aria-label="Accordion 1"
+                  startContent={<div className="accStart">?</div>}
+                  title="Can I print the combo chart?"
+                  data-aos="fade-up"
+                  classNames={accordionClassNames}
+                >
+                  <p>
+                    TripSit grants you a non-exclusive, non-transferable license
+                    to use, reproduce, distribute, and display the images and
+                    work from TripSit, subject to the conditions below.
+                  </p>
+                  <p>
+                    <b>Non-commercial Use Only:</b> You can use our images and
+                    work for any purpose except commercially. This means you can
+                    print, distribute, or display the images and work, but you
+                    cannot sell them or use them in any way you derive monetary
+                    profit from directly or indirectly.
+                  </p>
+                  <p>
+                    <b>Attribution:</b> All reproductions of our images and work
+                    must be credited to TripSit by placing our{" "}
+                    <a href="https://drive.google.com/file/d/16529Ykfx1E-BD7kfFn02HAqo1aMCwCwj/view?usp=drive_link">
+                      logo with URL{" "}
+                    </a>
+                    near the image/work.
+                  </p>
+                  <p>
+                    <b>No Derivative Works:</b> While free to use our images and
+                    work, you cannot modify, alter, or create derivative works
+                    without express written permission from TripSit.
+                  </p>
+                  <p>
+                    <b>No Warranty:</b> Our images and work are provided “as is”
+                    without warranties. TripSit is not liable for any losses,
+                    damages, or claims arising from your use of the images and
+                    work.
+                  </p>
+                  <p>
+                    <b>Termination:</b> If you breach any agreement terms, your
+                    license to use our images and work ends immediately.
+                    Additionally, TripSit reserves the right to terminate this
+                    license at any time for any reason, however we have no
+                    intention of doing so, this is just a legal formality.
+                  </p>
+                  <p>
+                    <b>Reservation of Rights:</b> All rights not expressly
+                    granted in this agreement are reserved by TripSit. We
+                    reserve the right to modify the terms of this license at any
+                    time.
+                  </p>
+                  <p></p>
+                  <p>
+                    By using our images and work, you acknowledge and agree to
+                    the terms and conditions outlined above. We sincerely hope
+                    our resources will be valuable to your non-commercial
+                    endeavors.
+                  </p>
+                  <p>
+                    If you have questions or wish to seek permissions beyond the
+                    scope of this license, please use the contact form below.
+                  </p>
+                </AccordionItem>
+                <AccordionItem
+                  key="2"
+                  aria-label="Accordion 2"
+                  startContent={<div className="accStart">?</div>}
+                  title="What happened to the IRC?"
+                  data-aos="fade-up"
+                  classNames={accordionClassNames}
+                >
+                  <p>
+                    There are many issues we could not resolve after a decade of
+                    trying to work with IRC, and it became impossible to sustain
+                    a quality chat with the amount of resources we have.
+                  </p>
+                  <p>
+                    Instead, Discord has provided the much-needed security and
+                    quality of life features we wish IRC could have given us,
+                    and our discord bot has already revolutionized the harm
+                    reduction communities of Bluelight and r/Drugs.
+                  </p>
+                  <p>
+                    The IRC is still available, but it&apos;s restricted to
+                    those who had an existing account. New accounts can be
+                    created on a case-by-case basis, but the we have no plans to
+                    bring the IRC back to the open public. However, the IRC is
+                    completely bridged to discord, so there&apos;s nothing to
+                    miss, and we&apos;re working on a Matrix server that should
+                    resolve privacy concerns with using discord and our
+                    team&apos;s concerns with using legacy software.
+                  </p>
+                </AccordionItem>
+                <AccordionItem
+                  key="3"
+                  aria-label="Accordion 3"
+                  startContent={<div className="accStart">?</div>}
+                  title="Can I interview TripSit?"
+                  data-aos="fade-up"
+                  classNames={accordionClassNames}
+                >
+                  <p>
+                    As a volunteer organization with members who all work
+                    full-time, we do not have a lot of free time to schedule
+                    interviews, but we are open to questions. The best way to
+                    contact the team is through the discord.
+                  </p>
+                </AccordionItem>
+                <AccordionItem
+                  key="4"
+                  aria-label="Accordion 4"
+                  startContent={<div className="accStart">?</div>}
+                  title="I sent an email and you didn't respond, what gives?"
+                  data-aos="fade-up"
+                  classNames={accordionClassNames}
+                >
+                  <p>
+                    Yeah, we suck at email, but we&apos;re working on it. We are
+                    a very small volunteer team and email slips through the
+                    cracks a lot. Discord is the best place to reach the team.
+                  </p>
+                </AccordionItem>
+              </Accordion>
             </div>
           </div>
         </section>

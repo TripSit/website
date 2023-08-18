@@ -1,15 +1,25 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, CSSProperties } from "react";
 import { useCountUp } from "react-countup";
 
 // https://www.npmjs.com/package/react-countup
 
-const easingFn = function (t: any, b: any, c: any, d: any) {
+function easingFn(t: number, b: number, c: number, d: number) {
   return c * ((t / d - 1) ** 5 + 1) + b;
+}
+
+type CounterProps = {
+  styles?: CSSProperties;
+  data: {
+    startNum: number;
+    endNum: number;
+    duration: number;
+    delay: number;
+  };
 };
 
-const Counter = (props: any) => {
+const Counter = (props: CounterProps) => {
   const {
-    styles = null,
+    styles,
     data: { startNum = 0, endNum, duration = 5, delay = 1 },
   } = props;
   const countUpRef = useRef(null);
@@ -32,7 +42,7 @@ const Counter = (props: any) => {
     const element = document.querySelector(".count-box");
     if (!element) return;
     element.addEventListener("aos:in", start);
-  }, []);
+  });
 
   return (
     <div style={styles}>

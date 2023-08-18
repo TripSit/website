@@ -758,21 +758,20 @@ section {
   text-align: center;
 }
 
-.clients img {
-  max-width: 45%;
+.clients a img {
+  /* max-width: 45%; */
   transition: all 0.4s ease-in-out;
   display: inline-block;
   padding: 15px 0;
-  filter: grayscale(100);
 }
 
-.clients img:hover {
+.clients a img:hover {
   filter: none;
   transform: scale(1.15);
 }
 
 @media (max-width: 768px) {
-  .clients img {
+  .clients a img {
     max-width: 40%;
   }
 }
@@ -868,16 +867,16 @@ section {
 }
 
 /*--------------------------------------------------------------
-# Services
+# Resources
 --------------------------------------------------------------*/
-.services .icon-box {
+.resources .icon-box {
   text-align: center;
   padding: 70px 20px 80px 20px;
   transition: all ease-in-out 0.3s;
   box-shadow: 0px 5px 90px 0px rgba(110, 123, 131, 0.05);
 }
 
-.services .icon-box .icon {
+.resources .icon-box .icon {
   margin: 0 auto;
   width: 100px;
   height: 100px;
@@ -888,114 +887,114 @@ section {
   position: relative;
 }
 
-.services .icon-box .icon i {
+.resources .icon-box .icon i {
   font-size: 36px;
   transition: 0.5s;
   position: relative;
 }
 
-.services .icon-box .icon svg {
+.resources .icon-box .icon svg {
   position: absolute;
   top: 0;
   left: 0;
 }
 
-.services .icon-box .icon svg path {
+.resources .icon-box .icon svg path {
   transition: 0.5s;
   fill: #f5f5f5;
 }
 
-.services .icon-box h4 {
+.resources .icon-box h4 {
   font-weight: 600;
   margin: 10px 0 15px 0;
   font-size: 22px;
 }
 
-.services .icon-box h4 a {
+.resources .icon-box h4 a {
   color: #683394;
   transition: ease-in-out 0.3s;
 }
 
-.services .icon-box p {
+.resources .icon-box p {
   line-height: 24px;
   font-size: 14px;
   margin-bottom: 0;
 }
 
-.services .icon-box:hover {
+.resources .icon-box:hover {
   border-color: #fff;
   box-shadow: 0px 0 35px 0 rgba(0, 0, 0, 0.08);
 }
 
-.services .iconbox-blue i {
+.resources .iconbox-blue i {
   color: #47aeff;
 }
 
-.services .iconbox-blue:hover .icon i {
+.resources .iconbox-blue:hover .icon i {
   color: #fff;
 }
 
-.services .iconbox-blue:hover .icon path {
+.resources .iconbox-blue:hover .icon path {
   fill: #47aeff;
 }
 
-.services .iconbox-orange i {
+.resources .iconbox-orange i {
   color: #ffa76e;
 }
 
-.services .iconbox-orange:hover .icon i {
+.resources .iconbox-orange:hover .icon i {
   color: #fff;
 }
 
-.services .iconbox-orange:hover .icon path {
+.resources .iconbox-orange:hover .icon path {
   fill: #ffa76e;
 }
 
-.services .iconbox-pink i {
+.resources .iconbox-pink i {
   color: #e80368;
 }
 
-.services .iconbox-pink:hover .icon i {
+.resources .iconbox-pink:hover .icon i {
   color: #fff;
 }
 
-.services .iconbox-pink:hover .icon path {
+.resources .iconbox-pink:hover .icon path {
   fill: #e80368;
 }
 
-.services .iconbox-yellow i {
+.resources .iconbox-yellow i {
   color: #ffbb2c;
 }
 
-.services .iconbox-yellow:hover .icon i {
+.resources .iconbox-yellow:hover .icon i {
   color: #fff;
 }
 
-.services .iconbox-yellow:hover .icon path {
+.resources .iconbox-yellow:hover .icon path {
   fill: #ffbb2c;
 }
 
-.services .iconbox-red i {
+.resources .iconbox-red i {
   color: #ff5828;
 }
 
-.services .iconbox-red:hover .icon i {
+.resources .iconbox-red:hover .icon i {
   color: #fff;
 }
 
-.services .iconbox-red:hover .icon path {
+.resources .iconbox-red:hover .icon path {
   fill: #ff5828;
 }
 
-.services .iconbox-teal i {
+.resources .iconbox-teal i {
   color: #11dbcf;
 }
 
-.services .iconbox-teal:hover .icon i {
+.resources .iconbox-teal:hover .icon i {
   color: #fff;
 }
 
-.services .iconbox-teal:hover .icon path {
+.resources .iconbox-teal:hover .icon path {
   fill: #11dbcf;
 }
 
@@ -1018,6 +1017,10 @@ section {
   color: #fff;
 }
 
+.cta a {
+  color: #fff;
+}
+
 .cta .cta-btn {
   font-family: "Raleway", sans-serif;
   font-weight: 600;
@@ -1035,6 +1038,88 @@ section {
 .cta .cta-btn:hover {
   color: #2487ce;
 }
+
+.cta .cta-list {
+  padding: 0 100px;
+}
+
+.cta .cta-list ul {
+  padding: 0;
+  list-style: none;
+}
+
+.cta .cta-list li+li {
+  /* margin-top: 15px; */
+}
+
+.cta .cta-list li {
+  /* padding: 20px; */
+  border-radius: 4px;
+  position: relative;
+}
+
+.cta .cta-list a {
+  /* display: block; */
+  text-decoration: underline;
+  position: relative;
+  font-family: "Poppins", sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 500;
+  color: #fff;
+  /* padding: 0 30px; */
+  outline: none;
+  cursor: pointer;
+}
+
+.cta .cta-list .icon-help {
+  font-size: 24px;
+  position: absolute;
+  right: 0;
+  left: 20px;
+  color: #87c1ea;
+}
+
+.cta .cta-list .icon-show,
+.cta .cta-list .icon-close {
+  font-size: 24px;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.cta .cta-list p {
+  text-align: left !important;
+  margin-bottom: 0;
+  padding: 10px 0 0 0;
+}
+
+.cta .cta-list .icon-show {
+  display: none;
+}
+
+.cta .cta-list a.collapsed {
+  color: #343a40;
+}
+
+.cta .cta-list a.collapsed:hover {
+  color: #2487ce;
+}
+
+.cta .cta-list a.collapsed .icon-show {
+  display: inline-block;
+}
+
+.cta .cta-list a.collapsed .icon-close {
+  display: none;
+}
+
+@media (max-width: 1200px) {
+  .cta .cta-list {
+    padding: 0;
+  }
+}
+
 
 /*--------------------------------------------------------------
 # Portfolio
@@ -1462,7 +1547,28 @@ section {
   position: relative;
 }
 
-.faq .faq-list a {
+/* .faq .faq-list a {
+  position: relative;
+  font-family: "Poppins", sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 500;
+  outline: none;
+  cursor: pointer;
+} */
+
+.faq .faq-list .accStart {
+  font-size: 24px;
+  position: absolute;
+  right: 0;
+  left: 20px;
+  color: #87c1ea;
+}
+
+.faq .faq-list .accTrigger {
+  color: #2487ce;
+  text-decoration: none;
+  background: inherit;
   display: block;
   position: relative;
   font-family: "Poppins", sans-serif;
@@ -1472,7 +1578,48 @@ section {
   padding: 0 30px;
   outline: none;
   cursor: pointer;
+  border: none;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  width: 100%;
+  text-align: left;
 }
+
+.faq .faq-list .accTitle {
+  padding: 0 30px;
+}
+
+.faq .faq-list .accIndicator {
+  font-size: 24px;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.faq .faq-list section {
+  margin-bottom: 0;
+  padding: 10px 0 0 0;
+};
+
+.faq .faq-list .accContent {
+  margin-bottom: 0;
+  padding: 10px 0 0 0;
+};
+
+/* .faq .faq-list .accTitle {
+  color: #2487ce;
+  text-decoration: none;
+  background: inherit;
+  display: block;
+  position: relative;
+  font-family: "Poppins", sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 500;
+  padding: 0 30px;
+  outline: none;
+  cursor: pointer;
+} */
 
 .faq .faq-list .icon-help {
   font-size: 24px;

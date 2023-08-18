@@ -18,21 +18,48 @@
         "typescript",
     ],
     "cSpell.words": [
+        "Benzo",
+        "benzodiazepine",
+        "Bloopiness",
+        "bluelight",
         "boxicons",
+        "countup",
+        "dancesafe",
+        "dribbble",
+        "factsheet",
         "Factsheets",
+        "fuckin",
         "getstarted",
         "glightbox",
+        "haha",
+        "iconbox",
+        "Kofi",
         "luxon",
         "Moodle",
+        "nextui",
         "parens",
         "pkgd",
+        "Psychonaut",
         "purecounter",
+        "rdrugs",
         "remixicon",
         "scrollto",
         "sonarjs",
+        "spinball",
+        "Squonk",
         "swiper",
         "tailwindcss",
-        "vbtype"
+        "Tripbot",
+        "tripsit",
+        "vbtype",
+        "Webchat"
+    ],
+    "sonarlint.connectedMode.project": {
+        "connectionId": "https-sonar-tripsit-me",
+        "projectKey": "TripSit_website_AYoAUAAYALmA62is8Npk"
+    },
+    "cSpell.ignoreWords": [
+        "aren"
     ],
 }
 

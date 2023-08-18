@@ -45,12 +45,10 @@ const particleEffects = [
   // { type: "square" }, // Slow down
   // { type: "fountain" }, // Slow down
   { type: "random" },
-  // { type: "custom", colorConfig },
 ] as {
   type: TypeProp;
   color: string;
   num: number;
-  config?: any;
 }[];
 
 function getRandomEffect() {

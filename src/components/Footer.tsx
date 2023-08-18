@@ -16,19 +16,23 @@ function Footer() {
                 </li>
                 <li>
                   <i className="bx bx-chevron-right"></i>{" "}
-                  <a href="#">About us</a>
+                  <a href="https://tripsit.me/about/">About us</a>
                 </li>
                 <li>
                   <i className="bx bx-chevron-right"></i>{" "}
-                  <a href="#">Services</a>
+                  <a href="https://wiki.tripsit.me/wiki/Terms_of_Service">
+                    Terms of service
+                  </a>
                 </li>
                 <li>
                   <i className="bx bx-chevron-right"></i>{" "}
-                  <a href="#">Terms of service</a>
+                  <a href="https://wiki.tripsit.me/wiki/Privacy_Policy">
+                    Privacy policy
+                  </a>
                 </li>
                 <li>
                   <i className="bx bx-chevron-right"></i>{" "}
-                  <a href="#">Privacy policy</a>
+                  <a href="https://home.tripsit.me/">Team Portal</a>
                 </li>
               </ul>
             </div>
@@ -38,23 +42,23 @@ function Footer() {
               <ul>
                 <li>
                   <i className="bx bx-chevron-right"></i>{" "}
-                  <a href="#">Web Design</a>
+                  <a href="#">Combo App</a>
                 </li>
                 <li>
                   <i className="bx bx-chevron-right"></i>{" "}
-                  <a href="#">Web Development</a>
+                  <a href="#">Factsheets</a>
                 </li>
                 <li>
                   <i className="bx bx-chevron-right"></i>{" "}
-                  <a href="#">Product Management</a>
+                  <a href="#">Live Chat</a>
                 </li>
                 <li>
                   <i className="bx bx-chevron-right"></i>{" "}
-                  <a href="#">Marketing</a>
+                  <a href="#">Android App</a>
                 </li>
                 <li>
                   <i className="bx bx-chevron-right"></i>{" "}
-                  <a href="#">Graphic Design</a>
+                  <a href="#">Learning Portal</a>
                 </li>
               </ul>
             </div>

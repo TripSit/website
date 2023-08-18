@@ -42,35 +42,37 @@ function Footer() {
               <ul>
                 <li>
                   <i className="bx bx-chevron-right"></i>{" "}
-                  <a href="#">Combo App</a>
+                  <a href="https://combo.tripsit.me/">Combo App</a>
                 </li>
                 <li>
                   <i className="bx bx-chevron-right"></i>{" "}
-                  <a href="#">Factsheets</a>
+                  <a href="https://drugs.tripsit.me/">Factsheets</a>
                 </li>
                 <li>
                   <i className="bx bx-chevron-right"></i>{" "}
-                  <a href="#">Live Chat</a>
+                  <a href="https://chat.tripsit.me">Live Chat</a>
                 </li>
                 <li>
                   <i className="bx bx-chevron-right"></i>{" "}
-                  <a href="#">Android App</a>
+                  <a href="https://play.google.com/store/apps/details?id=me.tripsit.mobile">
+                    Android App
+                  </a>
                 </li>
                 <li>
                   <i className="bx bx-chevron-right"></i>{" "}
-                  <a href="#">Learning Portal</a>
+                  <a href="https://learn.tripsit.me/">Learning Portal</a>
                 </li>
               </ul>
             </div>
 
-            <div className="col-lg-4 col-md-6 footer-newsletter">
+            {/* <div className="col-lg-4 col-md-6 footer-newsletter">
               <h4>Join Our Newsletter</h4>
-              <p>Wnt to stay up to date with new information?</p>
+              <p>Want to stay up to date with new information?</p>
               <form action="" method="post">
                 <input type="email" name="email" />{" "}
                 <input type="submit" value="Subscribe" />
               </form>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
@@ -90,19 +92,22 @@ function Footer() {
           </div>
         </div>
         <div className="social-links text-center text-md-right pt-3 pt-md-0">
-          <a href="#" className="twitter">
+          <a href="https://discord.gg/tripsit" className="discord">
+            <i className="bx bxl-discord"></i>
+          </a>
+          <a href="https://twitter.com/teamtripsit" className="twitter">
             <i className="bx bxl-twitter"></i>
           </a>
-          <a href="#" className="facebook">
+          <a href="https://www.facebook.com/TripSitme" className="facebook">
             <i className="bx bxl-facebook"></i>
           </a>
-          <a href="#" className="instagram">
-            <i className="bx bxl-instagram"></i>
+          <a href="http://reddit.com/r/TripSit" className="reddit">
+            <i className="bx bxl-reddit"></i>
           </a>
-          <a href="#" className="google-plus">
-            <i className="bx bxl-skype"></i>
-          </a>
-          <a href="#" className="linkedin">
+          <a
+            href="https://www.linkedin.com/company/tripsit"
+            className="linkedin"
+          >
             <i className="bx bxl-linkedin"></i>
           </a>
         </div>

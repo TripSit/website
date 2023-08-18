@@ -79,7 +79,12 @@ function Header() {
                       <a href="https://combo.tripsit.me/">Comboapp</a>
                     </li>
                     <li>
-                      <a href="#usage">Printing Information</a>
+                      <a href="#faq">Printing Information</a>
+                    </li>
+                    <li>
+                      <a href="https://www.reddit.com/r/Drugs/comments/131q1yb/the_drug_users_bible_download_it_free_of_charge/">
+                        Drug User&apos;s Handbook
+                      </a>
                     </li>
                   </ul>
                 </li>

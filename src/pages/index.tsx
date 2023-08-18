@@ -23,6 +23,18 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/scrollbar";
 
+const aboutUsAccordionClassNames = {
+  base: "aboutAccBase",
+  heading: "aboutAccHeading",
+  trigger: "aboutAccTrigger",
+  titleWrapper: "aboutAccWrapper",
+  title: "aboutAccTitle",
+  subtitle: "aboutAccSubtitle",
+  startContent: "aboutAccContent",
+  indicator: "aboutAccIndicator",
+  content: "aboutAccContent",
+};
+
 const accordionClassNames = {
   base: "accBase",
   heading: "accHeading",
@@ -77,9 +89,12 @@ export default function Home() {
           <div className="row justify-content-center">
             <div className="col-xl-7 col-lg-9 text-center">
               <h1>
-                <a href="https://tripsit.io" className="logo">
-                  <Image src={logo} alt="" className="img-fluid" width={400} />
-                </a>
+                <Image
+                  src={logo}
+                  alt=""
+                  className="logo img-fluid"
+                  width={400}
+                />
               </h1>
               <h2>Harm Reduction Through Education</h2>
             </div>
@@ -101,7 +116,13 @@ export default function Home() {
                   <i className="ri-stack-line"></i>
                 </div>
                 <h4 className="title">
-                  <a href="">Combo Chart</a>
+                  <a
+                    href="https://combo.tripsit.me/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Combo Chart
+                  </a>
                 </h4>
                 <p className="description">
                   Check out our combination chart that shows the results of
@@ -120,7 +141,13 @@ export default function Home() {
                   <i className="ri-palette-line"></i>
                 </div>
                 <h4 className="title">
-                  <a href="">Drug Factsheets</a>
+                  <a
+                    href="https://drugs.tripsit.me/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Drug Factsheets
+                  </a>
                 </h4>
                 <p className="description">
                   Even more details on drug information including dosages and
@@ -139,7 +166,13 @@ export default function Home() {
                   <i className="ri-command-line"></i>
                 </div>
                 <h4 className="title">
-                  <a href="">Join the Discord</a>
+                  <a
+                    href="https://discord.gg/tripsit"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Join the Discord
+                  </a>
                 </h4>
                 <p className="description">
                   Join our awesome community! Our discord is where nearly
@@ -158,7 +191,13 @@ export default function Home() {
                   <i className="ri-fingerprint-line"></i>
                 </div>
                 <h4 className="title">
-                  <a href="">Learn on Moodle</a>
+                  <a
+                    href="https://learn.tripsit.me"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Learn on Moodle
+                  </a>
                 </h4>
                 <p className="description">
                   Our free learning platform gives you valuable skills starting
@@ -211,9 +250,77 @@ export default function Home() {
                   and philosophical perspectives on drugs, providing advice
                   drawn from our collective life experiences.
                 </p>
-                <a href="#" className="btn-learn-more">
-                  Learn More
-                </a>
+              </div>
+            </div>
+
+            <div className="row content">
+              <div className="col-lg-12">
+                <Accordion>
+                  <AccordionItem
+                    key="0"
+                    aria-label="Learn More"
+                    title="Learn More"
+                    classNames={aboutUsAccordionClassNames}
+                  >
+                    <p>
+                      In a world where help often falls short, TripSit bridges
+                      the gap. We&apos;re on a mission to dispel drug-use taboos
+                      and equip individuals with the resources to stay safe.
+                    </p>
+                    <p>
+                      At TripSit, we focus on the open discussion and
+                      implementation of harm reduction strategies. We not only
+                      advocate for tools like test kits but also offer guidance
+                      for safer drug usage. Our platform encourages dialogue
+                      about scientific, medical, and philosophical perspectives
+                      on drugs, providing advice drawn from our collective life
+                      experiences.
+                    </p>
+                    <p>
+                      Recognizing that people will use drugs regardless of
+                      legality, we aim to mitigate the risks of reckless or
+                      uninformed consumption. Our support extends from providing
+                      someone to talk to and advice on safe dosage to
+                      recommending resources for recovery.
+                    </p>
+                    <p>
+                      Our community offers a 24/7 live chat for immediate
+                      assistance and a drug-information wiki for quick facts. We
+                      also host a live radio service for companionship through
+                      music.
+                    </p>
+                    <p>
+                      We are a team of dedicated volunteers, not trained
+                      professionals. Our services aim to assist those who need
+                      information, a non-judgmental ear, a testing kit, or
+                      simply a friendly place to hang out.
+                    </p>
+                    <p>
+                      TripSit does not promote drug use or abuse. Our network
+                      serves users who have already decided to take drugs, with
+                      a focus on their safety. We strongly discourage dangerous
+                      drug combinations and have zero tolerance toward
+                      discussions of self-harm or suicide.
+                    </p>
+                    <p>
+                      While we are not a substitute for professional medical
+                      help, we strive to provide advice and positive support to
+                      individuals already engaged in drug use. We inform users
+                      about potential side effects, addiction risks, and harmful
+                      drug interactions.
+                    </p>
+                    <p>
+                      We are a refuge for those hesitant to seek advice due to
+                      social stigma, offering advice, support, and positivity.
+                      By challenging draconian attitudes towards drug use,
+                      TripSit aims to provide potentially life-saving
+                      information and resources.
+                    </p>
+                    <p>
+                      From all of us at TripSit: Stay safe and stay informed.
+                    </p>
+                  </AccordionItem>
+                </Accordion>
               </div>
             </div>
           </div>
@@ -270,7 +377,12 @@ export default function Home() {
                 data-aos-delay="100"
               >
                 <Image src={comboChart} className="img-fluid" alt="" />
-                <a href="https://combo.tripsit.me/" className="mb-4"></a>
+                <a
+                  href="https://combo.tripsit.me/"
+                  className="mb-4"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                ></a>
               </div>
 
               <div
@@ -615,7 +727,7 @@ export default function Home() {
                     <i className="bx bxl-dribbble"></i>
                   </div>
                   <h4>
-                    <a href="">Combo App</a>
+                    <a href="https://combo.tripsit.me/">Combo App</a>
                   </h4>
                   <p>
                     Our combo chart is fuckin&apos; sweet mate. Check it out
@@ -647,7 +759,7 @@ export default function Home() {
                     <i className="bx bx-file"></i>
                   </div>
                   <h4>
-                    <a href="">Drug Factsheets</a>
+                    <a href="https://drugs.tripsit.me">Drug Factsheets</a>
                   </h4>
                   <p>Our factsheets are quick references to substances.</p>
                 </div>
@@ -676,7 +788,9 @@ export default function Home() {
                     <i className="bx bx-tachometer"></i>
                   </div>
                   <h4>
-                    <a href="">Substance Wiki</a>
+                    <a href="https://wiki.tripsit.me/wiki/Main_Page">
+                      Substance Wiki
+                    </a>
                   </h4>
                   <p>
                     Our wiki is choc full of drug and herbal information.
@@ -710,7 +824,7 @@ export default function Home() {
                     <i className="bx bx-layer"></i>
                   </div>
                   <h4>
-                    <a href="">Benzo Converter</a>
+                    <a href="https://benzos.tripsit.me/">Benzo Converter</a>
                   </h4>
                   <p>Roughly convert one benzodiazepine type into another.</p>
                 </div>
@@ -739,7 +853,7 @@ export default function Home() {
                     <i className="bx bx-slideshow"></i>
                   </div>
                   <h4>
-                    <a href="">DXM Calculator</a>
+                    <a href="https://dxm.tripsit.me/">DXM Calculator</a>
                   </h4>
                   <p>
                     Calculate the ideal safe dosage for DXM based on your body
@@ -771,7 +885,9 @@ export default function Home() {
                     <i className="bx bx-arch"></i>
                   </div>
                   <h4>
-                    <a href="">Volumetric Converter</a>
+                    <a href="https://volume.tripsit.me/">
+                      Volumetric Converter
+                    </a>
                   </h4>
                   <p>
                     When dealing with powders that are active on the microgram
@@ -805,7 +921,7 @@ export default function Home() {
                     <i className="bx bx-layer"></i>
                   </div>
                   <h4>
-                    <a href="">Learning Platform</a>
+                    <a href="https://learn.tripsit.me">Learning Platform</a>
                   </h4>
                   <p>
                     Our learning platform gives the community a place to take
@@ -839,7 +955,7 @@ export default function Home() {
                     <i className="bx bx-slideshow"></i>
                   </div>
                   <h4>
-                    <a href="">TripSit Discord Bot</a>
+                    <a href="https://tripbot.info/">TripSit Discord Bot</a>
                   </h4>
                   <p>
                     Our discord bot is a moderation tool and TripSit-session
@@ -875,7 +991,9 @@ export default function Home() {
                     <i className="bx bx-arch"></i>
                   </div>
                   <h4>
-                    <a href="">Android Mobile App</a>
+                    <a href="https://play.google.com/store/apps/details?id=me.tripsit.mobile">
+                      Android Mobile App
+                    </a>
                   </h4>
                   <p>
                     Take our drug information on-the-go and have offline access
@@ -887,7 +1005,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* <section id="cta" className="cta">
+        <section id="cta" className="cta">
           <div className="container" data-aos="zoom-in">
             <div className="text-center">
               <h3>Want to help out?</h3>
@@ -900,184 +1018,201 @@ export default function Home() {
                 Everything needs to be tested and proof-read, and the smallest
                 contribution is appreciated!
               </p>
+
               <div className="cta-list">
-                <ul>
-                  <li data-aos="fade-up">
-                    <Collapsible
-                      trigger="Join the community"
-                      triggerTagName="h5"
-                      open
-                    >
-                      <p>
-                        Our community is full of awesome, positive people who
-                        likely share a few common interests, excluding the
-                        obvious. We have a{" "}
-                        <a href="https://steamcommunity.com/groups/TripSit">
-                          Steam community{" "}
+                <Accordion>
+                  <AccordionItem
+                    key="1"
+                    aria-label="Accordion 1"
+                    startContent={<div className="accStart">👥</div>}
+                    title="Join the community"
+                    data-aos="fade-up"
+                    classNames={accordionClassNames}
+                  >
+                    <p>
+                      Our community is full of awesome, positive people who
+                      likely share a few common interests, excluding the
+                      obvious. We have a{" "}
+                      <a href="https://steamcommunity.com/groups/TripSit">
+                        Steam community{" "}
+                      </a>
+                      to play games and various channels showing off our pets,
+                      food, and artistic creations. We would not exist without
+                      our incredible community!{" "}
+                      <a href="https://discord.gg/tripsit">Join the discord</a>,
+                      say hi, and get to know the group; you won’t regret it!
+                    </p>
+                    <p>
+                      Discord is also where coordination on other projects and
+                      our open-source development happens. Even if you just want
+                      to watch the progress, Discord is where that happens!
+                    </p>
+                  </AccordionItem>
+                  <AccordionItem
+                    key="2"
+                    aria-label="Accordion 2"
+                    startContent={<div className="accStart">🤝</div>}
+                    title="Become a Helper"
+                    data-aos="fade-up"
+                    data-aos-delay="100"
+                    classNames={accordionClassNames}
+                  >
+                    <p>
+                      If you are like us and desire to help people, you may be
+                      what we are looking for. We are always looking for new
+                      TripSit Team members, and that journey starts with our
+                      Intro to TripSitting course on our learning platform. This
+                      free course gets you started on being a decent TripSitter
+                      and allows you to “link” your discord account with your
+                      learning platform progress.
+                    </p>
+                    <p>
+                      Once you complete the course, you can become a helper and
+                      start helping out in TripSit sessions. Assist enough as a
+                      Helper, and we’ll invite you to the team as a full
+                      TripSitter!
+                    </p>
+                  </AccordionItem>
+                  <AccordionItem
+                    key="3"
+                    aria-label="Accordion 3"
+                    startContent={<div className="accStart">🔍</div>}
+                    title="Help with Research"
+                    data-aos="fade-up"
+                    data-aos-delay="200"
+                    classNames={accordionClassNames}
+                  >
+                    <p>
+                      Make sure to{" "}
+                      <a href="https://discord.gg/tripsit">Join the discord</a>{" "}
+                      and say hi in the #content room where we discuss all our
+                      research projects!
+                    </p>
+                    <p>
+                      New substances are always being created, and we can always
+                      use new articles or updates to our wiki.
+                      <a href="https://wiki.tripsit.me/index.php?title=Special:CreateAccount">
+                        Registration is open
+                      </a>{" "}
+                      , and updates are posted to our Discord for tracking and
+                      auditing.{" "}
+                    </p>
+                    <p>
+                      Our learning platform enables us to create harm reduction
+                      courses and provide them to the community for free. New
+                      course ideas are always floating around in various states
+                      of progress, and if anyone creates a draft course, we can
+                      add it to the site.<p></p>Our drug factsheet database can
+                      also use updates and additions, check out the Development
+                      section for more info on this.
+                    </p>
+                  </AccordionItem>
+                  <AccordionItem
+                    key="4"
+                    aria-label="Accordion 4"
+                    startContent={<div className="accStart">💻</div>}
+                    title="Assist with Development"
+                    data-aos="fade-up"
+                    data-aos-delay="300"
+                    classNames={accordionClassNames}
+                  >
+                    <h3>Services</h3>
+                    <p>
+                      All of our development is public on GitHub, and everything
+                      is coded in Javascript:
+                    </p>
+                    <ul>
+                      <li>
+                        <a href="https://github.com/TripSit/TripBot/tree/main/src/api">
+                          API
                         </a>
-                        to play games and various channels showing off our pets,
-                        food, and artistic creations. We would not exist without
-                        our incredible community!{" "}
-                        <a href="https://discord.gg/tripsit">
-                          Join the discord
+                      </li>
+                      <li>
+                        <a href="https://github.com/TripSit/Benzo-Calculator">
+                          Benzo Converter
                         </a>
-                        , say hi, and get to know the group; you won’t regret
-                        it!
-                      </p>
-                      <p>
-                        Discord is also where coordination on other projects and
-                        our open-source development happens. Even if you just
-                        want to watch the progress, Discord is where that
-                        happens!
-                      </p>
-                    </Collapsible>
-                  </li>
-
-                  <li data-aos="fade-up" data-aos-delay="100">
-                    <Collapsible trigger="Become a Helper" triggerTagName="h5">
-                      <p>
-                        If you are like us and desire to help people, you may be
-                        what we are looking for. We are always looking for new
-                        TripSit Team members, and that journey starts with our
-                        Intro to TripSitting course on our learning platform.
-                        This free course gets you started on being a decent
-                        TripSitter and allows you to “link” your discord account
-                        with your learning platform progress.
-                      </p>
-                      <p>
-                        Once you complete the course, you can become a helper
-                        and start helping out in TripSit sessions. Assist enough
-                        as a Helper, and we’ll invite you to the team as a full
-                        TripSitter!
-                      </p>
-                    </Collapsible>
-                  </li>
-
-                  <li data-aos="fade-up" data-aos-delay="200">
-                    <Collapsible
-                      trigger="Help with Research"
-                      triggerTagName="h5"
-                    >
-                      <p>
-                        Make sure to{" "}
-                        <a href="https://discord.gg/tripsit">
-                          Join the discord
-                        </a>{" "}
-                        and say hi in the #content room where we discuss all our
-                        research projects!
-                      </p>
-                      <p>
-                        New substances are always being created, and we can
-                        always use new articles or updates to our wiki.
-                        <a href="https://wiki.tripsit.me/index.php?title=Special:CreateAccount">
-                          Registration is open
-                        </a>{" "}
-                        , and updates are posted to our Discord for tracking and
-                        auditing.{" "}
-                      </p>
-                      <p>
-                        Our learning platform enables us to create harm
-                        reduction courses and provide them to the community for
-                        free. New course ideas are always floating around in
-                        various states of progress, and if anyone creates a
-                        draft course, we can add it to the site.<p></p>Our drug
-                        factsheet database can also use updates and additions,
-                        check out the Development section for more info on this.
-                      </p>
-                    </Collapsible>
-                  </li>
-
-                  <li data-aos="fade-up" data-aos-delay="300">
-                    <Collapsible
-                      trigger="Assist with Development"
-                      triggerTagName="h5"
-                    >
-                      <h3>Services</h3>
-                      <p>
-                        All of our development is public on GitHub, and
-                        everything is coded in Javascript.
-                      </p>
-                      <ul>
-                        <li>
-                          <a href="https://github.com/TripSit/TripBot/tree/main/src/api">
-                            API
-                          </a>
-                        </li>
-                        <li>
-                          <a href="https://github.com/TripSit/Benzo-Calculator">
-                            Benzo Converter
-                          </a>
-                        </li>
-                        <li>
-                          <a href="https://github.com/TripSit/combogen">
-                            Comboapp
-                          </a>
-                        </li>
+                      </li>
+                      <li>
+                        <a href="https://github.com/TripSit/combogen">
+                          Comboapp
+                        </a>
+                      </li>
+                      <li>
                         <a href="https://github.com/TripSit/DXM-Calculator/">
                           DXM Calculator
                         </a>
-                        <li>
-                          <a href="https://github.com/TripSit/factsheets/">
-                            Factsheets
-                          </a>
-                        </li>
+                      </li>
+                      <li>
+                        <a href="https://github.com/TripSit/factsheets/">
+                          Factsheets
+                        </a>
+                      </li>
+                      <li>
                         <a href="https://volume.tripsit.me/">
                           Volumetric Converter
                         </a>
-                        <li>
-                          <a href="https://github.com/TripSit/webchat/">
-                            Webchat
-                          </a>
-                        </li>
-                        <li>
-                          <a href="https://github.com/TripSit/TripBot">
-                            TripBot
-                          </a>
-                        </li>
-                        <li>
-                          <a href="https://github.com/TripSit/tripbot-website">
-                            Tripbot&apos;s Website
-                          </a>
-                        </li>
-                      </ul>
-                      <p>
-                        These projects have been converted to docker containers,
-                        but more work is needed to add some standard
-                        functionality to each container to make each project
-                        more uniform. Tasks include:
-                      </p>
-                      Add Sonar linting. <br></br>Add Sentry error monitoring.
-                      <br></br>
-                      Add Google Analytics.<br></br>
-                      Add Donation buttons (Patreon/Kofi).<br></br>
-                      Add Github actions (CodeQL).<br></br>
-                      Add CI (Drone).<br></br>
-                      Convert to Typescript.<br></br>
-                      Convert to GitHub pages (when possible).<br></br>
-                      Integrate into new website<br></br>
+                      </li>
+                      <li>
+                        <a href="https://github.com/TripSit/webchat/">
+                          Webchat
+                        </a>
+                      </li>
+                      <li>
+                        <a href="https://github.com/TripSit/TripBot">TripBot</a>
+                      </li>
+                      <li>
+                        <a href="https://github.com/TripSit/tripbot-website">
+                          Tripbot&apos;s Website
+                        </a>
+                      </li>
+                    </ul>
+                    <p>
+                      These projects have been converted to docker containers,
+                      but more work is needed to add some standard functionality
+                      to each container to make each project more uniform. Tasks
+                      include:
+                    </p>
+                    <ul>
+                      <li>Add Sonar linting. </li>
+                      <li>Add Sentry error monitoring.</li>
+                      <li>Add Google Analytics.</li>
+                      <li>Add Donation buttons (Patreon/Kofi).</li>
+                      <li>Add Github actions (CodeQL).</li>
+                      <li>Add CI (Drone).</li>
+                      <li>Convert to Typescript.</li>
+                      <li>Convert to GitHub pages (when possible).</li>
+                      <li>Integrate into new website</li>
+                    </ul>
+                    <p>
                       Please remember that TripSit is over a decade old with
                       legacy systems and a patchwork of documentation and code.
                       It may not be super easy to jump into the stuff we need to
                       do, but if you have patience and are willing to learn,
                       anything is possible.
+                    </p>
+                    <p>
                       <b>We’re also open to new project ideas!</b>
-                      <b>Android App</b>
+                    </p>
+                    <h3>Android App</h3>
+                    <p>
                       Our Android app works! That’s about all the good I can say
                       about it right now. Think you can do better? Please do.
                       The code is public here:
                       https://github.com/TripSit/tripsit-mobile
-                      <b>Main Website</b>
+                    </p>
+                    <h3>Main Website</h3>
+                    <p>
                       This website is a NextJS project that intends to allow
                       future development to integrate our various services into
                       a single application. Even the smallest pull request is
                       appreciated! https://github.com/TripSit/website
-                    </Collapsible>
-                  </li>
-                </ul>
+                    </p>
+                  </AccordionItem>
+                </Accordion>
               </div>
             </div>
           </div>
-        </section> */}
+        </section>
 
         <section id="faq" className="faq">
           <div className="container" data-aos="fade-up">
@@ -1224,8 +1359,8 @@ export default function Home() {
             <div className="section-title">
               <h2>Contact</h2>
               <p>
-                The best way to contact the team is to join the Discord. You can
-                also send us a message with the contact form below!
+                <b>The best way to contact the team is to join the Discord. </b>
+                You can also send us a message with the contact form below!
               </p>
             </div>
 
@@ -1234,20 +1369,53 @@ export default function Home() {
                 <div className="info">
                   <div className="address">
                     <i className="bi bi-geo-alt"></i>
-                    <h4>Discord:</h4>
-                    <p>https://www.discord.gg/tripsit</p>
+                    <h4>
+                      <a href="https://discord.gg/tripsit">Discord</a>
+                    </h4>
                   </div>
 
                   <div className="email">
                     <i className="bi bi-envelope"></i>
-                    <h4>Reddit:</h4>
-                    <p>https://www.reddit.com/r/TripSit/</p>
+                    <h4>
+                      <a href="https://tripbot.info/dashboard/appeals">
+                        Ban Appeals
+                      </a>
+                    </h4>
                   </div>
 
                   <div className="phone">
                     <i className="bi bi-phone"></i>
-                    <h4>IRC:</h4>
-                    <p>irc.tripsit.me</p>
+                    <h4>
+                      <a href="https://twitter.com/teamtripsit">Twitter</a>
+                    </h4>
+                  </div>
+
+                  <div className="phone">
+                    <i className="bi bi-phone"></i>
+                    <h4>
+                      <a href="https://www.facebook.com/TripSitme">Facebook</a>
+                    </h4>
+                  </div>
+
+                  <div className="phone">
+                    <i className="bi bi-phone"></i>
+                    <h4>
+                      <a href="http://reddit.com/r/TripSit">Reddit</a>
+                    </h4>
+                  </div>
+
+                  <div className="phone">
+                    <i className="bi bi-phone"></i>
+                    <h4>
+                      <a href="http://lounge.tripsit.me">IRC</a>
+                    </h4>
+                  </div>
+
+                  <div className="phone">
+                    <i className="bi bi-phone"></i>
+                    <h4>
+                      <a href="http://element.tripsit.me">Matrix</a>
+                    </h4>
                   </div>
                 </div>
               </div>

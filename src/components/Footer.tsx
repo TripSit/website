@@ -1,4 +1,4 @@
-function Footer() {
+export default function Footer() {
   return (
     <footer id="footer">
       <div className="footer-top">
@@ -115,5 +115,3 @@ function Footer() {
     </footer>
   );
 }
-
-export default Footer;

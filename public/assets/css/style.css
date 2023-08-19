@@ -391,7 +391,6 @@ h6 {
   width: 100%;
   height: 100vh;
   position: relative;
-  position: relative;
 }
 
 #hero:before {
@@ -516,6 +515,13 @@ h6 {
     font-size: 18px;
     line-height: 24px;
   }
+}
+
+#animation {
+  position: absolute;
+  left: 0px;
+  bottom: 0px;
+  list-style: none;
 }
 
 /*--------------------------------------------------------------

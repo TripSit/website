@@ -1,3 +1,4 @@
+/* eslint-disable arrow-parens */
 import Image from "next/image";
 import { Navigation, Pagination, Scrollbar, A11y } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -14,6 +15,8 @@ import mapsLogo from "../../public/assets/img/clients/maps.png";
 import dancesafeLogo from "../../public/assets/img/clients/dancesafeYellow.png";
 import comboChart from "../../public/assets/img/comboChart.png";
 import logo from "../../public/assets/img/logo.png";
+import Ghost from "../components/Ghost";
+import Particles from "../components/Particles";
 
 import Counter from "../components/Counter";
 
@@ -80,6 +83,7 @@ export default function Home() {
     <div data-bs-theme="dark">
       <Header />
       <Head />
+      <Ghost />
       <section id="hero" className="d-flex align-items-center">
         <div
           className="container position-relative"
@@ -208,7 +212,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-
+      <Particles />
       <main id="main">
         <section id="about" className="about">
           <div className="container" data-aos="fade-up">

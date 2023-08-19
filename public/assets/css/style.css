@@ -10,7 +10,7 @@
 # General
 --------------------------------------------------------------*/
 body {
-  font-family: "Open Sans", sans-serif;
+  font-family: "Futura", sans-serif;
 }
 
 a {
@@ -29,7 +29,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: "Raleway", sans-serif;
+  font-family: "Futura", sans-serif;
 }
 
 /*--------------------------------------------------------------
@@ -132,7 +132,7 @@ h6 {
   line-height: 1;
   font-weight: 300;
   letter-spacing: 0.5px;
-  font-family: "Poppins", sans-serif;
+  font-family: "Futura", sans-serif;
 }
 
 #header .logo a {
@@ -413,7 +413,7 @@ h6 {
   font-weight: 700;
   line-height: 72px;
   color: #683394;
-  font-family: "Poppins", sans-serif;
+  font-family: "Futura", sans-serif;
 }
 
 #hero h2 {
@@ -423,7 +423,7 @@ h6 {
 }
 
 #hero .btn-get-started {
-  font-family: "Poppins", sans-serif;
+  font-family: "Futura", sans-serif;
   font-weight: 500;
   font-size: 14px;
   letter-spacing: 0.5px;
@@ -591,7 +591,7 @@ section {
 }
 
 .about .content .btn-learn-more {
-  font-family: "Raleway", sans-serif;
+  font-family: "Futura", sans-serif;
   font-weight: 600;
   font-size: 14px;
   letter-spacing: 1px;
@@ -613,7 +613,7 @@ section {
 }
 
 .about .content .aboutAccWrapper {
-  font-family: "Raleway", sans-serif;
+  font-family: "Futura", sans-serif;
   font-weight: 600;
   font-size: 14px;
   letter-spacing: 1px;
@@ -639,7 +639,7 @@ section {
   background: inherit;
   display: block;
   position: relative;
-  font-family: "Poppins", sans-serif;
+  font-family: "Futura", sans-serif;
   font-size: 16px;
   line-height: 24px;
   font-weight: 500;
@@ -692,7 +692,7 @@ section {
 
 .counts .count-box p {
   padding: 8px 0 0 0;
-  font-family: "Raleway", sans-serif;
+  font-family: "Futura", sans-serif;
   font-weight: 600;
   font-size: 14px;
   color: #1e6ca6;
@@ -1087,7 +1087,7 @@ section {
 }
 
 .cta .cta-btn {
-  font-family: "Raleway", sans-serif;
+  font-family: "Futura", sans-serif;
   font-weight: 600;
   font-size: 14px;
   letter-spacing: 1px;
@@ -1140,7 +1140,7 @@ section {
   background: inherit;
   display: block;
   position: relative;
-  font-family: "Poppins", sans-serif;
+  font-family: "Futura", sans-serif;
   font-size: 16px;
   line-height: 24px;
   font-weight: 500;
@@ -1545,7 +1545,7 @@ section {
   font-size: 42px;
   color: #2487ce;
   font-weight: 500;
-  font-family: "Open Sans", sans-serif;
+  font-family: "Futura", sans-serif;
   margin-bottom: 20px;
 }
 
@@ -1592,7 +1592,7 @@ section {
   transition: none;
   font-size: 14px;
   font-weight: 400;
-  font-family: "Raleway", sans-serif;
+  font-family: "Futura", sans-serif;
   font-weight: 600;
   transition: 0.3s;
   border: 2px solid #2487ce;
@@ -1664,7 +1664,7 @@ section {
   background: inherit;
   display: block;
   position: relative;
-  font-family: "Poppins", sans-serif;
+  font-family: "Futura", sans-serif;
   font-size: 16px;
   line-height: 24px;
   font-weight: 500;
@@ -1955,7 +1955,7 @@ section {
   font-size: 14px;
   line-height: 24px;
   margin-bottom: 0;
-  font-family: "Raleway", sans-serif;
+  font-family: "Futura", sans-serif;
   color: #777777;
 }
 
@@ -2078,4 +2078,18 @@ section {
   background: #3194db;
   color: #fff;
   text-decoration: none;
+}
+
+/*--------------------------------------------------------------
+# Webchat Section
+--------------------------------------------------------------*/
+#webchat {
+  width: 100%;
+  height: 100vh;
+  position: relative;
+}
+
+.widgetbot {
+  width: 100%;
+  height: 100vh;
 }

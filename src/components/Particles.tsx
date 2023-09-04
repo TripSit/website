@@ -87,7 +87,10 @@ const particleEffects = [
 
 export default function Particles() {
   // Initial effect is 'thick'
-  const [effect, setEffectType] = useState({ type: "thick" } as {
+  const [effect, setEffectType] = useState({
+    type: "cobweb",
+    color: "#FFFFFF",
+  } as {
     type: TypeProp;
     color?: string;
     num?: number;

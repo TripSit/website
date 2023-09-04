@@ -3,7 +3,8 @@ import Image from "next/image";
 import { Navigation, Pagination, Scrollbar, A11y } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import React from "react";
-import { Tooltip, Accordion, AccordionItem } from "@nextui-org/react";
+import { Tooltip, Accordion, AccordionItem, Button } from "@nextui-org/react";
+import { useRouter } from "next/router";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Head from "../components/Head";
@@ -17,7 +18,6 @@ import comboChart from "../../public/assets/img/comboChart.png";
 import logo from "../../public/assets/img/logo.png";
 import Ghost from "../components/Ghost";
 import Particles from "../components/Particles";
-
 import Counter from "../components/Counter";
 
 // Import Swiper styles
@@ -79,6 +79,12 @@ const subredditSubscribers = {
 };
 
 export default function Home() {
+  const router = useRouter();
+
+  const gotoWebchat = () => {
+    router.push("/webchat");
+  };
+
   return (
     <div data-bs-theme="dark">
       <Header />
@@ -93,22 +99,20 @@ export default function Home() {
           <div className="row justify-content-center">
             <div className="col-xl-7 col-lg-9 text-center">
               <h1>
-                <Image
-                  src={logo}
-                  alt=""
-                  className="logo img-fluid"
-                  width={400}
-                />
+                <Image src={logo} alt="" className="logo img-fluid" />
               </h1>
               <h2>Harm Reduction Through Education</h2>
             </div>
           </div>
           <div className="text-center">
-            <a href="#about" className="btn-get-started scrollto">
+            <Button
+              color="primary"
+              className="btn-get-started scrollto"
+              onClick={gotoWebchat}
+            >
               I want to talk to a Trip Sitter
-            </a>
+            </Button>
           </div>
-
           <div className="row icon-boxes">
             <div
               className="col-md-6 col-lg-3 d-flex align-items-stretch mb-5 mb-lg-0"
@@ -446,12 +450,7 @@ export default function Home() {
                   rel="noopener noreferrer"
                 >
                   <Tooltip content="Psychonaut Wiki" placement="bottom">
-                    <Image
-                      src={pwLogo}
-                      className="img-fluid"
-                      alt=""
-                      height={100}
-                    />
+                    <Image src={pwLogo} className="logo img-fluid" alt="" />
                   </Tooltip>
                 </a>
               </div>
@@ -468,9 +467,8 @@ export default function Home() {
                   <Tooltip content="Bluelight" placement="bottom">
                     <Image
                       src={bluelightLogo}
-                      className="img-fluid"
+                      className="logo img-fluid"
                       alt=""
-                      height={100}
                     />
                   </Tooltip>
                 </a>
@@ -486,12 +484,7 @@ export default function Home() {
                   rel="noopener noreferrer"
                 >
                   <Tooltip content="Subject Effect Index" placement="bottom">
-                    <Image
-                      src={seiLogo}
-                      className="img-fluid"
-                      alt=""
-                      height={100}
-                    />
+                    <Image src={seiLogo} className="logo img-fluid" alt="" />
                   </Tooltip>
                 </a>
               </div>
@@ -506,12 +499,7 @@ export default function Home() {
                   rel="noopener noreferrer"
                 >
                   <Tooltip content="r/Drugs" placement="bottom">
-                    <Image
-                      src={rdrugsLogo}
-                      className="img-fluid"
-                      alt=""
-                      height={100}
-                    />
+                    <Image src={rdrugsLogo} className="logo img-fluid" alt="" />
                   </Tooltip>
                 </a>
               </div>
@@ -526,12 +514,7 @@ export default function Home() {
                   rel="noopener noreferrer"
                 >
                   <Tooltip content="MAPS" placement="bottom">
-                    <Image
-                      src={mapsLogo}
-                      className="img-fluid"
-                      alt=""
-                      height={100}
-                    />
+                    <Image src={mapsLogo} className="logo img-fluid" alt="" />
                   </Tooltip>
                 </a>
               </div>
@@ -548,9 +531,8 @@ export default function Home() {
                   <Tooltip content="Dance Safe" placement="bottom">
                     <Image
                       src={dancesafeLogo}
-                      className="img-fluid"
+                      className="logo img-fluid"
                       alt=""
-                      height={100}
                     />
                   </Tooltip>
                 </a>

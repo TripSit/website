@@ -2,6 +2,7 @@ import Image from "next/image";
 import logo from "../../public/assets/img/logo.png";
 
 function Header() {
+  const domain = `https://${process.env.NEXT_PUBLIC_DNS_DOMAIN}`;
   return (
     <header
       id="header"
@@ -9,29 +10,29 @@ function Header() {
       data-bs-theme="dark"
     >
       <div className="container d-flex align-items-center justify-content-between">
-        <a href="https://tripsit.io" className="logo">
-          <Image src={logo} alt="" className="img-fluid" width={120} />
+        <a href={domain} className="logo">
+          <Image src={logo} alt="" className="logoImage" />
         </a>
 
         <nav id="navbar" className="navbar navbar-expand-lg bg-dark">
           <ul>
             <li>
-              <a className="nav-link scrollto active" href="#hero">
+              <a className="nav-link scrollto active" href={`${domain}#hero`}>
                 Home
               </a>
             </li>
             <li>
-              <a className="nav-link scrollto" href="#about">
+              <a className="nav-link scrollto" href={`${domain}#about`}>
                 About
               </a>
             </li>
             <li className="nav-link scrollto dropdown">
-              <a href="#resources">
+              <a href={`${domain}#resources`}>
                 <span>Resources</span> <i className="bi bi-chevron-down"></i>
               </a>
               <ul>
                 <li className="dropdown">
-                  <a href="#">
+                  <a href={`${domain}#`}>
                     <span>Test Kits</span>{" "}
                     <i className="bi bi-chevron-right"></i>
                   </a>
@@ -65,7 +66,7 @@ function Header() {
                   </ul>
                 </li>
                 <li className="dropdown">
-                  <a href="#">
+                  <a href={`${domain}#`}>
                     <span>Drug</span> <i className="bi bi-chevron-right"></i>
                   </a>
                   <ul>
@@ -79,7 +80,7 @@ function Header() {
                       <a href="https://combo.tripsit.me/">Comboapp</a>
                     </li>
                     <li>
-                      <a href="#faq">Printing Information</a>
+                      <a href={`${domain}#faq`}>Printing Information</a>
                     </li>
                     <li>
                       <a href="https://www.reddit.com/r/Drugs/comments/131q1yb/the_drug_users_bible_download_it_free_of_charge/">
@@ -89,7 +90,7 @@ function Header() {
                   </ul>
                 </li>
                 <li className="dropdown">
-                  <a href="#">
+                  <a href={`${domain}#`}>
                     <span>Chat</span> <i className="bi bi-chevron-right"></i>
                   </a>
                   <ul>
@@ -113,7 +114,7 @@ function Header() {
                   </ul>
                 </li>
                 <li className="dropdown">
-                  <a href="#">
+                  <a href={`${domain}#`}>
                     <span>Calculators</span>{" "}
                     <i className="bi bi-chevron-right"></i>
                   </a>
@@ -150,7 +151,7 @@ function Header() {
               </a>
               <ul>
                 <li className="dropdown">
-                  <a href="#">
+                  <a href={`${domain}#`}>
                     <span>Harm Reduction</span>{" "}
                     <i className="bi bi-chevron-right"></i>
                   </a>
@@ -179,7 +180,7 @@ function Header() {
                   </ul>
                 </li>
                 <li className="dropdown">
-                  <a href="#">
+                  <a href={`${domain}#`}>
                     <span>TripSitting</span>{" "}
                     <i className="bi bi-chevron-right"></i>
                   </a>
@@ -212,7 +213,7 @@ function Header() {
                   </ul>
                 </li>
                 <li className="dropdown">
-                  <a href="#">
+                  <a href={`${domain}#`}>
                     <span>Recovery</span>{" "}
                     <i className="bi bi-chevron-right"></i>
                   </a>
@@ -243,7 +244,7 @@ function Header() {
                   </ul>
                 </li>
                 <li className="dropdown">
-                  <a href="#">
+                  <a href={`${domain}#`}>
                     <span>Dosing</span> <i className="bi bi-chevron-right"></i>
                   </a>
                   <ul>
@@ -282,12 +283,12 @@ function Header() {
               </ul>
             </li>
             <li>
-              <a className="nav-link scrollto" href="#contact">
+              <a className="nav-link scrollto" href={`${domain}#contact`}>
                 Contact
               </a>
             </li>
             <li>
-              <a href="#cta">Support</a>
+              <a href={`${domain}#cta`}>Support</a>
             </li>
             <li>
               <a

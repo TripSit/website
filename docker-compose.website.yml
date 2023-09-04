@@ -39,11 +39,11 @@ services:
       - traefik.docker.network=website-net
       - traefik.http.services.website-svc.loadbalancer.server.port=3000
 
-      - traefik.http.routers.website-cloudflare.rule=Host(`${DNS_DOMAIN}`)
-      - traefik.http.routers.website-cloudflare.service=website-svc
-      - traefik.http.routers.website-cloudflare.tls.certresolver=letsencrypt
-      - traefik.http.routers.website-cloudflare.middlewares=default@file
-      - traefik.http.routers.website-cloudflare.entrypoints=websecure
+      - traefik.http.routers.website.rule=Host(`${DNS_DOMAIN}`)
+      - traefik.http.routers.website.service=website-svc
+      - traefik.http.routers.website.tls.certresolver=letsencrypt
+      - traefik.http.routers.website.middlewares=default@file
+      - traefik.http.routers.website.entrypoints=websecure
 
 ########################### NETWORKS
 networks:

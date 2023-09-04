@@ -29,7 +29,7 @@
     // https://www.w3schools.com/js/js_strict.asp
     // "strict": [2, "global"],
     // Removes () around single parameter arrow functions
-    "arrow-parens": [2, "as-needed"],
+    "arrow-parens": "off",
     // This is a personal preference to enforce good code
     "@typescript-eslint/no-non-null-assertion": "warn",
     // Enforce max line length of 120

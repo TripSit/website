@@ -5,16 +5,19 @@
  * Author: BootstrapMade.com
  * License: https://bootstrapmade.com/license/
  */
-document.addEventListener("DOMContentLoaded", function () {
+
+const mobileNavbar = "navbar-mobile";
+
+document.addEventListener("DOMContentLoaded", function onLoad() {
   /**
    * Easy selector helper function
    */
   const select = (el, all = false) => {
-    el = el.trim();
+    const trim = el.trim();
     if (all) {
-      return [...document.querySelectorAll(el)];
+      return [...document.querySelectorAll(trim)];
     }
-    return document.querySelector(el);
+    return document.querySelector(trim);
   };
 
   /**
@@ -41,30 +44,30 @@ document.addEventListener("DOMContentLoaded", function () {
   /**
    * Navbar links active state on scroll
    */
-  const navbarlinks = select("#navbar .scrollto", true);
-  const navbarlinksActive = () => {
+  const navbarLinks = select("#navbar .scrollto", true);
+  const navbarLinksActive = () => {
     const position = window.scrollY + 200;
-    navbarlinks.forEach((navbarlink) => {
-      if (!navbarlink.hash) return;
-      const section = select(navbarlink.hash);
+    navbarLinks.forEach((navbarLink) => {
+      if (!navbarLink.hash) return;
+      const section = select(navbarLink.hash);
       if (!section) return;
       if (
         position >= section.offsetTop &&
         position <= section.offsetTop + section.offsetHeight
       ) {
-        navbarlink.classList.add("active");
+        navbarLink.classList.add("active");
       } else {
-        navbarlink.classList.remove("active");
+        navbarLink.classList.remove("active");
       }
     });
   };
-  window.addEventListener("load", navbarlinksActive);
-  onscroll(document, navbarlinksActive);
+  window.addEventListener("load", navbarLinksActive);
+  onscroll(document, navbarLinksActive);
 
   /**
    * Scrolls to an element with header offset
    */
-  const scrollto = el => {
+  const scrollto = (el) => {
     const header = select("#header");
     const offset = header.offsetHeight;
 
@@ -94,24 +97,24 @@ document.addEventListener("DOMContentLoaded", function () {
   /**
    * Back to top button
    */
-  const backtotop = select(".back-to-top");
-  if (backtotop) {
-    const toggleBacktotop = () => {
+  const backToTop = select(".back-to-top");
+  if (backToTop) {
+    const toggleBackToTop = () => {
       if (window.scrollY > 100) {
-        backtotop.classList.add("active");
+        backToTop.classList.add("active");
       } else {
-        backtotop.classList.remove("active");
+        backToTop.classList.remove("active");
       }
     };
-    window.addEventListener("load", toggleBacktotop);
-    onscroll(document, toggleBacktotop);
+    window.addEventListener("load", toggleBackToTop);
+    onscroll(document, toggleBackToTop);
   }
 
   /**
    * Mobile nav toggle
    */
-  on("click", ".mobile-nav-toggle", function (e) {
-    select("#navbar").classList.toggle("navbar-mobile");
+  on("click", ".mobile-nav-toggle", function toggleList() {
+    select("#navbar").classList.toggle(mobileNavbar);
     this.classList.toggle("bi-list");
     this.classList.toggle("bi-x");
   });
@@ -122,8 +125,8 @@ document.addEventListener("DOMContentLoaded", function () {
   on(
     "click",
     ".navbar .dropdown > a",
-    function (e) {
-      if (select("#navbar").classList.contains("navbar-mobile")) {
+    function toggleDropdown(e) {
+      if (select("#navbar").classList.contains(mobileNavbar)) {
         e.preventDefault();
         this.nextElementSibling.classList.toggle("dropdown-active");
       }
@@ -132,18 +135,18 @@ document.addEventListener("DOMContentLoaded", function () {
   );
 
   /**
-   * Scrool with ofset on links with a class name .scrollto
+   * Scroll with offset on links with a class name .scrollto
    */
   on(
     "click",
     ".scrollto",
-    function (e) {
+    function scrollTo(e) {
       if (select(this.hash)) {
         e.preventDefault();
 
         const navbar = select("#navbar");
-        if (navbar.classList.contains("navbar-mobile")) {
-          navbar.classList.remove("navbar-mobile");
+        if (navbar.classList.contains(mobileNavbar)) {
+          navbar.classList.remove(mobileNavbar);
           const navbarToggle = select(".mobile-nav-toggle");
           navbarToggle.classList.toggle("bi-list");
           navbarToggle.classList.toggle("bi-x");
@@ -155,13 +158,11 @@ document.addEventListener("DOMContentLoaded", function () {
   );
 
   /**
-   * Scroll with ofset on page load with hash links in the url
+   * Scroll with offset on page load with hash links in the url
    */
   window.addEventListener("load", () => {
-    if (window.location.hash) {
-      if (select(window.location.hash)) {
-        scrollto(window.location.hash);
-      }
+    if (window.location.hash && select(window.location.hash)) {
+      scrollto(window.location.hash);
     }
   });
 
@@ -211,7 +212,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // });
 
   // /**
-  //  * Porfolio isotope and filter
+  //  * Portfolio isotope and filter
   //  */
   // window.addEventListener("load", () => {
   //   const portfolioContainer = select(".portfolio-container");

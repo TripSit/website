@@ -53,7 +53,8 @@
         "Tripbot",
         "tripsit",
         "vbtype",
-        "Webchat"
+        "Webchat",
+        "widgetbot"
     ],
     "sonarlint.connectedMode.project": {
         "connectionId": "https-sonar-tripsit-me",

@@ -4,7 +4,7 @@ export default function Ghost() {
   const [lastActivity, setLastActivity] = useState(Date.now());
   const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
   const handleUserActivity = () => {
-    console.log("Activity detected!");
+    // console.log("Activity detected!");
     setLastActivity(Date.now());
 
     if (timeoutId) {
@@ -22,7 +22,7 @@ export default function Ghost() {
       if (Date.now() - lastActivity > 10000) {
         // 10 seconds
         // Execute your function here
-        console.log("10 seconds of inactivity detected!");
+        // console.log("10 seconds of inactivity detected!");
 
         // Get element with the id "hero"
         const hero = document.getElementById("hero");

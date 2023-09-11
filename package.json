@@ -47,7 +47,7 @@
     "eslint-plugin-jest": "^27.2.3",
     "eslint-plugin-prettier": "^5.0.0",
     "eslint-plugin-sonarjs": "^0.20.0",
-    "npm-check-updates": "^16.11.2",
+    "npm-check-updates": "^16.13.3",
     "prettier": "^3.0.2"
   }
 }

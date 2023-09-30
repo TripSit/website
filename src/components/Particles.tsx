@@ -112,7 +112,7 @@ export default function Particles() {
       <div id="animationButton">
         <Dropdown>
           <DropdownTrigger>
-            <Button variant="bordered">Animation</Button>
+            <Button variant="bordered">Animations</Button>
           </DropdownTrigger>
           <DropdownMenu
             aria-label="Static Actions"

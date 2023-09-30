@@ -63,5 +63,9 @@
     "cSpell.ignoreWords": [
         "aren"
     ],
+    "github.copilot.advanced": {},
+    "[jsonc]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "deepscan.enable": true,
 }
-

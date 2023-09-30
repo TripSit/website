@@ -479,6 +479,7 @@ h6 {
   font-size: 15px;
   line-height: 28px;
   margin-bottom: 0;
+  color: #683394;
 }
 
 #hero .icon-box .icon {
@@ -489,6 +490,10 @@ h6 {
   font-size: 36px;
   line-height: 1;
   color: #2487ce;
+}
+
+#hero .icon-box .icon svg {
+  font-size: 36px;
 }
 
 #hero .icon-box:hover {
@@ -977,6 +982,13 @@ section {
   left: 0;
 }
 
+.resources .icon-box .icon i svg {
+  font-size: 36px;
+  transition: 0.5s;
+  position: relative;
+}
+
+
 .resources .icon-box .icon svg path {
   transition: 0.5s;
   fill: #f5f5f5;
@@ -1008,6 +1020,14 @@ section {
   color: #47aeff;
 }
 
+.resources .iconbox-blue .icon i svg path {
+  fill: #47aeff;
+}
+
+.resources .iconbox-blue:hover .icon i svg path{
+  fill: #fff;
+}
+
 .resources .iconbox-blue:hover .icon i {
   color: #fff;
 }
@@ -1018,6 +1038,14 @@ section {
 
 .resources .iconbox-orange i {
   color: #ffa76e;
+}
+
+.resources .iconbox-orange .icon i svg path {
+  fill: #ffa76e;
+}
+
+.resources .iconbox-orange:hover .icon i svg path{
+  fill: #fff;
 }
 
 .resources .iconbox-orange:hover .icon i {
@@ -1032,6 +1060,14 @@ section {
   color: #e80368;
 }
 
+.resources .iconbox-pink .icon i svg path {
+  fill: #e80368;
+}
+
+.resources .iconbox-pink:hover .icon i svg path{
+  fill: #fff;
+}
+
 .resources .iconbox-pink:hover .icon i {
   color: #fff;
 }
@@ -1042,6 +1078,14 @@ section {
 
 .resources .iconbox-yellow i {
   color: #ffbb2c;
+}
+
+.resources .iconbox-yellow .icon i svg path {
+  fill: #ffbb2c;
+}
+
+.resources .iconbox-yellow:hover .icon i svg path{
+  fill: #fff;
 }
 
 .resources .iconbox-yellow:hover .icon i {
@@ -1056,6 +1100,14 @@ section {
   color: #ff5828;
 }
 
+.resources .iconbox-red .icon i svg path {
+  fill: #ff5828;
+}
+
+.resources .iconbox-red:hover .icon i svg path{
+  fill: #fff;
+}
+
 .resources .iconbox-red:hover .icon i {
   color: #fff;
 }
@@ -1066,6 +1118,14 @@ section {
 
 .resources .iconbox-teal i {
   color: #11dbcf;
+}
+
+.resources .iconbox-teal .icon i svg path {
+  fill: #11dbcf;
+}
+
+.resources .iconbox-teal:hover .icon i svg path{
+  fill: #fff;
 }
 
 .resources .iconbox-teal:hover .icon i {
@@ -2102,9 +2162,10 @@ section {
   width: 100%;
   height: 100vh;
   position: relative;
+  padding-bottom: 0px;
 }
 
 .widgetbot {
   width: 100%;
-  height: 100vh;
+  height: 100%;
 }

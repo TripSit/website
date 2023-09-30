@@ -34,7 +34,7 @@ services:
     networks:
       website-net:
     labels:
-      - com.centurylinklabs.watchtower.enable=false
+      - com.centurylinklabs.watchtower.enable=true
       - traefik.enable=true
       - traefik.docker.network=website-net
       - traefik.http.services.website-svc.loadbalancer.server.port=3000

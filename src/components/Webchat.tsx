@@ -9,8 +9,8 @@ const WidgetBot = dynamic(() => import("@widgetbot/react-embed"), {
 const parameters =
   process.env.NODE_ENV === "production"
     ? {
-        server: "",
-        channel: "",
+        server: "179641883222474752",
+        channel: "1021385869262864464",
         shard: "https://emerald.widgetbot.io",
         className: "widgetbot",
       }

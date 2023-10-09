@@ -17,7 +17,7 @@
     "@srexi/purecounterjs": "^1.5.0",
     "aos": "^2.3.4",
     "autoprefixer": "10.4.15",
-    "next": "13.4.16",
+    "next": "13.5.4",
     "particles-bg": "^2.5.5",
     "postcss": "8.4.28",
     "react": "18.2.0",

@@ -307,10 +307,15 @@ function Header() {
               </a>
             </li> */}
             <li>
-              <a href={`${domain}#cta`}>Join</a>
+              <a href={`${domain}#cta`}>Volunteer</a>
             </li>
             <li>
               <a href={`${domain}#faq`}>FAQ</a>
+            </li>
+            <li>
+              <a href={`https://blog.${process.env.NEXT_PUBLIC_DNS_DOMAIN}`}>
+                Blog
+              </a>
             </li>
             {/* <li>
               <a
@@ -334,10 +339,7 @@ function Header() {
               </a>
             </li>
             <li>
-              <a
-                className="joindiscord scrollto"
-                href="https://tripsit.io/webchat"
-              >
+              <a className="joindiscord scrollto" href={`${domain}/webchat`}>
                 Start Webchat
               </a>
             </li>

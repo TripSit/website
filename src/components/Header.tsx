@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { Tooltip } from "@nextui-org/react";
 import logo from "../../public/assets/img/logo.png";
 
 function Header() {
@@ -37,20 +38,36 @@ function Header() {
                     <i className="bi bi-chevron-right"></i>
                   </a>
                   <ul>
-                    <li>
-                      <a href="https://dosetest.com/tripsit">
-                        DoseTest (Use ‘tripsit’ for 20% off)
-                      </a>
-                    </li>
-                    <li>
-                      <a href="https://dancesafe.org/product-category/testing-strips/">
-                        Dance Safe
-                      </a>
-                    </li>
+                    <Tooltip
+                      content="This link helps support TripSit!"
+                      placement="left"
+                      color="secondary"
+                    >
+                      <li>
+                        <a href="https://dosetest.com/tripsit">
+                          DoseTest (20% off with &apos;tripsit&apos;)
+                        </a>
+                      </li>
+                    </Tooltip>
                     <li>
                       <a href="https://www.reagent-tests.uk/shop/">
-                        Reagent Tests UK (Use &apos;tripsitwiki&apos; for 10%
-                        off)
+                        Reagent Tests UK (10% off with &apos;tripsitwiki&apos;)
+                      </a>
+                    </li>
+                    <Tooltip
+                      content="This link helps support TripSit!"
+                      placement="left"
+                      color="secondary"
+                    >
+                      <li>
+                        <a href="https://protestkit.eu/shop/?coupon_code=tripsit">
+                          ProTest (10% off with &apos;TripSit&apos;)
+                        </a>
+                      </li>
+                    </Tooltip>
+                    <li>
+                      <a href="http://ez-test.com.au/">
+                        EZ Test (10% off with &apos;TripsitAusOct&apos;)
                       </a>
                     </li>
                     <li>
@@ -67,7 +84,8 @@ function Header() {
                 </li>
                 <li className="dropdown">
                   <a href={`${domain}#`}>
-                    <span>Drug</span> <i className="bi bi-chevron-right"></i>
+                    <span>Drug Info</span>{" "}
+                    <i className="bi bi-chevron-right"></i>
                   </a>
                   <ul>
                     <li>
@@ -89,7 +107,7 @@ function Header() {
                     </li>
                   </ul>
                 </li>
-                <li className="dropdown">
+                {/* <li className="dropdown">
                   <a href={`${domain}#`}>
                     <span>Chat</span> <i className="bi bi-chevron-right"></i>
                   </a>
@@ -105,14 +123,14 @@ function Header() {
                     <li>
                       <a href="https://tripbot.info/">TripBot Homepage</a>
                     </li>
-                    <li>
+                    {/* <li>
                       <a href="https://element.tripsit.me/">Matrix Webchat</a>
                     </li>
                     <li>
                       <a href="https://lounge.tripsit.me">IRC Webchat</a>
-                    </li>
+                    </li> 
                   </ul>
-                </li>
+                </li> */}
                 <li className="dropdown">
                   <a href={`${domain}#`}>
                     <span>Calculators</span>{" "}
@@ -282,25 +300,44 @@ function Header() {
                 </li>
               </ul>
             </li>
-            <li>
+            {/* <li>
               <a className="nav-link scrollto" href={`${domain}#contact`}>
                 Contact
               </a>
+            </li> */}
+            <li>
+              <a href={`${domain}#cta`}>Join</a>
             </li>
             <li>
-              <a href={`${domain}#cta`}>Support</a>
+              <a href={`${domain}#faq`}>FAQ</a>
             </li>
-            <li>
+            {/* <li>
               <a
                 className="nav-link scrollto"
                 href="https://updates.tripsit.me"
               >
                 Updates
               </a>
+            </li> */}
+            {/* <li>
+              <a className="getstarted scrollto" href="#appeal">
+                Ban Appeal
+              </a>
+            </li> */}
+            <li>
+              <a
+                className="joindiscord scrollto"
+                href="https://discord.gg/tripsit"
+              >
+                Join the discord!
+              </a>
             </li>
             <li>
-              <a className="getstarted scrollto" href="https://chat.tripsit.me">
-                Start Chat
+              <a
+                className="getstarted scrollto"
+                href="https://tripsit.io/webchat"
+              >
+                Start Webchat
               </a>
             </li>
           </ul>

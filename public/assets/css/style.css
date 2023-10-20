@@ -217,6 +217,21 @@ h6 {
   background: #683394;
 }
 
+.navbar .joindiscord,
+.navbar .joindiscord:focus {
+  background: #2487ce;
+  padding: 8px 20px;
+  margin-left: 30px;
+  border-radius: 4px;
+  color: #fff;
+}
+
+.navbar .joindiscord:hover,
+.navbar .joindiscord:focus:hover {
+  color: #fff;
+  background: #2487ce;
+}
+
 .navbar .dropdown ul {
   display: block;
   position: absolute;
@@ -1149,7 +1164,7 @@ section {
   color: #fff;
   font-size: 28px;
   font-weight: 700;
-  text-align: left;
+  /* text-align: left; */
 }
 
 .cta p {
@@ -1820,6 +1835,118 @@ section {
     padding: 0;
   }
 }
+
+/*--------------------------------------------------------------
+# Ban Appeals
+--------------------------------------------------------------*/
+.appeal .content h3 {
+  font-weight: 600;
+  font-size: 26px;
+}
+
+.appeal .content ul {
+  list-style: none;
+  padding: 0;
+}
+
+.appeal .content ul li {
+  padding-left: 28px;
+  position: relative;
+}
+
+.appeal .content ul li+li {
+  margin-top: 10px;
+}
+
+.appeal .content ul i {
+  position: absolute;
+  left: 0;
+  top: 2px;
+  font-size: 20px;
+  color: #2487ce;
+  line-height: 1;
+}
+
+.appeal .content p:last-child {
+  margin-bottom: 0;
+}
+
+.appeal .content .btn-learn-more {
+  font-family: "Futura", sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 1px;
+  display: inline-block;
+  padding: 12px 32px;
+  border-radius: 5px;
+  transition: 0.3s;
+  line-height: 1;
+  color: #2487ce;
+  animation-delay: 0.8s;
+  margin-top: 6px;
+  border: 2px solid #2487ce;
+}
+
+.appeal .content .btn-learn-more:hover {
+  background: #2487ce;
+  color: #fff;
+  text-decoration: none;
+}
+
+.appeal .content .appealAccWrapper {
+  font-family: "Futura", sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 1px;
+  display: inline-block;
+  padding: 12px 32px;
+  border-radius: 5px;
+  transition: 0.3s;
+  line-height: 1;
+  color: #2487ce;
+  animation-delay: 0.8s;
+  margin-top: 6px;
+  border: 2px solid #2487ce;
+}
+
+.appeal .content .appealAccWrapper:hover {
+  background: #2487ce;
+  color: #fff;
+  text-decoration: none;
+}
+
+.appeal .content .appealAccTrigger {
+  text-decoration: none;
+  background: inherit;
+  display: block;
+  position: relative;
+  font-family: "Futura", sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 500;
+  padding: 0 30px;
+  outline: none;
+  cursor: pointer;
+  border: none;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  width: 100%;
+  text-align: center;
+}
+
+.appeal .content .appealAccIndicator {
+  display: none;
+}
+
+.appeal .content section {
+  margin-bottom: 0;
+  padding: 10px 0 0 0;
+};
+
+.appeal .content .appealAccContent {
+  margin-bottom: 0;
+  padding: 10px 0 0 0;
+};
 
 /*--------------------------------------------------------------
 # Contact

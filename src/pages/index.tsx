@@ -1,8 +1,8 @@
 /* eslint-disable arrow-parens */
 import Image from "next/image";
+import React from "react";
 import { Navigation, Pagination, Scrollbar, A11y } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
-import React from "react";
 import { Tooltip, Accordion, AccordionItem, Button } from "@nextui-org/react";
 import { useRouter } from "next/router";
 import JoinInnerOutlinedIcon from "@mui/icons-material/JoinInnerOutlined";
@@ -14,6 +14,7 @@ import CalculateOutlinedIcon from "@mui/icons-material/CalculateOutlined";
 import ScienceOutlinedIcon from "@mui/icons-material/ScienceOutlined";
 import SmartToyOutlinedIcon from "@mui/icons-material/SmartToyOutlined";
 import PhoneAndroidOutlinedIcon from "@mui/icons-material/PhoneAndroidOutlined";
+// import queryString from "@/utils/queryString";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 // import DiscordMembers from "../components/DiscordMembers";
@@ -28,6 +29,7 @@ import comboChart from "../../public/assets/img/comboChart.png";
 import logo from "../../public/assets/img/logo.png";
 import Ghost from "../components/Ghost";
 import Particles from "../components/Particles";
+// import Appeal from "../components/Appeal";
 import Counter from "../components/Counter";
 
 // Import Swiper styles
@@ -85,24 +87,97 @@ function getTsAge(): number {
   return years;
 }
 
-export async function getServerSideProps() {
+async function getDiscordMetrics() {
   let guildMetrics = {};
 
   const baseUrl = "https://discord.com/api/v10";
   const guildId = "179641883222474752";
 
   const url = `${baseUrl}/guilds/${guildId}?with_counts=true`;
+  // console.log("Fetching metrics from:", url);
 
   try {
-    const response = await axios.get(url);
+    const response = await axios.get(url, {
+      headers: {
+        Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
+      },
+    });
     guildMetrics = response.data;
-    console.log("Discord metrics:", guildMetrics);
+    // console.log("Discord metrics:", guildMetrics);
   } catch (error) {
-    console.error("Error fetching guild metrics:", error);
+    // console.error("Error fetching guild metrics:", error);
   }
 
   return {
     props: { guildMetrics },
+  };
+}
+
+// function getOauthURL() {
+//   // eslint-disable-next-line @typescript-eslint/no-unused-vars
+//   // const [stateParam, setStateParam] = useState("");
+//   // const [oAuthUrl, setOAuthUrl] = useState("");
+//   console.log(
+//     `GetOauthURL - DISCORD_CLIENT_ID: ${process.env.DISCORD_CLIENT_ID}`,
+//   );
+
+//   const loginParams = {
+//     client_id: process.env.DISCORD_CLIENT_ID as string,
+//     redirect_uri: `https://${process.env.DNS_DOMAIN}/#appeal`,
+//     response_type: "token",
+//     scope: "identify",
+//     state: stateParam as string,
+//   };
+//   setOAuthUrl(
+//     `https://discord.com/api/oauth2/authorize${queryString(loginParams)}`,
+//   );
+
+//   return {
+//     props: { oAuthUrl },
+//   };
+// }
+
+async function getSubredditMetrics() {
+  let subredditMetrics = {};
+
+  const baseUrl = "https://oauth.reddit.com";
+  const subreddit = "tripsit";
+
+  const url = `${baseUrl}/r/${subreddit}/about`;
+  // console.log("Fetching metrics from:", url);
+
+  try {
+    const response = await axios.get(url, {
+      headers: {
+        Authorization: `bearer ${process.env.REDDIT_BOT_TOKEN}`,
+        "User-Agent": "TripSitWebsite/0.1 by Techno_Shaman",
+      },
+    });
+    subredditMetrics = response.data;
+    // console.log("subredditMetrics:", subredditMetrics);
+  } catch (error) {
+    // console.error("Error fetching subredditMetrics:");
+    // console.error((error as any).code);
+    // console.error((error as any).response.status);
+    // console.error((error as any).response.statusText);
+    // console.error(process.env.REDDIT_BOT_TOKEN);
+  }
+
+  return {
+    props: { subredditMetrics },
+  };
+}
+
+export async function getServerSideProps() {
+  const [discordMetrics, subredditMetrics] = await Promise.all([
+    getDiscordMetrics(),
+    getSubredditMetrics(),
+  ]);
+  return {
+    props: {
+      ...discordMetrics.props,
+      ...subredditMetrics.props,
+    },
   };
 }
 
@@ -158,8 +233,8 @@ export default function Home({ guildMetrics }: any) {
                   </div>
                   <h4 className="title">Compare drug combos</h4>
                   <p className="description">
-                    Check out our combination chart that shows the results of
-                    mixing common drugs.
+                    Explore our interactive chart detailing the effects of
+                    combining popular drugs for informed decisions.
                   </p>
                 </div>
               </a>
@@ -181,8 +256,8 @@ export default function Home({ guildMetrics }: any) {
                   </div>
                   <h4 className="title">Get drug info</h4>
                   <p className="description">
-                    Our factsheets have even more details on drug information,
-                    including dosages and durations.
+                    Dive deep into our detailed factsheets for comprehensive
+                    insights on drug dosages, durations, and more.
                   </p>
                 </div>
               </a>
@@ -204,8 +279,8 @@ export default function Home({ guildMetrics }: any) {
                   </div>
                   <h4 className="title">Join the Discord</h4>
                   <p className="description">
-                    Join our awesome community! Our discord is where nearly
-                    everything is planned and executed.
+                    Be part of our vibrant community! Dive into our Discord, the
+                    hub where all the magic happens and plans come to life.
                   </p>
                 </div>
               </a>
@@ -227,9 +302,9 @@ export default function Home({ guildMetrics }: any) {
                   </div>
                   <h4 className="title">Take a course</h4>
                   <p className="description">
-                    Our free learning platform gives you valuable skills
-                    starting with our first course &quot;Intro to
-                    TripSitting&quot;
+                    Unlock invaluable skills with our complimentary learning
+                    platform, beginning with our flagship course: &apos;Intro to
+                    TripSitting&apos;.
                   </p>
                 </div>
               </a>
@@ -244,15 +319,17 @@ export default function Home({ guildMetrics }: any) {
             <div className="section-title">
               <h2>About Us</h2>
               <p>
-                In a world where help often falls short, TripSit bridges the
-                gap. We&apos;re on a mission to dispel drug-use taboos and equip
-                individuals with the resources to stay safe.{" "}
+                In an era where assistance often doesn&apos;t measure up,
+                TripSit emerges as the beacon of hope. We&apos;re driving
+                forward with a mission to dismantle misconceptions about drug
+                use and arm individuals with the tools they need for safer
+                experiences.{" "}
               </p>
             </div>
 
             <div className="row content">
               <div className="col-lg-6">
-                <p>Our core ideas are simple:</p>
+                <p>Our foundational principles are clear-cut:</p>
                 <ul>
                   <li>
                     <i className="ri-check-double-line"></i> Accept that people
@@ -264,20 +341,20 @@ export default function Home({ guildMetrics }: any) {
                     to use substances while reducing harmful practices.
                   </li>
                   <li>
-                    <i className="ri-check-double-line"></i> Understand that
-                    education on how to stay safe is the best way to reduce
-                    harm.
+                    <i className="ri-check-double-line"></i> Conviction that
+                    informed education is the cornerstone for harm mitigation.
                   </li>
                 </ul>
               </div>
               <div className="col-lg-6 pt-4 pt-lg-0">
                 <p>
-                  At TripSit, we focus on the open discussion and implementation
-                  of harm reduction strategies. We not only advocate for tools
-                  like test kits but also offer guidance for safer drug usage.
-                  Our platform encourages dialogue about scientific, medical,
-                  and philosophical perspectives on drugs, providing advice
-                  drawn from our collective life experiences.
+                  At TripSit, our emphasis lies in fostering open conversations
+                  and enacting harm reduction methodologies. Beyond championing
+                  essentials like test kits, we provide a roadmap for more
+                  prudent drug interactions. We&apos;ve cultivated a platform
+                  that promotes discourse from scientific, medical, and
+                  philosophical angles on drugs, offering counsel rooted in our
+                  shared journeys.
                 </p>
               </div>
             </div>
@@ -292,61 +369,67 @@ export default function Home({ guildMetrics }: any) {
                     classNames={aboutUsAccordionClassNames}
                   >
                     <p>
-                      In a world where help often falls short, TripSit bridges
-                      the gap. We&apos;re on a mission to dispel drug-use taboos
-                      and equip individuals with the resources to stay safe.
-                    </p>
-                    <p>
-                      At TripSit, we focus on the open discussion and
-                      implementation of harm reduction strategies. We not only
-                      advocate for tools like test kits but also offer guidance
-                      for safer drug usage. Our platform encourages dialogue
-                      about scientific, medical, and philosophical perspectives
-                      on drugs, providing advice drawn from our collective life
+                      In an era where assistance often doesn&apos;t measure up,
+                      TripSit stands as a beacon of hope. We&apos;re
+                      passionately driven to challenge drug-related stigmas and
+                      empower individuals with the tools they need for safer
                       experiences.
                     </p>
                     <p>
-                      Recognizing that people will use drugs regardless of
-                      legality, we aim to mitigate the risks of reckless or
-                      uninformed consumption. Our support extends from providing
-                      someone to talk to and advice on safe dosage to
-                      recommending resources for recovery.
+                      At the heart of TripSit is our commitment to open dialogue
+                      and the practical application of harm reduction
+                      strategies. Beyond championing tools like test kits, we
+                      provide a roadmap for informed and safer drug
+                      interactions. Our platform is a hub for discourse on drugs
+                      from scientific, medical, and philosophical viewpoints,
+                      offering insights rooted in our collective journeys.
                     </p>
                     <p>
-                      Our community offers a 24/7 live chat for immediate
-                      assistance and a drug-information wiki for quick facts. We
-                      also host a live radio service for companionship through
-                      music.
+                      With the understanding that people will engage with
+                      substances irrespective of their legal status, our goal is
+                      to minimize the dangers of uninformed consumption. Our
+                      umbrella of support ranges from offering a listening ear
+                      and guidance on dosage to suggesting avenues for recovery.
                     </p>
                     <p>
-                      We are a team of dedicated volunteers, not trained
-                      professionals. Our services aim to assist those who need
-                      information, a non-judgmental ear, a testing kit, or
-                      simply a friendly place to hang out.
+                      Our vibrant community features a 24/7 live chat for
+                      on-the-spot help and a drug-knowledge wiki for swift
+                      facts. Additionally, our live radio service offers musical
+                      companionship to resonate with our users.
                     </p>
                     <p>
-                      TripSit does not promote drug use or abuse. Our network
-                      serves users who have already decided to take drugs, with
-                      a focus on their safety. We strongly discourage dangerous
-                      drug combinations and have zero tolerance toward
-                      discussions of self-harm or suicide.
+                      We&apos;re a passionate group of volunteers, not certified
+                      professionals. Our suite of services is designed to assist
+                      those seeking information, an unbiased ear, testing
+                      resources, or just a welcoming space.
                     </p>
                     <p>
-                      While we are not a substitute for professional medical
-                      help, we strive to provide advice and positive support to
-                      individuals already engaged in drug use. We inform users
-                      about potential side effects, addiction risks, and harmful
-                      drug interactions.
+                      TripSit doesn&apos;t endorse drug consumption. Rather, our
+                      network serves individuals who&apos;ve chosen to use
+                      substances, emphasizing their well-being. We ardently
+                      advise against risky drug mixtures and maintain a strict
+                      policy against discussions of self-harm or suicide.
                     </p>
                     <p>
-                      We are a refuge for those hesitant to seek advice due to
-                      social stigma, offering advice, support, and positivity.
-                      By challenging draconian attitudes towards drug use,
-                      TripSit aims to provide potentially life-saving
-                      information and resources.
+                      While we don&apos;t replace the expertise of medical
+                      professionals, our mission is to offer guidance and a
+                      positive anchor to those already exploring substances. We
+                      educate about potential adverse effects, addiction
+                      dangers, and risky drug combinations.
                     </p>
                     <p>
-                      From all of us at TripSit: Stay safe and stay informed.
+                      We&apos;re a sanctuary for those wary of seeking guidance
+                      due to societal prejudices. By offering advice, unwavering
+                      support, and positivity, and by confronting outdated views
+                      on substance use, TripSit endeavors to deliver potentially
+                      life-saving knowledge and tools.
+                    </p>
+                    <p>
+                      A heartfelt message from the TripSit family: Prioritize
+                      safety and knowledge.
+                    </p>
+                    <p>
+                      From all of us at TripSit: Stay safe and dose responsibly.
                     </p>
                   </AccordionItem>
                 </Accordion>
@@ -730,33 +813,33 @@ export default function Home({ guildMetrics }: any) {
                 data-aos="zoom-in"
                 data-aos-delay="100"
               >
-                <div className="icon-box iconbox-blue">
-                  <div className="icon">
-                    <svg
-                      width="100"
-                      height="100"
-                      viewBox="0 0 600 600"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        stroke="none"
-                        strokeWidth="0"
-                        fill="#f5f5f5"
-                        d="M300,521.0016835830174C376.1290562159157,517.8887921683347,466.0731472004068,529.7835943286574,510.70327084640275,468.03025145048787C554.3714126377745,407.6079735673963,508.03601936045806,328.9844924480964,491.2728898941984,256.3432110539036C474.5976632858925,184.082847569629,479.9380746630129,96.60480741107993,416.23090153303,58.64404602377083C348.86323505073057,18.502131276798302,261.93793281208167,40.57373210992963,193.5410806939664,78.93577620505333C130.42746243093433,114.334589627462,98.30271207620316,179.96522072025542,76.75703585869454,249.04625023123273C51.97151888228291,328.5150500222984,13.704378332031375,421.85034740162234,66.52175969318436,486.19268352777647C119.04800174914682,550.1803526380478,217.28368757567262,524.383925680826,300,521.0016835830174"
-                      ></path>
-                    </svg>
-                    <i>
-                      <JoinInnerOutlinedIcon id="ComboIcon" />
-                    </i>
+                <a href="https://combo.tripsit.me/">
+                  <div className="icon-box iconbox-blue">
+                    <div className="icon">
+                      <svg
+                        width="100"
+                        height="100"
+                        viewBox="0 0 600 600"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          stroke="none"
+                          strokeWidth="0"
+                          fill="#f5f5f5"
+                          d="M300,521.0016835830174C376.1290562159157,517.8887921683347,466.0731472004068,529.7835943286574,510.70327084640275,468.03025145048787C554.3714126377745,407.6079735673963,508.03601936045806,328.9844924480964,491.2728898941984,256.3432110539036C474.5976632858925,184.082847569629,479.9380746630129,96.60480741107993,416.23090153303,58.64404602377083C348.86323505073057,18.502131276798302,261.93793281208167,40.57373210992963,193.5410806939664,78.93577620505333C130.42746243093433,114.334589627462,98.30271207620316,179.96522072025542,76.75703585869454,249.04625023123273C51.97151888228291,328.5150500222984,13.704378332031375,421.85034740162234,66.52175969318436,486.19268352777647C119.04800174914682,550.1803526380478,217.28368757567262,524.383925680826,300,521.0016835830174"
+                        ></path>
+                      </svg>
+                      <i>
+                        <JoinInnerOutlinedIcon id="ComboIcon" />
+                      </i>
+                    </div>
+                    <h4>Combo App</h4>
+                    <p>
+                      Explore our innovative Combo Chart, a must-see resource
+                      for informed substance combinations. Dive in now!
+                    </p>
                   </div>
-                  <h4>
-                    <a href="https://combo.tripsit.me/">Combo App</a>
-                  </h4>
-                  <p>
-                    Our combo chart is fuckin&apos; sweet mate. Check it out
-                    here.
-                  </p>
-                </div>
+                </a>
               </div>
 
               <div
@@ -764,30 +847,33 @@ export default function Home({ guildMetrics }: any) {
                 data-aos="zoom-in"
                 data-aos-delay="200"
               >
-                <div className="icon-box iconbox-orange ">
-                  <div className="icon">
-                    <svg
-                      width="100"
-                      height="100"
-                      viewBox="0 0 600 600"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        stroke="none"
-                        strokeWidth="0"
-                        fill="#f5f5f5"
-                        d="M300,582.0697525312426C382.5290701553225,586.8405444964366,449.9789794690241,525.3245884688669,502.5850820975895,461.55621195738473C556.606425686781,396.0723002908107,615.8543463187945,314.28637112970534,586.6730223649479,234.56875336149918C558.9533121215079,158.8439757836574,454.9685369536778,164.00468322053177,381.49747125262974,130.76875717737553C312.15926192815925,99.40240125094834,248.97055460311594,18.661163978235184,179.8680185752513,50.54337015887873C110.5421016452524,82.52863877960104,119.82277516462835,180.83849132639028,109.12597500060166,256.43424936330496C100.08760227029461,320.3096726198365,92.17705696193138,384.0621239912766,124.79988738764834,439.7174275375508C164.83382741302287,508.01625554203684,220.96474134820875,577.5009287672846,300,582.0697525312426"
-                      ></path>
-                    </svg>
-                    <i>
-                      <FactCheckOutlinedIcon />
-                    </i>
+                <a href="https://drugs.tripsit.me">
+                  <div className="icon-box iconbox-orange ">
+                    <div className="icon">
+                      <svg
+                        width="100"
+                        height="100"
+                        viewBox="0 0 600 600"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          stroke="none"
+                          strokeWidth="0"
+                          fill="#f5f5f5"
+                          d="M300,582.0697525312426C382.5290701553225,586.8405444964366,449.9789794690241,525.3245884688669,502.5850820975895,461.55621195738473C556.606425686781,396.0723002908107,615.8543463187945,314.28637112970534,586.6730223649479,234.56875336149918C558.9533121215079,158.8439757836574,454.9685369536778,164.00468322053177,381.49747125262974,130.76875717737553C312.15926192815925,99.40240125094834,248.97055460311594,18.661163978235184,179.8680185752513,50.54337015887873C110.5421016452524,82.52863877960104,119.82277516462835,180.83849132639028,109.12597500060166,256.43424936330496C100.08760227029461,320.3096726198365,92.17705696193138,384.0621239912766,124.79988738764834,439.7174275375508C164.83382741302287,508.01625554203684,220.96474134820875,577.5009287672846,300,582.0697525312426"
+                        ></path>
+                      </svg>
+                      <i>
+                        <FactCheckOutlinedIcon />
+                      </i>
+                    </div>
+                    <h4>Drug Factsheets</h4>
+                    <p>
+                      Dive into our comprehensive Drug Factsheets for concise
+                      and essential insights on various substances.
+                    </p>
                   </div>
-                  <h4>
-                    <a href="https://drugs.tripsit.me">Drug Factsheets</a>
-                  </h4>
-                  <p>Our factsheets are quick references to substances.</p>
-                </div>
+                </a>
               </div>
 
               <div
@@ -795,35 +881,34 @@ export default function Home({ guildMetrics }: any) {
                 data-aos="zoom-in"
                 data-aos-delay="300"
               >
-                <div className="icon-box iconbox-pink">
-                  <div className="icon">
-                    <svg
-                      width="100"
-                      height="100"
-                      viewBox="0 0 600 600"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        stroke="none"
-                        strokeWidth="0"
-                        fill="#f5f5f5"
-                        d="M300,541.5067337569781C382.14930387511276,545.0595476570109,479.8736841581634,548.3450877840088,526.4010558755058,480.5488172755941C571.5218469581645,414.80211281144784,517.5187510058486,332.0715597781072,496.52539010469104,255.14436215662573C477.37192572678356,184.95920475031193,473.57363656557914,105.61284051026155,413.0603344069578,65.22779650032875C343.27470386102294,18.654635553484475,251.2091493199835,5.337323636656869,175.0934190732945,40.62881213300186C97.87086631185822,76.43348514350839,51.98124368387456,156.15599469081315,36.44837278890362,239.84606092416172C21.716077023791087,319.22268207091537,43.775223500013084,401.1760424656574,96.891909868211,461.97329694683043C147.22146801428983,519.5804099606455,223.5754009179313,538.201503339737,300,541.5067337569781"
-                      ></path>
-                    </svg>
-                    <i className="bx bxl-wikipedia"></i>
+                <a href="https://wiki.tripsit.me/wiki/Main_Page">
+                  <div className="icon-box iconbox-pink">
+                    <div className="icon">
+                      <svg
+                        width="100"
+                        height="100"
+                        viewBox="0 0 600 600"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          stroke="none"
+                          strokeWidth="0"
+                          fill="#f5f5f5"
+                          d="M300,541.5067337569781C382.14930387511276,545.0595476570109,479.8736841581634,548.3450877840088,526.4010558755058,480.5488172755941C571.5218469581645,414.80211281144784,517.5187510058486,332.0715597781072,496.52539010469104,255.14436215662573C477.37192572678356,184.95920475031193,473.57363656557914,105.61284051026155,413.0603344069578,65.22779650032875C343.27470386102294,18.654635553484475,251.2091493199835,5.337323636656869,175.0934190732945,40.62881213300186C97.87086631185822,76.43348514350839,51.98124368387456,156.15599469081315,36.44837278890362,239.84606092416172C21.716077023791087,319.22268207091537,43.775223500013084,401.1760424656574,96.891909868211,461.97329694683043C147.22146801428983,519.5804099606455,223.5754009179313,538.201503339737,300,541.5067337569781"
+                        ></path>
+                      </svg>
+                      <i className="bx bxl-wikipedia"></i>
+                    </div>
+                    <h4>Substance Wiki</h4>
+                    <p>
+                      Immerse yourself in our extensive Substance Wiki, brimming
+                      with detailed insights on drugs and herbal remedies. We
+                      invite you to register and contribute informed edits.
+                      Eager to collaborate? Connect with our team in the Discord
+                      #content room!
+                    </p>
                   </div>
-                  <h4>
-                    <a href="https://wiki.tripsit.me/wiki/Main_Page">
-                      Substance Wiki
-                    </a>
-                  </h4>
-                  <p>
-                    Our wiki is choc full of drug and herbal information.
-                    Account registration is open and informed changes are
-                    welcome. Want to help out here? Join the discord #content
-                    room to coordinate with the team!
-                  </p>
-                </div>
+                </a>
               </div>
 
               <div
@@ -831,30 +916,33 @@ export default function Home({ guildMetrics }: any) {
                 data-aos="zoom-in"
                 data-aos-delay="100"
               >
-                <div className="icon-box iconbox-yellow">
-                  <div className="icon">
-                    <svg
-                      width="100"
-                      height="100"
-                      viewBox="0 0 600 600"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        stroke="none"
-                        strokeWidth="0"
-                        fill="#f5f5f5"
-                        d="M300,503.46388370962813C374.79870501325706,506.71871716319447,464.8034551963731,527.1746412648533,510.4981551193396,467.86667711651364C555.9287308511215,408.9015244558933,512.6030010748507,327.5744911775523,490.211057578863,256.5855673507754C471.097692560561,195.9906835881958,447.69079081568157,138.11976852964426,395.19560036434837,102.3242989838813C329.3053358748298,57.3949838291264,248.02791733380457,8.279543830951368,175.87071277845988,42.242879143198664C103.41431057327972,76.34704239035025,93.79494320519305,170.9812938413882,81.28167332365135,250.07896920659033C70.17666984294237,320.27484674793965,64.84698225790005,396.69656628748305,111.28512138212992,450.4950937839243C156.20124167950087,502.5303643271138,231.32542653798444,500.4755392045468,300,503.46388370962813"
-                      ></path>
-                    </svg>
-                    <i>
-                      <TransformOutlinedIcon />
-                    </i>
+                <a href="https://benzos.tripsit.me/">
+                  <div className="icon-box iconbox-yellow">
+                    <div className="icon">
+                      <svg
+                        width="100"
+                        height="100"
+                        viewBox="0 0 600 600"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          stroke="none"
+                          strokeWidth="0"
+                          fill="#f5f5f5"
+                          d="M300,503.46388370962813C374.79870501325706,506.71871716319447,464.8034551963731,527.1746412648533,510.4981551193396,467.86667711651364C555.9287308511215,408.9015244558933,512.6030010748507,327.5744911775523,490.211057578863,256.5855673507754C471.097692560561,195.9906835881958,447.69079081568157,138.11976852964426,395.19560036434837,102.3242989838813C329.3053358748298,57.3949838291264,248.02791733380457,8.279543830951368,175.87071277845988,42.242879143198664C103.41431057327972,76.34704239035025,93.79494320519305,170.9812938413882,81.28167332365135,250.07896920659033C70.17666984294237,320.27484674793965,64.84698225790005,396.69656628748305,111.28512138212992,450.4950937839243C156.20124167950087,502.5303643271138,231.32542653798444,500.4755392045468,300,503.46388370962813"
+                        ></path>
+                      </svg>
+                      <i>
+                        <TransformOutlinedIcon />
+                      </i>
+                    </div>
+                    <h4>Benzo Converter</h4>
+                    <p>
+                      Utilize our Benzo Converter for approximate conversions
+                      between different types of benzodiazepines.
+                    </p>
                   </div>
-                  <h4>
-                    <a href="https://benzos.tripsit.me/">Benzo Converter</a>
-                  </h4>
-                  <p>Roughly convert one benzodiazepine type into another.</p>
-                </div>
+                </a>
               </div>
 
               <div
@@ -862,33 +950,33 @@ export default function Home({ guildMetrics }: any) {
                 data-aos="zoom-in"
                 data-aos-delay="200"
               >
-                <div className="icon-box iconbox-red">
-                  <div className="icon">
-                    <svg
-                      width="100"
-                      height="100"
-                      viewBox="0 0 600 600"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        stroke="none"
-                        strokeWidth="0"
-                        fill="#f5f5f5"
-                        d="M300,532.3542879108572C369.38199826031484,532.3153073249985,429.10787420159085,491.63046689027357,474.5244479745417,439.17860296908856C522.8885846962883,383.3225815378663,569.1668002868075,314.3205725914397,550.7432151929288,242.7694973846089C532.6665558377875,172.5657663291529,456.2379748765914,142.6223662098291,390.3689995646985,112.34683881706744C326.66090330228417,83.06452184765237,258.84405631176094,53.51806209861945,193.32584062364296,78.48882559362697C121.61183558270385,105.82097193414197,62.805066853699245,167.19869350419734,48.57481801355237,242.6138429142374C34.843463184063346,315.3850353017275,76.69343916112496,383.4422959591041,125.22947124332185,439.3748458443577C170.7312796277747,491.8107796887764,230.57421082200815,532.3932930995766,300,532.3542879108572"
-                      ></path>
-                    </svg>
-                    <i>
-                      <CalculateOutlinedIcon />
-                    </i>
+                <a href="https://dxm.tripsit.me/">
+                  <div className="icon-box iconbox-red">
+                    <div className="icon">
+                      <svg
+                        width="100"
+                        height="100"
+                        viewBox="0 0 600 600"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          stroke="none"
+                          strokeWidth="0"
+                          fill="#f5f5f5"
+                          d="M300,532.3542879108572C369.38199826031484,532.3153073249985,429.10787420159085,491.63046689027357,474.5244479745417,439.17860296908856C522.8885846962883,383.3225815378663,569.1668002868075,314.3205725914397,550.7432151929288,242.7694973846089C532.6665558377875,172.5657663291529,456.2379748765914,142.6223662098291,390.3689995646985,112.34683881706744C326.66090330228417,83.06452184765237,258.84405631176094,53.51806209861945,193.32584062364296,78.48882559362697C121.61183558270385,105.82097193414197,62.805066853699245,167.19869350419734,48.57481801355237,242.6138429142374C34.843463184063346,315.3850353017275,76.69343916112496,383.4422959591041,125.22947124332185,439.3748458443577C170.7312796277747,491.8107796887764,230.57421082200815,532.3932930995766,300,532.3542879108572"
+                        ></path>
+                      </svg>
+                      <i>
+                        <CalculateOutlinedIcon />
+                      </i>
+                    </div>
+                    <h4>DXM Calculator</h4>
+                    <p>
+                      Determine the optimal safe DXM dosage tailored to your
+                      body weight with our intuitive calculator.
+                    </p>
                   </div>
-                  <h4>
-                    <a href="https://dxm.tripsit.me/">DXM Calculator</a>
-                  </h4>
-                  <p>
-                    Calculate the ideal safe dosage for DXM based on your body
-                    weight.
-                  </p>
-                </div>
+                </a>
               </div>
 
               <div
@@ -896,37 +984,35 @@ export default function Home({ guildMetrics }: any) {
                 data-aos="zoom-in"
                 data-aos-delay="300"
               >
-                <div className="icon-box iconbox-teal">
-                  <div className="icon">
-                    <svg
-                      width="100"
-                      height="100"
-                      viewBox="0 0 600 600"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        stroke="none"
-                        strokeWidth="0"
-                        fill="#f5f5f5"
-                        d="M300,566.797414625762C385.7384707136149,576.1784315230908,478.7894351017131,552.8928747891023,531.9192734346935,484.94944893311C584.6109503024035,417.5663521118492,582.489472248146,322.67544863468447,553.9536738515405,242.03673114598146C529.1557734026468,171.96086150256528,465.24506316201064,127.66468636344209,395.9583748389544,100.7403814666027C334.2173773831606,76.7482773500951,269.4350130405921,84.62216499799875,207.1952322260088,107.2889140133804C132.92018162631612,134.33871894543012,41.79353780512637,160.00259165414826,22.644507872594943,236.69541883565114C3.319112789854554,314.0945973066697,72.72355303640163,379.243833228382,124.04198916343866,440.3218312028393C172.9286146004772,498.5055451809895,224.45579914871206,558.5317968840102,300,566.797414625762"
-                      ></path>
-                    </svg>
-                    <i>
-                      <ScienceOutlinedIcon />
-                    </i>
+                <a href="https://volume.tripsit.me/">
+                  <div className="icon-box iconbox-teal">
+                    <div className="icon">
+                      <svg
+                        width="100"
+                        height="100"
+                        viewBox="0 0 600 600"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          stroke="none"
+                          strokeWidth="0"
+                          fill="#f5f5f5"
+                          d="M300,566.797414625762C385.7384707136149,576.1784315230908,478.7894351017131,552.8928747891023,531.9192734346935,484.94944893311C584.6109503024035,417.5663521118492,582.489472248146,322.67544863468447,553.9536738515405,242.03673114598146C529.1557734026468,171.96086150256528,465.24506316201064,127.66468636344209,395.9583748389544,100.7403814666027C334.2173773831606,76.7482773500951,269.4350130405921,84.62216499799875,207.1952322260088,107.2889140133804C132.92018162631612,134.33871894543012,41.79353780512637,160.00259165414826,22.644507872594943,236.69541883565114C3.319112789854554,314.0945973066697,72.72355303640163,379.243833228382,124.04198916343866,440.3218312028393C172.9286146004772,498.5055451809895,224.45579914871206,558.5317968840102,300,566.797414625762"
+                        ></path>
+                      </svg>
+                      <i>
+                        <ScienceOutlinedIcon />
+                      </i>
+                    </div>
+                    <h4>Volumetric Converter</h4>
+                    <p>
+                      For powders with microgram-level potency, ensuring safe
+                      dosage can be challenging. Our Volumetric Converter aids
+                      in creating a uniform solution, ensuring precise and safer
+                      dosing of these potent substances.
+                    </p>
                   </div>
-                  <h4>
-                    <a href="https://volume.tripsit.me/">
-                      Volumetric Converter
-                    </a>
-                  </h4>
-                  <p>
-                    When dealing with powders that are active on the microgram
-                    (ug) scale, it can be safer to make a solution (liquid)
-                    containing your substance. This spreads out the substance
-                    and makes it easier to dose a smaller amount.
-                  </p>
-                </div>
+                </a>
               </div>
 
               <div
@@ -934,35 +1020,36 @@ export default function Home({ guildMetrics }: any) {
                 data-aos="zoom-in"
                 data-aos-delay="100"
               >
-                <div className="icon-box iconbox-yellow">
-                  <div className="icon">
-                    <svg
-                      width="100"
-                      height="100"
-                      viewBox="0 0 600 600"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        stroke="none"
-                        strokeWidth="0"
-                        fill="#f5f5f5"
-                        d="M300,503.46388370962813C374.79870501325706,506.71871716319447,464.8034551963731,527.1746412648533,510.4981551193396,467.86667711651364C555.9287308511215,408.9015244558933,512.6030010748507,327.5744911775523,490.211057578863,256.5855673507754C471.097692560561,195.9906835881958,447.69079081568157,138.11976852964426,395.19560036434837,102.3242989838813C329.3053358748298,57.3949838291264,248.02791733380457,8.279543830951368,175.87071277845988,42.242879143198664C103.41431057327972,76.34704239035025,93.79494320519305,170.9812938413882,81.28167332365135,250.07896920659033C70.17666984294237,320.27484674793965,64.84698225790005,396.69656628748305,111.28512138212992,450.4950937839243C156.20124167950087,502.5303643271138,231.32542653798444,500.4755392045468,300,503.46388370962813"
-                      ></path>
-                    </svg>
-                    <i>
-                      <SchoolOutlinedIcon />
-                    </i>
+                <a href="https://learn.tripsit.me">
+                  <div className="icon-box iconbox-yellow">
+                    <div className="icon">
+                      <svg
+                        width="100"
+                        height="100"
+                        viewBox="0 0 600 600"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          stroke="none"
+                          strokeWidth="0"
+                          fill="#f5f5f5"
+                          d="M300,503.46388370962813C374.79870501325706,506.71871716319447,464.8034551963731,527.1746412648533,510.4981551193396,467.86667711651364C555.9287308511215,408.9015244558933,512.6030010748507,327.5744911775523,490.211057578863,256.5855673507754C471.097692560561,195.9906835881958,447.69079081568157,138.11976852964426,395.19560036434837,102.3242989838813C329.3053358748298,57.3949838291264,248.02791733380457,8.279543830951368,175.87071277845988,42.242879143198664C103.41431057327972,76.34704239035025,93.79494320519305,170.9812938413882,81.28167332365135,250.07896920659033C70.17666984294237,320.27484674793965,64.84698225790005,396.69656628748305,111.28512138212992,450.4950937839243C156.20124167950087,502.5303643271138,231.32542653798444,500.4755392045468,300,503.46388370962813"
+                        ></path>
+                      </svg>
+                      <i>
+                        <SchoolOutlinedIcon />
+                      </i>
+                    </div>
+                    <h4>Learning Platform</h4>
+                    <p>
+                      Elevate your knowledge with our Learning Platform, a
+                      dedicated space for community members to undertake courses
+                      and demonstrate expertise. Embracing an open-source ethos,
+                      we invite enthusiasts to contribute by crafting their own
+                      courses.
+                    </p>
                   </div>
-                  <h4>
-                    <a href="https://learn.tripsit.me">Learning Platform</a>
-                  </h4>
-                  <p>
-                    Our learning platform gives the community a place to take
-                    courses and prove they know what they&apos;re talking about.
-                    Our open source philosophy allows almost anyone to create a
-                    course if they wanted.
-                  </p>
-                </div>
+                </a>
               </div>
 
               <div
@@ -970,37 +1057,38 @@ export default function Home({ guildMetrics }: any) {
                 data-aos="zoom-in"
                 data-aos-delay="200"
               >
-                <div className="icon-box iconbox-red">
-                  <div className="icon">
-                    <svg
-                      width="100"
-                      height="100"
-                      viewBox="0 0 600 600"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        stroke="none"
-                        strokeWidth="0"
-                        fill="#f5f5f5"
-                        d="M300,532.3542879108572C369.38199826031484,532.3153073249985,429.10787420159085,491.63046689027357,474.5244479745417,439.17860296908856C522.8885846962883,383.3225815378663,569.1668002868075,314.3205725914397,550.7432151929288,242.7694973846089C532.6665558377875,172.5657663291529,456.2379748765914,142.6223662098291,390.3689995646985,112.34683881706744C326.66090330228417,83.06452184765237,258.84405631176094,53.51806209861945,193.32584062364296,78.48882559362697C121.61183558270385,105.82097193414197,62.805066853699245,167.19869350419734,48.57481801355237,242.6138429142374C34.843463184063346,315.3850353017275,76.69343916112496,383.4422959591041,125.22947124332185,439.3748458443577C170.7312796277747,491.8107796887764,230.57421082200815,532.3932930995766,300,532.3542879108572"
-                      ></path>
-                    </svg>
-                    <i>
-                      <SmartToyOutlinedIcon />
-                    </i>
+                <a href="https://tripbot.info/">
+                  <div className="icon-box iconbox-red">
+                    <div className="icon">
+                      <svg
+                        width="100"
+                        height="100"
+                        viewBox="0 0 600 600"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          stroke="none"
+                          strokeWidth="0"
+                          fill="#f5f5f5"
+                          d="M300,532.3542879108572C369.38199826031484,532.3153073249985,429.10787420159085,491.63046689027357,474.5244479745417,439.17860296908856C522.8885846962883,383.3225815378663,569.1668002868075,314.3205725914397,550.7432151929288,242.7694973846089C532.6665558377875,172.5657663291529,456.2379748765914,142.6223662098291,390.3689995646985,112.34683881706744C326.66090330228417,83.06452184765237,258.84405631176094,53.51806209861945,193.32584062364296,78.48882559362697C121.61183558270385,105.82097193414197,62.805066853699245,167.19869350419734,48.57481801355237,242.6138429142374C34.843463184063346,315.3850353017275,76.69343916112496,383.4422959591041,125.22947124332185,439.3748458443577C170.7312796277747,491.8107796887764,230.57421082200815,532.3932930995766,300,532.3542879108572"
+                        ></path>
+                      </svg>
+                      <i>
+                        <SmartToyOutlinedIcon />
+                      </i>
+                    </div>
+                    <h4>TripSit Discord Bot</h4>
+                    <p>
+                      Introducing our multifunctional Discord Bot, designed to
+                      seamlessly blend moderation capabilities with
+                      TripSit-session management. Perfect not just for TripSit,
+                      but adaptable for any Discord guild. Interested in
+                      launching your own TripSit-inspired initiative? Our tools
+                      are at your disposal. With an open-source development
+                      approach, we continually welcome
+                    </p>
                   </div>
-                  <h4>
-                    <a href="https://tripbot.info/">TripSit Discord Bot</a>
-                  </h4>
-                  <p>
-                    Our discord bot is a moderation tool and TripSit-session
-                    handling system all-in-one. It aims to help not only
-                    TripSit, but any discord guild that wants to add it. Want to
-                    make your own TripSit franchise? Now anyone has the tools to
-                    do that, and development is open source, so community
-                    feedback is always welcome and used!
-                  </p>
-                </div>
+                </a>
               </div>
 
               <div
@@ -1008,35 +1096,34 @@ export default function Home({ guildMetrics }: any) {
                 data-aos="zoom-in"
                 data-aos-delay="300"
               >
-                <div className="icon-box iconbox-teal">
-                  <div className="icon">
-                    <svg
-                      width="100"
-                      height="100"
-                      viewBox="0 0 600 600"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        stroke="none"
-                        strokeWidth="0"
-                        fill="#f5f5f5"
-                        d="M300,566.797414625762C385.7384707136149,576.1784315230908,478.7894351017131,552.8928747891023,531.9192734346935,484.94944893311C584.6109503024035,417.5663521118492,582.489472248146,322.67544863468447,553.9536738515405,242.03673114598146C529.1557734026468,171.96086150256528,465.24506316201064,127.66468636344209,395.9583748389544,100.7403814666027C334.2173773831606,76.7482773500951,269.4350130405921,84.62216499799875,207.1952322260088,107.2889140133804C132.92018162631612,134.33871894543012,41.79353780512637,160.00259165414826,22.644507872594943,236.69541883565114C3.319112789854554,314.0945973066697,72.72355303640163,379.243833228382,124.04198916343866,440.3218312028393C172.9286146004772,498.5055451809895,224.45579914871206,558.5317968840102,300,566.797414625762"
-                      ></path>
-                    </svg>
-                    <i>
-                      <PhoneAndroidOutlinedIcon />
-                    </i>
+                <a href="https://play.google.com/store/apps/details?id=me.tripsit.mobile">
+                  <div className="icon-box iconbox-teal">
+                    <div className="icon">
+                      <svg
+                        width="100"
+                        height="100"
+                        viewBox="0 0 600 600"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          stroke="none"
+                          strokeWidth="0"
+                          fill="#f5f5f5"
+                          d="M300,566.797414625762C385.7384707136149,576.1784315230908,478.7894351017131,552.8928747891023,531.9192734346935,484.94944893311C584.6109503024035,417.5663521118492,582.489472248146,322.67544863468447,553.9536738515405,242.03673114598146C529.1557734026468,171.96086150256528,465.24506316201064,127.66468636344209,395.9583748389544,100.7403814666027C334.2173773831606,76.7482773500951,269.4350130405921,84.62216499799875,207.1952322260088,107.2889140133804C132.92018162631612,134.33871894543012,41.79353780512637,160.00259165414826,22.644507872594943,236.69541883565114C3.319112789854554,314.0945973066697,72.72355303640163,379.243833228382,124.04198916343866,440.3218312028393C172.9286146004772,498.5055451809895,224.45579914871206,558.5317968840102,300,566.797414625762"
+                        ></path>
+                      </svg>
+                      <i>
+                        <PhoneAndroidOutlinedIcon />
+                      </i>
+                    </div>
+                    <h4>Android Mobile App</h4>
+                    <p>
+                      Stay informed anytime, anywhere with our Android Mobile
+                      App. Enjoy offline access to comprehensive drug factsheets
+                      and essential combination data at your fingertips.
+                    </p>
                   </div>
-                  <h4>
-                    <a href="https://play.google.com/store/apps/details?id=me.tripsit.mobile">
-                      Android Mobile App
-                    </a>
-                  </h4>
-                  <p>
-                    Take our drug information on-the-go and have offline access
-                    to our factsheets and combo information.
-                  </p>
-                </div>
+                </a>
               </div>
             </div>
           </div>
@@ -1045,15 +1132,16 @@ export default function Home({ guildMetrics }: any) {
         <section id="cta" className="cta">
           <div className="container" data-aos="zoom-in">
             <div className="text-center">
-              <h3>Want to help out?</h3>
+              <h3>Join Our Mission</h3>
               <p>
-                TripSit is a very small org run by volunteers. Everyone can help
-                keep the mission going with their own skill set, including just
-                being a awesome and chatting in the lounge. We have multiple
-                development projects that need maintenance, and our drug
-                information can always use additions of new substances.
-                Everything needs to be tested and proof-read, and the smallest
-                contribution is appreciated!
+                At TripSit, we&apos;re a close-knit, volunteer-driven community.
+                Whether you bring technical prowess, a knack for research, or
+                simply a friendly spirit to chat in the lounge, there&apos;s a
+                place for you here. Our ongoing development projects always
+                welcome an extra pair of hands, and our drug databases eagerly
+                await updates with the latest substances. Every piece of
+                information benefits from meticulous review and proofreading. No
+                contribution is too small, and every effort is deeply valued!
               </p>
 
               <div className="cta-list">
@@ -1067,22 +1155,24 @@ export default function Home({ guildMetrics }: any) {
                     classNames={accordionClassNames}
                   >
                     <p>
-                      Our community is full of awesome, positive people who
-                      likely share a few common interests, excluding the
-                      obvious. We have a{" "}
+                      Dive into our vibrant community, brimming with positive
+                      and like-minded individuals. Beyond our shared passions,
+                      we celebrate diverse interests, from gaming in our
                       <a href="https://steamcommunity.com/groups/TripSit">
-                        Steam community{" "}
-                      </a>
-                      to play games and various channels showing off our pets,
-                      food, and artistic creations. We would not exist without
-                      our incredible community!{" "}
-                      <a href="https://discord.gg/tripsit">Join the discord</a>,
-                      say hi, and get to know the group; you won’t regret it!
+                        Steam community
+                      </a>{" "}
+                      to showcasing our beloved pets, culinary adventures, and
+                      artistic endeavors. The heart and soul of our existence?
+                      Our phenomenal community! Take the leap,
+                      <a href="https://discord.gg/tripsit">join our Discord</a>,
+                      introduce yourself, and immerse in the camaraderie.
+                      It&apos;s an experience you&apos;ll cherish!
                     </p>
                     <p>
-                      Discord is also where coordination on other projects and
-                      our open-source development happens. Even if you just want
-                      to watch the progress, Discord is where that happens!
+                      Our Discord also serves as the hub for project
+                      collaborations and open-source development endeavors.
+                      Whether you&apos;re keen to contribute or simply observe
+                      the evolution, Discord is your go-to platform!
                     </p>
                   </AccordionItem>
                   <AccordionItem
@@ -1095,19 +1185,21 @@ export default function Home({ guildMetrics }: any) {
                     classNames={accordionClassNames}
                   >
                     <p>
-                      If you are like us and desire to help people, you may be
-                      what we are looking for. We are always looking for new
-                      TripSit Team members, and that journey starts with our
-                      Intro to TripSitting course on our learning platform. This
-                      free course gets you started on being a decent TripSitter
-                      and allows you to “link” your discord account with your
-                      learning platform progress.
+                      Do you share our passion for assisting others? You might
+                      be the perfect fit for our team. We&apos;re always on the
+                      lookout for enthusiastic additions to the TripSit Team.
+                      Begin your journey with the &quot;Intro to
+                      TripSitting&quot; course on our learning platform. This
+                      complimentary course equips you with the foundational
+                      skills to excel as a TripSitter and integrates your
+                      Discord account with your course progress.
                     </p>
                     <p>
-                      Once you complete the course, you can become a helper and
-                      start helping out in TripSit sessions. Assist enough as a
-                      Helper, and we’ll invite you to the team as a full
-                      TripSitter!
+                      Upon course completion, you&apos;ll have the opportunity
+                      to join us as a Helper, actively participating in TripSit
+                      sessions. Display consistent dedication and contribution,
+                      and we&apos;ll be thrilled to welcome you as a
+                      full-fledged TripSitter!
                     </p>
                   </AccordionItem>
                   <AccordionItem
@@ -1120,28 +1212,32 @@ export default function Home({ guildMetrics }: any) {
                     classNames={accordionClassNames}
                   >
                     <p>
-                      Make sure to{" "}
-                      <a href="https://discord.gg/tripsit">Join the discord</a>{" "}
-                      and say hi in the #content room where we discuss all our
-                      research projects!
-                    </p>
-                    <p>
-                      New substances are always being created, and we can always
-                      use new articles or updates to our wiki.
-                      <a href="https://wiki.tripsit.me/index.php?title=Special:CreateAccount">
-                        Registration is open
+                      Interested in collaborating on our research projects?
+                      We&apos;d love to have you on board. Start by{" "}
+                      <a href="https://discord.gg/tripsit">
+                        joining our Discord
                       </a>{" "}
-                      , and updates are posted to our Discord for tracking and
-                      auditing.{" "}
+                      and heading over to the #content room where all the
+                      brainstorming and discussions take place.
                     </p>
                     <p>
-                      Our learning platform enables us to create harm reduction
-                      courses and provide them to the community for free. New
-                      course ideas are always floating around in various states
-                      of progress, and if anyone creates a draft course, we can
-                      add it to the site.<p></p>Our drug factsheet database can
-                      also use updates and additions, check out the Development
-                      section for more info on this.
+                      The realm of substances is continually expanding, and
+                      there&apos;s a constant need to refresh and augment our
+                      wiki. If you have expertise or insights,{" "}
+                      <a href="https://wiki.tripsit.me/index.php?title=Special:CreateAccount">
+                        registration is open
+                      </a>{" "}
+                      for contributions. All updates and new entries are
+                      channeled through our Discord for collaborative review and
+                      refinement.
+                    </p>
+                    <p>
+                      Our learning platform is at the forefront of disseminating
+                      harm reduction knowledge. If you have ideas or content for
+                      new courses, we&apos;re all ears. And if you have a flair
+                      for data and details, our drug factsheet database beckons.
+                      Dive deeper into the Development section for a clearer
+                      picture of how you can play a part.
                     </p>
                   </AccordionItem>
                   <AccordionItem
@@ -1221,28 +1317,39 @@ export default function Home({ guildMetrics }: any) {
                       <li>Integrate into new website</li>
                     </ul>
                     <p>
-                      Please remember that TripSit is over a decade old with
-                      legacy systems and a patchwork of documentation and code.
-                      It may not be super easy to jump into the stuff we need to
-                      do, but if you have patience and are willing to learn,
-                      anything is possible.
+                      Keep in mind that TripSit has a rich history spanning over
+                      a decade, built on legacy systems and a mosaic of
+                      documentation and code. Navigating and contributing might
+                      present its challenges initially. However, with
+                      perseverance, a willingness to learn, and a dash of
+                      patience, you&apos;ll find that no task is insurmountable.
                     </p>
+
                     <p>
                       <b>We’re also open to new project ideas!</b>
                     </p>
                     <h3>Android App</h3>
                     <p>
-                      Our Android app works! That’s about all the good I can say
-                      about it right now. Think you can do better? Please do.
-                      The code is public here:
-                      https://github.com/TripSit/tripsit-mobile
+                      Our Android app is functional, but we believe there&apos;s
+                      room for enhancement. If you have the skills and vision to
+                      elevate its performance and design, wev&apos;d love to see
+                      your touch. Dive into the codebase and contribute:{" "}
+                      <a href="https://github.com/TripSit/tripsit-mobile">
+                        https://github.com/TripSit/tripsit-mobile
+                      </a>
+                      .
                     </p>
                     <h3>Main Website</h3>
                     <p>
-                      This website is a NextJS project that intends to allow
-                      future development to integrate our various services into
-                      a single application. Even the smallest pull request is
-                      appreciated! https://github.com/TripSit/website
+                      Our main website, built on NextJS, is envisioned as a
+                      unified platform, seamlessly integrating our diverse
+                      services. We welcome contributions of all sizes to enhance
+                      its functionality and user experience. Dive in and make a
+                      difference:{" "}
+                      <a href="https://github.com/TripSit/website">
+                        https://github.com/TripSit/website
+                      </a>
+                      .
                     </p>
                   </AccordionItem>
                 </Accordion>
@@ -1251,13 +1358,15 @@ export default function Home({ guildMetrics }: any) {
           </div>
         </section>
 
+        {/* <Appeal /> */}
+
         <section id="faq" className="faq">
           <div className="container" data-aos="fade-up">
             <div className="section-title">
               <h2>Frequently Asked Questions</h2>
               <p>
                 Answers to our most commonly asked questions. Is your question
-                not here? Send us a contact form below!
+                not here? Contact us using a method below!
               </p>
             </div>
 
@@ -1272,59 +1381,73 @@ export default function Home({ guildMetrics }: any) {
                   classNames={accordionClassNames}
                 >
                   <p>
-                    TripSit grants you a non-exclusive, non-transferable license
-                    to use, reproduce, distribute, and display the images and
-                    work from TripSit, subject to the conditions below.
+                    TripSit hereby grants you a non-exclusive, non-transferable
+                    license to use, reproduce, distribute, and display images
+                    and content from TripSit, in accordance with the following
+                    conditions:
                   </p>
+
                   <p>
-                    <b>Non-commercial Use Only:</b> You can use our images and
-                    work for any purpose except commercially. This means you can
-                    print, distribute, or display the images and work, but you
-                    cannot sell them or use them in any way you derive monetary
-                    profit from directly or indirectly.
+                    <b>Non-commercial Use Only:</b> You are permitted to use our
+                    images and content for purposes other than commercial
+                    exploitation. This entails that you may print, distribute,
+                    or display the images and content, but you are prohibited
+                    from selling them or using them in any manner from which you
+                    might derive direct or indirect monetary benefit.
                   </p>
+
                   <p>
-                    <b>Attribution:</b> All reproductions of our images and work
-                    must be credited to TripSit by placing our{" "}
+                    <b>Attribution:</b> Any reproduction or distribution of our
+                    images or content must attribute credit to TripSit. This can
+                    be done by placing our
                     <a href="https://drive.google.com/file/d/16529Ykfx1E-BD7kfFn02HAqo1aMCwCwj/view?usp=drive_link">
-                      logo with URL{" "}
-                    </a>
-                    near the image/work.
+                      logo with URL
+                    </a>{" "}
+                    in proximity to the image or content.
                   </p>
+
                   <p>
-                    <b>No Derivative Works:</b> While free to use our images and
-                    work, you cannot modify, alter, or create derivative works
-                    without express written permission from TripSit.
+                    <b>No Derivative Works:</b> You are free to use our images
+                    and content in their original form. However, you are
+                    restricted from modifying, altering, or creating derivative
+                    versions unless you obtain express written consent from
+                    TripSit.
                   </p>
+
                   <p>
-                    <b>No Warranty:</b> Our images and work are provided “as is”
-                    without warranties. TripSit is not liable for any losses,
-                    damages, or claims arising from your use of the images and
-                    work.
+                    <b>No Warranty:</b> Our images and content are provided
+                    &quot;as is&quot; without any form of warranty. TripSit
+                    shall not bear any liability for losses, damages, or claims
+                    stemming from your utilization of the images and content.
                   </p>
+
                   <p>
-                    <b>Termination:</b> If you breach any agreement terms, your
-                    license to use our images and work ends immediately.
-                    Additionally, TripSit reserves the right to terminate this
-                    license at any time for any reason, however we have no
-                    intention of doing so, this is just a legal formality.
+                    <b>Termination:</b> Breaching any term of this agreement
+                    will result in the immediate revocation of your license to
+                    use our images and content. Furthermore, TripSit retains the
+                    right to terminate this license at its discretion and at any
+                    time. This clause is a standard legal provision, and we do
+                    not anticipate enacting it arbitrarily.
                   </p>
+
                   <p>
-                    <b>Reservation of Rights:</b> All rights not expressly
-                    granted in this agreement are reserved by TripSit. We
-                    reserve the right to modify the terms of this license at any
-                    time.
+                    <b>Reservation of Rights:</b> All rights not explicitly
+                    conferred by this agreement remain the property of TripSit.
+                    We also reserve the right to amend the conditions of this
+                    license as circumstances dictate.
                   </p>
-                  <p></p>
+
                   <p>
-                    By using our images and work, you acknowledge and agree to
-                    the terms and conditions outlined above. We sincerely hope
-                    our resources will be valuable to your non-commercial
-                    endeavors.
+                    By leveraging our images and content, you are confirming
+                    your acceptance of and compliance with the terms delineated
+                    above. We earnestly hope our materials prove beneficial for
+                    your non-commercial ventures.
                   </p>
+
                   <p>
-                    If you have questions or wish to seek permissions beyond the
-                    scope of this license, please use the contact form below.
+                    For inquiries or if you wish to seek permissions beyond the
+                    scope of this license, please reach out through one of our
+                    contact methods below.
                   </p>
                 </AccordionItem>
                 <AccordionItem
@@ -1336,25 +1459,28 @@ export default function Home({ guildMetrics }: any) {
                   classNames={accordionClassNames}
                 >
                   <p>
-                    There are many issues we could not resolve after a decade of
-                    trying to work with IRC, and it became impossible to sustain
-                    a quality chat with the amount of resources we have.
+                    Over a decade, we faced numerous challenges with IRC that
+                    remained unresolved. Given our resource constraints,
+                    ensuring a high-quality chat experience on IRC became
+                    untenable.
                   </p>
                   <p>
-                    Instead, Discord has provided the much-needed security and
-                    quality of life features we wish IRC could have given us,
-                    and our discord bot has already revolutionized the harm
-                    reduction communities of Bluelight and r/Drugs.
+                    Turning to Discord, we found the security and user-friendly
+                    features that we had longed for with IRC. Furthermore, our
+                    Discord bot has already made significant positive impacts in
+                    the harm reduction communities of Bluelight and r/Drugs.
                   </p>
                   <p>
-                    The IRC is still available, but it&apos;s restricted to
-                    those who had an existing account. New accounts can be
-                    created on a case-by-case basis, but the we have no plans to
-                    bring the IRC back to the open public. However, the IRC is
-                    completely bridged to discord, so there&apos;s nothing to
-                    miss, and we&apos;re working on a Matrix server that should
-                    resolve privacy concerns with using discord and our
-                    team&apos;s concerns with using legacy software.
+                    While the IRC remains accessible, its use is limited to
+                    those with pre-existing accounts. We may consider new
+                    account creation on a selective basis, but we currently have
+                    no intentions of reopening the IRC to the general public.
+                    Importantly, the IRC is fully integrated with Discord,
+                    ensuring that no conversation is missed. Additionally,
+                    we&apos;re in the process of setting up a Matrix server,
+                    which aims to address any privacy concerns associated with
+                    Discord and our reservations about relying on older software
+                    platforms.
                   </p>
                 </AccordionItem>
                 <AccordionItem
@@ -1366,10 +1492,12 @@ export default function Home({ guildMetrics }: any) {
                   classNames={accordionClassNames}
                 >
                   <p>
-                    As a volunteer organization with members who all work
-                    full-time, we do not have a lot of free time to schedule
-                    interviews, but we are open to questions. The best way to
-                    contact the team is through the discord.
+                    TripSit operates as a volunteer-driven organization, and
+                    many of our members are engaged in full-time commitments.
+                    While our availability for formal interviews might be
+                    limited, we&apos;re always open to addressing questions and
+                    engaging in discussions. The most effective way to reach out
+                    to our team is via our Discord.
                   </p>
                 </AccordionItem>
                 <AccordionItem
@@ -1381,9 +1509,11 @@ export default function Home({ guildMetrics }: any) {
                   classNames={accordionClassNames}
                 >
                   <p>
-                    Yeah, we suck at email, but we&apos;re working on it. We are
-                    a very small volunteer team and email slips through the
-                    cracks a lot. Discord is the best place to reach the team.
+                    We apologize for the oversight. As a tight-knit volunteer
+                    team, we occasionally struggle to keep up with the influx of
+                    emails. We&apos;re striving to improve our response time.
+                    For a quicker response or more direct engagement, reaching
+                    out to us on Discord is highly recommended.
                   </p>
                 </AccordionItem>
               </Accordion>
@@ -1391,13 +1521,12 @@ export default function Home({ guildMetrics }: any) {
           </div>
         </section>
 
-        <section id="contact" className="contact">
+        {/* <section id="contact" className="contact">
           <div className="container" data-aos="fade-up">
             <div className="section-title">
               <h2>Contact</h2>
               <p>
                 <b>The best way to contact the team is to join the Discord. </b>
-                You can also send us a message with the contact form below!
               </p>
             </div>
 
@@ -1456,7 +1585,7 @@ export default function Home({ guildMetrics }: any) {
                   </div>
                 </div>
               </div>
-
+              {/* 
               <div className="col-lg-8 mt-5 mt-lg-0">
                 <form
                   action="forms/contact.php"
@@ -1516,10 +1645,10 @@ export default function Home({ guildMetrics }: any) {
                     </div>
                   </div>
                 </form>
-              </div>
-            </div>
+              </div> */}
+        {/* </div>
           </div>
-        </section>
+        </section> */}
       </main>
 
       <Footer />

@@ -65,6 +65,32 @@ export default function Footer() {
               </ul>
             </div>
 
+            <div className="col-lg-3 col-md-6 footer-links">
+              <h4>Contact Us</h4>
+              <ul>
+                <li>
+                  <i className="bx bxl-discord"></i>
+                  <a href="https://discord.gg/tripsit">Discord</a>
+                </li>
+                <li>
+                  <i className="bx bxl-twitter"></i>
+                  <a href="https://twitter.com/teamtripsit">Twitter</a>
+                </li>
+                <li>
+                  <i className="bx bxl-facebook"></i>
+                  <a href="https://www.facebook.com/TripSitme">Facebook</a>
+                </li>
+                <li>
+                  <i className="bx bxl-reddit"></i>
+                  <a href="http://reddit.com/r/TripSit">Reddit</a>
+                </li>
+                <li>
+                  <i className="ri-sparkling-line"></i>
+                  <a href="http://element.tripsit.me">Matrix</a>
+                </li>
+              </ul>
+            </div>
+
             {/* <div className="col-lg-4 col-md-6 footer-newsletter">
               <h4>Join Our Newsletter</h4>
               <p>Want to stay up to date with new information?</p>

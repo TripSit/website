@@ -34,56 +34,6 @@ function Header() {
               <ul>
                 <li className="dropdown">
                   <a href={`${domain}#`}>
-                    <span>Test Kits</span>{" "}
-                    <i className="bi bi-chevron-right"></i>
-                  </a>
-                  <ul>
-                    <Tooltip
-                      content="This link helps support TripSit!"
-                      placement="left"
-                      color="secondary"
-                    >
-                      <li>
-                        <a href="https://dosetest.com/tripsit">
-                          DoseTest (20% off with &apos;tripsit&apos;)
-                        </a>
-                      </li>
-                    </Tooltip>
-                    <li>
-                      <a href="https://www.reagent-tests.uk/shop/">
-                        Reagent Tests UK (10% off with &apos;tripsitwiki&apos;)
-                      </a>
-                    </li>
-                    <Tooltip
-                      content="This link helps support TripSit!"
-                      placement="left"
-                      color="secondary"
-                    >
-                      <li>
-                        <a href="https://protestkit.eu/shop/?coupon_code=tripsit">
-                          ProTest (10% off with &apos;TripSit&apos;)
-                        </a>
-                      </li>
-                    </Tooltip>
-                    <li>
-                      <a href="http://ez-test.com.au/">
-                        EZ Test (10% off with &apos;TripsitAusOct&apos;)
-                      </a>
-                    </li>
-                    <li>
-                      <a href="https://dancesafe.org/testing-kit-instructions/">
-                        Test Kit Instructions
-                      </a>
-                    </li>
-                    <li>
-                      <a href="https://dancesafe.org/you-may-be-using-fentanyl-testing-strips-incorrectly/">
-                        Fentanyl strip guide
-                      </a>
-                    </li>
-                  </ul>
-                </li>
-                <li className="dropdown">
-                  <a href={`${domain}#`}>
                     <span>Drug Info</span>{" "}
                     <i className="bi bi-chevron-right"></i>
                   </a>
@@ -145,6 +95,57 @@ function Header() {
                     </li>
                     <li>
                       <a href="https://benzos.tripsit.me/">Benzo Conversion</a>
+                    </li>
+                  </ul>
+                </li>
+
+                <li className="dropdown">
+                  <a href={`${domain}#`}>
+                    <span>Test Kits</span>{" "}
+                    <i className="bi bi-chevron-right"></i>
+                  </a>
+                  <ul>
+                    <Tooltip
+                      content="This link helps support TripSit!"
+                      placement="left"
+                      color="secondary"
+                    >
+                      <li>
+                        <a href="https://dosetest.com/tripsit">
+                          DoseTest (20% off with &apos;tripsit&apos;)
+                        </a>
+                      </li>
+                    </Tooltip>
+                    <li>
+                      <a href="https://www.reagent-tests.uk/shop/">
+                        Reagent Tests UK (10% off with &apos;tripsitwiki&apos;)
+                      </a>
+                    </li>
+                    <Tooltip
+                      content="This link helps support TripSit!"
+                      placement="left"
+                      color="secondary"
+                    >
+                      <li>
+                        <a href="https://protestkit.eu/shop/?coupon_code=tripsit">
+                          ProTest (10% off with &apos;TripSit&apos;)
+                        </a>
+                      </li>
+                    </Tooltip>
+                    <li>
+                      <a href="http://ez-test.com.au/">
+                        EZ Test (10% off with &apos;TripsitAusOct&apos;)
+                      </a>
+                    </li>
+                    <li>
+                      <a href="https://dancesafe.org/testing-kit-instructions/">
+                        Test Kit Instructions
+                      </a>
+                    </li>
+                    <li>
+                      <a href="https://dancesafe.org/you-may-be-using-fentanyl-testing-strips-incorrectly/">
+                        Fentanyl strip guide
+                      </a>
                     </li>
                   </ul>
                 </li>

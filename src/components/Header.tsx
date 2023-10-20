@@ -327,15 +327,15 @@ function Header() {
             </li> */}
             <li>
               <a
-                className="joindiscord scrollto"
+                className="getstarted scrollto"
                 href="https://discord.gg/tripsit"
               >
-                Join the discord!
+                Join Discord
               </a>
             </li>
             <li>
               <a
-                className="getstarted scrollto"
+                className="joindiscord scrollto"
                 href="https://tripsit.io/webchat"
               >
                 Start Webchat

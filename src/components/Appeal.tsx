@@ -25,9 +25,9 @@ export default function Appeal() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [stateParam, setStateParam] = useState("");
   // const [oAuthUrl, setOAuthUrl] = useState("");
-  console.log(
-    `GetOauthURL - DISCORD_CLIENT_ID: ${process.env.DISCORD_CLIENT_ID}`,
-  );
+  // console.log(
+  //   `GetOauthURL - DISCORD_CLIENT_ID: ${process.env.DISCORD_CLIENT_ID}`,
+  // );
 
   const loginParams = {
     client_id: process.env.DISCORD_CLIENT_ID as string,
@@ -41,7 +41,7 @@ export default function Appeal() {
     loginParams,
   )}`;
 
-  console.log(`oAuthUrl: ${oAuthUrl}`);
+  // console.log(`oAuthUrl: ${oAuthUrl}`);
 
   return (
     <section id="appeal" className="appeal">

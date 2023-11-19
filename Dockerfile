@@ -5,7 +5,7 @@
 # We stop at the end of this step in development, so it also includes the deploy command
 # We install jest, eslint and ts-node so we can run tests and lint.
 
-FROM node:21.1.0-alpine AS development
+FROM node:21.2.0-alpine AS development
 
 ENV NODE_ENV=development
 
@@ -39,7 +39,7 @@ CMD ["npm", "run", ".dev"]
 # We run the build command which creates the production bundle
 # We run npm ci --only=production to ensure that only the production dependencies are installed
 
-FROM node:21.1.0-alpine AS build
+FROM node:21.2.0-alpine AS build
 
 ENV NODE_ENV=production
 
@@ -69,7 +69,7 @@ RUN npm ci --omit:dev && npm cache clean --force
 # We set the user to node so that the container runs as the node user instead of root
 # We run the start command to start the application
 
-FROM node:21.1.0-alpine AS production
+FROM node:21.2.0-alpine AS production
 
 ENV NODE_ENV=production
 

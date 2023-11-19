@@ -5,11 +5,9 @@
 # We stop at the end of this step in development, so it also includes the deploy command
 # We install jest, eslint and ts-node so we can run tests and lint.
 
-FROM node:20.5.0-alpine AS development
+FROM node:21.1.0-alpine AS development
 
-ENV TZ="America/Chicago"
 ENV NODE_ENV=development
-RUN date
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -41,11 +39,9 @@ CMD ["npm", "run", ".dev"]
 # We run the build command which creates the production bundle
 # We run npm ci --only=production to ensure that only the production dependencies are installed
 
-FROM node:20.5.0-alpine AS build
+FROM node:21.1.0-alpine AS build
 
-ENV TZ="America/Chicago"
 ENV NODE_ENV=production
-RUN date
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -56,25 +52,26 @@ COPY --chown=node:node --from=development /usr/src/app/node_modules ./node_modul
 # Copy over the existing source code
 COPY --chown=node:node . .
 
-# Running `npm ci` removes the existing node_modules directory and passing in --only=production ensures that only the production dependencies are installed. This ensures that the node_modules directory is as optimized as possible
-RUN npm ci --omit:dev && npm cache clean --force
-
 # Build the production bundle
 RUN npx next build
+
+# Running `npm ci` removes the existing node_modules directory and passing in --only=production ensures that only the production dependencies are installed. This ensures that the node_modules directory is as optimized as possible
+RUN npm ci --omit:dev && npm cache clean --force
 
 ###################
 # PRODUCTION
 ###################
 # This stage creates the final, small-as-can-be, production image
 # We copy over the node_modules directory from the build stage
-# Then we ONLY copy over the /build folder with the js files
-# We already deployed before, so the only thing left to do is run the bot with PM2
+# Then we copy over the /.next folder with the built code
+# Then we copy over the public folder with the static assets
+# Then we copy over the package.json file
+# We set the user to node so that the container runs as the node user instead of root
+# We run the start command to start the application
 
-FROM node:20.5.0-alpine AS production
+FROM node:21.1.0-alpine AS production
 
-ENV TZ="America/Chicago"
 ENV NODE_ENV=production
-RUN date
 
 # Create app directory
 WORKDIR /usr/src/app

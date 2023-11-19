@@ -13,8 +13,8 @@
     ".start": "next start"
   },
   "engines": {
-    "node": "v20.5.0",
-    "npm": "9.8.0"
+    "node": "v21.1.0",
+    "npm": "10.2.0"
   },
   "dependencies": {
     "@discordjs/rest": "^2.0.1",

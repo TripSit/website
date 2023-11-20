@@ -99,7 +99,7 @@ async function getDiscordMetrics() {
   try {
     const response = await axios.get(url, {
       headers: {
-        Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
+        Authorization: `Bot ${process.env.DISCORD_CLIENT_TOKEN}`,
       },
     });
     guildMetrics = response.data;

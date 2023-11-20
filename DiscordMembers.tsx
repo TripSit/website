@@ -5,7 +5,7 @@ import Counter from "./src/components/Counter";
 function DiscordMembers() {
   const [discordmembers, setDiscordmembers] = useState(null);
 
-  console.log(`Token2: ${process.env.DISCORD_BOT_TOKEN}`);
+  console.log(`Token2: ${process.env.DISCORD_CLIENT_TOKEN}`);
 
   const baseUrl = "https://discord.com/api/v10";
   const guildId = "179641883222474752";
@@ -17,7 +17,7 @@ function DiscordMembers() {
       try {
         const response = await axios.get(url, {
           headers: {
-            Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
+            Authorization: `Bot ${process.env.DISCORD_CLIENT_TOKEN}`,
           },
         });
         console.log("Discord metrics:", response.data);

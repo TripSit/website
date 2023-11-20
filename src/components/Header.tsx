@@ -313,8 +313,8 @@ function Header() {
               <a href={`${domain}#faq`}>FAQ</a>
             </li>
             <li>
-              <a href={`https://blog.${process.env.NEXT_PUBLIC_DNS_DOMAIN}`}>
-                Blog
+              <a href={`https://updates.${process.env.NEXT_PUBLIC_DNS_DOMAIN}`}>
+                Updates
               </a>
             </li>
             {/* <li>

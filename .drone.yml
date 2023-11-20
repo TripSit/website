@@ -18,6 +18,18 @@ steps:
         from_secret: DOCKER_HOST
       DOCKER_BUILDKIT:
         from_secret: DOCKER_BUILDKIT
+      NEXT_PUBLIC_DNS_DOMAIN:
+        from_secret: NEXT_PUBLIC_DNS_DOMAIN
+      REDDIT_BOT_TOKEN:
+        from_secret: REDDIT_BOT_TOKEN
+      REDDIT_BOT_SECRET:
+        from_secret: REDDIT_BOT_SECRET
+      REDDIT_BOT_ID:
+        from_secret: REDDIT_BOT_ID
+      DISCORD_CLIENT_ID:
+        from_secret: DISCORD_CLIENT_ID
+      DISCORD_CLIENT_TOKEN:
+        from_secret: DISCORD_CLIENT_TOKEN
 
   - name: discord notification
     image: appleboy/drone-discord

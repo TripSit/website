@@ -9,7 +9,7 @@ steps:
       - apk update
       - apk upgrade
       - apk add --no-cache git
-      - docker compose -f docker-compose.website.yml --project-name website up -d --force-recreate --build
+      - docker compose -f docker-compose.website-prod.yml --project-name website up -d --force-recreate --build
       # - tail -f /dev/null
     environment:
       NODE_ENV:

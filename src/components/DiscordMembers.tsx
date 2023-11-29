@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
-import Counter from "./src/components/Counter";
+import Counter from "./Counter";
 
 function DiscordMembers() {
   const [discordmembers, setDiscordmembers] = useState(null);

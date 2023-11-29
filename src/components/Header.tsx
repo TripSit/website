@@ -1,9 +1,11 @@
 import Image from "next/image";
 import { Tooltip } from "@nextui-org/react";
+// import { useRouter } from "next/router";
 import logo from "../../public/assets/img/logo.png";
 
 function Header() {
   const domain = `https://${process.env.NEXT_PUBLIC_DNS_DOMAIN}`;
+  // const router = useRouter();
   return (
     <header
       id="header"
@@ -41,9 +43,9 @@ function Header() {
                     <li>
                       <a href="https://wiki.tripsit.me/wiki/Main_Page">Wiki</a>
                     </li>
-                    <li>
-                      <a href="https://drugs.tripsit.me/">Factsheets</a>
-                    </li>
+                    {/* <li>
+                      <div onClick={router.push("/factsheets")}>Factsheets</div>
+                    </li> */}
                     <li>
                       <a href="https://combo.tripsit.me/">Comboapp</a>
                     </li>

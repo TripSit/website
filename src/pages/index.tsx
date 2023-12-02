@@ -249,7 +249,11 @@ export default function Home({ guildMetrics }: any) {
               data-aos="zoom-in"
               data-aos-delay="300"
             >
-              <div className="icon-box" onClick={gotoFactsheets}>
+              <div
+                style={{ cursor: "pointer" }}
+                className="icon-box"
+                onClick={gotoFactsheets}
+              >
                 <div className="icon">
                   <FactCheckOutlinedIcon />
                 </div>
@@ -848,6 +852,7 @@ export default function Home({ guildMetrics }: any) {
                 <div
                   className="icon-box iconbox-orange "
                   onClick={gotoFactsheets}
+                  style={{ cursor: "pointer" }}
                 >
                   <div className="icon">
                     <svg

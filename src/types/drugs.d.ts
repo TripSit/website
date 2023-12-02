@@ -2,11 +2,11 @@ declare module "drugs.json" {
   export type Drug = {
     aliases?: string[];
     categories?: Category[];
+    formatted_aftereffects?: FormattedDuration;
     formatted_dose?: FormattedDose;
-    formatted_onset?: FormattedDuration;
     formatted_duration?: FormattedDuration;
     formatted_effects?: string[];
-    formatted_aftereffects?: FormattedDuration;
+    formatted_onset?: FormattedDuration;
     links?: Links;
     name: string;
     pretty_name: string;
@@ -71,7 +71,7 @@ declare module "drugs.json" {
   };
 
   export type FormattedDuration = {
-    _unit?: Unit;
+    _unit: Unit;
     value?: string;
     insufflated?: string;
     oral?: string;

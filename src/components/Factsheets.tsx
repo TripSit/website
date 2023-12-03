@@ -4,8 +4,6 @@
 
 // Combo formatting
 // Sources formatting
-// Category colors are off on white background
-// Add optional columns
 // Fix when the density is changed
 // Add dark mode? / theme https://mui.com/material-ui/customization/default-theme/
 // Add elevated/drop shadow stuff per rooni - https://discord.com/channels/179641883222474752/1052608066085978213/1179249353936867398
@@ -36,7 +34,7 @@ import {
   keepPreviousData,
   useQuery,
 } from "@tanstack/react-query"; // note: this is TanStack Rea`ct Query V5
-import { Dosage, Drug, FormattedDose, FormattedDuration } from "drugs.json";
+import { Category, Drug, Dose, Dosage, Duration } from "tripsit_drug_db";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 // import Grid from "@mui/material/Unstable_Grid2"; // Grid version 2
@@ -167,8 +165,91 @@ const categoryColors = {
   tentative: {
     "background-color": "#FFFF9D",
     "border-color": "#FFFF9D",
+    color: "#001713",
   },
+} as {
+  [key in Category]: {
+    "background-color": string;
+    "border-color": string;
+    color?: string;
+  };
 };
+
+const InfoBar = (
+  <Accordion>
+    <AccordionItem
+      key="0"
+      aria-label="TripSit's Factsheets"
+      title="TripSit's Factsheets"
+      classNames={factsheetsAccordionClassNames}
+      indicator={({ isOpen }) =>
+        isOpen ? <UnfoldLessDoubleIcon /> : <UnfoldMoreDoubleIcon />
+      }
+    >
+      <Grid item key="factsheetInfo">
+        <Card>
+          <CardContent>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={11} md={10}>
+                <Typography>
+                  TripSit&apos;s factsheets are meticulously crafted to deliver
+                  clear, concise, and reliable information about various
+                  substances. Primarily designed for educational purposes, these
+                  factsheets should not be interpreted as medical advice.
+                  <br></br>
+                  <br></br>
+                  <b>
+                    Your safety is paramount. We encourage you verify
+                    information from multiple sources before making decisions
+                    about substance use.
+                  </b>
+                  <br></br>
+                  <br></br>
+                  The content presented here is sourced from our comprehensive{" "}
+                  <a href="https://github.com/tripsit/drugs">drug database</a>.
+                  If you notice something that needs updating or have additional
+                  information, please{" "}
+                  <a href="https://github.com/TripSit/drugs/issues/new?assignees=LunaUrsa&labels=&projects=&template=drug-change.md&title=Update+<drug>+to+<details>">
+                    submit an issue
+                  </a>{" "}
+                  along with your sources. We&apos;re committed to keeping our
+                  data accurate and up-to-date.
+                  <br></br>
+                  <br></br>
+                  Are you a web developer with ideas to enhance this page? Great
+                  news – it&apos;s open source! Dive into our{" "}
+                  <a href="https://github.com/tripsit/website">
+                    GitHub repo
+                  </a>{" "}
+                  and contribute to the evolution of this resource. Your
+                  expertise can make a significant impact!
+                </Typography>
+              </Grid>
+
+              <Grid item xs={12} sm={1} md={2}>
+                <Grid container direction="column" spacing={2}>
+                  <Grid item xs={12}>
+                    <KofiButton
+                      color="#0a9396"
+                      title="TripSit Ko-Fi"
+                      kofiID="J3J5NOJCE"
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <PatreonButton />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <GithubButton />
+                  </Grid>
+                </Grid>
+              </Grid>
+            </Grid>
+          </CardContent>
+        </Card>
+      </Grid>
+    </AccordionItem>
+  </Accordion>
+);
 
 const addDictionaryDefs = (text: string | undefined) => {
   if (text === undefined) {
@@ -232,7 +313,7 @@ const addCategoryStyle = (text: string | undefined) => {
             <Typography
               style={{
                 display: "inline",
-                color: "white",
+                color: colorDef.color ?? "white",
                 fontSize: "inherit", // Inherit font size
                 fontFamily: "inherit", // Inherit font family
                 background: colorDef["background-color"],
@@ -259,7 +340,7 @@ const addCategoryStyle = (text: string | undefined) => {
 };
 
 const addDosages = (drugData: MRT_Row<Drug>) => {
-  const doseData = drugData.original.formatted_dose as FormattedDose;
+  const doseData = drugData.original.formatted_dose as Dose;
   const doseColors = [] as string[];
   const doseGradientToColors = [] as string[];
   const doseSeries = [] as ApexAxisChartSeries;
@@ -389,6 +470,7 @@ const addDosages = (drugData: MRT_Row<Drug>) => {
       }: {
         seriesIndex: number;
         dataPointIndex: number;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         w: any;
       }) => {
         const s = w.config.series[seriesIndex].data[dataPointIndex];
@@ -522,7 +604,7 @@ const addDurations = (drugData: MRT_Row<Drug>) => {
   // This function is called for each of the three types of duration data:
   // onset, duration, and after effects
   function addDurationData(
-    timingData: FormattedDuration,
+    timingData: Duration,
     timingKey: "Onset" | "Duration" | "After Effects",
   ) {
     const roaList = timingData.value ? ["Oral"] : Object.keys(timingData);
@@ -677,6 +759,7 @@ const addDurations = (drugData: MRT_Row<Drug>) => {
       }: {
         seriesIndex: number;
         dataPointIndex: number;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         w: any;
       }) => {
         const s = w.config.series[seriesIndex].data[dataPointIndex];
@@ -1257,6 +1340,41 @@ const Factsheets = () => {
         ),
       },
       {
+        accessorFn: (row) => {
+          if (row.properties["test-kits"] === undefined) {
+            return "";
+          }
+          return row.properties["test-kits"];
+        },
+        id: "reagent_results",
+        header: "Reagents Results",
+        filterVariant: "text",
+        size: 200,
+      },
+      {
+        accessorFn: (row) => row.formatted_effects?.join(", "),
+        id: "effects",
+        header: "Effects",
+        filterVariant: "text",
+        enableGlobalFilter: false,
+        size: 180, // This is the default value, but it stops the column from changing when the table is resized
+        Cell: ({ cell }) => (
+          <span>{addDictionaryDefs(cell.getValue<string | undefined>())}</span>
+        ),
+      },
+      {
+        accessorFn: (row) =>
+          row.pweffects ? Object.keys(row.pweffects).join(", ") : undefined,
+        id: "pweffects",
+        header: "PW Effects",
+        filterVariant: "text",
+        enableGlobalFilter: false,
+        size: 180, // This is the default value, but it stops the column from changing when the table is resized
+        Cell: ({ cell }) => (
+          <span>{addDictionaryDefs(cell.getValue<string | undefined>())}</span>
+        ),
+      },
+      {
         accessorFn: (row) => row.properties.summary,
         id: "summary",
         header: "Summary",
@@ -1283,6 +1401,10 @@ const Factsheets = () => {
     },
     initialState: {
       showColumnFilters: true,
+      columnVisibility: {
+        pweffects: false,
+        effects: false,
+      },
       // rowPinning: {
       //   top: ["2-AI"],
       // },
@@ -1296,7 +1418,7 @@ const Factsheets = () => {
     enableDensityToggle: false, // Need to fix density stuff
     enableTopToolbar: true,
     enableTableHead: true,
-    enableHiding: false,
+    enableHiding: true,
     muiTablePaperProps: { sx: { height: "100vh" } },
     muiTableContainerProps: { sx: { height: "78vh" } },
     muiToolbarAlertBannerProps: isError
@@ -1312,83 +1434,7 @@ const Factsheets = () => {
             <RefreshIcon />
           </IconButton>
         </Tooltip>
-        <Accordion>
-          <AccordionItem
-            key="0"
-            aria-label="TripSit's Factsheets"
-            title="TripSit's Factsheets"
-            classNames={factsheetsAccordionClassNames}
-            indicator={({ isOpen }) =>
-              isOpen ? <UnfoldLessDoubleIcon /> : <UnfoldMoreDoubleIcon />
-            }
-          >
-            <Grid item key="factsheetInfo">
-              <Card>
-                <CardContent>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} sm={11} md={10}>
-                      <Typography>
-                        TripSit&apos;s factsheets are meticulously crafted to
-                        deliver clear, concise, and reliable information about
-                        various substances. Primarily designed for educational
-                        purposes, these factsheets should not be interpreted as
-                        medical advice.
-                        <br></br>
-                        <br></br>
-                        <b>
-                          Your safety is paramount. We encourage you verify
-                          information from multiple sources before making
-                          decisions about substance use.
-                        </b>
-                        <br></br>
-                        <br></br>
-                        The content presented here is sourced from our
-                        comprehensive{" "}
-                        <a href="https://github.com/tripsit/drugs">
-                          drug database
-                        </a>
-                        . If you notice something that needs updating or have
-                        additional information, please{" "}
-                        <a href="https://github.com/TripSit/drugs/issues/new?assignees=LunaUrsa&labels=&projects=&template=drug-change.md&title=Update+<drug>+to+<details>">
-                          submit an issue
-                        </a>{" "}
-                        along with your sources. We&apos;re committed to keeping
-                        our data accurate and up-to-date.
-                        <br></br>
-                        <br></br>
-                        Are you a web developer with ideas to enhance this page?
-                        Great news – it&apos;s open source! Dive into our{" "}
-                        <a href="https://github.com/tripsit/website">
-                          GitHub repo
-                        </a>{" "}
-                        and contribute to the evolution of this resource. Your
-                        expertise can make a significant impact!
-                      </Typography>
-                    </Grid>
-
-                    <Grid item xs={12} sm={1} md={2}>
-                      <Grid container direction="column" spacing={2}>
-                        <Grid item xs={12}>
-                          <KofiButton
-                            color="#0a9396"
-                            title="TripSit Ko-Fi"
-                            kofiID="J3J5NOJCE"
-                          />
-                        </Grid>
-                        <Grid item xs={12}>
-                          <PatreonButton />
-                        </Grid>
-                        <Grid item xs={12}>
-                          <GithubButton />
-                        </Grid>
-                      </Grid>
-                    </Grid>
-                  </Grid>
-                </CardContent>
-              </Card>
-            </Grid>
-          </AccordionItem>
-        </Accordion>
+        {InfoBar}
       </>
     ),
     renderDetailPanel: ({ row }) => createRow(row),

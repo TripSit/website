@@ -2,9 +2,9 @@
 /* eslint-disable no-console */
 /* eslint-disable sonarjs/no-duplicate-string */
 
-// "use client";
-
-// Combos
+// Combo formatting
+// Sources formatting
+// Category colors are off on white background
 // Add optional columns
 // Fix when the density is changed
 // Add dark mode? / theme https://mui.com/material-ui/customization/default-theme/
@@ -28,6 +28,7 @@ import {
   Card,
   CardContent,
 } from "@mui/material";
+import { Accordion, AccordionItem } from "@nextui-org/react";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import {
   QueryClient,
@@ -40,15 +41,31 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 // import Grid from "@mui/material/Unstable_Grid2"; // Grid version 2
 import Grid from "@mui/material/Grid";
-
+import KofiButton from "kofi-button";
 import dynamic from "next/dynamic";
+import UnfoldMoreDoubleIcon from "@mui/icons-material/UnfoldMoreDouble";
+import UnfoldLessDoubleIcon from "@mui/icons-material/UnfoldLessDouble";
+import PatreonButton from "./Patreon";
 
 import dictionary from "../assets/dictionary.json";
+import GithubButton from "./Github";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const debugDrug = "1,4-butanediol";
 
 const queryClient = new QueryClient();
+
+const factsheetsAccordionClassNames = {
+  base: "factsheetsAccBase",
+  heading: "factsheetsAccHeading",
+  trigger: "factsheetsAccTrigger",
+  titleWrapper: "factsheetsAccWrapper",
+  title: "factsheetsAccTitle",
+  subtitle: "factsheetsAccSubtitle",
+  startContent: "factsheetsAccContent",
+  indicator: "factsheetsAccIndicator",
+  content: "factsheetsAccContent",
+};
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
@@ -153,7 +170,10 @@ const categoryColors = {
   },
 };
 
-const addDictionaryDefs = (text: string) => {
+const addDictionaryDefs = (text: string | undefined) => {
+  if (text === undefined) {
+    return "";
+  }
   const words = text.split(" ");
   return words.map((word, index) => {
     // Remove the comma, we need to keep hyphens though:
@@ -194,7 +214,10 @@ const addDictionaryDefs = (text: string) => {
   });
 };
 
-const addCategoryStyle = (text: string) => {
+const addCategoryStyle = (text: string | undefined) => {
+  if (text === undefined) {
+    return "";
+  }
   const words = text.split(" ");
   return words.map((word, index) => {
     // Remove the comma, we need to keep hyphens though:
@@ -468,10 +491,13 @@ const addDosages = (drugData: MRT_Row<Drug>) => {
 };
 
 const addDurations = (drugData: MRT_Row<Drug>) => {
-  const durationSeries = [] as ApexAxisChartSeries;
+  // We need to create a new object that has the duration data that we can use to create the chart
+  // We need to create this object first because we need to know the complete duration information
+  // before we can create the chart. The object will be structured like this:
   const durationTiming = {} as {
     [key: string]: {
-      // all numbers are in hours
+      // ROA, eg "Oral"
+      // all numbers are in hours, including minutes (30 mins = .5 hours)
       Onset?: {
         min: number;
         max: number;
@@ -493,6 +519,8 @@ const addDurations = (drugData: MRT_Row<Drug>) => {
     };
   };
 
+  // This function is called for each of the three types of duration data:
+  // onset, duration, and after effects
   function addDurationData(
     timingData: FormattedDuration,
     timingKey: "Onset" | "Duration" | "After Effects",
@@ -503,9 +531,9 @@ const addDurations = (drugData: MRT_Row<Drug>) => {
         ? (timingData.value as string)
         : (timingData[roa as keyof typeof timingData] as string);
 
-      if (drugData.original.name === debugDrug) {
-        console.log(`roaString: ${JSON.stringify(roaString, null, 2)}`);
-      }
+      // if (drugData.original.name === debugDrug) {
+      //   console.log(`roaString: ${JSON.stringify(roaString, null, 2)}`);
+      // }
 
       if (roa !== "_unit") {
         // Use regex to pull out the first value separated by a dash
@@ -569,36 +597,21 @@ const addDurations = (drugData: MRT_Row<Drug>) => {
     });
   }
 
+  // In order, we go through the three properties and add them to the durationTiming object
   if (drugData.original.formatted_onset) {
     addDurationData(drugData.original.formatted_onset, "Onset");
   }
-
-  // if (drugData.original.name === debugDrug) {
-  //   console.log(
-  //     `Added onset data: ${JSON.stringify(durationTiming, null, 2)}`,
-  //   );
-  // }
 
   if (drugData.original.formatted_duration) {
     addDurationData(drugData.original.formatted_duration, "Duration");
   }
 
-  // if (drugData.original.name === debugDrug) {
-  //   console.log(
-  //     `Added duration data: ${JSON.stringify(durationTiming, null, 2)}`,
-  //   );
-  // }
-
   if (drugData.original.formatted_aftereffects) {
     addDurationData(drugData.original.formatted_aftereffects, "After Effects");
   }
 
-  // if (drugData.original.name === debugDrug) {
-  //   console.log(
-  //     `Added aftereffects data: ${JSON.stringify(durationTiming, null, 2)}`,
-  //   );
-  // }
-
+  // Now we need to create the array that will be used by apexcharts
+  const durationSeries = [] as ApexAxisChartSeries;
   Object.keys(durationTiming).forEach((roa) => {
     const roaData = durationTiming[roa as keyof typeof durationTiming];
     if (roaData) {
@@ -627,12 +640,6 @@ const addDurations = (drugData: MRT_Row<Drug>) => {
       });
     }
   });
-
-  // if (drugData.original.name === debugDrug) {
-  //   console.log(
-  //     `Duration series: ${JSON.stringify(durationSeries, null, 2)}`,
-  //   );
-  // }
 
   const option = {
     chart: {
@@ -742,50 +749,36 @@ const addDurations = (drugData: MRT_Row<Drug>) => {
     },
   };
 
-  // if (drugData.original.name === debugDrug) {
-  //   console.log(
-  //     `Duration series: ${JSON.stringify(durationSeries, null, 2)}`,
-  //   );
-  //   console.log(
-  //     `Duration timing: ${JSON.stringify(durationTiming, null, 2)}`,
-  //   );
-  // }
-
   const allRoas = Object.keys(durationTiming);
-  // if (drugData.original.name === debugDrug) {
-  //   console.log(`allRoas: ${JSON.stringify(allRoas, null, 2)}`);
-  // }
   let allTypes = [] as string[];
   try {
     allTypes = Object.keys(durationTiming[allRoas[0]]);
   } catch (err) {
-    // console.error(`Error: ${err}`);
-    // console.error(
-    //   `drugName: ${JSON.stringify(drugData.original.name, null, 2)}`,
-    // );
-    // console.error(`durationTiming: ${JSON.stringify(durationTiming, null, 2)}`);
-    // console.error(`allRoas: ${JSON.stringify(allRoas, null, 2)}`);
-    // console.error(
-    //   `onset: ${JSON.stringify(drugData.original.formatted_onset, null, 2)}`,
-    // );
-    // console.error(
-    //   `duration: ${JSON.stringify(
-    //     drugData.original.formatted_duration,
-    //     null,
-    //     2,
-    //   )}`,
-    // );
-    // console.error(
-    //   `after: ${JSON.stringify(
-    //     drugData.original.formatted_aftereffects,
-    //     null,
-    //     2,
-    //   )}`,
-    // );
+    console.error(`Error: ${err}`);
+    console.error(
+      `drugName: ${JSON.stringify(drugData.original.name, null, 2)}`,
+    );
+    console.error(`durationTiming: ${JSON.stringify(durationTiming, null, 2)}`);
+    console.error(`allRoas: ${JSON.stringify(allRoas, null, 2)}`);
+    console.error(
+      `onset: ${JSON.stringify(drugData.original.formatted_onset, null, 2)}`,
+    );
+    console.error(
+      `duration: ${JSON.stringify(
+        drugData.original.formatted_duration,
+        null,
+        2,
+      )}`,
+    );
+    console.error(
+      `after: ${JSON.stringify(
+        drugData.original.formatted_aftereffects,
+        null,
+        2,
+      )}`,
+    );
   }
-  // if (drugData.original.name === debugDrug) {
-  //   console.log(`allTypes: ${JSON.stringify(allTypes, null, 2)}`);
-  // }
+
   const gridSpacing = Math.max(12 / (allTypes.length + 1), 2); // Ensure a minimum size for the grid
 
   return (
@@ -905,7 +898,13 @@ function createRow(drugData: MRT_Row<Drug>): ReactNode {
             property as keyof typeof drugData.original.properties
           ];
         elements.push(
-          <Grid item xs={12} sm={12} md={12} key={propertyName}>
+          <Grid
+            item
+            xs={12}
+            sm={12}
+            md={12}
+            key={`${drugData.original.name}-${propertyName}`}
+          >
             <Card>
               <CardContent sx={{ backgroundColor: "pink" }}>
                 <Typography variant="h5" style={{ color: "black" }}>
@@ -1196,6 +1195,8 @@ function createRow(drugData: MRT_Row<Drug>): ReactNode {
   );
 }
 
+// called on scroll and possibly on mount to fetch more data as the user scrolls and reaches bottom of table
+
 const Factsheets = () => {
   const {
     data: { data = [], meta } = {}, // your data and api response will probably be different
@@ -1252,7 +1253,7 @@ const Factsheets = () => {
         enableGlobalFilter: false,
         size: 180, // This is the default value, but it stops the column from changing when the table is resized
         Cell: ({ cell }) => (
-          <span>{addCategoryStyle(cell.getValue<string>())}</span>
+          <span>{addCategoryStyle(cell.getValue<string | undefined>())}</span>
         ),
       },
       {
@@ -1263,7 +1264,7 @@ const Factsheets = () => {
         enableGlobalFilter: true,
         size: 900, // Make this one bigger because of the long text
         Cell: ({ cell }) => (
-          <span>{addDictionaryDefs(cell.getValue<string>())}</span>
+          <span>{addDictionaryDefs(cell.getValue<string | undefined>())}</span>
         ),
       },
     ],
@@ -1274,16 +1275,30 @@ const Factsheets = () => {
   const table = useMaterialReactTable({
     columns,
     data,
-    // enableRowPinning: true,
+    rowCount: meta?.totalRowCount ?? 0,
+    state: {
+      isLoading,
+      showAlertBanner: isError,
+      showProgressBars: isRefetching,
+    },
     initialState: {
       showColumnFilters: true,
       // rowPinning: {
-      //   top: [],
+      //   top: ["2-AI"],
       // },
-      expanded: {
-        0: process.env.NODE_ENV === "development",
-      },
+      // expanded: {
+      //   0: process.env.NODE_ENV === "development",
+      // },
     },
+    enableStickyHeader: true,
+    enableStickyFooter: true,
+    enableRowPinning: true,
+    enableDensityToggle: false, // Need to fix density stuff
+    enableTopToolbar: true,
+    enableTableHead: true,
+    enableHiding: false,
+    muiTablePaperProps: { sx: { height: "100vh" } },
+    muiTableContainerProps: { sx: { height: "78vh" } },
     muiToolbarAlertBannerProps: isError
       ? {
           color: "error",
@@ -1291,26 +1306,95 @@ const Factsheets = () => {
         }
       : undefined,
     renderTopToolbarCustomActions: () => (
-      <Tooltip arrow title="Refresh Data">
-        <IconButton onClick={() => refetch()}>
-          <RefreshIcon />
-        </IconButton>
-      </Tooltip>
+      <>
+        <Tooltip arrow title="Refresh Data">
+          <IconButton onClick={() => refetch()}>
+            <RefreshIcon />
+          </IconButton>
+        </Tooltip>
+        <Accordion>
+          <AccordionItem
+            key="0"
+            aria-label="TripSit's Factsheets"
+            title="TripSit's Factsheets"
+            classNames={factsheetsAccordionClassNames}
+            indicator={({ isOpen }) =>
+              isOpen ? <UnfoldLessDoubleIcon /> : <UnfoldMoreDoubleIcon />
+            }
+          >
+            <Grid item key="factsheetInfo">
+              <Card>
+                <CardContent>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sm={11} md={10}>
+                      <Typography>
+                        TripSit&apos;s factsheets are meticulously crafted to
+                        deliver clear, concise, and reliable information about
+                        various substances. Primarily designed for educational
+                        purposes, these factsheets should not be interpreted as
+                        medical advice.
+                        <br></br>
+                        <br></br>
+                        <b>
+                          Your safety is paramount. We encourage you verify
+                          information from multiple sources before making
+                          decisions about substance use.
+                        </b>
+                        <br></br>
+                        <br></br>
+                        The content presented here is sourced from our
+                        comprehensive{" "}
+                        <a href="https://github.com/tripsit/drugs">
+                          drug database
+                        </a>
+                        . If you notice something that needs updating or have
+                        additional information, please{" "}
+                        <a href="https://github.com/TripSit/drugs/issues/new?assignees=LunaUrsa&labels=&projects=&template=drug-change.md&title=Update+<drug>+to+<details>">
+                          submit an issue
+                        </a>{" "}
+                        along with your sources. We&apos;re committed to keeping
+                        our data accurate and up-to-date.
+                        <br></br>
+                        <br></br>
+                        Are you a web developer with ideas to enhance this page?
+                        Great news – it&apos;s open source! Dive into our{" "}
+                        <a href="https://github.com/tripsit/website">
+                          GitHub repo
+                        </a>{" "}
+                        and contribute to the evolution of this resource. Your
+                        expertise can make a significant impact!
+                      </Typography>
+                    </Grid>
+
+                    <Grid item xs={12} sm={1} md={2}>
+                      <Grid container direction="column" spacing={2}>
+                        <Grid item xs={12}>
+                          <KofiButton
+                            color="#0a9396"
+                            title="TripSit Ko-Fi"
+                            kofiID="J3J5NOJCE"
+                          />
+                        </Grid>
+                        <Grid item xs={12}>
+                          <PatreonButton />
+                        </Grid>
+                        <Grid item xs={12}>
+                          <GithubButton />
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                </CardContent>
+              </Card>
+            </Grid>
+          </AccordionItem>
+        </Accordion>
+      </>
     ),
-    enableDensityToggle: false, // Need to fix density stuff
-    enableTopToolbar: true,
-    enableTableHead: true,
-    enableHiding: false,
     renderDetailPanel: ({ row }) => createRow(row),
-    rowCount: meta?.totalRowCount ?? 0,
-    state: {
-      isLoading,
-      showAlertBanner: isError,
-      showProgressBars: isRefetching,
-    },
   });
 
-  return <MaterialReactTable table={table} data-bs-theme="light" />;
+  return <MaterialReactTable table={table} data-bs-theme="dark" />;
 };
 
 const ExamplePage = () => (

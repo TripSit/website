@@ -3,7 +3,8 @@ import Image from "next/image";
 import React from "react";
 import { Navigation, Pagination, Scrollbar, A11y } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Tooltip, Accordion, AccordionItem, Button } from "@nextui-org/react";
+import { Accordion, AccordionItem, Button } from "@nextui-org/react";
+import { Tooltip } from "@mui/material";
 import { useRouter } from "next/router";
 import JoinInnerOutlinedIcon from "@mui/icons-material/JoinInnerOutlined";
 import FactCheckOutlinedIcon from "@mui/icons-material/FactCheckOutlined";
@@ -15,16 +16,18 @@ import ScienceOutlinedIcon from "@mui/icons-material/ScienceOutlined";
 import SmartToyOutlinedIcon from "@mui/icons-material/SmartToyOutlined";
 import PhoneAndroidOutlinedIcon from "@mui/icons-material/PhoneAndroidOutlined";
 // import queryString from "@/utils/queryString";
+// import Guild from "discord-api-types";
+import { APIGuild } from "discord-api-types/v10";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 // import DiscordMembers from "../components/DiscordMembers";
 import Head from "../components/Head";
-import bluelightLogo from "../../public/assets/img/clients/bluelight.jpg";
-import seiLogo from "../../public/assets/img/clients/sei.png";
-import rdrugsLogo from "../../public/assets/img/clients/rdrugs.png";
-import pwLogo from "../../public/assets/img/clients/pw.png";
-import mapsLogo from "../../public/assets/img/clients/maps.png";
-import dancesafeLogo from "../../public/assets/img/clients/dancesafeYellow.png";
+import bluelightLogo from "../../public/assets/img/logos/bluelight.jpg";
+import seiLogo from "../../public/assets/img/logos/sei.png";
+import rdrugsLogo from "../../public/assets/img/logos/rdrugs.png";
+import pwLogo from "../../public/assets/img/logos/pw.png";
+import mapsLogo from "../../public/assets/img/logos/maps.png";
+import dancesafeLogo from "../../public/assets/img/logos/dancesafeYellow.png";
 import comboChart from "../../public/assets/img/comboChart.png";
 import logo from "../../public/assets/img/logo.png";
 import Ghost from "../components/Ghost";
@@ -88,7 +91,7 @@ function getTsAge(): number {
 }
 
 async function getDiscordMetrics() {
-  let guildMetrics = {};
+  let guild = {} as APIGuild;
 
   const baseUrl = "https://discord.com/api/v10";
   const guildId = "179641883222474752";
@@ -102,14 +105,14 @@ async function getDiscordMetrics() {
         Authorization: `Bot ${process.env.DISCORD_CLIENT_TOKEN}`,
       },
     });
-    guildMetrics = response.data;
+    guild = response.data;
     // console.log("Discord metrics:", guildMetrics);
   } catch (error) {
     // console.error("Error fetching guild metrics:", error);
   }
 
   return {
-    props: { guildMetrics },
+    props: { guild },
   };
 }
 
@@ -181,11 +184,15 @@ export async function getServerSideProps() {
   };
 }
 
-export default function Home({ guildMetrics }: any) {
+export default function Home({ guild }: { guild: APIGuild }) {
   const router = useRouter();
 
   const gotoWebchat = () => {
     router.push("/webchat");
+  };
+
+  const gotoFactsheets = () => {
+    router.push("/factsheets");
   };
 
   return (
@@ -245,22 +252,20 @@ export default function Home({ guildMetrics }: any) {
               data-aos="zoom-in"
               data-aos-delay="300"
             >
-              <a
-                href="https://drugs.tripsit.me/"
-                target="_blank"
-                rel="noopener noreferrer"
+              <div
+                style={{ cursor: "pointer" }}
+                className="icon-box"
+                onClick={gotoFactsheets}
               >
-                <div className="icon-box">
-                  <div className="icon">
-                    <FactCheckOutlinedIcon />
-                  </div>
-                  <h4 className="title">Get drug info</h4>
-                  <p className="description">
-                    Dive deep into our detailed factsheets for comprehensive
-                    insights on drug dosages, durations, and more.
-                  </p>
+                <div className="icon">
+                  <FactCheckOutlinedIcon />
                 </div>
-              </a>
+                <h4 className="title">Get drug info</h4>
+                <p className="description">
+                  Dive deep into our detailed factsheets for comprehensive
+                  insights on drug dosages, durations, and more.
+                </p>
+              </div>
             </div>
 
             <div
@@ -463,7 +468,7 @@ export default function Home({ guildMetrics }: any) {
                     <Counter
                       data={{
                         startNum: 0,
-                        endNum: guildMetrics.approximate_member_count,
+                        endNum: guild.approximate_member_count ?? 0,
                         duration: 4,
                         delay: 1,
                       }}
@@ -567,7 +572,7 @@ export default function Home({ guildMetrics }: any) {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <Tooltip content="MAPS" placement="bottom">
+                  <Tooltip title="MAPS" placement="bottom">
                     <Image src={mapsLogo} className="logo img-fluid" alt="" />
                   </Tooltip>
                 </a>
@@ -582,7 +587,7 @@ export default function Home({ guildMetrics }: any) {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <Tooltip content="Bluelight" placement="bottom">
+                  <Tooltip title="Bluelight" placement="bottom">
                     <Image
                       src={bluelightLogo}
                       className="logo img-fluid"
@@ -601,7 +606,7 @@ export default function Home({ guildMetrics }: any) {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <Tooltip content="Subject Effect Index" placement="bottom">
+                  <Tooltip title="Subject Effect Index" placement="bottom">
                     <Image src={seiLogo} className="logo img-fluid" alt="" />
                   </Tooltip>
                 </a>
@@ -616,7 +621,7 @@ export default function Home({ guildMetrics }: any) {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <Tooltip content="Dance Safe" placement="bottom">
+                  <Tooltip title="Dance Safe" placement="bottom">
                     <Image
                       src={dancesafeLogo}
                       className="logo img-fluid"
@@ -635,7 +640,7 @@ export default function Home({ guildMetrics }: any) {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <Tooltip content="Psychonaut Wiki" placement="bottom">
+                  <Tooltip title="Psychonaut Wiki" placement="bottom">
                     <Image src={pwLogo} className="logo img-fluid" alt="" />
                   </Tooltip>
                 </a>
@@ -650,7 +655,7 @@ export default function Home({ guildMetrics }: any) {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <Tooltip content="r/Drugs" placement="bottom">
+                  <Tooltip title="r/Drugs" placement="bottom">
                     <Image src={rdrugsLogo} className="logo img-fluid" alt="" />
                   </Tooltip>
                 </a>
@@ -847,33 +852,35 @@ export default function Home({ guildMetrics }: any) {
                 data-aos="zoom-in"
                 data-aos-delay="200"
               >
-                <a href="https://drugs.tripsit.me">
-                  <div className="icon-box iconbox-orange ">
-                    <div className="icon">
-                      <svg
-                        width="100"
-                        height="100"
-                        viewBox="0 0 600 600"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          stroke="none"
-                          strokeWidth="0"
-                          fill="#f5f5f5"
-                          d="M300,582.0697525312426C382.5290701553225,586.8405444964366,449.9789794690241,525.3245884688669,502.5850820975895,461.55621195738473C556.606425686781,396.0723002908107,615.8543463187945,314.28637112970534,586.6730223649479,234.56875336149918C558.9533121215079,158.8439757836574,454.9685369536778,164.00468322053177,381.49747125262974,130.76875717737553C312.15926192815925,99.40240125094834,248.97055460311594,18.661163978235184,179.8680185752513,50.54337015887873C110.5421016452524,82.52863877960104,119.82277516462835,180.83849132639028,109.12597500060166,256.43424936330496C100.08760227029461,320.3096726198365,92.17705696193138,384.0621239912766,124.79988738764834,439.7174275375508C164.83382741302287,508.01625554203684,220.96474134820875,577.5009287672846,300,582.0697525312426"
-                        ></path>
-                      </svg>
-                      <i>
-                        <FactCheckOutlinedIcon />
-                      </i>
-                    </div>
-                    <h4>Drug Factsheets</h4>
-                    <p>
-                      Dive into our comprehensive Drug Factsheets for concise
-                      and essential insights on various substances.
-                    </p>
+                <div
+                  className="icon-box iconbox-orange "
+                  onClick={gotoFactsheets}
+                  style={{ cursor: "pointer" }}
+                >
+                  <div className="icon">
+                    <svg
+                      width="100"
+                      height="100"
+                      viewBox="0 0 600 600"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        stroke="none"
+                        strokeWidth="0"
+                        fill="#f5f5f5"
+                        d="M300,582.0697525312426C382.5290701553225,586.8405444964366,449.9789794690241,525.3245884688669,502.5850820975895,461.55621195738473C556.606425686781,396.0723002908107,615.8543463187945,314.28637112970534,586.6730223649479,234.56875336149918C558.9533121215079,158.8439757836574,454.9685369536778,164.00468322053177,381.49747125262974,130.76875717737553C312.15926192815925,99.40240125094834,248.97055460311594,18.661163978235184,179.8680185752513,50.54337015887873C110.5421016452524,82.52863877960104,119.82277516462835,180.83849132639028,109.12597500060166,256.43424936330496C100.08760227029461,320.3096726198365,92.17705696193138,384.0621239912766,124.79988738764834,439.7174275375508C164.83382741302287,508.01625554203684,220.96474134820875,577.5009287672846,300,582.0697525312426"
+                      ></path>
+                    </svg>
+                    <i>
+                      <FactCheckOutlinedIcon />
+                    </i>
                   </div>
-                </a>
+                  <h4>Drug Factsheets</h4>
+                  <p>
+                    Dive into our comprehensive Drug Factsheets for concise and
+                    essential insights on various substances.
+                  </p>
+                </div>
               </div>
 
               <div

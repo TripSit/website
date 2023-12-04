@@ -1,11 +1,9 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
-import Counter from "./src/components/Counter";
+import Counter from "./Counter";
 
 function DiscordMembers() {
   const [discordmembers, setDiscordmembers] = useState(null);
-
-  console.log(`Token2: ${process.env.DISCORD_CLIENT_TOKEN}`);
 
   const baseUrl = "https://discord.com/api/v10";
   const guildId = "179641883222474752";
@@ -14,21 +12,17 @@ function DiscordMembers() {
 
   useEffect(() => {
     async function fetchMetrics() {
-      try {
-        const response = await axios.get(url, {
-          headers: {
-            Authorization: `Bot ${process.env.DISCORD_CLIENT_TOKEN}`,
-          },
-        });
-        console.log("Discord metrics:", response.data);
-        setDiscordmembers(response.data.approximate_member_count);
-      } catch (error) {
-        console.error("Error fetching guild metrics:", error);
-      }
+      const response = await axios.get(url, {
+        headers: {
+          Authorization: `Bot ${process.env.DISCORD_CLIENT_TOKEN}`,
+        },
+      });
+      // console.log("Discord metrics:", response.data);
+      setDiscordmembers(response.data.approximate_member_count);
     }
 
     fetchMetrics();
-  }, []);
+  }, [url]);
 
   if (!discordmembers) return <div>0</div>;
 

@@ -15,6 +15,8 @@ import ScienceOutlinedIcon from "@mui/icons-material/ScienceOutlined";
 import SmartToyOutlinedIcon from "@mui/icons-material/SmartToyOutlined";
 import PhoneAndroidOutlinedIcon from "@mui/icons-material/PhoneAndroidOutlined";
 // import queryString from "@/utils/queryString";
+// import Guild from "discord-api-types";
+import { APIGuild } from "discord-api-types/v10";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 // import DiscordMembers from "../components/DiscordMembers";
@@ -88,7 +90,7 @@ function getTsAge(): number {
 }
 
 async function getDiscordMetrics() {
-  let guildMetrics = {};
+  let guild = {} as APIGuild;
 
   const baseUrl = "https://discord.com/api/v10";
   const guildId = "179641883222474752";
@@ -102,14 +104,14 @@ async function getDiscordMetrics() {
         Authorization: `Bot ${process.env.DISCORD_CLIENT_TOKEN}`,
       },
     });
-    guildMetrics = response.data;
+    guild = response.data;
     // console.log("Discord metrics:", guildMetrics);
   } catch (error) {
     // console.error("Error fetching guild metrics:", error);
   }
 
   return {
-    props: { guildMetrics },
+    props: { guild },
   };
 }
 
@@ -181,7 +183,7 @@ export async function getServerSideProps() {
   };
 }
 
-export default function Home({ guildMetrics }: any) {
+export default function Home({ guild }: { guild: APIGuild }) {
   const router = useRouter();
 
   const gotoWebchat = () => {
@@ -465,7 +467,7 @@ export default function Home({ guildMetrics }: any) {
                     <Counter
                       data={{
                         startNum: 0,
-                        endNum: guildMetrics.approximate_member_count,
+                        endNum: guild.approximate_member_count ?? 0,
                         duration: 4,
                         delay: 1,
                       }}

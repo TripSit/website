@@ -1,5 +1,4 @@
 /* eslint-disable no-underscore-dangle */ // We use this because we have the _unit property
-/* eslint-disable no-console */ // For debugging
 /* eslint-disable sonarjs/no-duplicate-string */ // Make things easier to read
 
 /* Welcome Developers to TripSit's Factsheets, brought to you by THC and spite. 
@@ -14,22 +13,6 @@ It's hosted within the greater TripSit website project: https://github.com/trips
 It displays the data using material react table: https://www.material-react-table.com
 It creates charts using ApexCharts: https://apexcharts.com/
 Pull requests are welcome! If you have any questions, feel free to ask in #dev on the TripSit Discord: https://discord.gg/tripsit
-
-Want to use this page on your site? Go for it, but dont ask for help
-Launch List:
-
-Sources formatting
-Infinite scrolling?
-
-With List:
-Add dark mode? / theme https://mui.com/material-ui/customization/default-theme/
-Add elevated/drop shadow stuff per rooni - https://discord.com/channels/179641883222474752/1052608066085978213/1179249353936867398
-Pinning new drugs
-DMT durations are messed up
-DMT is missing dosages
-Fix when the density is changed
-Make combo display better
-Add images/colors for reagents
 */
 
 import React, { ReactNode, useMemo } from "react";
@@ -90,6 +73,31 @@ const debugDrug = "cocaine";
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
 });
+
+type DurationTiming = {
+  [key: string]: {
+    // ROA, eg "Oral"
+    // all numbers are in hours, including minutes (30 mins = .5 hours)
+    Onset?: {
+      min: number;
+      max: number;
+      startTime: number;
+      endTime: number;
+    };
+    Duration?: {
+      min: number;
+      max: number;
+      startTime: number;
+      endTime: number;
+    };
+    "After Effects"?: {
+      min: number;
+      max: number;
+      startTime: number;
+      endTime: number;
+    };
+  };
+};
 
 // This appears at the top and can contain any information you want
 // We can use this for announcements or updates
@@ -587,129 +595,124 @@ const addDosages = (drugData: MRT_Row<Drug>) => {
   );
 };
 
+// This function is called for each of the three types of duration data:
+// onset, duration, and after effects
+function addDurationData(
+  timingData: Duration,
+  timingKey: "Onset" | "Duration" | "After Effects",
+  timingObject: DurationTiming,
+): DurationTiming {
+  // If there is a "value" parameter, then assume the ROA is "Oral" and that it is the only ROA
+  // Otherwise, get a list of ROAs, and either way loop through that "list"
+  const roaList = timingData.value ? ["Oral"] : Object.keys(timingData);
+
+  const durationTiming = timingObject;
+
+  roaList.forEach((roa) => {
+    // Get the string for the ROA. If it's a 'value' parameter, then use that, otherwise use the key
+    const roaString: string = timingData.value
+      ? (timingData.value as string)
+      : (timingData[roa as keyof typeof timingData] as string);
+
+    // Ignore the "_unit" property
+    if (roa !== "_unit") {
+      // Use regex to pull out the first value separated by a dash
+      // This is the minimum value
+      // If there is no dash, then the minimum and maximum values are the same
+      const regex = /(\d+(?:\.\d+)?)(?:-(\d+(?:\.\d+)?))?([a-zA-Z]+)?/;
+      const match = RegExp(regex).exec(roaString);
+
+      // This is mostly for type-safety
+      if (match) {
+        // Max number is either the second number, or the /only/ number
+        let durationMaxNumber = match[2]
+          ? parseFloat(match[2])
+          : parseFloat(match[1]);
+
+        let durationMinNumber = match[2] ? parseFloat(match[1]) : 0;
+
+        // Convert the unit to hours
+        if (timingData._unit === "minutes") {
+          durationMinNumber /= 60;
+          durationMaxNumber /= 60;
+        }
+
+        let startTime = 0;
+        let endTime = parseFloat(durationMaxNumber.toFixed(2));
+
+        // If this is the Duration property, then we know this comes after Onset, so we need to
+        // adjust the start and end times accordingly
+        if (timingKey === "Duration") {
+          const onsetData = durationTiming[roa]?.Onset;
+          startTime = onsetData
+            ? onsetData.startTime + onsetData.min
+            : parseFloat(durationMinNumber.toFixed(2));
+          endTime = onsetData
+            ? onsetData.startTime +
+              onsetData.max +
+              parseFloat(durationMaxNumber.toFixed(2))
+            : parseFloat(durationMaxNumber.toFixed(2));
+        }
+
+        // Same thing for After Effects
+        if (timingKey === "After Effects") {
+          const durationData = durationTiming[roa]?.Duration;
+          startTime = durationData
+            ? durationData.startTime + durationData.min
+            : parseFloat(durationMinNumber.toFixed(2));
+          endTime = durationData
+            ? durationData.startTime +
+              durationData.max +
+              parseFloat(durationMaxNumber.toFixed(2))
+            : parseFloat(durationMaxNumber.toFixed(2));
+        }
+
+        // Add it all to the object
+        durationTiming[roa] = {
+          ...durationTiming[roa],
+          [timingKey]: {
+            min: parseFloat(durationMinNumber.toFixed(2)),
+            max: parseFloat(durationMaxNumber.toFixed(2)),
+            startTime,
+            endTime,
+          },
+        };
+      }
+    }
+  });
+
+  return durationTiming;
+}
+
 const addDurations = (drugData: MRT_Row<Drug>) => {
   // We need to create a new object that has the duration data that we can use to create the chart
   // We need to create this object first because we need to know the complete duration information
   // before we can create the chart. The object will be structured like this:
-  const durationTiming = {} as {
-    [key: string]: {
-      // ROA, eg "Oral"
-      // all numbers are in hours, including minutes (30 mins = .5 hours)
-      Onset?: {
-        min: number;
-        max: number;
-        startTime: number;
-        endTime: number;
-      };
-      Duration?: {
-        min: number;
-        max: number;
-        startTime: number;
-        endTime: number;
-      };
-      "After Effects"?: {
-        min: number;
-        max: number;
-        startTime: number;
-        endTime: number;
-      };
-    };
-  };
-
-  // This function is called for each of the three types of duration data:
-  // onset, duration, and after effects
-  function addDurationData(
-    timingData: Duration,
-    timingKey: "Onset" | "Duration" | "After Effects",
-  ) {
-    // If there is a "value" parameter, then assume the ROA is "Oral" and that it is the only ROA
-    // Otherwise, get a list of ROAs, and either way loop through that "list"
-    const roaList = timingData.value ? ["Oral"] : Object.keys(timingData);
-    roaList.forEach((roa) => {
-      // Get the string for the ROA. If it's a 'value' parameter, then use that, otherwise use the key
-      const roaString: string = timingData.value
-        ? (timingData.value as string)
-        : (timingData[roa as keyof typeof timingData] as string);
-
-      // Ignore the "_unit" property
-      if (roa !== "_unit") {
-        // Use regex to pull out the first value separated by a dash
-        // This is the minimum value
-        // If there is no dash, then the minimum and maximum values are the same
-        const regex = /(\d+(?:\.\d+)?)(?:-(\d+(?:\.\d+)?))?([a-zA-Z]+)?/;
-        const match = RegExp(regex).exec(roaString);
-
-        // This is mostly for type-safety
-        if (match) {
-          // Max number is either the second number, or the /only/ number
-          let durationMaxNumber = match[2]
-            ? parseFloat(match[2])
-            : parseFloat(match[1]);
-
-          let durationMinNumber = match[2] ? parseFloat(match[1]) : 0;
-
-          // Convert the unit to hours
-          if (timingData._unit === "minutes") {
-            durationMinNumber /= 60;
-            durationMaxNumber /= 60;
-          }
-
-          let startTime = 0;
-          let endTime = parseFloat(durationMaxNumber.toFixed(2));
-
-          // If this is the Duration property, then we know this comes after Onset, so we need to
-          // adjust the start and end times accordingly
-          if (timingKey === "Duration") {
-            const onsetData = durationTiming[roa]?.Onset;
-            startTime = onsetData
-              ? onsetData.startTime + onsetData.min
-              : parseFloat(durationMinNumber.toFixed(2));
-            endTime = onsetData
-              ? onsetData.startTime +
-                onsetData.max +
-                parseFloat(durationMaxNumber.toFixed(2))
-              : parseFloat(durationMaxNumber.toFixed(2));
-          }
-
-          // Same thing for After Effects
-          if (timingKey === "After Effects") {
-            const durationData = durationTiming[roa]?.Duration;
-            startTime = durationData
-              ? durationData.startTime + durationData.min
-              : parseFloat(durationMinNumber.toFixed(2));
-            endTime = durationData
-              ? durationData.startTime +
-                durationData.max +
-                parseFloat(durationMaxNumber.toFixed(2))
-              : parseFloat(durationMaxNumber.toFixed(2));
-          }
-
-          // Add it all to the object
-          durationTiming[roa] = {
-            ...durationTiming[roa],
-            [timingKey]: {
-              min: parseFloat(durationMinNumber.toFixed(2)),
-              max: parseFloat(durationMaxNumber.toFixed(2)),
-              startTime,
-              endTime,
-            },
-          };
-        }
-      }
-    });
-  }
+  let durationTiming = {} as DurationTiming;
 
   // In order, we go through the three properties and add them to the durationTiming object
   if (drugData.original.formatted_onset) {
-    addDurationData(drugData.original.formatted_onset, "Onset");
+    durationTiming = addDurationData(
+      drugData.original.formatted_onset,
+      "Onset",
+      durationTiming,
+    );
   }
 
   if (drugData.original.formatted_duration) {
-    addDurationData(drugData.original.formatted_duration, "Duration");
+    durationTiming = addDurationData(
+      drugData.original.formatted_duration,
+      "Duration",
+      durationTiming,
+    );
   }
 
   if (drugData.original.formatted_aftereffects) {
-    addDurationData(drugData.original.formatted_aftereffects, "After Effects");
+    durationTiming = addDurationData(
+      drugData.original.formatted_aftereffects,
+      "After Effects",
+      durationTiming,
+    );
   }
 
   // Now we need to create the array that will be used by apexcharts
@@ -1019,32 +1022,24 @@ function createRow(drugData: MRT_Row<Drug>): ReactNode {
           category.charAt(0).toUpperCase() + category.slice(1).toLowerCase(),
       )
       .join(", ");
-    try {
-      elements.push(
-        <Grid
-          item
-          xs={12}
-          sm={4}
-          md={4}
-          key={`${drugData.original.name} categories`}
-        >
-          <Card>
-            <CardContent>
-              <Typography variant="h5" style={{ color: "black" }}>
-                Categories
-              </Typography>
-              <Typography>
-                {addDictionaryDefs(capitalizedCategories)}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>,
-      );
-    } catch (err) {
-      console.log(`Drug: ${drugData.original.name}`);
-      console.log(`Categories: ${drugData.original.categories}`);
-      console.log(`Error: ${err}`);
-    }
+    elements.push(
+      <Grid
+        item
+        xs={12}
+        sm={4}
+        md={4}
+        key={`${drugData.original.name} categories`}
+      >
+        <Card>
+          <CardContent>
+            <Typography variant="h5" style={{ color: "black" }}>
+              Categories
+            </Typography>
+            <Typography>{addDictionaryDefs(capitalizedCategories)}</Typography>
+          </CardContent>
+        </Card>
+      </Grid>,
+    );
   }
 
   if (drugData.original.properties.summary) {
@@ -1214,10 +1209,6 @@ function createRow(drugData: MRT_Row<Drug>): ReactNode {
         note: drugBNote,
       });
     });
-
-    if (drugData.original.name === debugDrug) {
-      console.log(`comboObject: ${JSON.stringify(comboObject, null, 2)}`);
-    }
 
     elements.push(
       <Grid item xs={12} sm={12} md={12} key="combos">

@@ -19,7 +19,7 @@ Launch List:
 
 Combo formatting
 Sources formatting
-Update definitions
+Infinite scrolling?
 
 With List:
 Add dark mode? / theme https://mui.com/material-ui/customization/default-theme/
@@ -53,7 +53,14 @@ import {
   keepPreviousData,
   useQuery,
 } from "@tanstack/react-query"; // note: this is TanStack Rea`ct Query V5
-import { Category, Drug, Dose, Dosage, Duration } from "tripsit_drug_db";
+import {
+  Category,
+  Drug,
+  Dose,
+  Dosage,
+  Duration,
+  Status,
+} from "tripsit_drug_db";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 // import Grid from "@mui/material/Unstable_Grid2"; // Grid version 2
@@ -67,10 +74,12 @@ import PatreonButton from "./Patreon";
 import dictionary from "../assets/dictionary.json";
 import GithubButton from "./Github";
 
+import comboDefinitions from "../assets/comboDefinitions.json";
+
 // If you want to debug a specific drug, change the below variable to the name of the drug
 // and then use the commented-out code below that to display what you need to debug
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const debugDrug = "1,4-butanediol";
+const debugDrug = "cocaine";
 // if (drugData.original.name === debugDrug) {
 //   console.log(`roaString: ${JSON.stringify(roaString, null, 2)}`);
 // }
@@ -1127,43 +1136,196 @@ function createRow(drugData: MRT_Row<Drug>): ReactNode {
   }
 
   if (drugData.original.combos) {
-    // const comboColors = {
-    //   caution: {
-    //     "background-color": "#fffacb",
-    //     "border-color": "#827700",
-    //   },
-    //   lowDecrease: {
-    //     "background-color": "#d8effe",
-    //     "border-color": "#00426c",
-    //   },
-    //   dangerous: {
-    //     "background-color": "#fdc9cc",
-    //     "border-color": "#7f0006",
-    //   },
-    //   unsafe: {
-    //     "background-color": "#ffe6cb",
-    //     "border-color": "#873100",
-    //   },
-    //   lowIncrease: {
-    //     "background-color": "#cbf0d1",
-    //     "border-color": "#077c1b",
-    //   },
-    //   ss: {
-    //     "background-color": "#dfd3ec",
-    //     "border-color": "#3d166c",
-    //   },
-    // };
+    const comboData = drugData.original.combos;
+    const comboColors = {
+      Dangerous: {
+        "background-color": "#fdc9cc",
+        "border-color": "#7f0006",
+      },
+      Unsafe: {
+        "background-color": "#ffe6cb",
+        "border-color": "#873100",
+      },
+      Caution: {
+        "background-color": "#fffacb",
+        "border-color": "#827700",
+      },
+      "Low Risk & Synergy": {
+        "background-color": "#cbf0d1",
+        "border-color": "#077c1b",
+      },
+      "Low Risk & No Synergy": {
+        "background-color": "#dfd3ec",
+        "border-color": "#3d166c",
+      },
+      "Low Risk & Decrease": {
+        "background-color": "#d8effe",
+        "border-color": "#00426c",
+      },
+    };
+
+    const comboObject = {
+      Dangerous: [],
+      Unsafe: [],
+      Caution: [],
+      "Low Risk & Synergy": [],
+      "Low Risk & No Synergy": [],
+      "Low Risk & Decrease": [],
+    } as {
+      [key in Status]: {
+        name: string;
+        note: string;
+      }[];
+    };
+
+    const drugBList = Object.keys(comboData);
+    drugBList.forEach((drugB) => {
+      const { status, note } = comboData[drugB];
+
+      const drugBNote = note ? ` (${note})` : "";
+
+      comboObject[status as Status].push({
+        name: drugB,
+        note: drugBNote,
+      });
+    });
+
+    if (drugData.original.name === debugDrug) {
+      console.log(`comboObject: ${JSON.stringify(comboObject, null, 2)}`);
+    }
 
     elements.push(
       <Grid item xs={12} sm={12} md={12} key="combos">
         <Card>
           <CardContent>
             <Typography variant="h5" style={{ color: "black" }}>
-              Combos
+              Known Combinations
             </Typography>
+
             <Typography>
-              {JSON.stringify(drugData.original.combos, null, 2)}
+              Combination information is sourced from our{" "}
+              <a
+                href="https://github.com/TripSit/drugs"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                drug database
+              </a>
+              . Sources can be found on our{" "}
+              <a
+                href="https://wiki.tripsit.me/wiki/Drug_combinations"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                wiki
+              </a>
+              . The nice combo chart can be found on{" "}
+              <a
+                href="https://combo.tripsit.me/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                combo.tripsit.me
+              </a>
+              .
             </Typography>
+            {Object.keys(comboObject).map((status) => {
+              const colorDef = comboColors[status as keyof typeof comboColors];
+              const statusDef = comboDefinitions.find(
+                (combo) => combo.status === status,
+              ) as {
+                status: Status;
+                definition: string;
+                emoji: string;
+                thumbnail: string;
+              };
+
+              return (
+                <React.Fragment key={status}>
+                  <Card>
+                    <CardContent>
+                      <Grid
+                        item
+                        xs={12}
+                        style={{
+                          background: colorDef["background-color"],
+                          border: `2px solid ${colorDef["border-color"]}`,
+                        }}
+                      >
+                        <Typography>
+                          <b>
+                            {statusDef.emoji} {status} {statusDef.emoji}
+                          </b>
+                          <br></br>
+                          {statusDef.definition}
+                        </Typography>
+                      </Grid>
+                      {comboObject[status as keyof typeof comboObject].map(
+                        (combo) => {
+                          // This doesn't work because we use categories in the table, but we'll use this one day
+                          // Find the drug in the database so we can get the pretty name
+                          // const drugB = data.find((drug) => drug.name === combo.name);
+
+                          // if (!drugB) {
+                          //   throw new Error(`Drug ${combo.name} not found`);
+                          // }
+
+                          const capitalDrugs = [
+                            "2c-t-x",
+                            "2c-x",
+                            "5-meo-xxt",
+                            "amt",
+                            "dmt",
+                            "dox",
+                            "dxm",
+                            "ghb/gbl",
+                            "lsd",
+                            "mdma",
+                            "mxe",
+                            "maois",
+                            "nbomes",
+                            "pcp",
+                            "ssris",
+                          ];
+
+                          let drugBName = combo.name
+                            .split(" ")
+                            .map(
+                              (word) =>
+                                word.charAt(0).toUpperCase() + word.slice(1),
+                            )
+                            .join(" ");
+
+                          if (capitalDrugs.includes(combo.name)) {
+                            drugBName = combo.name.toUpperCase();
+                          }
+
+                          const cleanNote = combo.note
+                            .replace(/(\(|\))/g, "")
+                            .replace(/ {2}/g, " ");
+
+                          return (
+                            <Grid item xs={12} key={`${combo}`}>
+                              <Typography>
+                                <b>{drugBName}</b>
+                                {combo.note ? (
+                                  <>
+                                    <br />
+                                    {cleanNote}
+                                  </>
+                                ) : (
+                                  ""
+                                )}
+                              </Typography>
+                            </Grid>
+                          );
+                        },
+                      )}
+                    </CardContent>
+                  </Card>
+                </React.Fragment>
+              );
+            })}
           </CardContent>
         </Card>
       </Grid>,
@@ -1391,12 +1553,22 @@ const Factsheets = () => {
   const table = useMaterialReactTable({
     columns,
     data,
+    enableStickyHeader: true,
+    enableStickyFooter: true,
+    enableRowPinning: true,
+    // enableRowSelection: true,
+    rowPinningDisplayMode: "top",
+    enableDensityToggle: true, // Need to fix density stuff
+    enableTopToolbar: true,
+    enableTableHead: true,
+    enableHiding: true,
     rowCount: meta?.totalRowCount ?? 0,
     state: {
       isLoading,
       showAlertBanner: isError,
       showProgressBars: isRefetching,
     },
+    getRowId: (row) => row.name,
     initialState: {
       showColumnFilters: true,
       columnVisibility: {
@@ -1405,19 +1577,15 @@ const Factsheets = () => {
         reagent_results: false,
       },
       // rowPinning: {
-      //   top: ["2-AI"],
+      //   top: ["0"],
+      // },
+      // rowSelection: {
+      //   cocaine: true,
       // },
       // expanded: {
       //   0: process.env.NODE_ENV === "development",
       // },
     },
-    enableStickyHeader: true,
-    enableStickyFooter: true,
-    enableRowPinning: true,
-    enableDensityToggle: false, // Need to fix density stuff
-    enableTopToolbar: true,
-    enableTableHead: true,
-    enableHiding: true,
     muiTablePaperProps: { sx: { height: "100vh" } }, // Takes up 100% of the viewport available
     muiTableContainerProps: { sx: { height: "78vh" } }, // This value seems to work the best
     muiToolbarAlertBannerProps: isError

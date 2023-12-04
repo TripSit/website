@@ -15,9 +15,9 @@ It displays the data using material react table: https://www.material-react-tabl
 It creates charts using ApexCharts: https://apexcharts.com/
 Pull requests are welcome! If you have any questions, feel free to ask in #dev on the TripSit Discord: https://discord.gg/tripsit
 
+Want to use this page on your site? Go for it, but dont ask for help
 Launch List:
 
-Combo formatting
 Sources formatting
 Infinite scrolling?
 
@@ -28,6 +28,8 @@ Pinning new drugs
 DMT durations are messed up
 DMT is missing dosages
 Fix when the density is changed
+Make combo display better
+Add images/colors for reagents
 */
 
 import React, { ReactNode, useMemo } from "react";
@@ -1092,18 +1094,41 @@ function createRow(drugData: MRT_Row<Drug>): ReactNode {
         drugData.original.properties[
           property as keyof typeof drugData.original.properties
         ];
-      elements.push(
-        <Grid item xs={12} sm={6} md={4} key={propertyName}>
-          <Card>
-            <CardContent>
-              <Typography variant="h5" style={{ color: "black" }}>
-                {propertyName.charAt(0).toUpperCase() + propertyName.slice(1)}
-              </Typography>
-              <Typography>{propertyValue}</Typography>
-            </CardContent>
-          </Card>
-        </Grid>,
-      );
+      if (propertyName === "experiences") {
+        elements.push(
+          <Grid item xs={12} sm={6} md={4} key={propertyName}>
+            <Card>
+              <CardContent>
+                <Typography variant="h5" style={{ color: "black" }}>
+                  {propertyName.charAt(0).toUpperCase() + propertyName.slice(1)}
+                </Typography>
+                <Typography>
+                  <a
+                    href={propertyValue as string}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Erowid Experience Vault
+                  </a>
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>,
+        );
+      } else {
+        elements.push(
+          <Grid item xs={12} sm={6} md={4} key={propertyName}>
+            <Card>
+              <CardContent>
+                <Typography variant="h5" style={{ color: "black" }}>
+                  {propertyName.charAt(0).toUpperCase() + propertyName.slice(1)}
+                </Typography>
+                <Typography>{propertyValue}</Typography>
+              </CardContent>
+            </Card>
+          </Grid>,
+        );
+      }
     });
   }
 
@@ -1407,6 +1432,8 @@ function createRow(drugData: MRT_Row<Drug>): ReactNode {
   }
 
   if (drugData.original.sources) {
+    const sourceData = drugData.original.sources;
+    const links = Object.values(sourceData);
     elements.push(
       <Grid item xs={12} sm={6} md={6} key="sources">
         <Card>
@@ -1414,9 +1441,7 @@ function createRow(drugData: MRT_Row<Drug>): ReactNode {
             <Typography variant="h5" style={{ color: "black" }}>
               Sources
             </Typography>
-            <Typography>
-              {JSON.stringify(drugData.original.sources, null, 2)}
-            </Typography>
+            <Typography>{links}</Typography>
           </CardContent>
         </Card>
       </Grid>,

@@ -1,6 +1,5 @@
 import Image from "next/image";
-import { Tooltip } from "@nextui-org/react";
-// import { useRouter } from "next/router";
+import { Tooltip } from "@mui/material";
 import logo from "../../public/assets/img/logo.png";
 
 function Header() {
@@ -128,7 +127,7 @@ function Header() {
                   </a>
                   <ul>
                     <Tooltip
-                      content="This link helps support TripSit!"
+                      title="This link helps support TripSit!"
                       placement="left"
                       color="secondary"
                     >
@@ -144,7 +143,7 @@ function Header() {
                       </a>
                     </li>
                     <Tooltip
-                      content="This link helps support TripSit!"
+                      title="This link helps support TripSit!"
                       placement="left"
                       color="secondary"
                     >

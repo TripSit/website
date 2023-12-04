@@ -3,7 +3,8 @@ import Image from "next/image";
 import React from "react";
 import { Navigation, Pagination, Scrollbar, A11y } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Tooltip, Accordion, AccordionItem, Button } from "@nextui-org/react";
+import { Accordion, AccordionItem, Button } from "@nextui-org/react";
+import { Tooltip } from "@mui/material";
 import { useRouter } from "next/router";
 import JoinInnerOutlinedIcon from "@mui/icons-material/JoinInnerOutlined";
 import FactCheckOutlinedIcon from "@mui/icons-material/FactCheckOutlined";
@@ -571,7 +572,7 @@ export default function Home({ guild }: { guild: APIGuild }) {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <Tooltip content="MAPS" placement="bottom">
+                  <Tooltip title="MAPS" placement="bottom">
                     <Image src={mapsLogo} className="logo img-fluid" alt="" />
                   </Tooltip>
                 </a>
@@ -586,7 +587,7 @@ export default function Home({ guild }: { guild: APIGuild }) {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <Tooltip content="Bluelight" placement="bottom">
+                  <Tooltip title="Bluelight" placement="bottom">
                     <Image
                       src={bluelightLogo}
                       className="logo img-fluid"
@@ -605,7 +606,7 @@ export default function Home({ guild }: { guild: APIGuild }) {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <Tooltip content="Subject Effect Index" placement="bottom">
+                  <Tooltip title="Subject Effect Index" placement="bottom">
                     <Image src={seiLogo} className="logo img-fluid" alt="" />
                   </Tooltip>
                 </a>
@@ -620,7 +621,7 @@ export default function Home({ guild }: { guild: APIGuild }) {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <Tooltip content="Dance Safe" placement="bottom">
+                  <Tooltip title="Dance Safe" placement="bottom">
                     <Image
                       src={dancesafeLogo}
                       className="logo img-fluid"
@@ -639,7 +640,7 @@ export default function Home({ guild }: { guild: APIGuild }) {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <Tooltip content="Psychonaut Wiki" placement="bottom">
+                  <Tooltip title="Psychonaut Wiki" placement="bottom">
                     <Image src={pwLogo} className="logo img-fluid" alt="" />
                   </Tooltip>
                 </a>
@@ -654,7 +655,7 @@ export default function Home({ guild }: { guild: APIGuild }) {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <Tooltip content="r/Drugs" placement="bottom">
+                  <Tooltip title="r/Drugs" placement="bottom">
                     <Image src={rdrugsLogo} className="logo img-fluid" alt="" />
                   </Tooltip>
                 </a>

@@ -22,7 +22,7 @@
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.14.19",
     "@mui/material": "^5.14.19",
-    "@mui/x-data-grid": "^6.18.3",
+    "@mui/x-data-grid": "^6.18.4",
     "@mui/x-date-pickers": "^6.18.3",
     "@nextui-org/react": "^2.2.9",
     "@srexi/purecounterjs": "^1.5.0",

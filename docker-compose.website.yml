@@ -49,4 +49,4 @@ services:
 networks:
   website-net:
     name: website-net
-    external: trues
+    external: true

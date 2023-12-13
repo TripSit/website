@@ -5,7 +5,8 @@
 # We stop at the end of this step in development, so it also includes the deploy command
 # We install jest, eslint and ts-node so we can run tests and lint.
 
-FROM node:21.4.0-alpine AS development
+
+FROM node:21.4.0 AS development
 
 ENV NODE_ENV=development
 
@@ -28,7 +29,7 @@ COPY --chown=node:node . .
 # USER node
 
 # For container development, the following command runs forever, so we can inspect the container
-CMD ["npm", "run", ".dev"]
+CMD ["npx next dev"]
 
 ###################
 # BUILD FOR PRODUCTION
@@ -54,6 +55,9 @@ COPY --chown=node:node . .
 
 # Build the production bundle
 RUN npx next build
+
+# Use the node user from the image (instead of the root user)
+USER node
 
 # Running `npm ci` removes the existing node_modules directory and passing in --only=production ensures that only the production dependencies are installed. This ensures that the node_modules directory is as optimized as possible
 RUN npm ci --omit:dev && npm cache clean --force

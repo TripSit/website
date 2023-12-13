@@ -2,44 +2,247 @@
 // README at: https://github.com/devcontainers/templates/tree/main/src/typescript-node
 {
 	"name": "TripSit Website",
-	"image": "mcr.microsoft.com/devcontainers/typescript-node:1-20-bullseye",
-	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	// Configure tool-specific properties.
-	"customizations": {
-		// Configure properties specific to VS Code.
-		"vscode": {
-			"settings": {
-				"files.autoSave": "off",
-				// "editor.inlineSuggest.enabled": true,
-				// "eslint.codeActionsOnSave.rules": null,
-				"editor.codeActionsOnSave": {
-					"source.fixAll.eslint": true
-				},
-				"eslint.validate": [
-					"javascript",
-					"typescript"
-				]
-			},
-			//"devPort": {},
-			// Specify which VS Code extensions to install (List of IDs)
-			"extensions": [
-				"dbaeumer.vscode-eslint"
-				// "GitHub.copilot",
-				// "mikestead.dotenv"
-			]
-		}
+	// "image": "mcr.microsoft.com/devcontainers/typescript-node",
+	"build": {
+		// Path is relative to the devcontainer.json file.
+		"dockerfile": "../Dockerfile",
+		"target": "development"
 	},
+	"waitFor": "updateContentCommand",
+	"updateContentCommand": "npm ci",
+	"postCreateCommand": "npx next dev",
+	// "postAttachCommand": [
+	// 	"./node_modules/.bin/next dev"
+	// ],
 	"features": {
 		"ghcr.io/devcontainers/features/github-cli:1": {}
 	},
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
-	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": [
-		"npm install"
-	]
-	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-	// "remoteUser": "root"
+	"forwardPorts": [
+		3000
+	],
+	"portsAttributes": {
+		"3000": {
+			"label": "Application",
+			"onAutoForward": "openPreview"
+		}
+	},
+	// Configure tool-specific properties.
+	"customizations": {
+		"codespaces": {
+			"openFiles": [
+				"FIRSTRUN.MD",
+				"../src/pages/index.tsx"
+			]
+		},
+		// Configure properties specific to VS Code.
+		"vscode": {
+			"settings": {
+				"files.autoSave": "off",
+				"editor.defaultFormatter": "dbaeumer.vscode-eslint",
+				"editor.formatOnPaste": false, // required 
+				"editor.formatOnType": false, // required
+				"editor.formatOnSave": true, // optional 
+				"editor.formatOnSaveMode": "file", // required to format on save
+				"vs-code-prettier-eslint.prettierLast": false, // set as "true" to run 'prettier' last not first
+				"editor.codeActionsOnSave": {
+					"source.fixAll.eslint": true
+				},
+				"editor.rulers": [
+					100
+				],
+				"eslint.validate": [
+					"javascript",
+					"typescript"
+				],
+				"deepscan.enable": true,
+				"sonarlint.connectedMode.project": {
+					"connectionId": "https-sonar-tripsit-me",
+					"projectKey": "TripSit_website_AYoAUAAYALmA62is8Npk"
+				},
+				"cSpell.words": [
+					"ADHD",
+					"agressively",
+					"AILOG",
+					"aminoindan",
+					"Anxiolytic",
+					"apexcharts",
+					"arylcyclohexylamine",
+					"Benzedrex",
+					"Benzo",
+					"benzodiazepine",
+					"Benzodiazepine",
+					"benzodiazepines",
+					"Benzoylethanamine",
+					"bioavailability",
+					"Bloopiness",
+					"bluelight",
+					"Blurple",
+					"bottest",
+					"boxicons",
+					"bruxism",
+					"Butanediol",
+					"butanoyl",
+					"cannabinoid",
+					"catecholamine",
+					"Catha",
+					"cathine",
+					"cathinone",
+					"Cathinone",
+					"chirality",
+					"chloro",
+					"Chloroephenidine",
+					"clephenidine",
+					"Colour",
+					"comeup",
+					"Compsci",
+					"contractability",
+					"countup",
+					"cplsd",
+					"cyclopropionyl",
+					"dancesafe",
+					"dbaeumer",
+					"desoxypiperadol",
+					"desoxypipradol",
+					"desoxypipradrol",
+					"devcontainers",
+					"diazepine",
+					"discordmembers",
+					"Disinhibition",
+					"dissociatives",
+					"doesn",
+					"DPMP",
+					"dribbble",
+					"Dystaxia",
+					"EDMA",
+					"edulis",
+					"EFLEA",
+					"empathogen",
+					"Empathogen",
+					"empathogenic",
+					"enantiomer",
+					"Ephenidine",
+					"equipotency",
+					"Erowid",
+					"factsheet",
+					"Factsheets",
+					"fdck",
+					"fket",
+					"fluoroamphetamine",
+					"fluorodeschloroketamine",
+					"Froehde",
+					"fuckin",
+					"generaly",
+					"getstarted",
+					"glightbox",
+					"haha",
+					"hbwr",
+					"headspace",
+					"homeserver",
+					"iconbox",
+					"Insufflated",
+					"Insufflating",
+					"ketamine",
+					"Kofi",
+					"Liebermann",
+					"logit",
+					"luxon",
+					"lysergamide",
+					"Mandelin",
+					"MAOI",
+					"maois",
+					"mdma",
+					"Mecke",
+					"Methylphenidate",
+					"mikestead",
+					"modlog",
+					"monoamine",
+					"monoamines",
+					"Moodle",
+					"Moonbear",
+					"Naloxone",
+					"nbomes",
+					"NDRI",
+					"neuromodulator",
+					"neuroprotective",
+					"nextui",
+					"nmda",
+					"nootropic",
+					"Nootropic",
+					"nootropics",
+					"Norpinephrine",
+					"openai",
+					"parens",
+					"pethlad",
+					"pharmacodynamics",
+					"pharmacokinetics",
+					"phenethylamine",
+					"pihkal",
+					"pkgd",
+					"plsd",
+					"potentiators",
+					"presynaptic",
+					"prodrug",
+					"propionyl",
+					"Psychonaut",
+					"purecounter",
+					"purecounterjs",
+					"pweffects",
+					"rangebar",
+					"rdrugs",
+					"redosing",
+					"remixicon",
+					"reuptake",
+					"ROA's",
+					"Roas",
+					"rooni",
+					"scrollto",
+					"snri",
+					"sonarjs",
+					"spinball",
+					"Squonk",
+					"srexi",
+					"ssri",
+					"Ssri",
+					"ssris",
+					"stereoisomers",
+					"superimposeable",
+					"swiper",
+					"tailwindcss",
+					"tanstack",
+					"thienodiazepine",
+					"thiophene",
+					"tihkal",
+					"tramadol",
+					"tripbot",
+					"Tripbot",
+					"tripsit",
+					"tryptamine",
+					"Tryptamine",
+					"vapourized",
+					"vbtype",
+					"Webchat",
+					"widgetbot",
+					"xaxis",
+					"yaxis"
+				],
+				"cSpell.ignoreWords": [
+					"0a9396",
+					"NOJCE",
+					"aren"
+				]
+			},
+			// Specify which VS Code extensions to install (List of IDs)
+			"extensions": [
+				"streetsidesoftware.code-spell-checker",
+				"dbaeumer.vscode-eslint",
+				"esbenp.prettier-vscode",
+				"DavidAnson.vscode-markdownlint",
+				"ms-vscode-remote.remote-containers",
+				"mikestead.dotenv"
+			]
+		}
+	}
 }

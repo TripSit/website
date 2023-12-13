@@ -7,7 +7,7 @@
     "website": "docker compose --file docker-compose.website.yml --project-name website up -d --force-recreate --build website",
     "logs": "docker container logs website -f -n 100",
     "lint": "docker exec -it website npm run .lint",
-    "## LOCAL ##": "",
+    "## LOCAL/CODESPACE ##": "",
     ".dev": "NODE_OPTIONS='--inspect' next dev",
     ".lint": "next lint",
     ".start": "next start"

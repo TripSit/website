@@ -10,10 +10,8 @@
 	},
 	"waitFor": "updateContentCommand",
 	"updateContentCommand": "npm ci",
-	"postCreateCommand": "npx next dev",
-	// "postAttachCommand": [
-	// 	"./node_modules/.bin/next dev"
-	// ],
+	"postCreateCommand": "echo 'Container setup complete. Please run \"npm run .dev\" to start the development server.'",
+	// "postCreateCommand": "npx next dev",
 	"features": {
 		"ghcr.io/devcontainers/features/github-cli:1": {}
 	},

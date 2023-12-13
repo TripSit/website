@@ -1,14 +1,14 @@
 {
+    "files.autoSave": "off",
     "editor.defaultFormatter": "rvest.vs-code-prettier-eslint",
     "editor.formatOnPaste": false, // required 
     "editor.formatOnType": false, // required
     "editor.formatOnSave": true, // optional 
     "editor.formatOnSaveMode": "file", // required to format on save
-    // "files.autoSave": "onFocusChange", // optional but recommended
     "vs-code-prettier-eslint.prettierLast": false, // set as "true" to run 'prettier' last not first
     "eslint.codeActionsOnSave.rules": null,
     "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": true
+        "source.fixAll.eslint": "explicit"
     },
     "editor.rulers": [
         100,
@@ -22,6 +22,7 @@
         "agressively",
         "AILOG",
         "aminoindan",
+        "Anson",
         "Anxiolytic",
         "apexcharts",
         "arylcyclohexylamine",
@@ -50,6 +51,7 @@
         "chloro",
         "Chloroephenidine",
         "clephenidine",
+        "codespaces",
         "Colour",
         "comeup",
         "Compsci",
@@ -59,9 +61,11 @@
         "cyclopropionyl",
         "dancesafe",
         "dbaeumer",
+        "deepscan",
         "desoxypiperadol",
         "desoxypipradol",
         "desoxypipradrol",
+        "devcontainer",
         "devcontainers",
         "diazepine",
         "discordmembers",
@@ -81,6 +85,7 @@
         "Ephenidine",
         "equipotency",
         "Erowid",
+        "esbenp",
         "factsheet",
         "Factsheets",
         "fdck",
@@ -153,9 +158,11 @@
         "ROA's",
         "Roas",
         "rooni",
+        "rvest",
         "scrollto",
         "snri",
         "sonarjs",
+        "sonarlint",
         "spinball",
         "Squonk",
         "srexi",
@@ -183,15 +190,16 @@
         "xaxis",
         "yaxis"
     ],
+    "cSpell.ignoreWords": [
+        "0a9396",
+        "AUAAYA",
+        "NOJCE",
+        "aren"
+    ],
     "sonarlint.connectedMode.project": {
         "connectionId": "https-sonar-tripsit-me",
         "projectKey": "TripSit_website_AYoAUAAYALmA62is8Npk"
     },
-    "cSpell.ignoreWords": [
-        "0a9396",
-        "NOJCE",
-        "aren"
-    ],
     "github.copilot.advanced": {},
     "[jsonc]": {
         "editor.defaultFormatter": "vscode.json-language-features"

@@ -8,13 +8,13 @@
     "logs": "docker container logs website -f -n 100",
     "lint": "docker exec -it website npm run .lint",
     "## LOCAL ##": "",
-    ".dev": "next dev",
+    ".dev": "NODE_OPTIONS='--inspect' next dev",
     ".lint": "next lint",
     ".start": "next start"
   },
   "engines": {
-    "node": "v21.1.0",
-    "npm": "10.2.0"
+    "node": "v21.4.0",
+    "npm": "10.2.4"
   },
   "dependencies": {
     "@discordjs/rest": "^2.2.0",

@@ -3,7 +3,10 @@ import { Tooltip } from "@mui/material";
 import logo from "../../public/assets/img/logo.png";
 
 function Header() {
-  const domain = `https://${process.env.NEXT_PUBLIC_DNS_DOMAIN}`;
+  const domain =
+    process.env.NODE_ENV === "development"
+      ? `https://tripsit.io`
+      : `https://tripsit.me`;
   // const router = useRouter();
   return (
     <header

@@ -36,7 +36,7 @@
     "discord-api-types": "^0.37.66",
     "discord.js": "^14.14.1",
     "kofi-button": "^1.1.1",
-    "material-react-table": "^2.0.5",
+    "material-react-table": "^2.0.6",
     "next": "^14.0.4",
     "particles-bg": "^2.5.5",
     "postcss": "^8.4.32",

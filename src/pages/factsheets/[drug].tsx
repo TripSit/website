@@ -51,7 +51,7 @@ export default function DrugInfo() {
   if (!drugName) {
     return (
       <>
-        <h1>Drug not found</h1>
+        <h1>Drug not found, not JavaScript is not enabled.</h1>
         <p>
           The drug you&apos;re looking for doesn&apos;t exist in the database.
           If you think this is an error, please{" "}
@@ -65,7 +65,7 @@ export default function DrugInfo() {
   if (Array.isArray(drugName)) {
     return (
       <>
-        <h1>Drug not found</h1>
+        <h1>Drug not found, not JavaScript is not enabled.</h1>
         <p>
           The drug you&apos;re looking for doesn&apos;t exist in the database.
           If you think this is an error, please{" "}
@@ -85,7 +85,7 @@ export default function DrugInfo() {
   if (!drugData) {
     return (
       <>
-        <h1>Drug not found</h1>
+        <h1>Drug not found, not JavaScript is not enabled.</h1>
         <p>
           The drug you&apos;re looking for doesn&apos;t exist in the database.
           If you think this is an error, please{" "}

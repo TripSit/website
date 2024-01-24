@@ -32,7 +32,7 @@ Then you have two choices:
 The preferred way to deploy is with docker. 
 This ensures that we're running on the same system with no conflicts.
 
-1) Run the `npm start website` command to build the docker image
+1) Run the `npm run website` command to build the docker image
 2) Run the `npm run logs` command to see the logs from the container
 3) Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 

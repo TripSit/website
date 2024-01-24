@@ -9,6 +9,7 @@ function MyHead() {
 
       <meta content="" name="description" />
       <meta content="" name="keywords" />
+      <meta name="robots" content="all" />
     </Head>
   );
 }

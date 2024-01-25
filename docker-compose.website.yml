@@ -26,6 +26,8 @@ services:
       target: development
     container_name: website
     working_dir: /usr/src/app
+    ports:
+      - 3000:3000
     environment:
       <<: *default-tz-puid-pgid
     volumes:
@@ -49,4 +51,4 @@ services:
 networks:
   website-net:
     name: website-net
-    external: true
+    # external: true

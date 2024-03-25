@@ -45,7 +45,7 @@
     "react-collapsible": "^2.10.0",
     "react-countup": "^6.5.0",
     "react-dom": "18.2.0",
-    "sharp": "^0.33.0",
+    "sharp": "^0.33.3",
     "swiper": "^11.0.5",
     "tailwindcss": "^3.3.6",
     "tripsit_drug_db": "github:tripsit/drugs",

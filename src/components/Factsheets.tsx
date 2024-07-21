@@ -329,7 +329,7 @@ const Factsheets = () => {
         size: 180, // This is the default value, but it stops the column from changing when the table is resized
         Cell: ({ cell }) => (
           <span>
-            {cell.getValue && addDictionaryDefs(cell.getValue<string>())}
+            {cell.getValue() ? addDictionaryDefs(cell.getValue<string>()) : ""}
           </span>
         ),
       },
@@ -343,7 +343,7 @@ const Factsheets = () => {
         size: 180, // This is the default value, but it stops the column from changing when the table is resized
         Cell: ({ cell }) => (
           <span>
-            {cell.getValue && addDictionaryDefs(cell.getValue<string>())}
+            {cell.getValue() ? addDictionaryDefs(cell.getValue<string>()) : ""}
           </span>
         ),
       },
@@ -356,7 +356,7 @@ const Factsheets = () => {
         size: 900, // Make this one bigger because of the long text
         Cell: ({ cell }) => (
           <span>
-            {cell.getValue && addDictionaryDefs(cell.getValue<string>())}
+            {cell.getValue() ? addDictionaryDefs(cell.getValue<string>()) : ""}
           </span>
         ),
       },

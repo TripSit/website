@@ -134,14 +134,13 @@ function Header() {
                     >
                       <li>
                         <a href="https://www.reagent-tests.uk/shop/">
-                          ReagentTests (UK) (10% off with &apos;tripsitwiki&apos;)
+                          ReagentTests (UK) (10% off with
+                          &apos;tripsitwiki&apos;)
                         </a>
                       </li>
                     </Tooltip>
                     <li>
-                      <a href="https://ez-test.com.au/">
-                        EZ Test (Australia)
-                      </a>
+                      <a href="https://ez-test.com.au/">EZ Test (Australia)</a>
                     </li>
                     <li>
                       <a href="https://www.testdrogue.fr/">

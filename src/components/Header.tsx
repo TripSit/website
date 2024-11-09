@@ -111,20 +111,9 @@ function Header() {
                     <i className="bi bi-chevron-right"></i>
                   </a>
                   <ul>
-                    <Tooltip
-                      title="This link helps support TripSit!"
-                      placement="left"
-                      color="secondary"
-                    >
-                      <li>
-                        <a href="https://dosetest.com/tripsit">
-                          DoseTest (20% off with &apos;tripsit&apos;)
-                        </a>
-                      </li>
-                    </Tooltip>
                     <li>
-                      <a href="https://www.reagent-tests.uk/shop/">
-                        Reagent Tests UK (10% off with &apos;tripsitwiki&apos;)
+                      <a href="https://dancesafe.org/product-category/testing-strips/">
+                        DanceSafe (Worldwide)
                       </a>
                     </li>
                     <Tooltip
@@ -134,13 +123,29 @@ function Header() {
                     >
                       <li>
                         <a href="https://protestkit.eu/shop/?coupon_code=tripsit">
-                          ProTest (10% off with &apos;TripSit&apos;)
+                          ProTest (Europe) (10% off with &apos;TripSit&apos;)
                         </a>
                       </li>
                     </Tooltip>
+                    <Tooltip
+                    title="This link helps support TripSit"
+                    placement="left"
+                    color="secondary"
+                    >
                     <li>
-                      <a href="http://ez-test.com.au/">
-                        EZ Test (10% off with &apos;TripsitAusOct&apos;)
+                      <a href="https://www.reagent-tests.uk/shop/">
+                        ReagentTests (UK) (10% off with &apos;tripsitwiki&apos;)
+                      </a>
+                    </li>
+                    </Tooltip>
+                    <li>
+                      <a href="https://ez-test.com.au/">
+                        EZ Test (Australia)
+                      </a>
+                    </li>
+                    <li>
+                      <a href="https://www.testdrogue.fr/">
+                        Test Drogue (France)
                       </a>
                     </li>
                     <li>

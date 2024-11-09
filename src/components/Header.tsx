@@ -128,15 +128,15 @@ function Header() {
                       </li>
                     </Tooltip>
                     <Tooltip
-                    title="This link helps support TripSit"
-                    placement="left"
-                    color="secondary"
+                      title="This link helps support TripSit"
+                      placement="left"
+                      color="secondary"
                     >
-                    <li>
-                      <a href="https://www.reagent-tests.uk/shop/">
-                        ReagentTests (UK) (10% off with &apos;tripsitwiki&apos;)
-                      </a>
-                    </li>
+                      <li>
+                        <a href="https://www.reagent-tests.uk/shop/">
+                          ReagentTests (UK) (10% off with &apos;tripsitwiki&apos;)
+                        </a>
+                      </li>
                     </Tooltip>
                     <li>
                       <a href="https://ez-test.com.au/">

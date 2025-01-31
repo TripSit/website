@@ -1,5 +1,18 @@
 # TripSit's Website
 
+## Table of Contents
+
+### [TripSit's Website](#tripsits-website)
+
+#### - [TripSit's Website](#tripsits-website)
+ ##### - [Table of Contents](#table-of-contents)
+  - [Development - Getting Started](#developmen!---getting-started)
+    - [Codespace](#codespace)
+    - [Local development](#local-development)
+      - [Docker Deployment](#docker-deployment)
+      - [Local Deployment](#local-deployment)
+
+---
 Welcome to TripSit's Main Website, brought to you by THC.
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
@@ -9,6 +22,7 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 You have two options:
 
 ### Codespace
+
 The easiest way to get going is to create a codespace.
 
 This will automatically set up a development environment for you, and you can start editing the code right away.
@@ -20,18 +34,21 @@ This will automatically set up a development environment for you, and you can st
 5) Develop and commit as normal, your changes should be refreshed automatically.
 
 ### Local development
+
 The preferred way to have full control (and perhaps more resources) is local development.
 
 1) Git clone the repo
 2) Install dependencies with `npm install`
-> [!WARN] 
-> WINDOWS USERS MIGHT HAVE TO ADJUST DEPENDENCIES LOCALLY AS WITH TRY INSTALLING NVM THROUGH WINGET IF PROBLEMS OCCUR
 
+---
+> [!WARN]
+> WINDOWS USERS MIGHT HAVE TO ADJUST DEPENDENCIES LOCALLY AS WITH TRY INSTALLING NVM THROUGH WINGET IF PROBLEMS OCCUR
+---
 Then you have two choices:
 
 #### Docker Deployment
 
-The preferred way to deploy is with docker. 
+The preferred way to deploy is with docker.
 This ensures that we're running on the same system with no conflicts.
 
 1) Run the `npm run website` command to build the docker image

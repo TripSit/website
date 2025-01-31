@@ -2,17 +2,17 @@
 
 ## Table of Contents
 
-### [TripSit's Website](#tripsits-website)
+---- [TripSit's Website](#tripsits-website)
 
-#### - [TripSit's Website](#tripsits-website)
- ##### - [Table of Contents](#table-of-contents)
-  - [Development - Getting Started](#developmen!---getting-started)
+- [TripSit's Website](#tripsits-website)
+  - [Table of Contents](#table-of-contents)
+  - [Development - Getting Started](#development---getting-started)
     - [Codespace](#codespace)
     - [Local development](#local-development)
       - [Docker Deployment](#docker-deployment)
       - [Local Deployment](#local-deployment)
 
----
+---!
 Welcome to TripSit's Main Website, brought to you by THC.
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).

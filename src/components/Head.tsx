@@ -6,12 +6,11 @@ function MyHead() {
       <title>TripSit.Me</title>
       <meta charSet="utf-8" />
       <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-
-      <meta content="" name="description" />
-      <meta content="" name="keywords" />
+      <meta content="Your site description here" name="description" />
+      <meta content="relevant, keywords, here" name="keywords" />
       <meta name="robots" content="all" />
+      <link rel="icon" href="/favicon.ico" />
     </Head>
   );
 }
-
 export default MyHead;

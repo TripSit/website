@@ -15,7 +15,7 @@ This will automatically set up a development environment for you, and you can st
 
 1) Create codespace from the repo
 2) Run `npm install` to makes sure it installed properly ig, this was an issue when i tried, ill loop back eventually
-3) Run `npm run .dev` to start the development server.
+3) Run `npm run .dev`if linux user or 'dev' if windows user to start the development server.
 4) Github will pop up with a thing you can click to be taken to the live site where you can see your changes.
 5) Develop and commit as normal, your changes should be refreshed automatically.
 
@@ -24,7 +24,8 @@ The preferred way to have full control (and perhaps more resources) is local dev
 
 1) Git clone the repo
 2) Install dependencies with `npm install`
-
+> [!NOTE] 
+> WINDOWS USERS MIGHT HAVE TO ADJUST DEPENDENCIES LOCALLY AS WITH TRY INSTALLING NVM THROUGH WINGET IF PROBLEMS OCCUR
 Then you have two choices:
 
 #### Docker Deployment

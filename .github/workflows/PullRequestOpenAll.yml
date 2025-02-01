@@ -16,13 +16,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: Use Node.js '20.5.0'
+    - name: Use Node.js '22.11.0'
       uses: actions/setup-node@v3
       with:
-        node-version: '20.5.0'
+        node-version: '22.11.0'
+
         cache: 'npm'
     - name: Update npm
       run: npm install -g npm && npm --version
+
     - name: Install packages
       run: npm install --save-dev typescript @types/react @types/node
     - name: Linting

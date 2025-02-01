@@ -1,11 +1,10 @@
 # TripSit's Website
 
-## Table of Contents
+I. I. ## Table of Contents
 
 ---- [TripSit's Website](#tripsits-website)
 
 - [TripSit's Website](#tripsits-website)
-  - [Table of Contents](#table-of-contents)
   - [Development - Getting Started](#development---getting-started)
     - [Codespace](#codespace)
     - [Local development](#local-development)
@@ -41,8 +40,8 @@ The preferred way to have full control (and perhaps more resources) is local dev
 2) Install dependencies with `npm install`
 
 ---
-> [!WARN]
-> WINDOWS USERS MIGHT HAVE TO ADJUST DEPENDENCIES LOCALLY AS WITH TRY INSTALLING NVM THROUGH WINGET IF PROBLEMS OCCUR
+> [!WARNKNG]
+> WINDOWS USERS MIGHT HAVE TO ADJUST DEPENDENCIES LOCALLY AS WITH TRY INSTALLING NVM THROUGH WINGET > IF PROBLEMS OCCUR
 ---
 Then you have two choices:
 
@@ -61,6 +60,9 @@ If you cannot run docker for whatever reason, or you're in codespace.
 
 1) run the `npm run .dev` command
 2) Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+> [!WARNING]
+> **There is no support for this method, use a codespace before you use this method**
 
 
 But it worked on my system (tm) when im running on an ubuntu vps, so give it a shot.
+Also now works on windows as of 2/1/2025 on my machine (tm), if fails try WSL first before NVM

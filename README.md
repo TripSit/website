@@ -62,6 +62,5 @@ If you cannot run docker for whatever reason, or you're in codespace.
 1) run the `npm run .dev` command
 2) Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-**There is no support for this method, use a codespace before you use this method**
 
 But it worked on my system (tm) when im running on an ubuntu vps, so give it a shot.

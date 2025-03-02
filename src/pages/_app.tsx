@@ -11,8 +11,8 @@ import "../../public/assets/vendor/boxicons/css/boxicons.min.css";
 import "../../public/assets/vendor/glightbox/css/glightbox.min.css";
 import "../../public/assets/vendor/swiper/swiper-bundle.min.css";
 import "../../public/assets/vendor/remixicon/remixicon.css";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
 // Main CSS file
 import "../../public/assets/css/style.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"; // note: this is TanStack Rea`ct Query V5

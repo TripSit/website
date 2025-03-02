@@ -12,7 +12,7 @@ async function fetchUrl(url: string): Promise<boolean> {
 }
 
 export default async function NotFound() {
-  const referer = headers().get("referer");
+  const referer = (await headers()).get("referer");
   if (referer) {
     const blogUrl = referer.replace("https://", "https://blog.");
     if (await fetchUrl(blogUrl)) {

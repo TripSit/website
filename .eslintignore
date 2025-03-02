@@ -1,0 +1,6 @@
+# Ignore all .esm.js files
+**/*.esm.js
+
+# Alternatively, ignore a specific directory (e.g., public or assets)
+public/
+assets/

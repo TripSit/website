@@ -10,7 +10,7 @@ function MyHead() {
         content="Tripsit Harm Reduction Through Education"
         name="description"
       />
-      <meta content="relevant, keywords, here" name="keywords" />
+      <meta content="tripsit, harm, reduction, education" name="keywords" />
       <meta name="robots" content="all" />
       <link rel="icon" href="/favicon.ico" />
     </Head>

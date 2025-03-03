@@ -182,7 +182,7 @@ const addDurations = (drugData: Drug) => {
                 ] as {}[],
               },
             ],
-          };
+          } as ApexAxisChartSeries[number];
           durationSeries.push(data);
         }
       });

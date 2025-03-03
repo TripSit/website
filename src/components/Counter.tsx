@@ -26,7 +26,7 @@ const Counter = (props: CounterProps) => {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { start, pauseResume, reset, update } = useCountUp({
-    ref: countUpRef,
+    ref: "counter",
     start: startNum,
     end: endNum,
     separator: ",",

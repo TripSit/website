@@ -11,8 +11,11 @@ import "../../public/assets/vendor/boxicons/css/boxicons.min.css";
 import "../../public/assets/vendor/glightbox/css/glightbox.min.css";
 import "../../public/assets/vendor/swiper/swiper-bundle.min.css";
 import "../../public/assets/vendor/remixicon/remixicon.css";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
 // Main CSS file
 import "../../public/assets/css/style.css";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"; // note: this is TanStack Rea`ct Query V5
 // import generateRandomString from "@/utils/randomString";
 
 // const F = "_app.tsx";
@@ -41,7 +44,11 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <>
-      <Component {...pageProps} />
+      <LocalizationProvider dateAdapter={AdapterDateFns}>
+        <QueryClientProvider client={new QueryClient()}>
+          <Component {...pageProps} />
+        </QueryClientProvider>
+      </LocalizationProvider>
     </>
   );
 }

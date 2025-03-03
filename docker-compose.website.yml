@@ -26,6 +26,8 @@ services:
       target: development
     container_name: website
     working_dir: /usr/src/app
+    ports:
+      - 3000:3000
     environment:
       <<: *default-tz-puid-pgid
     volumes:
@@ -39,14 +41,14 @@ services:
       - traefik.docker.network=website-net
       - traefik.http.services.website-svc.loadbalancer.server.port=3000
 
-      - traefik.http.routers.website.rule=Host(`${DNS_DOMAIN}`)
+      - traefik.http.routers.website.rule=Host(`${DNS_DOMAIN}`) || Host(`chat.${DNS_DOMAIN}`) || Host(`drugs.${DNS_DOMAIN}`)
       - traefik.http.routers.website.service=website-svc
       - traefik.http.routers.website.tls.certresolver=letsencrypt
-      - traefik.http.routers.website.middlewares=website@file
+      - traefik.http.routers.website.middlewares=default@file,redirectFactsheets@file,redirectWebchat@file
       - traefik.http.routers.website.entrypoints=websecure
 
 ########################### NETWORKS
 networks:
   website-net:
     name: website-net
-    external: true
+    # external: true

@@ -11,17 +11,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: Use Node.js '20.5.0'
-      uses: actions/setup-node@v3
+    - name: Use Node.js LTS
+      uses: actions/setup-node@v4
       with:
-        node-version: '20.5.0'
+        node-version: 'lts/*'
         cache: 'npm'
     - name: Update npm
       run: npm install -g npm && npm --version
-    - name: Install packages
-      run: npm install --save-dev typescript @types/react @types/node
+    - name: Install dependencies
+      run: npm ci
     - name: Linting
       run: npx next lint
+    - name: Cache Node.js modules
+      uses: actions/cache@v3
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
   # test:
   #   name: Test
   #   runs-on: ubuntu-latest

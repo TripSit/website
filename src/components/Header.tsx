@@ -39,13 +39,21 @@ function Header() {
                   </a>
                   <ul>
                     <li>
-                      <a href="https://wiki.tripsit.me/wiki/Main_Page">Wiki</a>
+                      <a
+                        href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/Main_Page`}
+                      >
+                        Wiki
+                      </a>
                     </li>
                     <li>
                       <a href={`${domain}/factsheets`}>Factsheets</a>
                     </li>
                     <li>
-                      <a href="https://combo.tripsit.me/">Comboapp</a>
+                      <a
+                        href={`https://combo.${process.env.NEXT_PUBLIC_DNS_DOMAIN}`}
+                      >
+                        Comboapp
+                      </a>
                     </li>
                     <li>
                       <a href={`${domain}#faq`}>Printing Information</a>
@@ -88,13 +96,25 @@ function Header() {
                   </a>
                   <ul>
                     <li>
-                      <a href="https://dxm.tripsit.me/">DXM Dosage</a>
+                      <a
+                        href={`https://dxm.${process.env.NEXT_PUBLIC_DNS_DOMAIN}`}
+                      >
+                        DXM Dosage
+                      </a>
                     </li>
                     <li>
-                      <a href="https://volume.tripsit.me/">Volumetric</a>
+                      <a
+                        href={`https://volume.${process.env.NEXT_PUBLIC_DNS_DOMAIN}`}
+                      >
+                        Volumetric
+                      </a>
                     </li>
                     <li>
-                      <a href="https://benzos.tripsit.me/">Benzo Conversion</a>
+                      <a
+                        href={`https://benzos.${process.env.NEXT_PUBLIC_DNS_DOMAIN}`}
+                      >
+                        Benzo Conversion
+                      </a>
                     </li>
                   </ul>
                 </li>
@@ -122,7 +142,7 @@ function Header() {
                       </li>
                     </Tooltip>
                     <Tooltip
-                      content="This link helps support TripSit!"
+                      title="This link helps support TripSit!"
                       placement="left"
                       color="secondary"
                     >
@@ -154,7 +174,11 @@ function Header() {
                   </ul>
                 </li>
                 <li>
-                  <a href="https://learn.tripsit.me/">Learning Platform</a>
+                  <a
+                    href={`https://learn.${process.env.NEXT_PUBLIC_DNS_DOMAIN}`}
+                  >
+                    Learning Platform
+                  </a>
                 </li>
                 <li>
                   <a href="https://play.google.com/store/apps/details?id=me.tripsit.mobile&hl=en_US&gl=US">
@@ -162,14 +186,18 @@ function Header() {
                   </a>
                 </li>
                 <li>
-                  <a href="https://uptime.tripsit.me/status/default">
+                  <a
+                    href={`https://uptime.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/status/default`}
+                  >
                     Service Status
                   </a>
                 </li>
               </ul>
             </li>
             <li className="dropdown">
-              <a href="https://wiki.tripsit.me/wiki/Category:Guides">
+              <a
+                href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/Category:Guides`}
+              >
                 <span>Guides</span> <i className="bi bi-chevron-down"></i>
               </a>
               <ul>
@@ -180,23 +208,37 @@ function Header() {
                   </a>
                   <ul>
                     <li>
-                      <a href="https://wiki.tripsit.me/wiki/Common_Misconceptions_About_Psychedelics">
+                      <a
+                        href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/Common_Misconceptions_About_Psychedelics`}
+                      >
                         Psychedelic Myths
                       </a>
                     </li>
                     <li>
-                      <a href="https://wiki.tripsit.me/wiki/Test_Kits">
+                      <a
+                        href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/Test_Kits`}
+                      >
                         Test Kits
                       </a>
                     </li>
                     <li>
-                      <a href="https://wiki.tripsit.me/wiki/Scales">Scales</a>
+                      <a
+                        href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/Scales`}
+                      >
+                        Scales
+                      </a>
                     </li>
                     <li>
-                      <a href="https://wiki.tripsit.me/wiki/Storage">Storage</a>
+                      <a
+                        href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/Storage`}
+                      >
+                        Storage
+                      </a>
                     </li>
                     <li>
-                      <a href="https://wiki.tripsit.me/wiki/Sources_for_Laboratory_Analysis">
+                      <a
+                        href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/Sources_for_Laboratory_Analysis`}
+                      >
                         Laboratory Analysis
                       </a>
                     </li>
@@ -214,22 +256,30 @@ function Header() {
                       </a>
                     </li>
                     <li>
-                      <a href="https://wiki.tripsit.me/wiki/Hallucinogens">
+                      <a
+                        href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/Hallucinogens`}
+                      >
                         Hallucinogens
                       </a>
                     </li>
                     <li>
-                      <a href="https://wiki.tripsit.me/wiki/How_To_Tripsit_In_Real_Life">
+                      <a
+                        href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/How_To_Tripsit_In_Real_Life`}
+                      >
                         TripSit in real life
                       </a>
                     </li>
                     <li>
-                      <a href="https://wiki.tripsit.me/wiki/How_To_Tripsit_Online">
+                      <a
+                        href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/How_To_Tripsit_Online`}
+                      >
                         TripSit online
                       </a>
                     </li>
                     <li>
-                      <a href="https://wiki.tripsit.me/wiki/How_To_Deal_With_A_Bad_Trip">
+                      <a
+                        href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/How_To_Deal_With_A_Bad_Trip`}
+                      >
                         Deal with a bad trip
                       </a>
                     </li>
@@ -242,25 +292,37 @@ function Header() {
                   </a>
                   <ul>
                     <li>
-                      <a href="https://wiki.tripsit.me/wiki/Quick_Guide_to_Stimulant_Comedowns">
+                      <a
+                        href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/Quick_Guide_to_Stimulant_Comedowns`}
+                      >
                         Stimulant Comedowns
                       </a>
                     </li>
                     <li>
-                      <a href="https://wiki.tripsit.me/wiki/HPPD">HPPD</a>
+                      <a
+                        href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/HPPD`}
+                      >
+                        HPPD
+                      </a>
                     </li>
                     <li>
-                      <a href="https://wiki.tripsit.me/wiki/Guide_to_Withdrawals">
+                      <a
+                        href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/Guide_to_Withdrawals`}
+                      >
                         Guide to Withdrawals
                       </a>
                     </li>
                     <li>
-                      <a href="https://wiki.tripsit.me/wiki/Addiction">
+                      <a
+                        href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/Addiction`}
+                      >
                         Addiction
                       </a>
                     </li>
                     <li>
-                      <a href="https://wiki.tripsit.me/wiki/Professional_Help_Resources">
+                      <a
+                        href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/Professional_Help_Resources`}
+                      >
                         Professional Help Resources
                       </a>
                     </li>
@@ -272,32 +334,44 @@ function Header() {
                   </a>
                   <ul>
                     <li>
-                      <a href="https://wiki.tripsit.me/wiki/Quick_Guide_to_Volumetric_Dosing">
+                      <a
+                        href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/Quick_Guide_to_Volumetric_Dosing`}
+                      >
                         Volumetric Dosing
                       </a>
                     </li>
                     <li>
-                      <a href="https://wiki.tripsit.me/wiki/Quick_Guide_to_Plugging">
+                      <a
+                        href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/Quick_Guide_to_Plugging`}
+                      >
                         Rectal Administration (Plugging)
                       </a>
                     </li>
                     <li>
-                      <a href="https://wiki.tripsit.me/wiki/Reducing_Pain_Caused_by_Insufflation">
+                      <a
+                        href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/Reducing_Pain_Caused_by_Insufflation`}
+                      >
                         Reducing Snorting Pain
                       </a>
                     </li>
                     <li>
-                      <a href="https://wiki.tripsit.me/wiki/Cannabinoid_Eliquid">
+                      <a
+                        href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/Cannabinoid_Eliquid`}
+                      >
                         Cannabinoid Eliquid
                       </a>
                     </li>
                     <li>
-                      <a href="https://wiki.tripsit.me/wiki/Cold_Water_Extraction">
+                      <a
+                        href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/Cold_Water_Extraction`}
+                      >
                         Cold Water Extraction
                       </a>
                     </li>
                     <li>
-                      <a href="https://wiki.tripsit.me/wiki/Zim%27s_Clarified_ATB_Hybrid_Salt_Tek">
+                      <a
+                        href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/Zim%27s_Clarified_ATB_Hybrid_Salt_Tek`}
+                      >
                         Acid-to-base Reduction
                       </a>
                     </li>
@@ -317,7 +391,9 @@ function Header() {
               <a href={`${domain}#faq`}>FAQ</a>
             </li>
             <li>
-              <a href={`https://updates.tripsit.me`}>Updates</a>
+              <a href={`https://updates.${process.env.NEXT_PUBLIC_DNS_DOMAIN}`}>
+                Updates
+              </a>
             </li>
             {/* <li>
               <a

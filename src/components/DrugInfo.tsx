@@ -1,6 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable sonarjs/no-duplicate-string */
 import React, { ReactNode } from "react";
+import { MRT_Row } from "material-react-table";
 import { Card, CardContent, Container, Grid, Typography } from "@mui/material";
 import { Dosage, Dose, Drug, Duration, Status } from "tripsit_drug_db";
 import dynamic from "next/dynamic";
@@ -126,32 +127,32 @@ function addDurationData(
   return durationTiming;
 }
 
-const addDurations = (drugData: Drug) => {
+const addDurations = (drugData: MRT_Row<Drug>) => {
   // We need to create a new object that has the duration data that we can use to create the chart
   // We need to create this object first because we need to know the complete duration information
   // before we can create the chart. The object will be structured like this:
   let durationTiming = {} as DurationTiming;
 
   // In order, we go through the three properties and add them to the durationTiming object
-  if (drugData.formatted_onset) {
+  if (drugData.original.formatted_onset) {
     durationTiming = addDurationData(
-      drugData.formatted_onset,
+      drugData.original.formatted_onset,
       "Onset",
       durationTiming,
     );
   }
 
-  if (drugData.formatted_duration) {
+  if (drugData.original.formatted_duration) {
     durationTiming = addDurationData(
-      drugData.formatted_duration,
+      drugData.original.formatted_duration,
       "Duration",
       durationTiming,
     );
   }
 
-  if (drugData.formatted_aftereffects) {
+  if (drugData.original.formatted_aftereffects) {
     durationTiming = addDurationData(
-      drugData.formatted_aftereffects,
+      drugData.original.formatted_aftereffects,
       "After Effects",
       durationTiming,
     );
@@ -383,8 +384,8 @@ const addDurations = (drugData: Drug) => {
 };
 
 // This takes the dosage data and makes a nice table out of it
-const addDosages = (drugData: Drug) => {
-  const doseData = drugData.formatted_dose as Dose;
+const addDosages = (drugData: MRT_Row<Drug>) => {
+  const doseData = drugData.original.formatted_dose as Dose;
   const doseColorData = {
     Threshold: "#6DDF6D",
     Light: "#A8E05F",
@@ -651,19 +652,15 @@ const addDosages = (drugData: Drug) => {
   );
 };
 
-export default function DrugInfoCard({
-  drugData,
-}: {
-  drugData: Drug;
-}): ReactNode {
+export default function DrugInfoCard(drugData: MRT_Row<Drug>): ReactNode {
   // This function goes through all the optional data in the drug and creates a nice and fancy expandable row
 
   // This is the array that will hold all the elements that will be displayed in the expanded row
   const elements = [] as React.JSX.Element[];
 
   // If there's a warning, display it first
-  if (drugData.properties) {
-    Object.keys(drugData.properties).forEach((property) => {
+  if (drugData.original.properties) {
+    Object.keys(drugData.original.properties).forEach((property) => {
       const importantProperties = [
         "avoid",
         "warning",
@@ -674,14 +671,16 @@ export default function DrugInfoCard({
       if (importantProperties.includes(property)) {
         const propertyName = property.replace(/_/g, " ");
         const propertyValue =
-          drugData.properties[property as keyof typeof drugData.properties];
+          drugData.original.properties[
+            property as keyof typeof drugData.original.properties
+          ];
         elements.push(
           <Grid
             item
             xs={12}
             sm={12}
             md={12}
-            key={`${drugData.name}-${propertyName}`}
+            key={`${drugData.original.name}-${propertyName}`}
           >
             <Card>
               <CardContent sx={{ backgroundColor: "pink" }}>
@@ -705,13 +704,13 @@ export default function DrugInfoCard({
           <Typography variant="h5" style={{ color: "black" }}>
             Chemical Name
           </Typography>
-          <Typography>{drugData.pretty_name}</Typography>
+          <Typography>{drugData.original.pretty_name}</Typography>
         </CardContent>
       </Card>
     </Grid>,
   );
 
-  if (drugData.aliases) {
+  if (drugData.original.aliases) {
     elements.push(
       <Grid item xs={12} sm={4} md={4} key="aliases">
         <Card>
@@ -719,24 +718,30 @@ export default function DrugInfoCard({
             <Typography variant="h5" style={{ color: "black" }}>
               Aliases
             </Typography>
-            <Typography>{drugData.aliases.join(", ")}</Typography>
+            <Typography>{drugData.original.aliases.join(", ")}</Typography>
           </CardContent>
         </Card>
       </Grid>,
     );
   }
 
-  if (drugData.categories) {
+  if (drugData.original.categories) {
     // Take the category list, capitalize each word, and join them with commas
 
-    const capitalizedCategories = drugData.categories
+    const capitalizedCategories = drugData.original.categories
       .map(
         (category) =>
           category.charAt(0).toUpperCase() + category.slice(1).toLowerCase(),
       )
       .join(", ");
     elements.push(
-      <Grid item xs={12} sm={4} md={4} key={`${drugData.name} categories`}>
+      <Grid
+        item
+        xs={12}
+        sm={4}
+        md={4}
+        key={`${drugData.original.name} categories`}
+      >
         <Card>
           <CardContent>
             <Typography variant="h5" style={{ color: "black" }}>
@@ -749,7 +754,7 @@ export default function DrugInfoCard({
     );
   }
 
-  if (drugData.properties.summary) {
+  if (drugData.original.properties.summary) {
     // Take the category list, capitalize each word, and join them with commas
 
     elements.push(
@@ -760,7 +765,7 @@ export default function DrugInfoCard({
               Summary
             </Typography>
             <Typography>
-              {addDictionaryDefs(drugData.properties.summary)}
+              {addDictionaryDefs(drugData.original.properties.summary)}
             </Typography>
           </CardContent>
         </Card>
@@ -768,8 +773,8 @@ export default function DrugInfoCard({
     );
   }
 
-  if (drugData.properties) {
-    Object.keys(drugData.properties).forEach((property) => {
+  if (drugData.original.properties) {
+    Object.keys(drugData.original.properties).forEach((property) => {
       const duplicatedProperties = [
         "avoid",
         "name",
@@ -793,7 +798,9 @@ export default function DrugInfoCard({
       }
       const propertyName = property.replace(/_/g, " ");
       const propertyValue =
-        drugData.properties[property as keyof typeof drugData.properties];
+        drugData.original.properties[
+          property as keyof typeof drugData.original.properties
+        ];
       if (propertyName === "experiences") {
         elements.push(
           <Grid item xs={12} sm={6} md={4} key={propertyName}>
@@ -833,7 +840,7 @@ export default function DrugInfoCard({
   }
 
   // Dose note comes before dosage
-  if (drugData.dose_note) {
+  if (drugData.original.dose_note) {
     elements.push(
       <Grid item xs={12} sm={12} md={12} key="dose_note">
         <Card>
@@ -841,27 +848,27 @@ export default function DrugInfoCard({
             <Typography variant="h5" style={{ color: "black" }}>
               Dosage Note
             </Typography>
-            <Typography>{drugData.dose_note}</Typography>
+            <Typography>{drugData.original.dose_note}</Typography>
           </CardContent>
         </Card>
       </Grid>,
     );
   }
 
-  if (drugData.formatted_dose) {
+  if (drugData.original.formatted_dose) {
     elements.push(addDosages(drugData));
   }
 
   if (
-    drugData.formatted_onset ||
-    drugData.formatted_duration ||
-    drugData.formatted_aftereffects
+    drugData.original.formatted_onset ||
+    drugData.original.formatted_duration ||
+    drugData.original.formatted_aftereffects
   ) {
     elements.push(addDurations(drugData));
   }
 
-  if (drugData.combos) {
-    const comboData = drugData.combos;
+  if (drugData.original.combos) {
+    const comboData = drugData.original.combos;
     const comboColors = {
       Dangerous: {
         "background-color": "#fdc9cc",
@@ -1053,7 +1060,7 @@ export default function DrugInfoCard({
     );
   }
 
-  if (drugData.pweffects !== undefined) {
+  if (drugData.original.pweffects !== undefined) {
     elements.push(
       <Grid item xs={12} sm={12} md={12} key="pweffects">
         <Card>
@@ -1062,7 +1069,7 @@ export default function DrugInfoCard({
               Psychonaut Wiki Effects
             </Typography>
             <Grid container spacing={1}>
-              {Object.keys(drugData.pweffects).map((property) => (
+              {Object.keys(drugData.original.pweffects).map((property) => (
                 <Grid item xs={3} key={property}>
                   <Typography>
                     <a
@@ -1082,7 +1089,7 @@ export default function DrugInfoCard({
     );
   }
 
-  if (drugData.formatted_effects) {
+  if (drugData.original.formatted_effects) {
     elements.push(
       <Grid item xs={12} sm={6} md={6} key="effects">
         <Card>
@@ -1090,16 +1097,18 @@ export default function DrugInfoCard({
             <Typography variant="h5" style={{ color: "black" }}>
               Effects
             </Typography>
-            <Typography>{drugData.formatted_effects.join(", ")}</Typography>
+            <Typography>
+              {drugData.original.formatted_effects.join(", ")}
+            </Typography>
           </CardContent>
         </Card>
       </Grid>,
     );
   }
 
-  if (drugData.links) {
-    const linkData = drugData.links;
-    const linkKeys = Object.keys(drugData.links);
+  if (drugData.original.links) {
+    const linkData = drugData.original.links;
+    const linkKeys = Object.keys(drugData.original.links);
 
     elements.push(
       <Grid item xs={12} sm={6} md={6} key="links">
@@ -1125,8 +1134,8 @@ export default function DrugInfoCard({
     );
   }
 
-  if (drugData.sources) {
-    const sourceData = drugData.sources;
+  if (drugData.original.sources) {
+    const sourceData = drugData.original.sources;
     const links = Object.values(sourceData);
     elements.push(
       <Grid item xs={12} sm={6} md={6} key="sources">

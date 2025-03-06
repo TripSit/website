@@ -2,8 +2,11 @@ import { Tooltip, Typography } from "@mui/material";
 import dictionary from "../assets/dictionary.json";
 
 export default function addDictionaryDefs(
-  text: string,
+  text: string | undefined,
 ): (string | React.JSX.Element)[] {
+  if (text === undefined) {
+    return [""];
+  }
   const words = text.split(" ");
   return words.map((word, index) => {
     // Remove the comma, we need to keep hyphens though:

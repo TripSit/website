@@ -15,12 +15,11 @@ It creates charts using ApexCharts: https://apexcharts.com/
 Pull requests are welcome! If you have any questions, feel free to ask in #dev on the TripSit Discord: https://discord.gg/tripsit
 */
 
-import React, { ReactNode, useMemo } from "react";
+import React, { useMemo } from "react";
 import {
   MaterialReactTable,
   useMaterialReactTable,
   type MRT_ColumnDef,
-  MRT_Row,
 } from "material-react-table";
 import {
   IconButton,
@@ -31,26 +30,30 @@ import {
 } from "@mui/material";
 import { Accordion, AccordionItem } from "@nextui-org/react";
 import RefreshIcon from "@mui/icons-material/Refresh";
-import { keepPreviousData, useQuery } from "@tanstack/react-query"; // note: this is TanStack Rea`ct Query V5
+import {
+  QueryClient,
+  QueryClientProvider,
+  keepPreviousData,
+  useQuery,
+} from "@tanstack/react-query"; // note: this is TanStack Rea`ct Query V5
 import { Category, Drug } from "tripsit_drug_db";
-// import Grid from "@mui/material/Unstable_Grid2"; // Grid version 2
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import Grid from "@mui/material/Grid";
 import KofiButton from "kofi-button";
 import UnfoldMoreDoubleIcon from "@mui/icons-material/UnfoldMoreDouble";
 import UnfoldLessDoubleIcon from "@mui/icons-material/UnfoldLessDouble";
 import PatreonButton from "./Patreon";
+import addDictionaryDefs from "./addDictionaryDefs";
 
 import dictionary from "../assets/dictionary.json";
 import GithubButton from "./Github";
-
-// import comboDefinitions from "../assets/comboDefinitions.json";
 import DrugInfoCard from "./DrugInfo";
-import addDictionaryDefs from "./addDictionaryDefs";
 
 // If you want to debug a specific drug, change the below variable to the name of the drug
 // and then use the commented-out code below that to display what you need to debug
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const debugDrug = "cocaine";
+// const debugDrug = "cocaine";
 // if (drugData.original.name === debugDrug) {
 //   console.log(`roaString: ${JSON.stringify(roaString, null, 2)}`);
 // }
@@ -236,11 +239,6 @@ const addCategoryStyle = (text: string | undefined) => {
   });
 };
 
-function createRow(drugData: MRT_Row<Drug>): ReactNode {
-  // This function goes through all the optional data in the drug and creates a nice and fancy expandable row
-  return <DrugInfoCard drugData={drugData.original} />;
-}
-
 const Factsheets = () => {
   const {
     data: { data = [], meta } = {}, // your data and api response will probably be different
@@ -328,9 +326,7 @@ const Factsheets = () => {
         enableGlobalFilter: false,
         size: 180, // This is the default value, but it stops the column from changing when the table is resized
         Cell: ({ cell }) => (
-          <span>
-            {cell.getValue() ? addDictionaryDefs(cell.getValue<string>()) : ""}
-          </span>
+          <span>{addDictionaryDefs(cell.getValue<string | undefined>())}</span>
         ),
       },
       {
@@ -342,9 +338,7 @@ const Factsheets = () => {
         enableGlobalFilter: false,
         size: 180, // This is the default value, but it stops the column from changing when the table is resized
         Cell: ({ cell }) => (
-          <span>
-            {cell.getValue() ? addDictionaryDefs(cell.getValue<string>()) : ""}
-          </span>
+          <span>{addDictionaryDefs(cell.getValue<string | undefined>())}</span>
         ),
       },
       {
@@ -355,9 +349,7 @@ const Factsheets = () => {
         enableGlobalFilter: true,
         size: 900, // Make this one bigger because of the long text
         Cell: ({ cell }) => (
-          <span>
-            {cell.getValue() ? addDictionaryDefs(cell.getValue<string>()) : ""}
-          </span>
+          <span>{addDictionaryDefs(cell.getValue<string | undefined>())}</span>
         ),
       },
     ],
@@ -419,10 +411,19 @@ const Factsheets = () => {
         {InfoBar}
       </>
     ),
-    renderDetailPanel: ({ row }) => createRow(row),
+    renderDetailPanel: ({ row }) => DrugInfoCard(row),
   });
 
   return <MaterialReactTable table={table} data-bs-theme="dark" />;
 };
 
-export default Factsheets;
+const ExamplePage = () => (
+  // App.tsx or AppProviders file. Don't just wrap this component with QueryClientProvider! Wrap your whole App!
+  <LocalizationProvider dateAdapter={AdapterDateFns}>
+    <QueryClientProvider client={new QueryClient()}>
+      <Factsheets />
+    </QueryClientProvider>
+  </LocalizationProvider>
+);
+
+export default ExamplePage;

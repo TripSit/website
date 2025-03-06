@@ -46,7 +46,7 @@ import {
   Duration,
   Status,
 } from "tripsit_drug_db";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 // import Grid from "@mui/material/Unstable_Grid2"; // Grid version 2
 import Grid from "@mui/material/Grid";
@@ -740,7 +740,7 @@ const addDurations = (drugData: MRT_Row<Drug>) => {
                 ] as {}[],
               },
             ],
-          };
+          } as ApexAxisChartSeries[number];
           durationSeries.push(data);
         }
       });

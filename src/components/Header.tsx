@@ -167,7 +167,7 @@ function Header() {
                       </a>
                     </li>
                     <li>
-                      <a href="https://dancesafe.org/you-may-be-using-fentanyl-testing-strips-incorrectly/">
+                      <a href="https://dancesafe.org/fentanyl">
                         Fentanyl strip guide
                       </a>
                     </li>

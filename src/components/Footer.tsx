@@ -26,7 +26,7 @@ export default function Footer() {
                 </li>
                 <li>
                   <i className="bx bx-chevron-right"></i>{" "}
-                  <a href="https://wiki.tripsit.me/wiki/Privacy_Policy">
+                  <a href="http://localhost:3000/privacy">
                     Privacy policy
                   </a>
                 </li>

@@ -1283,7 +1283,7 @@ export default function Home({ guild }: { guild: APIGuild }) {
                         </a>
                       </li>
                       <li>
-                        <a href="https://github.com/TripSit/factsheets/">
+                        <a href="https://github.com/TripSit/drugs/">
                           Factsheets
                         </a>
                       </li>

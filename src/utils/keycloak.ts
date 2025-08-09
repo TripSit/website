@@ -16,6 +16,7 @@ export function getLoginUrl(): string {
     response_type: "code",
     scope: "openid profile email",
   });
+  console.log(`TEST: ${process.env.DISCORD_GUILD_ID}`);
   return `${KEYCLOAK_CONFIG.url}/realms/${KEYCLOAK_CONFIG.realm}/protocol/openid-connect/auth?${params.toString()}`;
 }
 

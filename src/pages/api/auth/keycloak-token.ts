@@ -1,7 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
-const KEYCLOAK_URL =
-  "https://auth.tripsit.me/realms/TripSit/protocol/openid-connect/token";
+const KEYCLOAK_URL = `${process.env.KEYCLOAK_URL}/realms/TripSit/protocol/openid-connect/token`;
 const CLIENT_ID = process.env.KEYCLOAK_CLIENT_ID;
 const CLIENT_SECRET = process.env.KEYCLOAK_CLIENT_SECRET; // optional if public client
 const REDIRECT_URI = "https://tripsit.io/appeal"; // match Keycloak config

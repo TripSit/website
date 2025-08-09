@@ -4,6 +4,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import AppealForm from "../components/AppealForm";
 import { getLoginUrl, fetchUserInfo } from "../utils/keycloak";
+import { Button } from "@nextui-org/react";
 
 const AppealPage: React.FC = () => {
   const [token, setToken] = useState<string | null>(null);

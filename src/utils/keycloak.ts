@@ -3,8 +3,8 @@
 
 export const KEYCLOAK_CONFIG = {
   realm: "TripSit",
-  url: process.env.KEYCLOAK_URL || "",
-  clientId: process.env.KEYCLOAK_CLIENT_ID || "",
+  url: process.env.NEXT_PUBLIC_KEYCLOAK_URL || "",
+  clientId: process.env.NEXT_PUBLIC_KEYCLOAK_CLIENT_ID || "",
   redirectUri:
     typeof window !== "undefined" ? `${window.location.origin}/appeal` : "",
 };
@@ -16,7 +16,6 @@ export function getLoginUrl(): string {
     response_type: "code",
     scope: "openid profile email",
   });
-  console.log(`TEST: ${process.env.DISCORD_GUILD_ID}`);
   return `${KEYCLOAK_CONFIG.url}/realms/${KEYCLOAK_CONFIG.realm}/protocol/openid-connect/auth?${params.toString()}`;
 }
 

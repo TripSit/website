@@ -1,9 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
-const KEYCLOAK_URL = `${process.env.KEYCLOAK_URL}/realms/TripSit/protocol/openid-connect/token`;
-const CLIENT_ID = process.env.KEYCLOAK_CLIENT_ID;
-const CLIENT_SECRET = process.env.KEYCLOAK_CLIENT_SECRET; // optional if public client
-const REDIRECT_URI = `${process.env.DNS_DOMAIN}/appeal`; // match Keycloak config
+const KEYCLOAK_URL = `${process.env.NEXT_PUBLIC_KEYCLOAK_URL}/realms/TripSit/protocol/openid-connect/token`;
+const CLIENT_ID = process.env.NEXT_PUBLIC_KEYCLOAK_CLIENT_ID;
+// const CLIENT_SECRET = process.env.KEYCLOAK_CLIENT_SECRET; // optional if public client
+const REDIRECT_URI = `${process.env.NEXT_PUBLIC_DNS_DOMAIN}/appeal`; // match Keycloak config
 
 export default async function handler(
   req: NextApiRequest,
@@ -29,7 +29,6 @@ export default async function handler(
         grant_type: "authorization_code",
         code,
         client_id: CLIENT_ID,
-        ...(CLIENT_SECRET ? { client_secret: CLIENT_SECRET } : {}),
         redirect_uri: REDIRECT_URI,
       }),
     });

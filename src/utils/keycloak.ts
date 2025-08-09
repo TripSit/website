@@ -16,19 +16,19 @@ export function getLoginUrl(): string {
     response_type: "code",
     scope: "openid profile email",
   });
-  return `${KEYCLOAK_CONFIG.url}realms/${KEYCLOAK_CONFIG.realm}/protocol/openid-connect/auth?${params.toString()}`;
+  return `${KEYCLOAK_CONFIG.url}/realms/${KEYCLOAK_CONFIG.realm}/protocol/openid-connect/auth?${params.toString()}`;
 }
 
 export function getLogoutUrl(): string {
   const params = new URLSearchParams({
     redirect_uri: typeof window !== "undefined" ? window.location.origin : "",
   });
-  return `${KEYCLOAK_CONFIG.url}realms/${KEYCLOAK_CONFIG.realm}/protocol/openid-connect/logout?${params.toString()}`;
+  return `${KEYCLOAK_CONFIG.url}/realms/${KEYCLOAK_CONFIG.realm}/protocol/openid-connect/logout?${params.toString()}`;
 }
 
 export async function fetchUserInfo(token: string) {
   const res = await fetch(
-    `${KEYCLOAK_CONFIG.url}realms/${KEYCLOAK_CONFIG.realm}/protocol/openid-connect/userinfo`,
+    `${KEYCLOAK_CONFIG.url}/realms/${KEYCLOAK_CONFIG.realm}/protocol/openid-connect/userinfo`,
     {
       headers: { Authorization: `Bearer ${token}` },
     },

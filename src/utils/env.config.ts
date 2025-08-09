@@ -12,6 +12,9 @@ export const env = {
   API_PASSWORD: process.env.API_PASSWORD,
   DISCORD_GUILD_ID: process.env.DISCORD_GUILD_ID as string,
   DISCORD_BOT_TOKEN: process.env.DISCORD_BOT_TOKEN,
+  KEYCLOAK_URL: process.env.KEYCLOAK_URL,
+  KEYCLOAK_CLIENT_ID: process.env.KEYCLOAK_CLIENT_ID,
+  KEYCLOAK_CLIENT_SECRET: process.env.KEYCLOAK_CLIENT_SECRET,
 };
 
 export default env;

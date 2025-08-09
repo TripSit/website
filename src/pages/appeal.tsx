@@ -108,15 +108,29 @@ const AppealPage: React.FC = () => {
   return (
     <>
       <Header />
-      <main style={{ padding: "20px" }}>
+      <main>
         {!token && (
-          <div style={{ textAlign: "center" }}>
-            <h1>Ban Appeal</h1>
-            <p>You must log in with Discord to submit an appeal.</p>
-            <a href={getLoginUrl()}>
-              <button>Login with Discord</button>
-            </a>
-          </div>
+          <section id="hero" className="d-flex align-items-center">
+            <div
+              className="container position-relative"
+              data-aos="fade-up"
+              data-aos-delay="100"
+            >
+              <div className="row justify-content-center">
+                <div className="col-xl-7 col-lg-9 text-center">
+                  <h1>Ban Appeal</h1>
+                  <h2>You must log in with Discord to submit an appeal.</h2>
+                </div>
+              </div>
+              <div className="text-center">
+                <a href={getLoginUrl()}>
+                  <Button color="primary" className="btn-get-started scrollto">
+                    Login with Discord
+                  </Button>
+                </a>
+              </div>
+            </div>
+          </section>
         )}
 
         {token && banStatus === "not_banned" && (

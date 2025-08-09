@@ -2,9 +2,9 @@ import type { NextApiRequest, NextApiResponse } from "next";
 
 const KEYCLOAK_URL =
   "https://auth.tripsit.me/realms/TripSit/protocol/openid-connect/token";
-const CLIENT_ID = "redacted";
-const CLIENT_SECRET = "redacted"; // optional if public client
-const REDIRECT_URI = "http://localhost:3000/appeal"; // match Keycloak config
+const CLIENT_ID = process.env.KEYCLOAK_CLIENT_ID;
+const CLIENT_SECRET = process.env.KEYCLOAK_CLIENT_SECRET; // optional if public client
+const REDIRECT_URI = "https://tripsit.io/appeal"; // match Keycloak config
 
 export default async function handler(
   req: NextApiRequest,
@@ -14,6 +14,10 @@ export default async function handler(
 
   if (!code || typeof code !== "string") {
     return res.status(400).json({ error: "Missing code" });
+  }
+
+  if (!CLIENT_ID) {
+    return res.status(500).json({ error: "Missing client ID" });
   }
 
   try {
@@ -32,8 +36,8 @@ export default async function handler(
     });
 
     if (!tokenRes.ok) {
-      const errText = await tokenRes.text();
-      console.error("Keycloak token error:", errText);
+      // const errText = await tokenRes.text();
+      // console.error("Keycloak token error:", errText);
       return res
         .status(tokenRes.status)
         .json({ error: "Failed to fetch token" });
@@ -42,7 +46,7 @@ export default async function handler(
     const tokenData = await tokenRes.json();
     return res.status(200).json(tokenData);
   } catch (err) {
-    console.error(err);
+    // console.error(err);
     return res.status(500).json({ error: "Server error" });
   }
 }

@@ -4,7 +4,7 @@
 export const KEYCLOAK_CONFIG = {
   realm: "TripSit",
   url: "https://auth.tripsit.me/",
-  clientId: "redacted",
+  clientId: process.env.KEYCLOAK_CLIENT_ID,
   redirectUri:
     typeof window !== "undefined" ? `${window.location.origin}/appeal` : "",
 };

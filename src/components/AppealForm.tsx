@@ -25,6 +25,14 @@ const AppealForm: React.FC<AppealFormProps> = ({ onSubmit, submitting }: AppealF
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Form submitted with data:", formData); // Debug log
+
+    // Validate required fields
+    if (!formData.reason.trim() || !formData.solution.trim() || !formData.future.trim()) {
+      alert('Please fill in all required fields');
+      return;
+    }
+    
     onSubmit(formData);
   };
 

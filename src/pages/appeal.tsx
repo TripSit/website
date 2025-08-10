@@ -66,32 +66,37 @@ const AppealPage: React.FC = () => {
   }
 
   async function checkBan(discordId: string) {
-    setBanStatus("banned");
-    setLoading(false);
-    /*
     try {
-      const res = await fetch(`https://example.com/api/appeals/${discordId}/latest`);
-      if (res.status === 404) {
-        setBanStatus("not_banned");
-      } else if (res.ok) {
-        setBanStatus("banned");
+      const res = await fetch(`/api/v2/appeals/${discordId}/latest`);
+      if (res.ok) {
+        // User has an appeal - show it with status
+        const appealData = await res.json();
+        console.log("Latest appeal:", appealData);
+        setBanStatus("banned"); // or set based on appeal status
+      } else if (res.status === 404) {
+        // No appeals found - let them create one
+        setBanStatus("banned"); // assuming they're banned if they're here
       }
     } catch (e) {
       console.error(e);
+      setBanStatus("unknown");
     } finally {
       setLoading(false);
     }
-      */
   }
 
   async function submitAppeal(data: any) {
     if (!userInfo?.discord_id) return;
     setSubmitting(true);
     try {
-      const res = await fetch(`https://example.com/api/appeals/${userInfo.discord_id}/create`, {
+      const res = await fetch(`/api/v2/appeals/${userInfo.discord_id}/create`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ newAppealData: { ...data, userId: userInfo.discord_id } }),
+        body: JSON.stringify({ newAppealData: {
+          ...data,
+          userId: userInfo.discord_id,
+          guild: '960606557622657026'
+        } }),
       });
       if (res.ok) {
         setMessage("Your appeal has been submitted.");

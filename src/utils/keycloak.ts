@@ -27,12 +27,9 @@ export function getLogoutUrl(): string {
 }
 
 export async function fetchUserInfo(token: string) {
-  // Instead of calling Keycloak directly, call your API
-  const res = await fetch("/api/v2/keycloak/userinfo", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ access_token: token }),
-  });
+  const res = await fetch(
+    `/api/v2/keycloak/userinfo?access_token=${encodeURIComponent(token)}`,
+  );
 
   if (!res.ok) throw new Error("Failed to fetch user info");
   return res.json();

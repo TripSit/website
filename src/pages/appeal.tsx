@@ -36,8 +36,19 @@ const AppealPage: React.FC = () => {
     if (token) {
       fetchUserInfo(token)
         .then((info) => {
+          console.log('User info from Keycloak:', info); // Debug log
           setUserInfo(info);
-          return checkBan(info.discord_id);
+          
+          // Check what discord ID field is actually called
+          const discordId = info.discord_id || info.sub || info.preferred_username || info.id;
+          console.log('Discord ID:', discordId); // Debug log
+          
+          if (discordId) {
+            return checkBan(discordId);
+          } else {
+            console.error('No Discord ID found in user info');
+            setLoading(false);
+          }
         })
         .catch((err) => {
           console.error(err);

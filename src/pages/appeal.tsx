@@ -48,7 +48,7 @@ const AppealPage: React.FC = () => {
 
   async function exchangeCodeForToken(code: string) {
     try {
-      const res = await fetch(`/api2/auth/keycloak-token?code=${encodeURIComponent(code)}`);
+      const res = await fetch(`/api/v2/auth/keycloak-token?code=${encodeURIComponent(code)}`);
       const data = await res.json();
       if (data.access_token) {
         sessionStorage.setItem("kc_token", data.access_token);

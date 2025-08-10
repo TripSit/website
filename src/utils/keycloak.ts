@@ -27,12 +27,13 @@ export function getLogoutUrl(): string {
 }
 
 export async function fetchUserInfo(token: string) {
-  const res = await fetch(
-    `${KEYCLOAK_CONFIG.url}/realms/${KEYCLOAK_CONFIG.realm}/protocol/openid-connect/userinfo`,
-    {
-      headers: { Authorization: `Bearer ${token}` },
-    },
-  );
+  // Instead of calling Keycloak directly, call your API
+  const res = await fetch("/api/v2/keycloak/userinfo", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ access_token: token }),
+  });
+
   if (!res.ok) throw new Error("Failed to fetch user info");
   return res.json();
 }

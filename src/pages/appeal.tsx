@@ -10,26 +10,30 @@ const AppealPage: React.FC = () => {
   const [token, setToken] = useState<string | null>(null);
   const [userInfo, setUserInfo] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [banStatus, setBanStatus] = useState<"unknown" | "can_appeal" | "has_appeal">("unknown");
+  const [banStatus, setBanStatus] = useState<"unknown" | "can_appeal" | "has_appeal" | "not_banned">("unknown");
   const [latestAppeal, setLatestAppeal] = useState<any>(null);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
-  // Check if we already have a token in session storage
+  // Check if we already have a token in session storage, also handle refreshing tokens.
   useEffect(() => {
-    const savedToken = sessionStorage.getItem("kc_token");
-    if (savedToken) {
-      setToken(savedToken);
-    } else {
-      // Look for ?code= from Keycloak redirect
-      const params = new URLSearchParams(window.location.search);
-      const code = params.get("code");
-      if (code) {
-        exchangeCodeForToken(code);
+    const checkToken = async () => {
+      const validToken = await refreshTokenIfNeeded();
+      if (validToken) {
+        setToken(validToken);
       } else {
-        setLoading(false);
+        // Look for auth code for fresh login
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get("code");
+        if (code) {
+          exchangeCodeForToken(code);
+        } else {
+          setLoading(false);
+        }
       }
-    }
+    };
+    
+    checkToken();
   }, []);
 
   // Fetch user info & ban status when we have a token
@@ -81,15 +85,29 @@ const AppealPage: React.FC = () => {
 
 async function checkBan(discordId: string) {
   try {
-    const res = await fetch(`/api/v2/appeals/${discordId}/latest`);
-    if (res.ok) {
-      // User has an appeal - show status
-      const appeal = await res.json();
+    // First check if user is actually banned
+    const banRes = await fetch(`/api/v2/users/${discordId}/banned`);
+    if (!banRes.ok) {
+      throw new Error('Failed to check ban status');
+    }
+    
+    const banStatus = await banRes.json();
+    console.log('Ban status:', banStatus);
+    
+    if (!banStatus.banned) {
+      setBanStatus("not_banned");
+      setLoading(false);
+      return;
+    }
+    
+    // If banned, check for existing appeals
+    const appealsRes = await fetch(`/api/v2/appeals/${discordId}/latest`);
+    if (appealsRes.ok) {
+      const appeal = await appealsRes.json();
       console.log('Existing appeal:', appeal);
       setLatestAppeal(appeal);
       setBanStatus("has_appeal");
-    } else if (res.status === 404) {
-      // No appeals found - they can create one
+    } else if (appealsRes.status === 404) {
       console.log('No appeals found - user can create one');
       setBanStatus("can_appeal");
     } else {
@@ -129,6 +147,31 @@ async function checkBan(discordId: string) {
       setSubmitting(false);
     }
   }
+
+  async function refreshTokenIfNeeded() {
+  const savedToken = sessionStorage.getItem("kc_token");
+  if (!savedToken) return null;
+
+  // Decode token to check expiration (simple check)
+  try {
+    const tokenData = JSON.parse(atob(savedToken.split('.')[1]));
+    const expiresAt = tokenData.exp * 1000; // Convert to milliseconds
+    const now = Date.now();
+    
+    // If token expires within 30 seconds, refresh it
+    if (expiresAt - now < 30000) {
+      console.log('Token expiring soon, clearing session...');
+      sessionStorage.removeItem("kc_token");
+      return null;
+    }
+    
+    return savedToken;
+  } catch (e) {
+    console.error('Invalid token format');
+    sessionStorage.removeItem("kc_token");
+    return null;
+  }
+}
 
   if (loading) return <div>Loading...</div>;
 
@@ -171,6 +214,13 @@ async function checkBan(discordId: string) {
           <div>
             <h1>Your Appeal Status</h1>
             <p>You have an existing appeal. Status: {latestAppeal?.status}</p>
+          </div>
+        )}
+
+        {token && banStatus === "not_banned" && (
+          <div>
+            <h1>Not Banned</h1>
+            <p>You are not currently banned from the server. There's nothing to appeal!</p>
           </div>
         )}
 

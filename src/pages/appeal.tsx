@@ -34,26 +34,28 @@ const AppealPage: React.FC = () => {
   // Fetch user info & ban status when we have a token
   useEffect(() => {
     if (token) {
-      fetchUserInfo(token)
-        .then((info) => {
-          console.log('User info from Keycloak:', info); // Debug log
-          setUserInfo(info);
-          
-          // Check what discord ID field is actually called
-          const discordId = info.discord_id || info.sub || info.preferred_username || info.id;
-          console.log('Discord ID:', discordId); // Debug log
-          
-          if (discordId) {
-            return checkBan(discordId);
-          } else {
-            console.error('No Discord ID found in user info');
-            setLoading(false);
-          }
-        })
-        .catch((err) => {
-          console.error(err);
-          setLoading(false);
+      // First get the Discord ID
+      fetch('/api/v2/keycloak/discord-id', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ access_token: token })
+      })
+      .then(res => res.json())
+      .then(discordData => {
+        console.log('Discord data:', discordData);
+        
+        // Get user info and add Discord ID to it
+        return fetchUserInfo(token).then(userInfo => {
+          const combinedInfo = { ...userInfo, discord_id: discordData.discord_id };
+          console.log('Combined user info:', combinedInfo);
+          setUserInfo(combinedInfo);
+          return checkBan(discordData.discord_id);
         });
+      })
+      .catch((err) => {
+        console.error('Error getting Discord ID:', err);
+        setLoading(false);
+      });
     }
   }, [token]);
 

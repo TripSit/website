@@ -10,7 +10,8 @@ const AppealPage: React.FC = () => {
   const [token, setToken] = useState<string | null>(null);
   const [userInfo, setUserInfo] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [banStatus, setBanStatus] = useState<"unknown" | "not_banned" | "banned">("unknown");
+  const [banStatus, setBanStatus] = useState<"unknown" | "can_appeal" | "has_appeal">("unknown");
+  const [latestAppeal, setLatestAppeal] = useState<any>(null);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -78,25 +79,29 @@ const AppealPage: React.FC = () => {
     }
   }
 
-  async function checkBan(discordId: string) {
-    try {
-      const res = await fetch(`/api/v2/appeals/${discordId}/latest`);
-      if (res.ok) {
-        // User has an appeal - show it with status
-        const appealData = await res.json();
-        console.log("Latest appeal:", appealData);
-        setBanStatus("banned"); // or set based on appeal status
-      } else if (res.status === 404) {
-        // No appeals found - let them create one
-        setBanStatus("banned"); // assuming they're banned if they're here
-      }
-    } catch (e) {
-      console.error(e);
+async function checkBan(discordId: string) {
+  try {
+    const res = await fetch(`/api/v2/appeals/${discordId}/latest`);
+    if (res.ok) {
+      // User has an appeal - show status
+      const appeal = await res.json();
+      console.log('Existing appeal:', appeal);
+      setLatestAppeal(appeal);
+      setBanStatus("has_appeal");
+    } else if (res.status === 404) {
+      // No appeals found - they can create one
+      console.log('No appeals found - user can create one');
+      setBanStatus("can_appeal");
+    } else {
       setBanStatus("unknown");
-    } finally {
-      setLoading(false);
     }
+  } catch (e) {
+    console.error(e);
+    setBanStatus("unknown");
+  } finally {
+    setLoading(false);
   }
+}
 
   async function submitAppeal(data: any) {
     if (!userInfo?.discord_id) return;
@@ -155,15 +160,18 @@ const AppealPage: React.FC = () => {
           </section>
         )}
 
-        {token && banStatus === "not_banned" && (
-          <p>You are not currently banned. There’s nothing to appeal.</p>
-        )}
-
-        {token && banStatus === "banned" && (
+        {token && banStatus === "can_appeal" && (
           <>
-            <h1>Ban Appeal</h1>
+            <h1>Submit Ban Appeal</h1>
             <AppealForm onSubmit={submitAppeal} submitting={submitting} />
           </>
+        )}
+
+        {token && banStatus === "has_appeal" && (
+          <div>
+            <h1>Your Appeal Status</h1>
+            <p>You have an existing appeal. Status: {latestAppeal?.status}</p>
+          </div>
         )}
 
         {message && <p>{message}</p>}

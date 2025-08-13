@@ -73,7 +73,11 @@ const AppealPage: React.FC = () => {
       });
       const data = await res.json();
       if (data.access_token) {
+        // Store both tokens
         sessionStorage.setItem("kc_token", data.access_token);
+        if (data.refresh_token) {
+          sessionStorage.setItem("kc_refresh_token", data.refresh_token);
+        }
         setToken(data.access_token);
       }
     } catch (e) {
@@ -149,29 +153,56 @@ async function checkBan(discordId: string) {
   }
 
   async function refreshTokenIfNeeded() {
-  const savedToken = sessionStorage.getItem("kc_token");
-  if (!savedToken) return null;
-
-  // Decode token to check expiration (simple check)
-  try {
-    const tokenData = JSON.parse(atob(savedToken.split('.')[1]));
-    const expiresAt = tokenData.exp * 1000; // Convert to milliseconds
-    const now = Date.now();
+    const savedToken = sessionStorage.getItem("kc_token");
+    const refreshToken = sessionStorage.getItem("kc_refresh_token");
     
-    // If token expires within 30 seconds, refresh it
-    if (expiresAt - now < 30000) {
-      console.log('Token expiring soon, clearing session...');
+    if (!savedToken) return null;
+
+    try {
+      const tokenData = JSON.parse(atob(savedToken.split('.')[1]));
+      const expiresAt = tokenData.exp * 1000;
+      const now = Date.now();
+      
+      // If token expires within 60 seconds, refresh it
+      if (expiresAt - now < 60000) {
+        if (refreshToken) {
+          console.log('Refreshing token...');
+          
+          const refreshRes = await fetch('/api/v2/keycloak/refresh', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ refresh_token: refreshToken })
+          });
+          
+          if (refreshRes.ok) {
+            const newTokens = await refreshRes.json();
+            sessionStorage.setItem("kc_token", newTokens.access_token);
+            if (newTokens.refresh_token) {
+              sessionStorage.setItem("kc_refresh_token", newTokens.refresh_token);
+            }
+            console.log('Token refreshed successfully');
+            return newTokens.access_token;
+          } else {
+            console.log('Token refresh failed, clearing session');
+            sessionStorage.removeItem("kc_token");
+            sessionStorage.removeItem("kc_refresh_token");
+            return null;
+          }
+        } else {
+          console.log('No refresh token available, clearing session');
+          sessionStorage.removeItem("kc_token");
+          return null;
+        }
+      }
+      
+      return savedToken;
+    } catch (e) {
+      console.error('Token validation failed:', e);
       sessionStorage.removeItem("kc_token");
+      sessionStorage.removeItem("kc_refresh_token");
       return null;
     }
-    
-    return savedToken;
-  } catch (e) {
-    console.error('Invalid token format');
-    sessionStorage.removeItem("kc_token");
-    return null;
   }
-}
 
   if (loading) return <div>Loading...</div>;
 

@@ -39,26 +39,20 @@ const AppealPage: React.FC = () => {
   // Fetch user info & ban status when we have a token
   useEffect(() => {
     if (token) {
-      // First get the Discord ID
-      fetch('/api/v2/keycloak/discord-id', {
+      // We don't need to get Discord ID anymore - it comes from the token
+      fetch('/api/v2/keycloak/userinfo', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ access_token: token })
       })
       .then(res => res.json())
-      .then(discordData => {
-        console.log('Discord data:', discordData);
-        
-        // Get user info and add Discord ID to it
-        return fetchUserInfo(token).then(userInfo => {
-          const combinedInfo = { ...userInfo, discord_id: discordData.discord_id };
-          console.log('Combined user info:', combinedInfo);
-          setUserInfo(combinedInfo);
-          return checkBan(discordData.discord_id);
-        });
+      .then(userInfo => {
+        console.log('User info:', userInfo);
+        setUserInfo(userInfo);
+        return checkBan(); // No Discord ID parameter needed
       })
       .catch((err) => {
-        console.error('Error getting Discord ID:', err);
+        console.error('Error getting user info:', err);
         setLoading(false);
       });
     }
@@ -87,62 +81,65 @@ const AppealPage: React.FC = () => {
     }
   }
 
-async function checkBan(discordId: string) {
-  try {
-    // First check if user is actually banned
-    const banRes = await fetch(`/api/v2/users/${discordId}/banned`);
-    if (!banRes.ok) {
-      throw new Error('Failed to check ban status');
-    }
-    
-    const banStatus = await banRes.json();
-    console.log('Ban status:', banStatus);
-    
-    if (!banStatus.banned) {
-      setBanStatus("not_banned");
-      setLoading(false);
-      return;
-    }
-    
-    // If banned, check for existing appeals
-    const appealsRes = await fetch(`/api/v2/appeals/${discordId}/latest`);
-    if (appealsRes.ok) {
-      const appeal = await appealsRes.json();
-      console.log('Existing appeal:', appeal);
-      setLatestAppeal(appeal);
-      setBanStatus("has_appeal");
-    } else if (appealsRes.status === 404) {
-      console.log('No appeals found - user can create one');
-      setBanStatus("can_appeal");
-    } else {
+  async function checkBan() {
+    try {
+      // Check ban status (no Discord ID needed - comes from token)
+      const banRes = await fetch('/api/v2/users/banned', {
+        headers: getAuthHeaders()
+      });
+      
+      if (!banRes.ok) {
+        throw new Error('Failed to check ban status');
+      }
+      
+      const banStatus = await banRes.json();
+      console.log('Ban status:', banStatus);
+      
+      if (!banStatus.banned) {
+        setBanStatus("not_banned");
+        setLoading(false);
+        return;
+      }
+      
+      // If banned, check for existing appeals
+      const appealsRes = await fetch('/api/v2/appeals/latest', {
+        headers: getAuthHeaders()
+      });
+      
+      if (appealsRes.ok) {
+        const appeal = await appealsRes.json();
+        console.log('Existing appeal:', appeal);
+        setLatestAppeal(appeal);
+        setBanStatus("has_appeal");
+      } else if (appealsRes.status === 404) {
+        console.log('No appeals found - user can create one');
+        setBanStatus("can_appeal");
+      } else {
+        setBanStatus("unknown");
+      }
+    } catch (e) {
+      console.error(e);
       setBanStatus("unknown");
+    } finally {
+      setLoading(false);
     }
-  } catch (e) {
-    console.error(e);
-    setBanStatus("unknown");
-  } finally {
-    setLoading(false);
   }
-}
 
   async function submitAppeal(data: any) {
-    if (!userInfo?.discord_id) return;
     setSubmitting(true);
     try {
-      const res = await fetch(`/api/v2/appeals/${userInfo.discord_id}/create`, {
+      const res = await fetch('/api/v2/appeals/create', {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ newAppealData: {
-          ...data,
-          userId: userInfo.discord_id,
-          guild: '960606557622657026'
-        } }),
+        headers: getAuthHeaders(),
+        body: JSON.stringify(data), // No need to add userId anymore
       });
+      
       if (res.ok) {
         setMessage("Your appeal has been submitted.");
-        setBanStatus("unknown"); // hide form
+        setBanStatus("has_appeal"); // Update status
       } else {
-        setMessage("Failed to submit appeal. Please try again.");
+        const errorData = await res.json();
+        setMessage(`Failed to submit appeal: ${errorData.error || 'Unknown error'}`);
       }
     } catch (e) {
       console.error(e);
@@ -202,6 +199,14 @@ async function checkBan(discordId: string) {
       sessionStorage.removeItem("kc_refresh_token");
       return null;
     }
+  }
+
+  function getAuthHeaders() {
+    const token = sessionStorage.getItem("kc_token");
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    };
   }
 
   if (loading) return <div>Loading...</div>;

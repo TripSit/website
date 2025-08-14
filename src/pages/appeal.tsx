@@ -130,14 +130,17 @@ const AppealPage: React.FC = () => {
     try {
       const appealData = {
         ...data,
-        guild: '960606557622657026',
-        discordId: 'deprecated',
-      }
+        guild: '960606557622657026', // Add guild ID
+        userId: 'placeholder', // Backend will ignore this since we use discord_id from token
+        username: userInfo?.preferred_username || 'unknown',
+        discriminator: '0',
+        avatar: 'placeholder',
+      };
 
       const res = await fetch('/api/v2/appeals/create', {
         method: "POST",
         headers: getAuthHeaders(),
-        body: JSON.stringify(appealData), // No need to add userId anymore
+        body: JSON.stringify(appealData),
       });
       
       if (res.ok) {

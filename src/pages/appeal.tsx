@@ -37,24 +37,10 @@ const AppealPage: React.FC = () => {
     checkToken();
   }, []);
 
-  // Fetch user info & ban status when we have a token
+  // Fetch ban status when we have a token
   useEffect(() => {
     if (token) {
-      // We don't need to get Discord ID anymore - it comes from the token
-      fetch('/api/v2/keycloak/userinfo', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ access_token: token })
-      })
-      .then(res => res.json())
-      .then(userInfo => {
-        console.log('User info:', userInfo);
-        return checkBan(); // No Discord ID parameter needed
-      })
-      .catch((err) => {
-        console.error('Error getting user info:', err);
-        setLoading(false);
-      });
+      checkBan();
     }
   }, [token]);
 

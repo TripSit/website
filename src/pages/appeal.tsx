@@ -139,6 +139,7 @@ const AppealPage: React.FC = () => {
       if (res.ok) {
         setMessage("Your appeal has been submitted.");
         setBanStatus("has_appeal");
+        setTimeout(() => setMessage(null), 3000);
       } else {
         const errorData = await res.json();
         setMessage(`Failed to submit appeal: ${errorData.error || 'Unknown error'}`);

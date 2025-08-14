@@ -3,17 +3,18 @@ import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import AppealForm from "../components/AppealForm";
-import { getLoginUrl, fetchUserInfo } from "../utils/keycloak";
+import { getLoginUrl } from "../utils/keycloak";
 import { Button } from "@nextui-org/react";
 
 const AppealPage: React.FC = () => {
   const [token, setToken] = useState<string | null>(null);
-  const [userInfo, setUserInfo] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [banStatus, setBanStatus] = useState<"unknown" | "can_appeal" | "has_appeal" | "not_banned">("unknown");
   const [latestAppeal, setLatestAppeal] = useState<any>(null);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [reminding, setReminding] = useState(false);
+  const [remindMessage, setRemindMessage] = useState<string | null>(null);
 
   // Check if we already have a token in session storage, also handle refreshing tokens.
   useEffect(() => {
@@ -48,7 +49,6 @@ const AppealPage: React.FC = () => {
       .then(res => res.json())
       .then(userInfo => {
         console.log('User info:', userInfo);
-        setUserInfo(userInfo);
         return checkBan(); // No Discord ID parameter needed
       })
       .catch((err) => {
@@ -221,6 +221,33 @@ const AppealPage: React.FC = () => {
     };
   }
 
+  async function sendReminder() {
+    setReminding(true);
+    setRemindMessage(null);
+    
+    try {
+      const res = await fetch('/api/v2/appeals/remind', {
+        method: 'POST',
+        headers: await getAuthHeaders(),
+      });
+      
+      const data = await res.json();
+      
+      if (res.ok) {
+        setRemindMessage(data.message);
+        // Refresh the appeal data to get updated reminded_at
+        checkBan();
+      } else {
+        setRemindMessage(data.error);
+      }
+    } catch (e) {
+      console.error(e);
+      setRemindMessage('Failed to send reminder');
+    } finally {
+      setReminding(false);
+    }
+  }
+
   if (loading) return <div>Loading...</div>;
 
   return (
@@ -261,7 +288,24 @@ const AppealPage: React.FC = () => {
         {token && banStatus === "has_appeal" && (
           <div>
             <h1>Your Appeal Status</h1>
-            <p>You have an existing appeal. Status: {latestAppeal?.status}</p>
+            <p>You have an existing appeal. Status: {latestAppeal?.status || 'RECEIVED'}</p>
+            
+            {latestAppeal?.status === 'RECEIVED' && (
+              <div>
+                <button 
+                  onClick={sendReminder} 
+                  disabled={reminding}
+                  style={{ marginTop: '10px', padding: '8px 16px' }}
+                >
+                  {reminding ? 'Sending...' : 'Remind Moderators'}
+                </button>
+                {remindMessage && (
+                  <p style={{ marginTop: '8px', color: remindMessage.includes('sent') ? 'green' : 'red' }}>
+                    {remindMessage}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         )}
 

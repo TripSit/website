@@ -85,7 +85,7 @@ const AppealPage: React.FC = () => {
     try {
       // Check ban status (no Discord ID needed - comes from token)
       const banRes = await fetch('/api/v2/users/banned', {
-        headers: getAuthHeaders()
+        headers: await getAuthHeaders()
       });
       
       if (!banRes.ok) {
@@ -103,7 +103,7 @@ const AppealPage: React.FC = () => {
       
       // If banned, check for existing appeals
       const appealsRes = await fetch('/api/v2/appeals/latest', {
-        headers: getAuthHeaders()
+        headers: await getAuthHeaders()
       });
       
       if (appealsRes.ok) {
@@ -137,7 +137,7 @@ const AppealPage: React.FC = () => {
         avatar: 'placeholder',
       };
 
-      const headers = await getAuthHeaders(); // Make this async
+      const headers = await getAuthHeaders();
 
       const res = await fetch('/api/v2/appeals/create', {
         method: "POST",
@@ -154,7 +154,11 @@ const AppealPage: React.FC = () => {
       }
     } catch (e) {
       console.error(e);
-      setMessage("Error submitting appeal.");
+      if (e instanceof Error && e.message === 'No valid token available') {
+        setMessage("Session expired. Please refresh the page and log in again.");
+      } else {
+        setMessage("Error submitting appeal.");
+      }
     } finally {
       setSubmitting(false);
     }
@@ -214,6 +218,11 @@ const AppealPage: React.FC = () => {
 
   async function getAuthHeaders() {
     const validToken = await refreshTokenIfNeeded();
+    
+    if (!validToken) {
+      throw new Error('No valid token available');
+    }
+    
     return {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${validToken}`

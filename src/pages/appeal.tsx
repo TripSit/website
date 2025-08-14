@@ -128,21 +128,12 @@ const AppealPage: React.FC = () => {
   async function submitAppeal(data: any) {
     setSubmitting(true);
     try {
-      const appealData = {
-        ...data,
-        guild: '960606557622657026',
-        userId: 'placeholder',
-        username: userInfo?.preferred_username || 'unknown',
-        discriminator: '0',
-        avatar: 'placeholder',
-      };
-
       const headers = await getAuthHeaders();
 
       const res = await fetch('/api/v2/appeals/create', {
         method: "POST",
         headers: headers,
-        body: JSON.stringify(appealData),
+        body: JSON.stringify(data),
       });
       
       if (res.ok) {

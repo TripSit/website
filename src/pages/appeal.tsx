@@ -130,22 +130,24 @@ const AppealPage: React.FC = () => {
     try {
       const appealData = {
         ...data,
-        guild: '960606557622657026', // Add guild ID
-        userId: 'placeholder', // Backend will ignore this since we use discord_id from token
+        guild: '960606557622657026',
+        userId: 'placeholder',
         username: userInfo?.preferred_username || 'unknown',
         discriminator: '0',
         avatar: 'placeholder',
       };
 
+      const headers = await getAuthHeaders(); // Make this async
+
       const res = await fetch('/api/v2/appeals/create', {
         method: "POST",
-        headers: getAuthHeaders(),
+        headers: headers,
         body: JSON.stringify(appealData),
       });
       
       if (res.ok) {
         setMessage("Your appeal has been submitted.");
-        setBanStatus("has_appeal"); // Update status
+        setBanStatus("has_appeal");
       } else {
         const errorData = await res.json();
         setMessage(`Failed to submit appeal: ${errorData.error || 'Unknown error'}`);
@@ -210,11 +212,11 @@ const AppealPage: React.FC = () => {
     }
   }
 
-  function getAuthHeaders() {
-    const token = sessionStorage.getItem("kc_token");
+  async function getAuthHeaders() {
+    const validToken = await refreshTokenIfNeeded();
     return {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
+      'Authorization': `Bearer ${validToken}`
     };
   }
 

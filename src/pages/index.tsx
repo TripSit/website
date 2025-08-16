@@ -15,7 +15,6 @@ import CalculateOutlinedIcon from "@mui/icons-material/CalculateOutlined";
 import ScienceOutlinedIcon from "@mui/icons-material/ScienceOutlined";
 import SmartToyOutlinedIcon from "@mui/icons-material/SmartToyOutlined";
 import { Smartphone } from 'lucide-react';
-// import PhoneAndroidOutlinedIcon from "@mui/icons-material/PhoneAndroidOutlined";
 // import queryString from "@/utils/queryString";
 // import Guild from "discord-api-types";
 import { APIGuild } from "discord-api-types/v10";
@@ -31,7 +30,7 @@ import mapsLogo from "../../public/assets/img/logos/maps.png";
 import dancesafeLogo from "../../public/assets/img/logos/dancesafeYellow.png";
 import comboChart from "../../public/assets/img/comboChart.png";
 import logo from "../../public/assets/img/logo.png";
-import Ghost from "../components/Ghost";
+// import Ghost from "../components/Ghost";
 import Particles from "../components/Particles";
 // import Appeal from "../components/Appeal";
 import Counter from "../components/Counter";
@@ -200,7 +199,7 @@ export default function Home({ guild }: { guild: APIGuild }) {
     <div data-bs-theme="dark">
       <Header />
       <Head />
-      <Ghost />
+      {/* <Ghost /> */}
       <section id="hero" className="d-flex align-items-center">
         <div
           className="container position-relative"

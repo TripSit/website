@@ -14,7 +14,8 @@ import TransformOutlinedIcon from "@mui/icons-material/TransformOutlined";
 import CalculateOutlinedIcon from "@mui/icons-material/CalculateOutlined";
 import ScienceOutlinedIcon from "@mui/icons-material/ScienceOutlined";
 import SmartToyOutlinedIcon from "@mui/icons-material/SmartToyOutlined";
-import PhoneAndroidOutlinedIcon from "@mui/icons-material/PhoneAndroidOutlined";
+import { Smartphone } from 'lucide-react';
+// import PhoneAndroidOutlinedIcon from "@mui/icons-material/PhoneAndroidOutlined";
 // import queryString from "@/utils/queryString";
 // import Guild from "discord-api-types";
 import { APIGuild } from "discord-api-types/v10";
@@ -218,7 +219,7 @@ export default function Home({ guild }: { guild: APIGuild }) {
             <Button
               color="primary"
               className="btn-get-started scrollto"
-              onClick={gotoWebchat}
+              onPress={gotoWebchat}
             >
               I want to talk to a Trip Sitter
             </Button>
@@ -1120,7 +1121,7 @@ export default function Home({ guild }: { guild: APIGuild }) {
                         ></path>
                       </svg>
                       <i>
-                        <PhoneAndroidOutlinedIcon />
+                        <Smartphone />
                       </i>
                     </div>
                     <h4>Android Mobile App</h4>
@@ -1651,11 +1652,12 @@ export default function Home({ guild }: { guild: APIGuild }) {
                       <button type="submit">Send Message</button>
                     </div>
                   </div>
-                </form>
+                </form> NOTE: Might it be a good idea to add an integration similar to salesforce? 
               </div> */}
         {/* </div>
           </div>
         </section> */}
+        
       </main>
 
       <Footer />

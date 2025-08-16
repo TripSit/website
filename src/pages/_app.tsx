@@ -39,7 +39,7 @@ export default function App({ Component, pageProps }: AppProps) {
       easing: "ease-in-out",
       once: true,
       mirror: false,
-      anchorPlacement: 'top-bottom',
+      anchorPlacement: "top-bottom",
       offset: 120,
     });
 

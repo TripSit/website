@@ -14,7 +14,7 @@ import TransformOutlinedIcon from "@mui/icons-material/TransformOutlined";
 import CalculateOutlinedIcon from "@mui/icons-material/CalculateOutlined";
 import ScienceOutlinedIcon from "@mui/icons-material/ScienceOutlined";
 import SmartToyOutlinedIcon from "@mui/icons-material/SmartToyOutlined";
-import { Smartphone } from 'lucide-react';
+import { Smartphone } from "lucide-react";
 // import queryString from "@/utils/queryString";
 // import Guild from "discord-api-types";
 import { APIGuild } from "discord-api-types/v10";
@@ -1656,7 +1656,6 @@ export default function Home({ guild }: { guild: APIGuild }) {
         {/* </div>
           </div>
         </section> */}
-        
       </main>
 
       <Footer />

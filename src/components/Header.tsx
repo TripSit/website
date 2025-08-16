@@ -15,12 +15,12 @@ function Header() {
   };
 
   useEffect(() => {
-    const navbar = document.getElementById('navbar');
+    const navbar = document.getElementById("navbar");
     if (navbar) {
       if (isMobileMenuOpen) {
-        navbar.classList.add('navbar-mobile');
+        navbar.classList.add("navbar-mobile");
       } else {
-        navbar.classList.remove('navbar-mobile');
+        navbar.classList.remove("navbar-mobile");
       }
     }
   }, [isMobileMenuOpen]);
@@ -443,8 +443,10 @@ function Header() {
               </a>
             </li>
           </ul>
-          <i 
-            className={`mobile-nav-toggle ${isMobileMenuOpen ? 'bi bi-x' : 'bi bi-list'}`}
+          <i
+            className={`mobile-nav-toggle ${
+              isMobileMenuOpen ? "bi bi-x" : "bi bi-list"
+            }`}
             onClick={toggleMobileMenu}
           ></i>
         </nav>

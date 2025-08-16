@@ -37,6 +37,7 @@
     "date-fns": "^4.1.0",
     "discord-api-types": "^0.38.0",
     "kofi-button": "^1.1.1",
+    "lucide-react": "^0.539.0",
     "material-react-table": "^3.2.1",
     "next": "^15.2.0",
     "particles-bg": "^2.5.5",

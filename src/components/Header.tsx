@@ -1,8 +1,29 @@
 import Image from "next/image";
 import { Tooltip } from "@mui/material";
+import { useState, useEffect } from "react";
 import logo from "../../public/assets/img/logo.png";
 
 function Header() {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+  };
+
+  useEffect(() => {
+    const navbar = document.getElementById("navbar");
+    if (navbar) {
+      if (isMobileMenuOpen) {
+        navbar.classList.add("navbar-mobile");
+      } else {
+        navbar.classList.remove("navbar-mobile");
+      }
+    }
+  }, [isMobileMenuOpen]);
   const domain = `https://${process.env.NEXT_PUBLIC_DNS_DOMAIN}`;
   return (
     <header
@@ -16,7 +37,7 @@ function Header() {
         </a>
 
         <nav id="navbar" className="navbar navbar-expand-lg bg-dark">
-          <ul>
+          <ul onClick={closeMobileMenu}>
             <li>
               <a className="nav-link scrollto active" href={`${domain}#hero`}>
                 Home
@@ -422,7 +443,12 @@ function Header() {
               </a>
             </li>
           </ul>
-          <i className="bi bi-list mobile-nav-toggle"></i>
+          <i
+            className={`mobile-nav-toggle ${
+              isMobileMenuOpen ? "bi bi-x" : "bi bi-list"
+            }`}
+            onClick={toggleMobileMenu}
+          ></i>
         </nav>
       </div>
     </header>

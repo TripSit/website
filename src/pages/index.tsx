@@ -14,7 +14,7 @@ import TransformOutlinedIcon from "@mui/icons-material/TransformOutlined";
 import CalculateOutlinedIcon from "@mui/icons-material/CalculateOutlined";
 import ScienceOutlinedIcon from "@mui/icons-material/ScienceOutlined";
 import SmartToyOutlinedIcon from "@mui/icons-material/SmartToyOutlined";
-import PhoneAndroidOutlinedIcon from "@mui/icons-material/PhoneAndroidOutlined";
+import { Smartphone } from "lucide-react";
 // import queryString from "@/utils/queryString";
 // import Guild from "discord-api-types";
 import { APIGuild } from "discord-api-types/v10";
@@ -30,7 +30,7 @@ import mapsLogo from "../../public/assets/img/logos/maps.png";
 import dancesafeLogo from "../../public/assets/img/logos/dancesafeYellow.png";
 import comboChart from "../../public/assets/img/comboChart.png";
 import logo from "../../public/assets/img/logo.png";
-import Ghost from "../components/Ghost";
+// import Ghost from "../components/Ghost";
 import Particles from "../components/Particles";
 // import Appeal from "../components/Appeal";
 import Counter from "../components/Counter";
@@ -199,7 +199,7 @@ export default function Home({ guild }: { guild: APIGuild }) {
     <div data-bs-theme="dark">
       <Header />
       <Head />
-      <Ghost />
+      {/* <Ghost /> */}
       <section id="hero" className="d-flex align-items-center">
         <div
           className="container position-relative"
@@ -218,7 +218,7 @@ export default function Home({ guild }: { guild: APIGuild }) {
             <Button
               color="primary"
               className="btn-get-started scrollto"
-              onClick={gotoWebchat}
+              onPress={gotoWebchat}
             >
               I want to talk to a Trip Sitter
             </Button>
@@ -1120,7 +1120,7 @@ export default function Home({ guild }: { guild: APIGuild }) {
                         ></path>
                       </svg>
                       <i>
-                        <PhoneAndroidOutlinedIcon />
+                        <Smartphone />
                       </i>
                     </div>
                     <h4>Android Mobile App</h4>
@@ -1651,7 +1651,7 @@ export default function Home({ guild }: { guild: APIGuild }) {
                       <button type="submit">Send Message</button>
                     </div>
                   </div>
-                </form>
+                </form> NOTE: Might it be a good idea to add an integration similar to salesforce? 
               </div> */}
         {/* </div>
           </div>

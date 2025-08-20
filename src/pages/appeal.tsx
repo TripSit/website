@@ -83,6 +83,18 @@ const AppealPage: React.FC = () => {
       
       if (!banStatus.banned) {
         setBanStatus("not_banned");
+        
+        // Even if not banned, check for appeal history
+        const appealsRes = await fetch('/api/v2/appeals/latest', {
+          headers: await getAuthHeaders()
+        });
+        
+        if (appealsRes.ok) {
+          const appeal = await appealsRes.json();
+          console.log('Appeal history found:', appeal);
+          setLatestAppeal(appeal);
+        }
+        
         setLoading(false);
         return;
       }
@@ -319,8 +331,55 @@ const AppealPage: React.FC = () => {
 
         {token && banStatus === "not_banned" && (
           <div>
-            <h1>Not Banned</h1>
-            <p>You are not currently banned from the server. There's nothing to appeal!</p>
+            {latestAppeal ? (
+              <div>
+                <h1>Appeal History</h1>
+                <p>You are not currently banned from the server.</p>
+                
+                <div style={{ marginTop: '20px' }}>
+                  <h3>Your Latest Appeal Status: {latestAppeal.status}</h3>
+                  
+                  {latestAppeal.status === 'ACCEPTED' && (
+                    <div style={{ marginTop: '10px', padding: '10px', backgroundColor: '#d4edda', border: '1px solid #c3e6cb', borderRadius: '5px' }}>
+                      <h4 style={{ color: '#155724', margin: '0 0 10px 0' }}>Appeal Accepted!</h4>
+                      {latestAppeal.response_message && (
+                        <p style={{ color: '#155724', margin: 0 }}>
+                          <strong>Moderator Response:</strong> {latestAppeal.response_message}
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {latestAppeal.status === 'DENIED' && (
+                    <div style={{ marginTop: '10px', padding: '10px', backgroundColor: '#f8d7da', border: '1px solid #f5c6cb', borderRadius: '5px' }}>
+                      <h4 style={{ color: '#721c24', margin: '0 0 10px 0' }}>Appeal was Denied</h4>
+                      {latestAppeal.response_message && (
+                        <p style={{ color: '#721c24', margin: 0 }}>
+                          <strong>Moderator Response:</strong> {latestAppeal.response_message}
+                        </p>
+                      )}
+                      <p style={{ color: '#721c24', margin: '10px 0 0 0', fontSize: '14px' }}>
+                        <em>Note: Your ban may have been lifted separately from the appeal process.</em>
+                      </p>
+                    </div>
+                  )}
+
+                  {latestAppeal.status === 'RECEIVED' && (
+                    <div style={{ marginTop: '10px', padding: '10px', backgroundColor: '#fff3cd', border: '1px solid #ffeaa7', borderRadius: '5px' }}>
+                      <h4 style={{ color: '#856404', margin: '0 0 10px 0' }}>Appeal Still Pending</h4>
+                      <p style={{ color: '#856404', margin: 0 }}>
+                        Your appeal is still being reviewed by moderators.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div>
+                <h1>Not Banned</h1>
+                <p>You are not currently banned from the server. There's nothing to appeal!</p>
+              </div>
+            )}
           </div>
         )}
 

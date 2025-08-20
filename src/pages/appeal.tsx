@@ -71,9 +71,17 @@ const AppealPage: React.FC = () => {
     if (!appeal || appeal.status !== 'DENIED') return false;
     
     const decidedAt = new Date(appeal.decided_at);
+
+    // 30 seconds for development
+    if (process.env.NODE_ENV === 'development') {
+      const thirtySecondsAgo = new Date();
+      thirtySecondsAgo.setSeconds(thirtySecondsAgo.getSeconds() - 30);
+      return decidedAt <= thirtySecondsAgo;
+    }
+
+    // 1 month for production
     const oneMonthAgo = new Date();
     oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-    
     return decidedAt <= oneMonthAgo;
   }
 
@@ -81,9 +89,17 @@ const AppealPage: React.FC = () => {
     if (!appeal || appeal.status !== 'RECEIVED') return false;
     
     const createdAt = new Date(appeal.created_at);
+
+    // 30 seconds for development
+    if (process.env.NODE_ENV === 'development') {
+      const thirtySecondsAgo = new Date();
+      thirtySecondsAgo.setSeconds(thirtySecondsAgo.getSeconds() - 30);
+      return createdAt <= thirtySecondsAgo;
+    }
+
+    // 24 hours for production
     const twentyFourHoursAgo = new Date();
     twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
-    
     return createdAt <= twentyFourHoursAgo;
   }
 

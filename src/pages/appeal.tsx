@@ -292,6 +292,28 @@ const AppealPage: React.FC = () => {
                 )}
               </div>
             )}
+
+            {latestAppeal?.status === 'ACCEPTED' && (
+              <div style={{ marginTop: '10px', padding: '10px', backgroundColor: '#d4edda', border: '1px solid #c3e6cb', borderRadius: '5px' }}>
+                <h3 style={{ color: '#155724', margin: '0 0 10px 0' }}>Appeal Accepted!</h3>
+                {latestAppeal?.response_message && (
+                  <p style={{ color: '#155724', margin: 0 }}>
+                    <strong>Reason:</strong> {latestAppeal.response_message}
+                  </p>
+                )}
+              </div>
+            )}
+
+            {latestAppeal?.status === 'DENIED' && (
+              <div style={{ marginTop: '10px', padding: '10px', backgroundColor: '#f8d7da', border: '1px solid #f5c6cb', borderRadius: '5px' }}>
+                <h3 style={{ color: '#721c24', margin: '0 0 10px 0' }}>Appeal Denied</h3>
+                {latestAppeal?.response_message && (
+                  <p style={{ color: '#721c24', margin: 0 }}>
+                    <strong>Reason:</strong> {latestAppeal.response_message}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         )}
 

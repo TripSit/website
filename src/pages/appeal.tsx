@@ -146,11 +146,16 @@ const AppealPage: React.FC = () => {
         setLatestAppeal(appeal);
         
         // Check if this appeal is for the current ban
-        // If the appeal was accepted or if it's an old denied appeal, they can make a new one
-        if (appeal.status === 'ACCEPTED' || canReappeal(appeal)) {
-          setBanStatus("can_appeal"); // Changed from can_reappeal to can_appeal
-        } else if (appeal.status === 'DENIED' && !canReappeal(appeal)) {
-          setBanStatus("can_reappeal"); // They have a recent denial, show reappeal UI
+        if (appeal.status === 'ACCEPTED') {
+          // Previous appeal was accepted, they can make a new appeal for current ban
+          setBanStatus("can_appeal");
+        } else if (appeal.status === 'DENIED') {
+          // Check if enough time has passed to reappeal
+          if (canReappeal(appeal)) {
+            setBanStatus("can_reappeal"); // Show reappeal UI with previous appeal info
+          } else {
+            setBanStatus("has_appeal"); // Show denial message and waiting period
+          }
         } else {
           // Appeal is still pending (RECEIVED status)
           setBanStatus("has_appeal");

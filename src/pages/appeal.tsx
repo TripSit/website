@@ -1,5 +1,5 @@
 // src/pages/appeal.tsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import AppealForm from "../components/AppealForm";
@@ -15,6 +15,9 @@ const AppealPage: React.FC = () => {
   const [message, setMessage] = useState<string | null>(null);
   const [reminding, setReminding] = useState(false);
   const [remindMessage, setRemindMessage] = useState<string | null>(null);
+  
+  // Use useRef to store the interval ID so we can clear it
+  const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Check if we already have a token in session storage, also handle refreshing tokens.
   useEffect(() => {
@@ -36,6 +39,41 @@ const AppealPage: React.FC = () => {
     
     checkToken();
   }, []);
+
+  // Set up background token refresh when we have a token
+  useEffect(() => {
+    if (token) {
+      // Clear any existing interval
+      if (refreshIntervalRef.current) {
+        clearInterval(refreshIntervalRef.current);
+      }
+
+      // Set up new interval to refresh every 30 seconds
+      refreshIntervalRef.current = setInterval(async () => {
+        console.log('Background token refresh check...');
+        const refreshedToken = await refreshTokenIfNeeded();
+        if (refreshedToken && refreshedToken !== token) {
+          console.log('Token refreshed in background');
+          setToken(refreshedToken);
+        } else if (!refreshedToken) {
+          console.log('Background refresh failed, clearing token');
+          setToken(null);
+          clearInterval(refreshIntervalRef.current!);
+        }
+      }, 30000); // 30 seconds
+
+      console.log('Background token refresh started (every 30 seconds)');
+    }
+
+    // Cleanup function
+    return () => {
+      if (refreshIntervalRef.current) {
+        console.log('Clearing background token refresh');
+        clearInterval(refreshIntervalRef.current);
+        refreshIntervalRef.current = null;
+      }
+    };
+  }, [token]);
 
   // Fetch ban status when we have a token
   useEffect(() => {

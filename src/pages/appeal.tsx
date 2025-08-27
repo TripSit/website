@@ -378,7 +378,7 @@ const AppealPage: React.FC = () => {
       <Header />
       <main>
         {!token && (
-          <section className="py-5">
+          <section className="py-5" style={{ minHeight: '80vh', display: 'flex', alignItems: 'center' }}>
             <div className="container position-relative">
               <div className="row justify-content-center">
                 <div className="col-xl-7 col-lg-9 text-center">
@@ -412,8 +412,19 @@ const AppealPage: React.FC = () => {
                 </div>
               </div>
               <div className="text-center mt-4">
-                <a href={getLoginUrl()}>
-                  <Button color="primary" className="btn-get-started scrollto">
+                <a href={getLoginUrl()} className="btn-get-started-wrapper">
+                  <Button 
+                    color="primary" 
+                    size="lg"
+                    className="btn-get-started scrollto"
+                    style={{ 
+                      borderRadius: '50px',
+                      padding: '12px 30px',
+                      fontSize: '16px',
+                      fontWeight: '600',
+                      textTransform: 'none'
+                    }}
+                  >
                     Login with Discord
                   </Button>
                 </a>

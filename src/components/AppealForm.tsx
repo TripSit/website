@@ -34,8 +34,8 @@ const AppealForm: React.FC<AppealFormProps> = ({ onSubmit, submitting }: AppealF
     }
 
     const totalLength = Object.values(formData).join('').length;
-    if (totalLength > 4000) {
-      alert('Your response is over 4000 characters long. Please keep your answers concise.');
+    if (totalLength > 3600) {
+      alert('Your response is over 3600 characters long. Please keep your answers concise.');
       return;
     }
 

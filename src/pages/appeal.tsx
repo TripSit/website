@@ -1,4 +1,3 @@
-// src/pages/appeal.tsx
 import React, { useEffect, useState, useRef } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -97,6 +96,9 @@ const AppealPage: React.FC = () => {
           sessionStorage.setItem("kc_refresh_token", data.refresh_token);
         }
         setToken(data.access_token);
+        
+        // Clean up the URL by removing the query parameters
+        window.history.replaceState({}, document.title, window.location.pathname);
       }
     } catch (e) {
       console.error("Token exchange failed", e);
@@ -354,7 +356,7 @@ const AppealPage: React.FC = () => {
     return (
       <>
         <Header />
-        <main>
+        <main style={{ paddingTop: '80px' }}>
           <section className="d-flex align-items-center" style={{ minHeight: '60vh' }}>
             <div className="container">
               <div className="row justify-content-center">

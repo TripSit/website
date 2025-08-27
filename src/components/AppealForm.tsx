@@ -32,7 +32,13 @@ const AppealForm: React.FC<AppealFormProps> = ({ onSubmit, submitting }: AppealF
       alert('Please fill in all required fields');
       return;
     }
-    
+
+    const totalLength = Object.values(formData).join('').length;
+    if (totalLength > 4000) {
+      alert('Your response is over 4000 characters long. Please keep your answers concise.');
+      return;
+    }
+
     onSubmit(formData);
   };
 

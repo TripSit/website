@@ -356,7 +356,7 @@ const AppealPage: React.FC = () => {
     return (
       <>
         <Header />
-        <main style={{ paddingTop: '80px' }}>
+        <main>
           <section className="d-flex align-items-center" style={{ minHeight: '60vh' }}>
             <div className="container">
               <div className="row justify-content-center">
@@ -436,7 +436,7 @@ const AppealPage: React.FC = () => {
         )}
 
         {token && banStatus === "can_appeal" && (
-          <section className="py-5">
+          <section className="py-5" style={{ marginTop: '80px' }}>
             <div className="container">
               <div className="row justify-content-center">
                 <div className="col-lg-8">
@@ -454,7 +454,7 @@ const AppealPage: React.FC = () => {
         )}
 
         {token && banStatus === "can_reappeal" && (
-          <section className="py-5">
+          <section className="py-5" style={{ marginTop: '80px' }}>
             <div className="container">
               <div className="row justify-content-center">
                 <div className="col-lg-8">
@@ -507,7 +507,7 @@ const AppealPage: React.FC = () => {
         )}
 
         {token && banStatus === "has_appeal" && (
-          <section className="py-5">
+          <section className="py-5" style={{ marginTop: '80px' }}>
             <div className="container">
               <div className="row justify-content-center">
                 <div className="col-lg-8">
@@ -612,7 +612,7 @@ const AppealPage: React.FC = () => {
         )}
 
         {token && banStatus === "not_banned" && (
-          <section className="py-5">
+          <section className="py-5" style={{ marginTop: '80px' }}>
             <div className="container">
               <div className="row justify-content-center">
                 <div className="col-lg-8">

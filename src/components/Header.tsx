@@ -395,6 +395,11 @@ function Header() {
                 Updates
               </a>
             </li>
+            <li>
+              <a href={`${domain}/appeal`}>
+                Ban Appeal
+              </a>
+            </li>
             {/* <li>
               <a
                 className="nav-link scrollto"

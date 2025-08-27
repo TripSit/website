@@ -337,7 +337,41 @@ const AppealPage: React.FC = () => {
     }
   }
 
-  if (loading) return <div>Loading...</div>;
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'ACCEPTED':
+        return <span className="badge bg-success fs-6">Accepted</span>;
+      case 'DENIED':
+        return <span className="badge bg-danger fs-6">Denied</span>;
+      case 'RECEIVED':
+        return <span className="badge bg-warning text-dark fs-6">Under Review</span>;
+      default:
+        return <span className="badge bg-secondary fs-6">{status}</span>;
+    }
+  };
+
+  if (loading) {
+    return (
+      <>
+        <Header />
+        <main>
+          <section className="d-flex align-items-center" style={{ minHeight: '60vh' }}>
+            <div className="container">
+              <div className="row justify-content-center">
+                <div className="col-md-6 text-center">
+                  <div className="spinner-border text-primary" role="status" style={{ width: '3rem', height: '3rem' }}>
+                    <span className="visually-hidden">Loading...</span>
+                  </div>
+                  <p className="mt-3 text-muted">Loading your appeal status...</p>
+                </div>
+              </div>
+            </div>
+          </section>
+        </main>
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>
@@ -369,10 +403,9 @@ const AppealPage: React.FC = () => {
                       </p>
                       <p className="card-text">
                         For a majority of people: Go ahead and make a new
-                        tripsit account below by logging in with your Discord
+                        TripSit account below by logging in with your Discord
                         account. If you already have a TripSit account and
-                        need to link to Discord, click New Account and login
-                        with your Discord account.
+                        need to link to Discord, just log in with Discord.
                       </p>
                       <p className="card-text">
                         Remember to revisit this page to check the status of
@@ -394,152 +427,286 @@ const AppealPage: React.FC = () => {
         )}
 
         {token && banStatus === "can_appeal" && (
-          <>
-            <h1>Submit Ban Appeal</h1>
-            <AppealForm onSubmit={submitAppeal} submitting={submitting} />
-          </>
+          <section className="py-5">
+            <div className="container">
+              <div className="row justify-content-center">
+                <div className="col-lg-8">
+                  <div className="text-center mb-5">
+                    <h1 className="display-6">Submit Ban Appeal</h1>
+                    <p className="lead text-muted">
+                      Please answer all questions honestly and thoroughly. This information helps our moderators understand your situation.
+                    </p>
+                  </div>
+                  <AppealForm onSubmit={submitAppeal} submitting={submitting} />
+                </div>
+              </div>
+            </div>
+          </section>
         )}
 
         {token && banStatus === "can_reappeal" && (
-          <div>
-            <h1>Submit New Ban Appeal</h1>
-            
-            {/* Show previous appeal information */}
-            <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#f8f9fa', border: '1px solid #dee2e6', borderRadius: '5px' }}>
-              <h3>Previous Appeal</h3>
-              <p><strong>Status:</strong> {latestAppeal?.status}</p>
-              <p><strong>Submitted:</strong> {new Date(latestAppeal?.created_at).toLocaleDateString()}</p>
-              {latestAppeal?.decided_at && (
-                <p><strong>Decided:</strong> {new Date(latestAppeal.decided_at).toLocaleDateString()}</p>
-              )}
-              {latestAppeal?.response_message && (
-                <div style={{ marginTop: '10px', padding: '10px', backgroundColor: '#f8d7da', border: '1px solid #f5c6cb', borderRadius: '5px' }}>
-                  <p style={{ color: '#721c24', margin: 0 }}>
-                    <strong>Moderator Response:</strong> {latestAppeal.response_message}
-                  </p>
+          <section className="py-5">
+            <div className="container">
+              <div className="row justify-content-center">
+                <div className="col-lg-8">
+                  <div className="text-center mb-5">
+                    <h1 className="display-6">Submit New Ban Appeal</h1>
+                    <p className="lead text-muted">
+                      You can submit a new appeal since enough time has passed since your previous denial.
+                    </p>
+                  </div>
+                  
+                  {/* Show previous appeal information */}
+                  <div className="card mb-4 border-warning">
+                    <div className="card-header bg-warning bg-opacity-10">
+                      <h5 className="card-title mb-0">
+                        <i className="bi bi-clock-history me-2"></i>Previous Appeal
+                      </h5>
+                    </div>
+                    <div className="card-body">
+                      <div className="row">
+                        <div className="col-md-4">
+                          <strong>Status:</strong> {getStatusBadge(latestAppeal?.status)}
+                        </div>
+                        <div className="col-md-4">
+                          <strong>Submitted:</strong><br />
+                          <small className="text-muted">{new Date(latestAppeal?.created_at).toLocaleDateString()}</small>
+                        </div>
+                        {latestAppeal?.decided_at && (
+                          <div className="col-md-4">
+                            <strong>Decided:</strong><br />
+                            <small className="text-muted">{new Date(latestAppeal.decided_at).toLocaleDateString()}</small>
+                          </div>
+                        )}
+                      </div>
+                      {latestAppeal?.response_message && (
+                        <div className="mt-3">
+                          <div className="alert alert-danger" role="alert">
+                            <strong>Moderator Response:</strong><br />
+                            {latestAppeal.response_message}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <AppealForm onSubmit={submitAppeal} submitting={submitting} />
                 </div>
-              )}
+              </div>
             </div>
-
-            <p style={{ marginBottom: '20px', color: '#6c757d' }}>
-              Since your previous appeal was denied over a month ago, you can submit a new appeal.
-            </p>
-
-            <AppealForm onSubmit={submitAppeal} submitting={submitting} />
-          </div>
+          </section>
         )}
 
         {token && banStatus === "has_appeal" && (
-          <div>
-            <h1>Your Appeal Status</h1>
-            <p>You have an existing appeal. Status: {latestAppeal?.status || 'RECEIVED'}</p>
-            
-            {latestAppeal?.status === 'RECEIVED' && (
-              <div>
-                {canShowReminder(latestAppeal) && (
-                  <button 
-                    onClick={sendReminder} 
-                    disabled={reminding}
-                    style={{ marginTop: '10px', padding: '8px 16px' }}
-                  >
-                    {reminding ? 'Sending...' : 'Remind Moderators'}
-                  </button>
-                )}
-                {!canShowReminder(latestAppeal) && (
-                  <p style={{ marginTop: '10px', color: '#6c757d', fontSize: '14px' }}>
-                    You can remind moderators 24 hours after submitting your appeal.
-                  </p>
-                )}
-                {remindMessage && (
-                  <p style={{ marginTop: '8px', color: remindMessage.includes('sent') ? 'green' : 'red' }}>
-                    {remindMessage}
-                  </p>
-                )}
-              </div>
-            )}
-
-            {latestAppeal?.status === 'ACCEPTED' && (
-              <div style={{ marginTop: '10px', padding: '10px', backgroundColor: '#d4edda', border: '1px solid #c3e6cb', borderRadius: '5px' }}>
-                <h3 style={{ color: '#155724', margin: '0 0 10px 0' }}>Appeal Accepted!</h3>
-                {latestAppeal?.response_message && (
-                  <p style={{ color: '#155724', margin: 0 }}>
-                    <strong>Reason:</strong> {latestAppeal.response_message}
-                  </p>
-                )}
-              </div>
-            )}
-
-            {latestAppeal?.status === 'DENIED' && (
-              <div style={{ marginTop: '10px', padding: '10px', backgroundColor: '#f8d7da', border: '1px solid #f5c6cb', borderRadius: '5px' }}>
-                <h3 style={{ color: '#721c24', margin: '0 0 10px 0' }}>Appeal Denied</h3>
-                {latestAppeal?.response_message && (
-                  <p style={{ color: '#721c24', margin: 0 }}>
-                    <strong>Reason:</strong> {latestAppeal.response_message}
-                  </p>
-                )}
-                <p style={{ color: '#721c24', margin: '10px 0 0 0', fontSize: '14px' }}>
-                  <em>You can submit a new appeal one month after this decision.</em>
-                </p>
-              </div>
-            )}
-          </div>
-        )}
-
-        {token && banStatus === "not_banned" && (
-          <div>
-            {latestAppeal ? (
-              <div>
-                <h1>Appeal History</h1>
-                <p>You are not currently banned from the server.</p>
-                
-                <div style={{ marginTop: '20px' }}>
-                  <h3>Your Latest Appeal Status: {latestAppeal.status}</h3>
+          <section className="py-5">
+            <div className="container">
+              <div className="row justify-content-center">
+                <div className="col-lg-8">
+                  <div className="text-center mb-5">
+                    <h1 className="display-6">Your Appeal Status</h1>
+                  </div>
                   
-                  {latestAppeal.status === 'ACCEPTED' && (
-                    <div style={{ marginTop: '10px', padding: '10px', backgroundColor: '#d4edda', border: '1px solid #c3e6cb', borderRadius: '5px' }}>
-                      <h4 style={{ color: '#155724', margin: '0 0 10px 0' }}>Appeal Accepted!</h4>
-                      {latestAppeal.response_message && (
-                        <p style={{ color: '#155724', margin: 0 }}>
-                          <strong>Moderator Response:</strong> {latestAppeal.response_message}
-                        </p>
+                  <div className="card">
+                    <div className="card-body">
+                      <div className="row align-items-center">
+                        <div className="col-md-8">
+                          <h5 className="card-title mb-3">Current Appeal Status</h5>
+                          <p className="mb-2">
+                            <strong>Status:</strong> {getStatusBadge(latestAppeal?.status || 'RECEIVED')}
+                          </p>
+                          <p className="text-muted mb-0">
+                            <small>
+                              Submitted: {latestAppeal?.created_at ? new Date(latestAppeal.created_at).toLocaleDateString() : 'Unknown'}
+                            </small>
+                          </p>
+                        </div>
+                        <div className="col-md-4 text-md-end">
+                          {latestAppeal?.status === 'RECEIVED' && canShowReminder(latestAppeal) && (
+                            <button 
+                              onClick={sendReminder} 
+                              disabled={reminding}
+                              className="btn btn-outline-primary"
+                            >
+                              {reminding ? (
+                                <>
+                                  <span className="spinner-border spinner-border-sm me-2" role="status"></span>
+                                  Sending...
+                                </>
+                              ) : (
+                                <>
+                                  <i className="bi bi-bell me-2"></i>
+                                  Remind Moderators
+                                </>
+                              )}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      {latestAppeal?.status === 'RECEIVED' && !canShowReminder(latestAppeal) && (
+                        <div className="alert alert-info mt-3" role="alert">
+                          <i className="bi bi-info-circle me-2"></i>
+                          You can remind moderators 24 hours after submitting your appeal.
+                        </div>
                       )}
+
+                      {remindMessage && (
+                        <div className={`alert ${remindMessage.includes('sent') ? 'alert-success' : 'alert-danger'} mt-3`} role="alert">
+                          {remindMessage}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {latestAppeal?.status === 'ACCEPTED' && (
+                    <div className="card border-success mt-4">
+                      <div className="card-header bg-success bg-opacity-10 border-success">
+                        <h5 className="card-title text-success mb-0">
+                          <i className="bi bi-check-circle-fill me-2"></i>Appeal Accepted!
+                        </h5>
+                      </div>
+                      <div className="card-body">
+                        {latestAppeal?.response_message && (
+                          <p className="mb-0">
+                            <strong>Moderator Response:</strong><br />
+                            {latestAppeal.response_message}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   )}
 
-                  {latestAppeal.status === 'DENIED' && (
-                    <div style={{ marginTop: '10px', padding: '10px', backgroundColor: '#f8d7da', border: '1px solid #f5c6cb', borderRadius: '5px' }}>
-                      <h4 style={{ color: '#721c24', margin: '0 0 10px 0' }}>Appeal was Denied</h4>
-                      {latestAppeal.response_message && (
-                        <p style={{ color: '#721c24', margin: 0 }}>
-                          <strong>Moderator Response:</strong> {latestAppeal.response_message}
-                        </p>
-                      )}
-                      <p style={{ color: '#721c24', margin: '10px 0 0 0', fontSize: '14px' }}>
-                        <em>Note: Your ban may have been lifted separately from the appeal process.</em>
-                      </p>
-                    </div>
-                  )}
-
-                  {latestAppeal.status === 'RECEIVED' && (
-                    <div style={{ marginTop: '10px', padding: '10px', backgroundColor: '#fff3cd', border: '1px solid #ffeaa7', borderRadius: '5px' }}>
-                      <h4 style={{ color: '#856404', margin: '0 0 10px 0' }}>Appeal Still Pending</h4>
-                      <p style={{ color: '#856404', margin: 0 }}>
-                        Your appeal is still being reviewed by moderators.
-                      </p>
+                  {latestAppeal?.status === 'DENIED' && (
+                    <div className="card border-danger mt-4">
+                      <div className="card-header bg-danger bg-opacity-10 border-danger">
+                        <h5 className="card-title text-danger mb-0">
+                          <i className="bi bi-x-circle-fill me-2"></i>Appeal Denied
+                        </h5>
+                      </div>
+                      <div className="card-body">
+                        {latestAppeal?.response_message && (
+                          <p className="mb-3">
+                            <strong>Moderator Response:</strong><br />
+                            {latestAppeal.response_message}
+                          </p>
+                        )}
+                        <small className="text-muted">
+                          <em>You can submit a new appeal one month after this decision.</em>
+                        </small>
+                      </div>
                     </div>
                   )}
                 </div>
               </div>
-            ) : (
-              <div>
-                <h1>Not Banned</h1>
-                <p>You are not currently banned from the server. There's nothing to appeal!</p>
-              </div>
-            )}
-          </div>
+            </div>
+          </section>
         )}
 
-        {message && <p>{message}</p>}
+        {token && banStatus === "not_banned" && (
+          <section className="py-5">
+            <div className="container">
+              <div className="row justify-content-center">
+                <div className="col-lg-8">
+                  {latestAppeal ? (
+                    <>
+                      <div className="text-center mb-5">
+                        <h1 className="display-6">Appeal History</h1>
+                        <p className="lead text-success">
+                          <i className="bi bi-check-circle me-2"></i>
+                          You are not currently banned from the server.
+                        </p>
+                      </div>
+                      
+                      <div className="card">
+                        <div className="card-header">
+                          <h5 className="card-title mb-0">Your Latest Appeal</h5>
+                        </div>
+                        <div className="card-body">
+                          <p className="mb-3">
+                            <strong>Status:</strong> {getStatusBadge(latestAppeal.status)}
+                          </p>
+                          
+                          {latestAppeal.status === 'ACCEPTED' && (
+                            <div className="alert alert-success" role="alert">
+                              <h6 className="alert-heading">
+                                <i className="bi bi-check-circle-fill me-2"></i>Appeal Accepted!
+                              </h6>
+                              {latestAppeal.response_message && (
+                                <p className="mb-0">
+                                  <strong>Moderator Response:</strong> {latestAppeal.response_message}
+                                </p>
+                              )}
+                            </div>
+                          )}
+
+                          {latestAppeal.status === 'DENIED' && (
+                            <div className="alert alert-warning" role="alert">
+                              <h6 className="alert-heading">
+                                <i className="bi bi-exclamation-triangle-fill me-2"></i>Appeal was Denied
+                              </h6>
+                              {latestAppeal.response_message && (
+                                <p className="mb-2">
+                                  <strong>Moderator Response:</strong> {latestAppeal.response_message}
+                                </p>
+                              )}
+                              <small className="text-muted">
+                                <em>Note: Your ban may have been lifted separately from the appeal process.</em>
+                              </small>
+                            </div>
+                          )}
+
+                          {latestAppeal.status === 'RECEIVED' && (
+                            <div className="alert alert-info" role="alert">
+                              <h6 className="alert-heading">
+                                <i className="bi bi-clock me-2"></i>Appeal Still Pending
+                              </h6>
+                              <p className="mb-0">
+                                Your appeal is still being reviewed by moderators.
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="text-center mb-5">
+                        <h1 className="display-6">Not Banned</h1>
+                      </div>
+                      
+                      <div className="card">
+                        <div className="card-body text-center">
+                          <div className="mb-4">
+                            <i className="bi bi-check-circle-fill text-success" style={{ fontSize: '3rem' }}></i>
+                          </div>
+                          <h5 className="card-title">You're all good!</h5>
+                          <p className="card-text text-muted">
+                            You are not currently banned from the server. There's nothing to appeal!
+                          </p>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {message && (
+          <div className="container mt-4">
+            <div className="row justify-content-center">
+              <div className="col-lg-8">
+                <div className={`alert ${message.includes('submitted') || message.includes('success') ? 'alert-success' : 'alert-danger'} alert-dismissible fade show`} role="alert">
+                  {message.includes('submitted') && <i className="bi bi-check-circle-fill me-2"></i>}
+                  {message.includes('Failed') && <i className="bi bi-exclamation-triangle-fill me-2"></i>}
+                  {message}
+                  <button type="button" className="btn-close" aria-label="Close" onClick={() => setMessage(null)}></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
       <Footer />
     </>

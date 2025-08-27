@@ -42,28 +42,107 @@ const AppealForm: React.FC<AppealFormProps> = ({ onSubmit, submitting }: AppealF
     onSubmit(formData);
   };
 
+  const totalChars = Object.values(formData).join('').length;
+  const charLimit = 3600;
+  const isNearLimit = totalChars > charLimit * 0.8;
+
   return (
-    <form onSubmit={handleSubmit} style={{ maxWidth: "600px", margin: "auto" }}>
-      <label>
-        Do you know why you were banned?
-        <textarea name="reason" value={formData.reason} onChange={handleChange} required />
-      </label>
-      <label>
-        Have you taken any steps to make amends?
-        <textarea name="solution" value={formData.solution} onChange={handleChange} required />
-      </label>
-      <label>
-        What will you do to avoid repeating the behavior?
-        <textarea name="future" value={formData.future} onChange={handleChange} required />
-      </label>
-      <label>
-        Anything else you’d like to add?
-        <textarea name="extra" value={formData.extra} onChange={handleChange} />
-      </label>
-      <button type="submit" disabled={submitting}>
-        {submitting ? "Submitting..." : "Submit Appeal"}
-      </button>
-    </form>
+    <div className="card">
+      <div className="card-body">
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label htmlFor="reason" className="form-label">
+              <strong>Do you know why you were banned?</strong>
+              <span className="text-danger ms-1">*</span>
+            </label>
+            <textarea 
+              id="reason"
+              name="reason" 
+              value={formData.reason} 
+              onChange={handleChange} 
+              required 
+              className="form-control"
+              rows={4}
+              placeholder="Please explain what you believe led to your ban..."
+            />
+          </div>
+
+          <div className="mb-4">
+            <label htmlFor="solution" className="form-label">
+              <strong>Have you taken any steps to make amends?</strong>
+              <span className="text-danger ms-1">*</span>
+            </label>
+            <textarea 
+              id="solution"
+              name="solution" 
+              value={formData.solution} 
+              onChange={handleChange} 
+              required 
+              className="form-control"
+              rows={4}
+              placeholder="Describe any actions you've taken to address the situation..."
+            />
+          </div>
+
+          <div className="mb-4">
+            <label htmlFor="future" className="form-label">
+              <strong>What will you do to avoid repeating the behavior?</strong>
+              <span className="text-danger ms-1">*</span>
+            </label>
+            <textarea 
+              id="future"
+              name="future" 
+              value={formData.future} 
+              onChange={handleChange} 
+              required 
+              className="form-control"
+              rows={4}
+              placeholder="Explain how you plan to prevent similar issues in the future..."
+            />
+          </div>
+
+          <div className="mb-4">
+            <label htmlFor="extra" className="form-label">
+              <strong>Anything else you'd like to add?</strong>
+              <small className="text-muted ms-2">(Optional)</small>
+            </label>
+            <textarea 
+              id="extra"
+              name="extra" 
+              value={formData.extra} 
+              onChange={handleChange}
+              className="form-control"
+              rows={3}
+              placeholder="Any additional information or context you'd like to provide..."
+            />
+          </div>
+
+          <div className="mb-3">
+            <small className={`form-text ${isNearLimit ? 'text-warning' : 'text-muted'}`}>
+              Character count: {totalChars}/{charLimit}
+              {isNearLimit && ' (Getting close to limit!)'}
+            </small>
+          </div>
+
+          <div className="text-center">
+            <button 
+              type="submit" 
+              disabled={submitting || totalChars > charLimit}
+              className={`btn btn-primary btn-lg px-4 ${submitting ? 'disabled' : ''}`}
+            >
+              {submitting ? (
+                <>
+                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  Submitting...
+                </>
+              ) : (
+                "Submit Appeal"
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 };
 

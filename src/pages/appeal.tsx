@@ -353,10 +353,36 @@ const AppealPage: React.FC = () => {
               <div className="row justify-content-center">
                 <div className="col-xl-7 col-lg-9 text-center">
                   <h1>Ban Appeal</h1>
-                  <h2>You must log in with Discord to submit an appeal.</h2>
+                  <div className="card mt-4">
+                    <div className="card-body">
+                      <p className="card-text">
+                        At TripSit, we believe in second chances.
+                      </p>
+                      <p className="card-text">
+                        If you feel you've grown and addressed the issues
+                        that resulted in your ban, we're open to
+                        reconsidering.
+                      </p>
+                      <p className="card-text">
+                        To appeal your ban, you will need a TripSit account
+                        linked to the service you want to be unbanned from.
+                      </p>
+                      <p className="card-text">
+                        For a majority of people: Go ahead and make a new
+                        tripsit account below by logging in with your Discord
+                        account. If you already have a TripSit account and
+                        need to link to Discord, click New Account and login
+                        with your Discord account.
+                      </p>
+                      <p className="card-text">
+                        Remember to revisit this page to check the status of
+                        your appeal in the future.
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div className="text-center">
+              <div className="text-center mt-4">
                 <a href={getLoginUrl()}>
                   <Button color="primary" className="btn-get-started scrollto">
                     Login with Discord

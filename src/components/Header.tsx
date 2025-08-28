@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { Tooltip } from "@mui/material";
 import logo from "../../public/assets/img/logo.png";
+import ProfileButton from "./ProfileButton";
 
 function Header() {
   const domain = `https://${process.env.NEXT_PUBLIC_DNS_DOMAIN}`;
@@ -65,30 +66,6 @@ function Header() {
                     </li>
                   </ul>
                 </li>
-                {/* <li className="dropdown">
-                  <a href={`${domain}#`}>
-                    <span>Chat</span> <i className="bi bi-chevron-right"></i>
-                  </a>
-                  <ul>
-                    <li>
-                      <a href="https://discord.gg/tripsit">Join the discord!</a>
-                    </li>
-                    <li>
-                      <a href="https://tripbot.info/dashboard/appeals">
-                        Discord Appeals
-                      </a>
-                    </li>
-                    <li>
-                      <a href="https://tripbot.info/">TripBot Homepage</a>
-                    </li>
-                    {/* <li>
-                      <a href="https://element.tripsit.me/">Matrix Webchat</a>
-                    </li>
-                    <li>
-                      <a href="https://lounge.tripsit.me">IRC Webchat</a>
-                    </li> 
-                  </ul>
-                </li> */}
                 <li className="dropdown">
                   <a href={`${domain}#`}>
                     <span>Calculators</span>{" "}
@@ -379,11 +356,6 @@ function Header() {
                 </li>
               </ul>
             </li>
-            {/* <li>
-              <a className="nav-link scrollto" href={`${domain}#contact`}>
-                Contact
-              </a>
-            </li> */}
             <li>
               <a href={`${domain}#cta`}>Volunteer</a>
             </li>
@@ -400,19 +372,6 @@ function Header() {
                 Ban Appeal
               </a>
             </li>
-            {/* <li>
-              <a
-                className="nav-link scrollto"
-                href="https://updates.tripsit.me"
-              >
-                Updates
-              </a>
-            </li> */}
-            {/* <li>
-              <a className="getstarted scrollto" href="#appeal">
-                Ban Appeal
-              </a>
-            </li> */}
             <li>
               <a
                 className="getstarted scrollto"
@@ -425,6 +384,9 @@ function Header() {
               <a className="joindiscord scrollto" href={`${domain}/webchat`}>
                 Start Webchat
               </a>
+            </li>
+            <li>
+              <ProfileButton />
             </li>
           </ul>
           <i className="bi bi-list mobile-nav-toggle"></i>

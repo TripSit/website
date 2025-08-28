@@ -87,7 +87,7 @@ const ProfileButton: React.FC = () => {
           aria-label={isLoggedIn ? "Account menu" : "Login"}
         >
           <img 
-            src="/assets/guest.png" 
+            src="/assets/img/guest.png" 
             alt="Profile" 
             className="profile-image"
           />

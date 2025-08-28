@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Tooltip } from '@mui/material';
-import Image from 'next/image';
 import { getLoginUrl, getLogoutUrl } from '@/utils/keycloak';
 
 const ProfileButton: React.FC = () => {
@@ -10,8 +9,28 @@ const ProfileButton: React.FC = () => {
 
   // Check if user is logged in by checking for tokens
   useEffect(() => {
-    const token = localStorage.getItem('kc_token') || sessionStorage.getItem('kc_token');
-    setIsLoggedIn(!!token);
+    const checkLoginStatus = () => {
+      const token = localStorage.getItem('kc_token') || sessionStorage.getItem('kc_token');
+      setIsLoggedIn(!!token);
+    };
+
+    // Check initially
+    checkLoginStatus();
+
+    // Listen for storage changes (localStorage only)
+    window.addEventListener('storage', checkLoginStatus);
+    
+    // Listen for focus events (when user returns from login)
+    window.addEventListener('focus', checkLoginStatus);
+
+    // Custom event listener for when tokens are set programmatically
+    window.addEventListener('tokensUpdated', checkLoginStatus);
+
+    return () => {
+      window.removeEventListener('storage', checkLoginStatus);
+      window.removeEventListener('focus', checkLoginStatus);
+      window.removeEventListener('tokensUpdated', checkLoginStatus);
+    };
   }, []);
 
   // Close dropdown when clicking outside
@@ -27,7 +46,6 @@ const ProfileButton: React.FC = () => {
   }, []);
 
   const handleLogin = () => {
-    // Redirect to Keycloak login
     window.location.href = getLoginUrl();
   };
 
@@ -42,7 +60,10 @@ const ProfileButton: React.FC = () => {
     setIsLoggedIn(false);
     setIsDropdownOpen(false);
     
-    // window.location.reload();
+    // Notify other components about token changes
+    window.dispatchEvent(new Event('tokensUpdated'));
+    
+    //window.location.reload();
     window.location.href = getLogoutUrl();
   };
 
@@ -65,11 +86,9 @@ const ProfileButton: React.FC = () => {
           onClick={toggleDropdown}
           aria-label={isLoggedIn ? "Account menu" : "Login"}
         >
-          <Image
-            src="/assets/img/guest.png"
-            alt="Profile"
-            width={48}
-            height={48}
+          <img 
+            src="/assets/guest.png" 
+            alt="Profile" 
             className="profile-image"
           />
         </button>
@@ -106,7 +125,6 @@ const ProfileButton: React.FC = () => {
           cursor: pointer;
           transition: all 0.3s ease;
           font-size: 20px;
-          overflow: hidden;
         }
 
         .profile-button:hover {
@@ -116,6 +134,8 @@ const ProfileButton: React.FC = () => {
         }
 
         .profile-image {
+          width: 100%;
+          height: 100%;
           border-radius: 50%;
           object-fit: cover;
         }

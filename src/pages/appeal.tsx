@@ -96,6 +96,9 @@ const AppealPage: React.FC = () => {
           sessionStorage.setItem("kc_refresh_token", data.refresh_token);
         }
         setToken(data.access_token);
+
+        // Dispatch event for ProfileButton
+        window.dispatchEvent(new Event('tokensUpdated'));
         
         // Clean up the URL by removing the query parameters
         window.history.replaceState({}, document.title, window.location.pathname);
@@ -272,9 +275,12 @@ const AppealPage: React.FC = () => {
           if (refreshRes.ok) {
             const newTokens = await refreshRes.json();
             sessionStorage.setItem("kc_token", newTokens.access_token);
+
             if (newTokens.refresh_token) {
               sessionStorage.setItem("kc_refresh_token", newTokens.refresh_token);
             }
+
+            window.dispatchEvent(new Event('tokensUpdated'));
             console.log('Token refreshed successfully');
             return newTokens.access_token;
           } else {

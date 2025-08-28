@@ -119,10 +119,10 @@ const AppealPage: React.FC = () => {
       return decidedAt <= thirtySecondsAgo;
     }
 
-    // 1 month for production
-    const oneMonthAgo = new Date();
-    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-    return decidedAt <= oneMonthAgo;
+    // 3 months for production
+    const threeMonthsAgo = new Date();
+    threeMonthsAgo.setDate(threeMonthsAgo.getDate() - 90);
+    return decidedAt <= threeMonthsAgo;
   }
 
   function canShowReminder(appeal: any): boolean {
@@ -137,10 +137,10 @@ const AppealPage: React.FC = () => {
       return createdAt <= thirtySecondsAgo;
     }
 
-    // 24 hours for production
-    const twentyFourHoursAgo = new Date();
-    twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
-    return createdAt <= twentyFourHoursAgo;
+    // 48 hours for production
+    const fortyEightHoursAgo = new Date();
+    fortyEightHoursAgo.setHours(fortyEightHoursAgo.getHours() - 48);
+    return createdAt <= fortyEightHoursAgo;
   }
 
   async function checkBan() {

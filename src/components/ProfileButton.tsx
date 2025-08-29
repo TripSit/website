@@ -85,12 +85,13 @@ const ProfileButton: React.FC = () => {
           className="profile-button"
           onClick={toggleDropdown}
           aria-label={isLoggedIn ? "Account menu" : "Login"}
+          style={{
+            backgroundImage: 'url(/assets/img/guest.png)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat'
+          }}
         >
-          <img 
-            src="/assets/img/guest.png" 
-            alt="Profile" 
-            className="profile-image"
-          />
         </button>
       </Tooltip>
 
@@ -109,7 +110,6 @@ const ProfileButton: React.FC = () => {
       <style jsx>{`
         .profile-button-container {
           position: relative;
-          display: inline-block;
         }
 
         .profile-button {
@@ -117,7 +117,6 @@ const ProfileButton: React.FC = () => {
           height: 40px;
           border-radius: 50%;
           background: rgba(255, 255, 255, 0.1);
-          border: 2px solid rgba(255, 255, 255, 0.2);
           color: #fff;
           display: flex;
           align-items: center;

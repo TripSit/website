@@ -386,7 +386,9 @@ function Header() {
               </a>
             </li>
             <li>
-              <ProfileButton />
+              <div style={{ padding: '0 15px' }}>
+                <ProfileButton />
+              </div>
             </li>
           </ul>
           <i className="bi bi-list mobile-nav-toggle"></i>

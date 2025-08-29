@@ -5,6 +5,8 @@ import { getLoginUrl, getPostLogoutUrl } from '@/utils/keycloak';
 const ProfileButton: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
+  const [avatarUrl, setAvatarUrl] = useState<string>('/assets/img/guest.png');
+  const [isLoadingAvatar, setIsLoadingAvatar] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Check if user is logged in by checking for tokens
@@ -33,6 +35,46 @@ const ProfileButton: React.FC = () => {
     };
   }, []);
 
+  // Fetch avatar when login status changes
+  useEffect(() => {
+    const fetchAvatar = async () => {
+      const token = localStorage.getItem('kc_token') || sessionStorage.getItem('kc_token');
+      if (!token || !isLoggedIn) {
+        setAvatarUrl('/assets/img/guest.png');
+        return;
+      }
+
+      setIsLoadingAvatar(true);
+      try {
+        const response = await fetch('/api/v2/users/avatar', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setAvatarUrl(data.avatarUrl);
+        } else {
+          console.error('Failed to fetch avatar:', response.statusText);
+          setAvatarUrl('/assets/img/guest.png');
+        }
+      } catch (error) {
+        console.error('Failed to fetch avatar:', error);
+        setAvatarUrl('/assets/img/guest.png');
+      } finally {
+        setIsLoadingAvatar(false);
+      }
+    };
+
+    if (isLoggedIn) {
+      fetchAvatar();
+    } else {
+      setAvatarUrl('/assets/img/guest.png');
+    }
+  }, [isLoggedIn]);
+
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -56,6 +98,9 @@ const ProfileButton: React.FC = () => {
     sessionStorage.removeItem('kc_token');
     sessionStorage.removeItem('kc_refresh_token');
     
+    // Reset avatar
+    setAvatarUrl('/assets/img/guest.png');
+
     // Update state
     setIsLoggedIn(false);
     setIsDropdownOpen(false);
@@ -63,7 +108,6 @@ const ProfileButton: React.FC = () => {
     // Notify other components about token changes
     window.dispatchEvent(new Event('tokensUpdated'));
     
-    //window.location.reload();
     window.location.href = getPostLogoutUrl();
   };
 
@@ -73,6 +117,10 @@ const ProfileButton: React.FC = () => {
     } else {
       setIsDropdownOpen(!isDropdownOpen);
     }
+  };
+
+  const handleImageError = () => {
+    setAvatarUrl('/assets/img/guest.png');
   };
 
   return (
@@ -85,13 +133,19 @@ const ProfileButton: React.FC = () => {
           className="profile-button"
           onClick={toggleDropdown}
           aria-label={isLoggedIn ? "Account menu" : "Login"}
-          style={{
-            backgroundImage: 'url(/api/v2/users/avatar)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat'
-          }}
         >
+          {isLoadingAvatar ? (
+            <div className="loading-spinner">
+              <div className="spinner"></div>
+            </div>
+          ) : (
+            <img
+              src={avatarUrl}
+              alt="Profile"
+              className="profile-image"
+              onError={handleImageError}
+            />
+          )}
         </button>
       </Tooltip>
 
@@ -124,6 +178,8 @@ const ProfileButton: React.FC = () => {
           cursor: pointer;
           transition: all 0.3s ease;
           font-size: 20px;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          overflow: hidden;
         }
 
         .profile-button:hover {
@@ -137,6 +193,28 @@ const ProfileButton: React.FC = () => {
           height: 100%;
           border-radius: 50%;
           object-fit: cover;
+        }
+
+        .loading-spinner {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .spinner {
+          width: 20px;
+          height: 20px;
+          border: 2px solid rgba(255, 255, 255, 0.3);
+          border-top: 2px solid #fff;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
         }
 
         .profile-dropdown {

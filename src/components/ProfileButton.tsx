@@ -86,7 +86,7 @@ const ProfileButton: React.FC = () => {
           onClick={toggleDropdown}
           aria-label={isLoggedIn ? "Account menu" : "Login"}
           style={{
-            backgroundImage: 'url(/assets/img/guest.png)',
+            backgroundImage: 'url(/api/v2/users/avatar)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat'

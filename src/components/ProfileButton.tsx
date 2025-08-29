@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Tooltip } from '@mui/material';
-import { getLoginUrl, getLogoutUrl } from '@/utils/keycloak';
+import { getLoginUrl, getPostLogoutUrl } from '@/utils/keycloak';
 
 const ProfileButton: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
@@ -64,7 +64,7 @@ const ProfileButton: React.FC = () => {
     window.dispatchEvent(new Event('tokensUpdated'));
     
     //window.location.reload();
-    window.location.href = getLogoutUrl();
+    window.location.href = getPostLogoutUrl();
   };
 
   const toggleDropdown = () => {

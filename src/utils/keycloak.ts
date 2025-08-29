@@ -19,9 +19,11 @@ export function getLoginUrl(): string {
   return `${KEYCLOAK_CONFIG.url}/realms/${KEYCLOAK_CONFIG.realm}/protocol/openid-connect/auth?${params.toString()}`;
 }
 
-export function getLogoutUrl(): string {
+export function getPostLogoutUrl(): string {
   const params = new URLSearchParams({
-    redirect_uri: typeof window !== "undefined" ? window.location.origin : "",
+    post_logout_redirect_uri:
+      typeof window !== "undefined" ? window.location.origin : "",
+    id_token_hint: sessionStorage.getItem("kc_id_token") || "",
   });
   return `${KEYCLOAK_CONFIG.url}/realms/${KEYCLOAK_CONFIG.realm}/protocol/openid-connect/logout?${params.toString()}`;
 }

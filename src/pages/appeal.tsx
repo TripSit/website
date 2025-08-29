@@ -97,6 +97,10 @@ const AppealPage: React.FC = () => {
         }
         setToken(data.access_token);
 
+        if (data.id_token) {
+          sessionStorage.setItem("kc_id_token", data.id_token);
+        }
+
         // Dispatch event for ProfileButton
         window.dispatchEvent(new Event('tokensUpdated'));
         
@@ -278,6 +282,11 @@ const AppealPage: React.FC = () => {
 
             if (newTokens.refresh_token) {
               sessionStorage.setItem("kc_refresh_token", newTokens.refresh_token);
+            }
+
+            // Set ID token for post logout
+            if (newTokens.id_token) {
+              sessionStorage.setItem("kc_id_token", newTokens.id_token);
             }
 
             window.dispatchEvent(new Event('tokensUpdated'));

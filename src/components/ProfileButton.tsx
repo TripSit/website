@@ -100,7 +100,7 @@ const ProfileButton: React.FC = () => {
     
     // Reset avatar
     setAvatarUrl('/assets/img/guest.png');
-
+    
     // Update state
     setIsLoggedIn(false);
     setIsDropdownOpen(false);
@@ -119,10 +119,6 @@ const ProfileButton: React.FC = () => {
     }
   };
 
-  const handleImageError = () => {
-    setAvatarUrl('/assets/img/guest.png');
-  };
-
   return (
     <div className="profile-button-container" ref={dropdownRef}>
       <Tooltip
@@ -133,18 +129,17 @@ const ProfileButton: React.FC = () => {
           className="profile-button"
           onClick={toggleDropdown}
           aria-label={isLoggedIn ? "Account menu" : "Login"}
+          style={!isLoadingAvatar ? {
+            backgroundImage: `url(${avatarUrl})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat'
+          } : {}}
         >
-          {isLoadingAvatar ? (
+          {isLoadingAvatar && (
             <div className="loading-spinner">
               <div className="spinner"></div>
             </div>
-          ) : (
-            <img
-              src={avatarUrl}
-              alt="Profile"
-              className="profile-image"
-              onError={handleImageError}
-            />
           )}
         </button>
       </Tooltip>
@@ -178,21 +173,12 @@ const ProfileButton: React.FC = () => {
           cursor: pointer;
           transition: all 0.3s ease;
           font-size: 20px;
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          overflow: hidden;
         }
 
         .profile-button:hover {
           background: rgba(255, 255, 255, 0.2);
           border-color: rgba(255, 255, 255, 0.4);
           transform: scale(1.05);
-        }
-
-        .profile-image {
-          width: 100%;
-          height: 100%;
-          border-radius: 50%;
-          object-fit: cover;
         }
 
         .loading-spinner {

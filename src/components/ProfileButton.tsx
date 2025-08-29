@@ -178,6 +178,7 @@ const ProfileButton: React.FC = () => {
         .profile-button:hover {
           background: rgba(255, 255, 255, 0.2);
           border-color: rgba(255, 255, 255, 0.4);
+          transform: scale(1.05);
         }
 
         .loading-spinner {

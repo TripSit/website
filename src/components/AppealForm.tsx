@@ -117,9 +117,16 @@ const AppealForm: React.FC<AppealFormProps> = ({ onSubmit, submitting }: AppealF
           </div>
 
           <div className="mb-3">
-            <small className={`form-text ${isNearLimit ? 'text-warning' : 'text-muted'}`}>
+            <small className={`form-text ${
+              totalChars > charLimit 
+                ? 'text-danger' 
+                : isNearLimit 
+                  ? 'text-warning' 
+                  : 'text-muted'
+            }`}>
               Character count: {totalChars}/{charLimit}
-              {isNearLimit && ' (Getting close to limit!)'}
+              {totalChars > charLimit && ' (Response too long - please shorten)'}
+              {totalChars <= charLimit && isNearLimit && ' (Getting close to limit!)'}
             </small>
           </div>
 

@@ -494,12 +494,12 @@ const AppealPage: React.FC = () => {
                         </div>
                         <div className="col-md-4">
                           <strong>Submitted:</strong><br />
-                          <small className="text-muted">{new Date(latestAppeal?.created_at).toLocaleDateString()}</small>
+                          <small className="text-muted">{new Date(latestAppeal?.created_at).toLocaleString()}</small>
                         </div>
                         {latestAppeal?.decided_at && (
                           <div className="col-md-4">
                             <strong>Decided:</strong><br />
-                            <small className="text-muted">{new Date(latestAppeal.decided_at).toLocaleDateString()}</small>
+                            <small className="text-muted">{new Date(latestAppeal.decided_at).toLocaleString()}</small>
                           </div>
                         )}
                       </div>
@@ -538,28 +538,57 @@ const AppealPage: React.FC = () => {
                           <p className="mb-2">
                             <strong>Status:</strong> {getStatusBadge(latestAppeal?.status || 'RECEIVED')}
                           </p>
-                          <p className="text-muted mb-0">
+                          <p className="text-muted mb-1">
                             <small>
-                              Submitted: {latestAppeal?.created_at ? new Date(latestAppeal.created_at).toLocaleDateString() : 'Unknown'}
+                              <strong>Submitted:</strong> {latestAppeal?.created_at ? new Date(latestAppeal.created_at).toLocaleString() : 'Unknown'}
                             </small>
                           </p>
+                          
+                          {latestAppeal?.status === 'RECEIVED' && (
+                            <p className="text-muted mb-1">
+                              <small>
+                                <strong>Reminder available:</strong> {
+                                  (() => {
+                                    const createdAt = new Date(latestAppeal.created_at);
+                                    const reminderTime = new Date(createdAt);
+                                    reminderTime.setHours(reminderTime.getHours() + (process.env.NODE_ENV === 'development' ? 0 : 48));
+                                    reminderTime.setSeconds(reminderTime.getSeconds() + (process.env.NODE_ENV === 'development' ? 30 : 0));
+                                    return reminderTime.toLocaleString();
+                                  })()
+                                }
+                              </small>
+                            </p>
+                          )}
+                          
+                          {latestAppeal?.reminded_at && (
+                            <p className="text-muted mb-0">
+                              <small>
+                                <strong>Last reminder:</strong> {new Date(latestAppeal.reminded_at).toLocaleString()}
+                              </small>
+                            </p>
+                          )}
                         </div>
                         <div className="col-md-4 text-md-end">
-                          {latestAppeal?.status === 'RECEIVED' && canShowReminder(latestAppeal) && (
+                          {latestAppeal?.status === 'RECEIVED' && (
                             <button 
                               onClick={sendReminder} 
-                              disabled={reminding}
-                              className="btn btn-outline-primary"
+                              disabled={reminding || !canShowReminder(latestAppeal)}
+                              className={`btn ${canShowReminder(latestAppeal) ? 'btn-outline-primary' : 'btn-outline-secondary'}`}
                             >
                               {reminding ? (
                                 <>
                                   <span className="spinner-border spinner-border-sm me-2" role="status"></span>
                                   Sending...
                                 </>
-                              ) : (
+                              ) : canShowReminder(latestAppeal) ? (
                                 <>
                                   <i className="bi bi-bell me-2"></i>
-                                  Remind Moderators
+                                  Send Reminder
+                                </>
+                              ) : (
+                                <>
+                                  <i className="bi bi-clock me-2"></i>
+                                  Come back in 48 hours
                                 </>
                               )}
                             </button>
@@ -567,10 +596,69 @@ const AppealPage: React.FC = () => {
                         </div>
                       </div>
 
-                      {latestAppeal?.status === 'RECEIVED' && !canShowReminder(latestAppeal) && (
+                      {(latestAppeal?.reason || latestAppeal?.solution || latestAppeal?.future || latestAppeal?.extra) && (
+                        <div className="mt-4">
+                          <div className="d-grid">
+                            <button 
+                              className="btn btn-outline-info" 
+                              type="button" 
+                              data-bs-toggle="collapse" 
+                              data-bs-target="#appealContent" 
+                              aria-expanded="false" 
+                              aria-controls="appealContent"
+                            >
+                              <i className="bi bi-eye me-2"></i>
+                              View Your Appeal Content
+                            </button>
+                          </div>
+                          <div className="collapse mt-3" id="appealContent">
+                            <div className="card card-body bg-light">
+                              <h6 className="mb-3">Your Submitted Appeal</h6>
+                              
+                              {latestAppeal.reason && (
+                                <div className="mb-3">
+                                  <strong>Do you know why you were banned?</strong>
+                                  <div className="bg-white p-2 rounded mt-1 border">
+                                    {latestAppeal.reason}
+                                  </div>
+                                </div>
+                              )}
+                              
+                              {latestAppeal.solution && (
+                                <div className="mb-3">
+                                  <strong>Have you taken any steps to make amends?</strong>
+                                  <div className="bg-white p-2 rounded mt-1 border">
+                                    {latestAppeal.solution}
+                                  </div>
+                                </div>
+                              )}
+                              
+                              {latestAppeal.future && (
+                                <div className="mb-3">
+                                  <strong>What will you do to avoid repeating the behavior?</strong>
+                                  <div className="bg-white p-2 rounded mt-1 border">
+                                    {latestAppeal.future}
+                                  </div>
+                                </div>
+                              )}
+                              
+                              {latestAppeal.extra && (
+                                <div className="mb-0">
+                                  <strong>Anything else you'd like to add?</strong>
+                                  <div className="bg-white p-2 rounded mt-1 border">
+                                    {latestAppeal.extra}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {latestAppeal?.status === 'RECEIVED' && !canShowReminder(latestAppeal) && !latestAppeal?.reminded_at && (
                         <div className="alert alert-info mt-3" role="alert">
                           <i className="bi bi-info-circle me-2"></i>
-                          You can remind moderators 24 hours after submitting your appeal.
+                          You can send a reminder 48 hours after submitting your appeal.
                         </div>
                       )}
 

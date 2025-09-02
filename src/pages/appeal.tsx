@@ -549,8 +549,11 @@ const AppealPage: React.FC = () => {
                               <small>
                                 <strong>Reminder available:</strong> {
                                   (() => {
-                                    const createdAt = new Date(latestAppeal.created_at);
-                                    const reminderTime = new Date(createdAt);
+                                    const baseTime = latestAppeal.reminded_at 
+                                      ? new Date(latestAppeal.reminded_at)
+                                      : new Date(latestAppeal.created_at);
+                                    
+                                    const reminderTime = new Date(baseTime);
                                     reminderTime.setHours(reminderTime.getHours() + (process.env.NODE_ENV === 'development' ? 0 : 48));
                                     reminderTime.setSeconds(reminderTime.getSeconds() + (process.env.NODE_ENV === 'development' ? 30 : 0));
                                     return reminderTime.toLocaleString();

@@ -37,27 +37,54 @@ const animals = [
 ];
 
 const animalAvatars = {
-  Bird: 'https://i.gyazo.com/656747aa72337965d0d1e2aa6b866d5f.png',
-  Duck: 'https://i.gyazo.com/df45ad056b846fc3e418ad57f51487e7.png',
-  Unicorn: 'https://i.gyazo.com/9a35ab64526d61c4ecc284857cd1102c.png',
-  Bee: 'https://i.gyazo.com/c5f2dc45282b693902fd4c52da77272d.png',
-  Chicken: 'https://i.gyazo.com/a1d75a56999593c050231f4bbbfa3f25.png',
-  Pig: 'https://i.gyazo.com/da9b3a32219f21e4ddf8658681e002ac.png',
-  Sheep: 'https://i.gyazo.com/9f994fe630929949daaec6bad176245c.png',
-  Cat: 'https://i.gyazo.com/d08c3a910e7d63322765d35a72eeb893.png',
-  Dog: 'https://i.gyazo.com/d3190c498fa67d08dbcc60cc8b5f0e3f.png',
-  Turtle: 'https://i.gyazo.com/640bd24ab12c9ac41a35b687716202f4.png',
-  Crab: 'https://i.gyazo.com/36b6b473cf7c2b391c5484c76c8a309a.png',
-  Dolphin: 'https://i.gyazo.com/aa080d42ba85a3a6ceda4b0bd13e4f33.png',
-  Fish: 'https://i.gyazo.com/68b4af977eec8289e0159a1751b325ab.png',
-  Prawn: 'https://i.gyazo.com/35bc2b0bc859b0b6dec2ca6bbdf60b54.png',
-  Whale: 'https://i.gyazo.com/8f93943a5d908b595d2219f9fc57c06b.png',
-  Dinosaur: 'https://i.gyazo.com/08e6b9470b82f3cac5f586a3eb1942c2.png',
-  Elephant: 'https://i.gyazo.com/a066c2ea321da4b135ca763aeb1b4995.png',
-  Frog: 'https://i.gyazo.com/e6153ae5dbf5bf42e5920f7cd5d7caba.png',
-  Mouse: 'https://i.gyazo.com/a65d9e6bfcba9ad0b7b4ef6534bd3212.png',
-  Rabbit: 'https://i.gyazo.com/569b37dcb0e34f40c2a9aaba789095d1.png',
-  Snail: 'https://i.gyazo.com/146ba8288759e4e763bfc7f9d1069283.png'
+  Bird: '/assets/img/webchat/Bird.png',
+  Duck: '/assets/img/webchat/Duck.png',
+  Unicorn: '/assets/img/webchat/Unicorn.png',
+  Bee: '/assets/img/webchat/Bee.png',
+  Chicken: '/assets/img/webchat/Chicken.png',
+  Pig: '/assets/img/webchat/Pig.png',
+  Sheep: '/assets/img/webchat/Sheep.png',
+  Cat: '/assets/img/webchat/Cat.png',
+  Dog: '/assets/img/webchat/Dog.png',
+  Turtle: '/assets/img/webchat/Turtle.png',
+  Crab: '/assets/img/webchat/Crab.png',
+  Dolphin: '/assets/img/webchat/Dolphin.png',
+  Fish: '/assets/img/webchat/Fish.png',
+  Prawn: '/assets/img/webchat/Prawn.png',
+  Whale: '/assets/img/webchat/Whale.png',
+  Dinosaur: '/assets/img/webchat/Dinosaur.png',
+  Elephant: '/assets/img/webchat/Elephant.png',
+  Frog: '/assets/img/webchat/Frog.png',
+  Mouse: '/assets/img/webchat/Mouse.png',
+  Rabbit: '/assets/img/webchat/Rabbit.png',
+  Snail: '/assets/img/webchat/Snail.png'
+};
+
+const readableColors = [
+  "#e74c3c", "#3498db", "#2ecc71", "#f1c40f", "#9b59b6", "#34495e", "#1abc9c", "#e67e22", "#95a5a6"
+];
+
+const createColoredAvatar = (imagePath, color) => {
+  return new Promise((resolve) => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    
+    img.onload = () => {
+      canvas.width = 128;
+      canvas.height = 128;
+      
+      ctx.fillStyle = color;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      ctx.drawImage(img, 16, 16);
+      
+      resolve(canvas.toDataURL('image/png'));
+    };
+    
+    img.src = imagePath;
+  });
 };
 
 const Webchat = () => {
@@ -65,16 +92,22 @@ const Webchat = () => {
   const [avatarUrl, setAvatarUrl] = useState(null);
 
   useEffect(() => {
-    const generateRandomUsername = () => {
+    const generateRandomUsername = async () => {
       const randomAdjective = adjectives[Math.floor(Math.random() * adjectives.length)];
       const randomAnimal = animals[Math.floor(Math.random() * animals.length)];
       const randomNumber = Math.floor(Math.random() * 90) + 10;
       
       const newUsername = `${randomAdjective}${randomAnimal}${randomNumber}`;
-      const newAvatarUrl = animalAvatars[randomAnimal] || null;
+      const imagePath = animalAvatars[randomAnimal] || null;
+      
+      const randomColor = readableColors[Math.floor(Math.random() * readableColors.length)];
+      
+      if (imagePath) {
+        const newAvatarUrl = await createColoredAvatar(imagePath, randomColor);
+        setAvatarUrl(newAvatarUrl);
+      }
       
       setUsername(newUsername);
-      setAvatarUrl(newAvatarUrl);
     };
     
     generateRandomUsername();

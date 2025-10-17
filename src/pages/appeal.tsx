@@ -1,22 +1,326 @@
 import React, { useEffect, useState, useRef } from "react";
+import { Button } from "@nextui-org/react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import AppealForm from "../components/AppealForm";
 import { getLoginUrl } from "../utils/keycloak";
-import { Button } from "@nextui-org/react";
+
+interface Appeal {
+  status: string;
+  created_at: string;
+  decided_at?: string;
+  reminded_at?: string;
+  response_message?: string;
+  reason?: string;
+  solution?: string;
+  future?: string;
+  extra?: string;
+}
 
 const AppealPage: React.FC = () => {
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [banStatus, setBanStatus] = useState<"unknown" | "can_appeal" | "has_appeal" | "not_banned" | "can_reappeal">("unknown");
-  const [latestAppeal, setLatestAppeal] = useState<any>(null);
+  const [banStatus, setBanStatus] = useState<
+    "unknown" | "can_appeal" | "has_appeal" | "not_banned" | "can_reappeal"
+  >("unknown");
+  const [latestAppeal, setLatestAppeal] = useState<Appeal | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [reminding, setReminding] = useState(false);
   const [remindMessage, setRemindMessage] = useState<string | null>(null);
-  
+
   // Use useRef to store the interval ID so we can clear it
   const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  async function refreshTokenIfNeeded() {
+    const savedToken = sessionStorage.getItem("kc_token");
+    const refreshToken = sessionStorage.getItem("kc_refresh_token");
+
+    if (!savedToken) return null;
+
+    try {
+      const tokenData = JSON.parse(atob(savedToken.split(".")[1]));
+      const expiresAt = tokenData.exp * 1000;
+      const now = Date.now();
+
+      // If token expires within 60 seconds, refresh it
+      if (expiresAt - now < 60000) {
+        if (refreshToken) {
+          const refreshRes = await fetch("/api/v2/keycloak/refresh", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ refresh_token: refreshToken }),
+          });
+
+          if (refreshRes.ok) {
+            const newTokens = await refreshRes.json();
+            sessionStorage.setItem("kc_token", newTokens.access_token);
+
+            if (newTokens.refresh_token) {
+              sessionStorage.setItem(
+                "kc_refresh_token",
+                newTokens.refresh_token,
+              );
+            }
+
+            // Set ID token for post logout
+            if (newTokens.id_token) {
+              sessionStorage.setItem("kc_id_token", newTokens.id_token);
+            }
+
+            window.dispatchEvent(new Event("tokensUpdated"));
+            return newTokens.access_token;
+          }
+          sessionStorage.removeItem("kc_token");
+          sessionStorage.removeItem("kc_refresh_token");
+          return null;
+        }
+        sessionStorage.removeItem("kc_token");
+        return null;
+      }
+
+      return savedToken;
+    } catch {
+      sessionStorage.removeItem("kc_token");
+      sessionStorage.removeItem("kc_refresh_token");
+      return null;
+    }
+  }
+
+  async function getAuthHeaders() {
+    const validToken = await refreshTokenIfNeeded();
+
+    if (!validToken) {
+      throw new Error("No valid token available");
+    }
+
+    return {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${validToken}`,
+    };
+  }
+
+  async function exchangeCodeForToken(code: string) {
+    try {
+      const res = await fetch("/api/v2/keycloak/token", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code }),
+      });
+      const data = await res.json();
+      if (data.access_token) {
+        // Store both tokens
+        sessionStorage.setItem("kc_token", data.access_token);
+        if (data.refresh_token) {
+          sessionStorage.setItem("kc_refresh_token", data.refresh_token);
+        }
+        setToken(data.access_token);
+
+        if (data.id_token) {
+          sessionStorage.setItem("kc_id_token", data.id_token);
+        }
+
+        // Dispatch event for ProfileButton
+        window.dispatchEvent(new Event("tokensUpdated"));
+
+        // Clean up the URL by removing the query parameters
+        window.history.replaceState(
+          {},
+          document.title,
+          window.location.pathname,
+        );
+      }
+    } catch {
+      // Token exchange failed - loading will still be set to false
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function canReappeal(appeal: Appeal | null): boolean {
+    if (!appeal || appeal.status !== "DENIED" || !appeal.decided_at)
+      return false;
+
+    const decidedAt = new Date(appeal.decided_at);
+
+    // 30 seconds for development
+    if (process.env.NODE_ENV === "development") {
+      const thirtySecondsAgo = new Date();
+      thirtySecondsAgo.setSeconds(thirtySecondsAgo.getSeconds() - 30);
+      return decidedAt <= thirtySecondsAgo;
+    }
+
+    // 3 months for production
+    const threeMonthsAgo = new Date();
+    threeMonthsAgo.setDate(threeMonthsAgo.getDate() - 90);
+    return decidedAt <= threeMonthsAgo;
+  }
+
+  function canShowReminder(appeal: Appeal | null): boolean {
+    if (!appeal || appeal.status !== "RECEIVED") return false;
+
+    const createdAt = new Date(appeal.created_at);
+
+    // 30 seconds for development
+    if (process.env.NODE_ENV === "development") {
+      const thirtySecondsAgo = new Date();
+      thirtySecondsAgo.setSeconds(thirtySecondsAgo.getSeconds() - 30);
+      return createdAt <= thirtySecondsAgo;
+    }
+
+    // 48 hours for production
+    const fortyEightHoursAgo = new Date();
+    fortyEightHoursAgo.setHours(fortyEightHoursAgo.getHours() - 48);
+    return createdAt <= fortyEightHoursAgo;
+  }
+
+  async function checkBan() {
+    try {
+      // Check ban status (no Discord ID needed - comes from token)
+      const banRes = await fetch("/api/v2/users/banned", {
+        headers: await getAuthHeaders(),
+      });
+
+      if (!banRes.ok) {
+        throw new Error("Failed to check ban status");
+      }
+
+      const currentBanStatus = await banRes.json();
+
+      if (!currentBanStatus.banned) {
+        setBanStatus("not_banned");
+
+        // Even if not banned, check for appeal history
+        const appealsRes = await fetch("/api/v2/appeals/latest", {
+          headers: await getAuthHeaders(),
+        });
+
+        if (appealsRes.ok) {
+          const appeal = await appealsRes.json();
+          setLatestAppeal(appeal);
+        }
+
+        setLoading(false);
+        return;
+      }
+
+      // If banned, check for existing appeals
+      const appealsRes = await fetch("/api/v2/appeals/latest", {
+        headers: await getAuthHeaders(),
+      });
+
+      if (appealsRes.ok) {
+        const appeal = await appealsRes.json();
+        setLatestAppeal(appeal);
+
+        // Check if this appeal is for the current ban
+        if (appeal.status === "ACCEPTED") {
+          // Previous appeal was accepted, they can make a new appeal for current ban
+          setBanStatus("can_appeal");
+        } else if (appeal.status === "DENIED") {
+          // Check if enough time has passed to reappeal
+          if (canReappeal(appeal)) {
+            setBanStatus("can_reappeal"); // Show reappeal UI with previous appeal info
+          } else {
+            setBanStatus("has_appeal"); // Show denial message and waiting period
+          }
+        } else {
+          // Appeal is still pending (RECEIVED status)
+          setBanStatus("has_appeal");
+        }
+      } else if (appealsRes.status === 404) {
+        setBanStatus("can_appeal");
+      } else {
+        setBanStatus("unknown");
+      }
+    } catch {
+      setBanStatus("unknown");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function submitAppeal(data: {
+    reason: string;
+    solution: string;
+    future: string;
+    extra?: string;
+  }) {
+    setSubmitting(true);
+    try {
+      const headers = await getAuthHeaders();
+
+      const res = await fetch("/api/v2/appeals/create", {
+        method: "POST",
+        headers,
+        body: JSON.stringify(data),
+      });
+
+      if (res.ok) {
+        setMessage("Your appeal has been submitted.");
+        setBanStatus("has_appeal");
+        // Refresh to get the new appeal
+        checkBan();
+        setTimeout(() => setMessage(null), 3000);
+      } else {
+        const errorData = await res.json();
+        setMessage(
+          `Failed to submit appeal: ${errorData.error || "Unknown error"}`,
+        );
+      }
+    } catch (e) {
+      if (e instanceof Error && e.message === "No valid token available") {
+        setMessage(
+          "Session expired. Please refresh the page and log in again.",
+        );
+      } else {
+        setMessage("Error submitting appeal.");
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function sendReminder() {
+    setReminding(true);
+    setRemindMessage(null);
+
+    try {
+      const res = await fetch("/api/v2/appeals/remind", {
+        method: "POST",
+        headers: await getAuthHeaders(),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setRemindMessage(data.message);
+        // Refresh the appeal data to get updated reminded_at
+        checkBan();
+      } else {
+        setRemindMessage(data.error);
+      }
+    } catch {
+      setRemindMessage("Failed to send reminder");
+    } finally {
+      setReminding(false);
+    }
+  }
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "ACCEPTED":
+        return <span className="badge bg-success fs-6">Accepted</span>;
+      case "DENIED":
+        return <span className="badge bg-danger fs-6">Denied</span>;
+      case "RECEIVED":
+        return (
+          <span className="badge bg-warning text-dark fs-6">Under Review</span>
+        );
+      default:
+        return <span className="badge bg-secondary fs-6">{status}</span>;
+    }
+  };
 
   // Check if we already have a token in session storage, also handle refreshing tokens.
   useEffect(() => {
@@ -35,8 +339,9 @@ const AppealPage: React.FC = () => {
         }
       }
     };
-    
+
     checkToken();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Set up background token refresh when we have a token
@@ -49,29 +354,26 @@ const AppealPage: React.FC = () => {
 
       // Set up new interval to refresh every 30 seconds
       refreshIntervalRef.current = setInterval(async () => {
-        console.log('Background token refresh check...');
         const refreshedToken = await refreshTokenIfNeeded();
         if (refreshedToken && refreshedToken !== token) {
-          console.log('Token refreshed in background');
           setToken(refreshedToken);
         } else if (!refreshedToken) {
-          console.log('Background refresh failed, clearing token');
           setToken(null);
-          clearInterval(refreshIntervalRef.current!);
+          if (refreshIntervalRef.current) {
+            clearInterval(refreshIntervalRef.current);
+          }
         }
       }, 30000); // 30 seconds
-
-      console.log('Background token refresh started (every 30 seconds)');
     }
 
     // Cleanup function
     return () => {
       if (refreshIntervalRef.current) {
-        console.log('Clearing background token refresh');
         clearInterval(refreshIntervalRef.current);
         refreshIntervalRef.current = null;
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   // Fetch ban status when we have a token
@@ -79,307 +381,31 @@ const AppealPage: React.FC = () => {
     if (token) {
       checkBan();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
-
-  async function exchangeCodeForToken(code: string) {
-    try {
-      const res = await fetch('/api/v2/keycloak/token', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code })
-      });
-      const data = await res.json();
-      if (data.access_token) {
-        // Store both tokens
-        sessionStorage.setItem("kc_token", data.access_token);
-        if (data.refresh_token) {
-          sessionStorage.setItem("kc_refresh_token", data.refresh_token);
-        }
-        setToken(data.access_token);
-
-        if (data.id_token) {
-          sessionStorage.setItem("kc_id_token", data.id_token);
-        }
-
-        // Dispatch event for ProfileButton
-        window.dispatchEvent(new Event('tokensUpdated'));
-        
-        // Clean up the URL by removing the query parameters
-        window.history.replaceState({}, document.title, window.location.pathname);
-      }
-    } catch (e) {
-      console.error("Token exchange failed", e);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  function canReappeal(appeal: any): boolean {
-    if (!appeal || appeal.status !== 'DENIED') return false;
-    
-    const decidedAt = new Date(appeal.decided_at);
-
-    // 30 seconds for development
-    if (process.env.NODE_ENV === 'development') {
-      const thirtySecondsAgo = new Date();
-      thirtySecondsAgo.setSeconds(thirtySecondsAgo.getSeconds() - 30);
-      return decidedAt <= thirtySecondsAgo;
-    }
-
-    // 3 months for production
-    const threeMonthsAgo = new Date();
-    threeMonthsAgo.setDate(threeMonthsAgo.getDate() - 90);
-    return decidedAt <= threeMonthsAgo;
-  }
-
-  function canShowReminder(appeal: any): boolean {
-    if (!appeal || appeal.status !== 'RECEIVED') return false;
-    
-    const createdAt = new Date(appeal.created_at);
-
-    // 30 seconds for development
-    if (process.env.NODE_ENV === 'development') {
-      const thirtySecondsAgo = new Date();
-      thirtySecondsAgo.setSeconds(thirtySecondsAgo.getSeconds() - 30);
-      return createdAt <= thirtySecondsAgo;
-    }
-
-    // 48 hours for production
-    const fortyEightHoursAgo = new Date();
-    fortyEightHoursAgo.setHours(fortyEightHoursAgo.getHours() - 48);
-    return createdAt <= fortyEightHoursAgo;
-  }
-
-  async function checkBan() {
-    try {
-      // Check ban status (no Discord ID needed - comes from token)
-      const banRes = await fetch('/api/v2/users/banned', {
-        headers: await getAuthHeaders()
-      });
-      
-      if (!banRes.ok) {
-        throw new Error('Failed to check ban status');
-      }
-      
-      const banStatus = await banRes.json();
-      console.log('Ban status:', banStatus);
-      
-      if (!banStatus.banned) {
-        setBanStatus("not_banned");
-        
-        // Even if not banned, check for appeal history
-        const appealsRes = await fetch('/api/v2/appeals/latest', {
-          headers: await getAuthHeaders()
-        });
-        
-        if (appealsRes.ok) {
-          const appeal = await appealsRes.json();
-          console.log('Appeal history found:', appeal);
-          setLatestAppeal(appeal);
-        }
-        
-        setLoading(false);
-        return;
-      }
-      
-      // If banned, check for existing appeals
-      const appealsRes = await fetch('/api/v2/appeals/latest', {
-        headers: await getAuthHeaders()
-      });
-      
-      if (appealsRes.ok) {
-        const appeal = await appealsRes.json();
-        console.log('Existing appeal:', appeal);
-        setLatestAppeal(appeal);
-        
-        // Check if this appeal is for the current ban
-        if (appeal.status === 'ACCEPTED') {
-          // Previous appeal was accepted, they can make a new appeal for current ban
-          setBanStatus("can_appeal");
-        } else if (appeal.status === 'DENIED') {
-          // Check if enough time has passed to reappeal
-          if (canReappeal(appeal)) {
-            setBanStatus("can_reappeal"); // Show reappeal UI with previous appeal info
-          } else {
-            setBanStatus("has_appeal"); // Show denial message and waiting period
-          }
-        } else {
-          // Appeal is still pending (RECEIVED status)
-          setBanStatus("has_appeal");
-        }
-      } else if (appealsRes.status === 404) {
-        console.log('No appeals found - user can create one');
-        setBanStatus("can_appeal");
-      } else {
-        setBanStatus("unknown");
-      }
-    } catch (e) {
-      console.error(e);
-      setBanStatus("unknown");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function submitAppeal(data: any) {
-    setSubmitting(true);
-    try {
-      const headers = await getAuthHeaders();
-
-      const res = await fetch('/api/v2/appeals/create', {
-        method: "POST",
-        headers: headers,
-        body: JSON.stringify(data),
-      });
-      
-      if (res.ok) {
-        setMessage("Your appeal has been submitted.");
-        setBanStatus("has_appeal");
-        // Refresh to get the new appeal
-        checkBan();
-        setTimeout(() => setMessage(null), 3000);
-      } else {
-        const errorData = await res.json();
-        setMessage(`Failed to submit appeal: ${errorData.error || 'Unknown error'}`);
-      }
-    } catch (e) {
-      console.error(e);
-      if (e instanceof Error && e.message === 'No valid token available') {
-        setMessage("Session expired. Please refresh the page and log in again.");
-      } else {
-        setMessage("Error submitting appeal.");
-      }
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  async function refreshTokenIfNeeded() {
-    const savedToken = sessionStorage.getItem("kc_token");
-    const refreshToken = sessionStorage.getItem("kc_refresh_token");
-    
-    if (!savedToken) return null;
-
-    try {
-      const tokenData = JSON.parse(atob(savedToken.split('.')[1]));
-      const expiresAt = tokenData.exp * 1000;
-      const now = Date.now();
-      
-      // If token expires within 60 seconds, refresh it
-      if (expiresAt - now < 60000) {
-        if (refreshToken) {
-          console.log('Refreshing token...');
-          
-          const refreshRes = await fetch('/api/v2/keycloak/refresh', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ refresh_token: refreshToken })
-          });
-          
-          if (refreshRes.ok) {
-            const newTokens = await refreshRes.json();
-            sessionStorage.setItem("kc_token", newTokens.access_token);
-
-            if (newTokens.refresh_token) {
-              sessionStorage.setItem("kc_refresh_token", newTokens.refresh_token);
-            }
-
-            // Set ID token for post logout
-            if (newTokens.id_token) {
-              sessionStorage.setItem("kc_id_token", newTokens.id_token);
-            }
-
-            window.dispatchEvent(new Event('tokensUpdated'));
-            console.log('Token refreshed successfully');
-            return newTokens.access_token;
-          } else {
-            console.log('Token refresh failed, clearing session');
-            sessionStorage.removeItem("kc_token");
-            sessionStorage.removeItem("kc_refresh_token");
-            return null;
-          }
-        } else {
-          console.log('No refresh token available, clearing session');
-          sessionStorage.removeItem("kc_token");
-          return null;
-        }
-      }
-      
-      return savedToken;
-    } catch (e) {
-      console.error('Token validation failed:', e);
-      sessionStorage.removeItem("kc_token");
-      sessionStorage.removeItem("kc_refresh_token");
-      return null;
-    }
-  }
-
-  async function getAuthHeaders() {
-    const validToken = await refreshTokenIfNeeded();
-    
-    if (!validToken) {
-      throw new Error('No valid token available');
-    }
-    
-    return {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${validToken}`
-    };
-  }
-
-  async function sendReminder() {
-    setReminding(true);
-    setRemindMessage(null);
-    
-    try {
-      const res = await fetch('/api/v2/appeals/remind', {
-        method: 'POST',
-        headers: await getAuthHeaders(),
-      });
-      
-      const data = await res.json();
-      
-      if (res.ok) {
-        setRemindMessage(data.message);
-        // Refresh the appeal data to get updated reminded_at
-        checkBan();
-      } else {
-        setRemindMessage(data.error);
-      }
-    } catch (e) {
-      console.error(e);
-      setRemindMessage('Failed to send reminder');
-    } finally {
-      setReminding(false);
-    }
-  }
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'ACCEPTED':
-        return <span className="badge bg-success fs-6">Accepted</span>;
-      case 'DENIED':
-        return <span className="badge bg-danger fs-6">Denied</span>;
-      case 'RECEIVED':
-        return <span className="badge bg-warning text-dark fs-6">Under Review</span>;
-      default:
-        return <span className="badge bg-secondary fs-6">{status}</span>;
-    }
-  };
 
   if (loading) {
     return (
       <>
         <Header />
         <main>
-          <section className="d-flex align-items-center" style={{ minHeight: '60vh' }}>
+          <section
+            className="d-flex align-items-center"
+            style={{ minHeight: "60vh" }}
+          >
             <div className="container">
               <div className="row justify-content-center">
                 <div className="col-md-6 text-center">
-                  <div className="spinner-border text-primary" role="status" style={{ width: '3rem', height: '3rem' }}>
+                  <div
+                    className="spinner-border text-primary"
+                    role="status"
+                    style={{ width: "3rem", height: "3rem" }}
+                  >
                     <span className="visually-hidden">Loading...</span>
                   </div>
-                  <p className="mt-3 text-muted">Loading your appeal status...</p>
+                  <p className="mt-3 text-muted">
+                    Loading your appeal status...
+                  </p>
                 </div>
               </div>
             </div>
@@ -395,7 +421,10 @@ const AppealPage: React.FC = () => {
       <Header />
       <main>
         {!token && (
-          <section className="py-5" style={{ minHeight: '80vh', display: 'flex', alignItems: 'center' }}>
+          <section
+            className="py-5"
+            style={{ minHeight: "80vh", display: "flex", alignItems: "center" }}
+          >
             <div className="container position-relative">
               <div className="row justify-content-center">
                 <div className="col-xl-7 col-lg-9 text-center">
@@ -406,8 +435,8 @@ const AppealPage: React.FC = () => {
                         At TripSit, we believe in second chances.
                       </p>
                       <p className="card-text">
-                        If you feel you've grown and addressed the issues
-                        that resulted in your ban, we're open to
+                        If you feel you&apos;ve grown and addressed the issues
+                        that resulted in your ban, we&apos;re open to
                         reconsidering.
                       </p>
                       <p className="card-text">
@@ -417,8 +446,8 @@ const AppealPage: React.FC = () => {
                       <p className="card-text">
                         For a majority of people: Go ahead and make a new
                         TripSit account below by logging in with your Discord
-                        account. If you already have a TripSit account and
-                        need to link to Discord, just log in with Discord.
+                        account. If you already have a TripSit account and need
+                        to link to Discord, just log in with Discord.
                       </p>
                       <p className="card-text">
                         Remember to revisit this page to check the status of
@@ -430,16 +459,16 @@ const AppealPage: React.FC = () => {
               </div>
               <div className="text-center mt-4">
                 <a href={getLoginUrl()} className="btn-get-started-wrapper">
-                  <Button 
-                    color="primary" 
+                  <Button
+                    color="primary"
                     size="lg"
                     className="btn-get-started scrollto"
-                    style={{ 
-                      borderRadius: '50px',
-                      padding: '12px 30px',
-                      fontSize: '16px',
-                      fontWeight: '600',
-                      textTransform: 'none'
+                    style={{
+                      borderRadius: "50px",
+                      padding: "12px 30px",
+                      fontSize: "16px",
+                      fontWeight: "600",
+                      textTransform: "none",
                     }}
                   >
                     Login with Discord
@@ -451,14 +480,16 @@ const AppealPage: React.FC = () => {
         )}
 
         {token && banStatus === "can_appeal" && (
-          <section className="py-5" style={{ marginTop: '80px' }}>
+          <section className="py-5" style={{ marginTop: "80px" }}>
             <div className="container">
               <div className="row justify-content-center">
                 <div className="col-lg-8">
                   <div className="text-center mb-5">
                     <h1 className="display-6">Submit Ban Appeal</h1>
                     <p className="lead text-muted">
-                      Please answer all questions honestly and thoroughly. This information helps our moderators understand your situation.
+                      Please answer all questions honestly and thoroughly. This
+                      information helps our moderators understand your
+                      situation.
                     </p>
                   </div>
                   <AppealForm onSubmit={submitAppeal} submitting={submitting} />
@@ -469,44 +500,58 @@ const AppealPage: React.FC = () => {
         )}
 
         {token && banStatus === "can_reappeal" && (
-          <section className="py-5" style={{ marginTop: '80px' }}>
+          <section className="py-5" style={{ marginTop: "80px" }}>
             <div className="container">
               <div className="row justify-content-center">
                 <div className="col-lg-8">
                   <div className="text-center mb-5">
                     <h1 className="display-6">Submit New Ban Appeal</h1>
                     <p className="lead text-muted">
-                      You can submit a new appeal since enough time has passed since your previous denial.
+                      You can submit a new appeal since enough time has passed
+                      since your previous denial.
                     </p>
                   </div>
-                  
+
                   {/* Show previous appeal information */}
                   <div className="card mb-4 border-warning">
                     <div className="card-header bg-warning bg-opacity-10">
                       <h5 className="card-title mb-0">
-                        <i className="bi bi-clock-history me-2"></i>Previous Appeal
+                        <i className="bi bi-clock-history me-2"></i>Previous
+                        Appeal
                       </h5>
                     </div>
                     <div className="card-body">
                       <div className="row">
                         <div className="col-md-4">
-                          <strong>Status:</strong> {getStatusBadge(latestAppeal?.status)}
+                          <strong>Status:</strong>{" "}
+                          {getStatusBadge(latestAppeal?.status)}
                         </div>
                         <div className="col-md-4">
-                          <strong>Submitted:</strong><br />
-                          <small className="text-muted">{new Date(latestAppeal?.created_at).toLocaleString()}</small>
+                          <strong>Submitted:</strong>
+                          <br />
+                          <small className="text-muted">
+                            {new Date(
+                              latestAppeal?.created_at,
+                            ).toLocaleString()}
+                          </small>
                         </div>
                         {latestAppeal?.decided_at && (
                           <div className="col-md-4">
-                            <strong>Decided:</strong><br />
-                            <small className="text-muted">{new Date(latestAppeal.decided_at).toLocaleString()}</small>
+                            <strong>Decided:</strong>
+                            <br />
+                            <small className="text-muted">
+                              {new Date(
+                                latestAppeal.decided_at,
+                              ).toLocaleString()}
+                            </small>
                           </div>
                         )}
                       </div>
                       {latestAppeal?.response_message && (
                         <div className="mt-3">
                           <div className="alert alert-danger" role="alert">
-                            <strong>Moderator Response:</strong><br />
+                            <strong>Moderator Response:</strong>
+                            <br />
                             {latestAppeal.response_message}
                           </div>
                         </div>
@@ -522,92 +567,133 @@ const AppealPage: React.FC = () => {
         )}
 
         {token && banStatus === "has_appeal" && (
-          <section className="py-5" style={{ marginTop: '80px' }}>
+          <section className="py-5" style={{ marginTop: "80px" }}>
             <div className="container">
               <div className="row justify-content-center">
                 <div className="col-lg-8">
                   <div className="text-center mb-5">
                     <h1 className="display-6">Your Appeal Status</h1>
                   </div>
-                  
+
                   <div className="card">
                     <div className="card-body">
                       <div className="row align-items-center">
                         <div className="col-md-8">
-                          <h5 className="card-title mb-3">Current Appeal Status</h5>
+                          <h5 className="card-title mb-3">
+                            Current Appeal Status
+                          </h5>
                           <p className="mb-2">
-                            <strong>Status:</strong> {getStatusBadge(latestAppeal?.status || 'RECEIVED')}
+                            <strong>Status:</strong>{" "}
+                            {getStatusBadge(latestAppeal?.status || "RECEIVED")}
                           </p>
                           <p className="text-muted mb-1">
                             <small>
-                              <strong>Submitted:</strong> {latestAppeal?.created_at ? new Date(latestAppeal.created_at).toLocaleString() : 'Unknown'}
+                              <strong>Submitted:</strong>{" "}
+                              {latestAppeal?.created_at
+                                ? new Date(
+                                    latestAppeal.created_at,
+                                  ).toLocaleString()
+                                : "Unknown"}
                             </small>
                           </p>
-                          
-                          {latestAppeal?.status === 'RECEIVED' && (
+
+                          {latestAppeal?.status === "RECEIVED" && (
                             <p className="text-muted mb-1">
                               <small>
-                                <strong>Reminder available:</strong> {
-                                  (() => {
-                                    const baseTime = latestAppeal.reminded_at 
-                                      ? new Date(latestAppeal.reminded_at)
-                                      : new Date(latestAppeal.created_at);
-                                    
-                                    const reminderTime = new Date(baseTime);
-                                    reminderTime.setHours(reminderTime.getHours() + (process.env.NODE_ENV === 'development' ? 0 : 48));
-                                    reminderTime.setSeconds(reminderTime.getSeconds() + (process.env.NODE_ENV === 'development' ? 30 : 0));
-                                    return reminderTime.toLocaleString();
-                                  })()
-                                }
+                                <strong>Reminder available:</strong>{" "}
+                                {(() => {
+                                  const baseTime = latestAppeal.reminded_at
+                                    ? new Date(latestAppeal.reminded_at)
+                                    : new Date(latestAppeal.created_at);
+
+                                  const reminderTime = new Date(baseTime);
+                                  reminderTime.setHours(
+                                    reminderTime.getHours() +
+                                      (process.env.NODE_ENV === "development"
+                                        ? 0
+                                        : 48),
+                                  );
+                                  reminderTime.setSeconds(
+                                    reminderTime.getSeconds() +
+                                      (process.env.NODE_ENV === "development"
+                                        ? 30
+                                        : 0),
+                                  );
+                                  return reminderTime.toLocaleString();
+                                })()}
                               </small>
                             </p>
                           )}
-                          
+
                           {latestAppeal?.reminded_at && (
                             <p className="text-muted mb-0">
                               <small>
-                                <strong>Last reminder:</strong> {new Date(latestAppeal.reminded_at).toLocaleString()}
+                                <strong>Last reminder:</strong>{" "}
+                                {new Date(
+                                  latestAppeal.reminded_at,
+                                ).toLocaleString()}
                               </small>
                             </p>
                           )}
                         </div>
                         <div className="col-md-4 text-md-end">
-                          {latestAppeal?.status === 'RECEIVED' && (
-                            <button 
-                              onClick={sendReminder} 
-                              disabled={reminding || !canShowReminder(latestAppeal)}
-                              className={`btn ${canShowReminder(latestAppeal) ? 'btn-outline-primary' : 'btn-outline-secondary'}`}
-                            >
-                              {reminding ? (
-                                <>
-                                  <span className="spinner-border spinner-border-sm me-2" role="status"></span>
-                                  Sending...
-                                </>
-                              ) : canShowReminder(latestAppeal) ? (
-                                <>
-                                  <i className="bi bi-bell me-2"></i>
-                                  Send Reminder
-                                </>
-                              ) : (
-                                <>
-                                  <i className="bi bi-clock me-2"></i>
-                                  Come back in 48 hours
-                                </>
-                              )}
-                            </button>
-                          )}
+                          {latestAppeal?.status === "RECEIVED" &&
+                            (() => {
+                              const canRemind = canShowReminder(latestAppeal);
+                              const buttonClass = `btn ${canRemind ? "btn-outline-primary" : "btn-outline-secondary"}`;
+
+                              let buttonContent;
+                              if (reminding) {
+                                buttonContent = (
+                                  <>
+                                    <span
+                                      className="spinner-border spinner-border-sm me-2"
+                                      role="status"
+                                    ></span>
+                                    Sending...
+                                  </>
+                                );
+                              } else if (canRemind) {
+                                buttonContent = (
+                                  <>
+                                    <i className="bi bi-bell me-2"></i>
+                                    Send Reminder
+                                  </>
+                                );
+                              } else {
+                                buttonContent = (
+                                  <>
+                                    <i className="bi bi-clock me-2"></i>
+                                    Come back in 48 hours
+                                  </>
+                                );
+                              }
+
+                              return (
+                                <button
+                                  onClick={sendReminder}
+                                  disabled={reminding || !canRemind}
+                                  className={buttonClass}
+                                >
+                                  {buttonContent}
+                                </button>
+                              );
+                            })()}
                         </div>
                       </div>
 
-                      {(latestAppeal?.reason || latestAppeal?.solution || latestAppeal?.future || latestAppeal?.extra) && (
+                      {(latestAppeal?.reason ||
+                        latestAppeal?.solution ||
+                        latestAppeal?.future ||
+                        latestAppeal?.extra) && (
                         <div className="mt-4">
                           <div className="d-grid">
-                            <button 
-                              className="btn btn-outline-info" 
-                              type="button" 
-                              data-bs-toggle="collapse" 
-                              data-bs-target="#appealContent" 
-                              aria-expanded="false" 
+                            <button
+                              className="btn btn-outline-info"
+                              type="button"
+                              data-bs-toggle="collapse"
+                              data-bs-target="#appealContent"
+                              aria-expanded="false"
                               aria-controls="appealContent"
                             >
                               <i className="bi bi-eye me-2"></i>
@@ -617,37 +703,46 @@ const AppealPage: React.FC = () => {
                           <div className="collapse mt-3" id="appealContent">
                             <div className="card card-body bg-light">
                               <h6 className="mb-3">Your Submitted Appeal</h6>
-                              
+
                               {latestAppeal.reason && (
                                 <div className="mb-3">
-                                  <strong>Do you know why you were banned?</strong>
+                                  <strong>
+                                    Do you know why you were banned?
+                                  </strong>
                                   <div className="bg-white p-2 rounded mt-1 border">
                                     {latestAppeal.reason}
                                   </div>
                                 </div>
                               )}
-                              
+
                               {latestAppeal.solution && (
                                 <div className="mb-3">
-                                  <strong>Have you taken any steps to make amends?</strong>
+                                  <strong>
+                                    Have you taken any steps to make amends?
+                                  </strong>
                                   <div className="bg-white p-2 rounded mt-1 border">
                                     {latestAppeal.solution}
                                   </div>
                                 </div>
                               )}
-                              
+
                               {latestAppeal.future && (
                                 <div className="mb-3">
-                                  <strong>What will you do to avoid repeating the behavior?</strong>
+                                  <strong>
+                                    What will you do to avoid repeating the
+                                    behavior?
+                                  </strong>
                                   <div className="bg-white p-2 rounded mt-1 border">
                                     {latestAppeal.future}
                                   </div>
                                 </div>
                               )}
-                              
+
                               {latestAppeal.extra && (
                                 <div className="mb-0">
-                                  <strong>Anything else you'd like to add?</strong>
+                                  <strong>
+                                    Anything else you&apos;d like to add?
+                                  </strong>
                                   <div className="bg-white p-2 rounded mt-1 border">
                                     {latestAppeal.extra}
                                   </div>
@@ -658,32 +753,40 @@ const AppealPage: React.FC = () => {
                         </div>
                       )}
 
-                      {latestAppeal?.status === 'RECEIVED' && !canShowReminder(latestAppeal) && !latestAppeal?.reminded_at && (
-                        <div className="alert alert-info mt-3" role="alert">
-                          <i className="bi bi-info-circle me-2"></i>
-                          You can send a reminder 48 hours after submitting your appeal.
-                        </div>
-                      )}
+                      {latestAppeal?.status === "RECEIVED" &&
+                        !canShowReminder(latestAppeal) &&
+                        !latestAppeal?.reminded_at && (
+                          <div className="alert alert-info mt-3" role="alert">
+                            <i className="bi bi-info-circle me-2"></i>
+                            You can send a reminder 48 hours after submitting
+                            your appeal.
+                          </div>
+                        )}
 
                       {remindMessage && (
-                        <div className={`alert ${remindMessage.includes('sent') ? 'alert-success' : 'alert-danger'} mt-3`} role="alert">
+                        <div
+                          className={`alert ${remindMessage.includes("sent") ? "alert-success" : "alert-danger"} mt-3`}
+                          role="alert"
+                        >
                           {remindMessage}
                         </div>
                       )}
                     </div>
                   </div>
 
-                  {latestAppeal?.status === 'ACCEPTED' && (
+                  {latestAppeal?.status === "ACCEPTED" && (
                     <div className="card border-success mt-4">
                       <div className="card-header bg-success bg-opacity-10 border-success">
                         <h5 className="card-title text-success mb-0">
-                          <i className="bi bi-check-circle-fill me-2"></i>Appeal Accepted!
+                          <i className="bi bi-check-circle-fill me-2"></i>Appeal
+                          Accepted!
                         </h5>
                       </div>
                       <div className="card-body">
                         {latestAppeal?.response_message && (
                           <p className="mb-0">
-                            <strong>Moderator Response:</strong><br />
+                            <strong>Moderator Response:</strong>
+                            <br />
                             {latestAppeal.response_message}
                           </p>
                         )}
@@ -691,22 +794,27 @@ const AppealPage: React.FC = () => {
                     </div>
                   )}
 
-                  {latestAppeal?.status === 'DENIED' && (
+                  {latestAppeal?.status === "DENIED" && (
                     <div className="card border-danger mt-4">
                       <div className="card-header bg-danger bg-opacity-10 border-danger">
                         <h5 className="card-title text-danger mb-0">
-                          <i className="bi bi-x-circle-fill me-2"></i>Appeal Denied
+                          <i className="bi bi-x-circle-fill me-2"></i>Appeal
+                          Denied
                         </h5>
                       </div>
                       <div className="card-body">
                         {latestAppeal?.response_message && (
                           <p className="mb-3">
-                            <strong>Moderator Response:</strong><br />
+                            <strong>Moderator Response:</strong>
+                            <br />
                             {latestAppeal.response_message}
                           </p>
                         )}
                         <small className="text-muted">
-                          <em>You can submit a new appeal one month after this decision.</em>
+                          <em>
+                            You can submit a new appeal one month after this
+                            decision.
+                          </em>
                         </small>
                       </div>
                     </div>
@@ -718,7 +826,7 @@ const AppealPage: React.FC = () => {
         )}
 
         {token && banStatus === "not_banned" && (
-          <section className="py-5" style={{ marginTop: '80px' }}>
+          <section className="py-5" style={{ marginTop: "80px" }}>
             <div className="container">
               <div className="row justify-content-center">
                 <div className="col-lg-8">
@@ -731,52 +839,64 @@ const AppealPage: React.FC = () => {
                           You are not currently banned from the server.
                         </p>
                       </div>
-                      
+
                       <div className="card">
                         <div className="card-header">
-                          <h5 className="card-title mb-0">Your Latest Appeal</h5>
+                          <h5 className="card-title mb-0">
+                            Your Latest Appeal
+                          </h5>
                         </div>
                         <div className="card-body">
                           <p className="mb-3">
-                            <strong>Status:</strong> {getStatusBadge(latestAppeal.status)}
+                            <strong>Status:</strong>{" "}
+                            {getStatusBadge(latestAppeal.status)}
                           </p>
-                          
-                          {latestAppeal.status === 'ACCEPTED' && (
+
+                          {latestAppeal.status === "ACCEPTED" && (
                             <div className="alert alert-success" role="alert">
                               <h6 className="alert-heading">
-                                <i className="bi bi-check-circle-fill me-2"></i>Appeal Accepted!
+                                <i className="bi bi-check-circle-fill me-2"></i>
+                                Appeal Accepted!
                               </h6>
                               {latestAppeal.response_message && (
                                 <p className="mb-0">
-                                  <strong>Moderator Response:</strong> {latestAppeal.response_message}
+                                  <strong>Moderator Response:</strong>{" "}
+                                  {latestAppeal.response_message}
                                 </p>
                               )}
                             </div>
                           )}
 
-                          {latestAppeal.status === 'DENIED' && (
+                          {latestAppeal.status === "DENIED" && (
                             <div className="alert alert-warning" role="alert">
                               <h6 className="alert-heading">
-                                <i className="bi bi-exclamation-triangle-fill me-2"></i>Appeal was Denied
+                                <i className="bi bi-exclamation-triangle-fill me-2"></i>
+                                Appeal was Denied
                               </h6>
                               {latestAppeal.response_message && (
                                 <p className="mb-2">
-                                  <strong>Moderator Response:</strong> {latestAppeal.response_message}
+                                  <strong>Moderator Response:</strong>{" "}
+                                  {latestAppeal.response_message}
                                 </p>
                               )}
                               <small className="text-muted">
-                                <em>Note: Your ban may have been lifted separately from the appeal process.</em>
+                                <em>
+                                  Note: Your ban may have been lifted separately
+                                  from the appeal process.
+                                </em>
                               </small>
                             </div>
                           )}
 
-                          {latestAppeal.status === 'RECEIVED' && (
+                          {latestAppeal.status === "RECEIVED" && (
                             <div className="alert alert-info" role="alert">
                               <h6 className="alert-heading">
-                                <i className="bi bi-clock me-2"></i>Appeal Still Pending
+                                <i className="bi bi-clock me-2"></i>Appeal Still
+                                Pending
                               </h6>
                               <p className="mb-0">
-                                Your appeal is still being reviewed by moderators.
+                                Your appeal is still being reviewed by
+                                moderators.
                               </p>
                             </div>
                           )}
@@ -788,15 +908,19 @@ const AppealPage: React.FC = () => {
                       <div className="text-center mb-5">
                         <h1 className="display-6">Not Banned</h1>
                       </div>
-                      
+
                       <div className="card">
                         <div className="card-body text-center">
                           <div className="mb-4">
-                            <i className="bi bi-check-circle-fill text-success" style={{ fontSize: '3rem' }}></i>
+                            <i
+                              className="bi bi-check-circle-fill text-success"
+                              style={{ fontSize: "3rem" }}
+                            ></i>
                           </div>
-                          <h5 className="card-title">You're all good!</h5>
+                          <h5 className="card-title">You&apos;re all good!</h5>
                           <p className="card-text text-muted">
-                            You are not currently banned from the server. There's nothing to appeal!
+                            You are not currently banned from the server.
+                            There&apos;s nothing to appeal!
                           </p>
                         </div>
                       </div>
@@ -812,11 +936,23 @@ const AppealPage: React.FC = () => {
           <div className="container mt-4">
             <div className="row justify-content-center">
               <div className="col-lg-8">
-                <div className={`alert ${message.includes('submitted') || message.includes('success') ? 'alert-success' : 'alert-danger'} alert-dismissible fade show`} role="alert">
-                  {message.includes('submitted') && <i className="bi bi-check-circle-fill me-2"></i>}
-                  {message.includes('Failed') && <i className="bi bi-exclamation-triangle-fill me-2"></i>}
+                <div
+                  className={`alert ${message.includes("submitted") || message.includes("success") ? "alert-success" : "alert-danger"} alert-dismissible fade show`}
+                  role="alert"
+                >
+                  {message.includes("submitted") && (
+                    <i className="bi bi-check-circle-fill me-2"></i>
+                  )}
+                  {message.includes("Failed") && (
+                    <i className="bi bi-exclamation-triangle-fill me-2"></i>
+                  )}
                   {message}
-                  <button type="button" className="btn-close" aria-label="Close" onClick={() => setMessage(null)}></button>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    aria-label="Close"
+                    onClick={() => setMessage(null)}
+                  ></button>
                 </div>
               </div>
             </div>

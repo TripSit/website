@@ -1,18 +1,21 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Tooltip } from '@mui/material';
-import { getLoginUrl, getPostLogoutUrl } from '@/utils/keycloak';
+import React, { useState, useEffect, useRef } from "react";
+import { Tooltip } from "@mui/material";
+import { getLoginUrl, getPostLogoutUrl } from "@/utils/keycloak";
+
+const GUEST_AVATAR_PATH = "/assets/img/guest.png";
 
 const ProfileButton: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
-  const [avatarUrl, setAvatarUrl] = useState<string>('/assets/img/guest.png');
+  const [avatarUrl, setAvatarUrl] = useState<string>(GUEST_AVATAR_PATH);
   const [isLoadingAvatar, setIsLoadingAvatar] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Check if user is logged in by checking for tokens
   useEffect(() => {
     const checkLoginStatus = () => {
-      const token = localStorage.getItem('kc_token') || sessionStorage.getItem('kc_token');
+      const token =
+        localStorage.getItem("kc_token") || sessionStorage.getItem("kc_token");
       setIsLoggedIn(!!token);
     };
 
@@ -20,49 +23,50 @@ const ProfileButton: React.FC = () => {
     checkLoginStatus();
 
     // Listen for storage changes (localStorage only)
-    window.addEventListener('storage', checkLoginStatus);
-    
+    window.addEventListener("storage", checkLoginStatus);
+
     // Listen for focus events (when user returns from login)
-    window.addEventListener('focus', checkLoginStatus);
+    window.addEventListener("focus", checkLoginStatus);
 
     // Custom event listener for when tokens are set programmatically
-    window.addEventListener('tokensUpdated', checkLoginStatus);
+    window.addEventListener("tokensUpdated", checkLoginStatus);
 
     return () => {
-      window.removeEventListener('storage', checkLoginStatus);
-      window.removeEventListener('focus', checkLoginStatus);
-      window.removeEventListener('tokensUpdated', checkLoginStatus);
+      window.removeEventListener("storage", checkLoginStatus);
+      window.removeEventListener("focus", checkLoginStatus);
+      window.removeEventListener("tokensUpdated", checkLoginStatus);
     };
   }, []);
 
   // Fetch avatar when login status changes
   useEffect(() => {
     const fetchAvatar = async () => {
-      const token = localStorage.getItem('kc_token') || sessionStorage.getItem('kc_token');
+      const token =
+        localStorage.getItem("kc_token") || sessionStorage.getItem("kc_token");
       if (!token || !isLoggedIn) {
-        setAvatarUrl('/assets/img/guest.png');
+        setAvatarUrl(GUEST_AVATAR_PATH);
         return;
       }
 
       setIsLoadingAvatar(true);
       try {
-        const response = await fetch('/api/v2/users/avatar', {
+        const response = await fetch("/api/v2/users/avatar", {
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         });
 
         if (response.ok) {
           const data = await response.json();
           setAvatarUrl(data.avatarUrl);
         } else {
-          console.error('Failed to fetch avatar:', response.statusText);
-          setAvatarUrl('/assets/img/guest.png');
+          // Error fetching avatar, use default
+          setAvatarUrl(GUEST_AVATAR_PATH);
         }
-      } catch (error) {
-        console.error('Failed to fetch avatar:', error);
-        setAvatarUrl('/assets/img/guest.png');
+      } catch {
+        // Error fetching avatar, use default
+        setAvatarUrl(GUEST_AVATAR_PATH);
       } finally {
         setIsLoadingAvatar(false);
       }
@@ -71,20 +75,23 @@ const ProfileButton: React.FC = () => {
     if (isLoggedIn) {
       fetchAvatar();
     } else {
-      setAvatarUrl('/assets/img/guest.png');
+      setAvatarUrl(GUEST_AVATAR_PATH);
     }
   }, [isLoggedIn]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsDropdownOpen(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleLogin = () => {
@@ -93,21 +100,21 @@ const ProfileButton: React.FC = () => {
 
   const handleLogout = () => {
     // Clear tokens
-    localStorage.removeItem('kc_token');
-    localStorage.removeItem('kc_refresh_token');
-    sessionStorage.removeItem('kc_token');
-    sessionStorage.removeItem('kc_refresh_token');
-    
+    localStorage.removeItem("kc_token");
+    localStorage.removeItem("kc_refresh_token");
+    sessionStorage.removeItem("kc_token");
+    sessionStorage.removeItem("kc_refresh_token");
+
     // Reset avatar
-    setAvatarUrl('/assets/img/guest.png');
-    
+    setAvatarUrl(GUEST_AVATAR_PATH);
+
     // Update state
     setIsLoggedIn(false);
     setIsDropdownOpen(false);
-    
+
     // Notify other components about token changes
-    window.dispatchEvent(new Event('tokensUpdated'));
-    
+    window.dispatchEvent(new Event("tokensUpdated"));
+
     window.location.href = getPostLogoutUrl();
   };
 
@@ -121,20 +128,21 @@ const ProfileButton: React.FC = () => {
 
   return (
     <div className="profile-button-container" ref={dropdownRef}>
-      <Tooltip
-        title={isLoggedIn ? "Account" : "Login"}
-        placement="bottom"
-      >
+      <Tooltip title={isLoggedIn ? "Account" : "Login"} placement="bottom">
         <button
           className="profile-button"
           onClick={toggleDropdown}
           aria-label={isLoggedIn ? "Account menu" : "Login"}
-          style={!isLoadingAvatar ? {
-            backgroundImage: `url(${avatarUrl})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat'
-          } : {}}
+          style={
+            !isLoadingAvatar
+              ? {
+                  backgroundImage: `url(${avatarUrl})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  backgroundRepeat: "no-repeat",
+                }
+              : {}
+          }
         >
           {isLoadingAvatar && (
             <div className="loading-spinner">
@@ -146,10 +154,7 @@ const ProfileButton: React.FC = () => {
 
       {isLoggedIn && isDropdownOpen && (
         <div className="profile-dropdown">
-          <button
-            className="dropdown-item"
-            onClick={handleLogout}
-          >
+          <button className="dropdown-item" onClick={handleLogout}>
             <i className="bi bi-box-arrow-right"></i>
             Logout
           </button>
@@ -199,8 +204,12 @@ const ProfileButton: React.FC = () => {
         }
 
         @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
         }
 
         .profile-dropdown {

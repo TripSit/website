@@ -368,9 +368,7 @@ function Header() {
               </a>
             </li>
             <li>
-              <a href={`${domain}/appeal`}>
-                Ban Appeal
-              </a>
+              <a href={`${domain}/appeal`}>Ban Appeal</a>
             </li>
             <li>
               <a
@@ -386,7 +384,7 @@ function Header() {
               </a>
             </li>
             <li>
-              <div style={{ padding: '0 15px' }}>
+              <div style={{ padding: "0 15px" }}>
                 <ProfileButton />
               </div>
             </li>

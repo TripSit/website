@@ -4,7 +4,9 @@ import logo from "../../public/assets/img/logo.png";
 import ProfileButton from "./ProfileButton";
 
 function Header() {
-  const domain = process.env.NEXT_PUBLIC_DNS_DOMAIN ? `https://${process.env.NEXT_PUBLIC_DNS_DOMAIN}` : "tripsit.me";
+  const domain = process.env.NEXT_PUBLIC_DNS_DOMAIN
+    ? `https://${process.env.NEXT_PUBLIC_DNS_DOMAIN}`
+    : "tripsit.me";
   return (
     <header
       id="header"
@@ -40,21 +42,13 @@ function Header() {
                   </a>
                   <ul>
                     <li>
-                      <a
-                        href={`https://wiki.${domain}/wiki/Main_Page`}
-                      >
-                        Wiki
-                      </a>
+                      <a href={`https://wiki.${domain}/wiki/Main_Page`}>Wiki</a>
                     </li>
                     <li>
                       <a href={`${domain}/factsheets`}>Factsheets</a>
                     </li>
                     <li>
-                      <a
-                        href={`https://combo.${domain}`}
-                      >
-                        Comboapp
-                      </a>
+                      <a href={`https://combo.${domain}`}>Comboapp</a>
                     </li>
                     <li>
                       <a href={`${domain}#faq`}>Printing Information</a>
@@ -73,25 +67,13 @@ function Header() {
                   </a>
                   <ul>
                     <li>
-                      <a
-                        href={`https://dxm.${domain}`}
-                      >
-                        DXM Dosage
-                      </a>
+                      <a href={`https://dxm.${domain}`}>DXM Dosage</a>
                     </li>
                     <li>
-                      <a
-                        href={`https://volume.${domain}`}
-                      >
-                        Volumetric
-                      </a>
+                      <a href={`https://volume.${domain}`}>Volumetric</a>
                     </li>
                     <li>
-                      <a
-                        href={`https://benzos.${domain}`}
-                      >
-                        Benzo Conversion
-                      </a>
+                      <a href={`https://benzos.${domain}`}>Benzo Conversion</a>
                     </li>
                   </ul>
                 </li>
@@ -151,11 +133,7 @@ function Header() {
                   </ul>
                 </li>
                 <li>
-                  <a
-                    href={`https://learn.${domain}`}
-                  >
-                    Learning Platform
-                  </a>
+                  <a href={`https://learn.${domain}`}>Learning Platform</a>
                 </li>
                 <li>
                   <a href="https://play.google.com/store/apps/details?id=me.tripsit.mobile&hl=en_US&gl=US">
@@ -163,18 +141,14 @@ function Header() {
                   </a>
                 </li>
                 <li>
-                  <a
-                    href={`https://uptime.${domain}/status/default`}
-                  >
+                  <a href={`https://uptime.${domain}/status/default`}>
                     Service Status
                   </a>
                 </li>
               </ul>
             </li>
             <li className="dropdown">
-              <a
-                href={`https://wiki.${domain}/wiki/Category:Guides`}
-              >
+              <a href={`https://wiki.${domain}/wiki/Category:Guides`}>
                 <span>Guides</span> <i className="bi bi-chevron-down"></i>
               </a>
               <ul>
@@ -192,23 +166,15 @@ function Header() {
                       </a>
                     </li>
                     <li>
-                      <a
-                        href={`https://wiki.${domain}/wiki/Test_Kits`}
-                      >
+                      <a href={`https://wiki.${domain}/wiki/Test_Kits`}>
                         Test Kits
                       </a>
                     </li>
                     <li>
-                      <a
-                        href={`https://wiki.${domain}/wiki/Scales`}
-                      >
-                        Scales
-                      </a>
+                      <a href={`https://wiki.${domain}/wiki/Scales`}>Scales</a>
                     </li>
                     <li>
-                      <a
-                        href={`https://wiki.${domain}/wiki/Storage`}
-                      >
+                      <a href={`https://wiki.${domain}/wiki/Storage`}>
                         Storage
                       </a>
                     </li>
@@ -233,9 +199,7 @@ function Header() {
                       </a>
                     </li>
                     <li>
-                      <a
-                        href={`https://wiki.${domain}/wiki/Hallucinogens`}
-                      >
+                      <a href={`https://wiki.${domain}/wiki/Hallucinogens`}>
                         Hallucinogens
                       </a>
                     </li>
@@ -276,11 +240,7 @@ function Header() {
                       </a>
                     </li>
                     <li>
-                      <a
-                        href={`https://wiki.${domain}/wiki/HPPD`}
-                      >
-                        HPPD
-                      </a>
+                      <a href={`https://wiki.${domain}/wiki/HPPD`}>HPPD</a>
                     </li>
                     <li>
                       <a
@@ -290,9 +250,7 @@ function Header() {
                       </a>
                     </li>
                     <li>
-                      <a
-                        href={`https://wiki.${domain}/wiki/Addiction`}
-                      >
+                      <a href={`https://wiki.${domain}/wiki/Addiction`}>
                         Addiction
                       </a>
                     </li>
@@ -363,9 +321,7 @@ function Header() {
               <a href={`${domain}#faq`}>FAQ</a>
             </li>
             <li>
-              <a href={`https://updates.${domain}`}>
-                Updates
-              </a>
+              <a href={`https://updates.${domain}`}>Updates</a>
             </li>
             <li>
               <a href={`${domain}/appeal`}>Ban Appeal</a>

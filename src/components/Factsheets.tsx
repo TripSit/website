@@ -411,7 +411,7 @@ const Factsheets = () => {
         {InfoBar}
       </>
     ),
-    renderDetailPanel: ({ row }) => DrugInfoCard(row),
+    renderDetailPanel: ({ row }) => DrugInfoCard({ drugData: row.original }),
   });
 
   return <MaterialReactTable table={table} data-bs-theme="dark" />;

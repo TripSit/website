@@ -307,8 +307,9 @@ const AppealPage: React.FC = () => {
     }
   }
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
+  const getStatusBadge = (status?: string) => {
+    const s = status ?? "Unknown";
+    switch (s) {
       case "ACCEPTED":
         return <span className="badge bg-success fs-6">Accepted</span>;
       case "DENIED":
@@ -318,7 +319,7 @@ const AppealPage: React.FC = () => {
           <span className="badge bg-warning text-dark fs-6">Under Review</span>
         );
       default:
-        return <span className="badge bg-secondary fs-6">{status}</span>;
+        return <span className="badge bg-secondary fs-6">{s}</span>;
     }
   };
 
@@ -530,9 +531,9 @@ const AppealPage: React.FC = () => {
                           <strong>Submitted:</strong>
                           <br />
                           <small className="text-muted">
-                            {new Date(
-                              latestAppeal?.created_at,
-                            ).toLocaleString()}
+                            {latestAppeal?.created_at
+                              ? new Date(latestAppeal.created_at).toLocaleString()
+                              : "Unknown"}
                           </small>
                         </div>
                         {latestAppeal?.decided_at && (

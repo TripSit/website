@@ -4,7 +4,7 @@ import logo from "../../public/assets/img/logo.png";
 import ProfileButton from "./ProfileButton";
 
 function Header() {
-  const domain = `https://${process.env.NEXT_PUBLIC_DNS_DOMAIN}`;
+  const domain = process.env.NEXT_PUBLIC_DNS_DOMAIN ? `https://${process.env.NEXT_PUBLIC_DNS_DOMAIN}` : "tripsit.me";
   return (
     <header
       id="header"
@@ -41,7 +41,7 @@ function Header() {
                   <ul>
                     <li>
                       <a
-                        href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/Main_Page`}
+                        href={`https://wiki.${domain}/wiki/Main_Page`}
                       >
                         Wiki
                       </a>
@@ -51,7 +51,7 @@ function Header() {
                     </li>
                     <li>
                       <a
-                        href={`https://combo.${process.env.NEXT_PUBLIC_DNS_DOMAIN}`}
+                        href={`https://combo.${domain}`}
                       >
                         Comboapp
                       </a>
@@ -74,21 +74,21 @@ function Header() {
                   <ul>
                     <li>
                       <a
-                        href={`https://dxm.${process.env.NEXT_PUBLIC_DNS_DOMAIN}`}
+                        href={`https://dxm.${domain}`}
                       >
                         DXM Dosage
                       </a>
                     </li>
                     <li>
                       <a
-                        href={`https://volume.${process.env.NEXT_PUBLIC_DNS_DOMAIN}`}
+                        href={`https://volume.${domain}`}
                       >
                         Volumetric
                       </a>
                     </li>
                     <li>
                       <a
-                        href={`https://benzos.${process.env.NEXT_PUBLIC_DNS_DOMAIN}`}
+                        href={`https://benzos.${domain}`}
                       >
                         Benzo Conversion
                       </a>
@@ -152,7 +152,7 @@ function Header() {
                 </li>
                 <li>
                   <a
-                    href={`https://learn.${process.env.NEXT_PUBLIC_DNS_DOMAIN}`}
+                    href={`https://learn.${domain}`}
                   >
                     Learning Platform
                   </a>
@@ -164,7 +164,7 @@ function Header() {
                 </li>
                 <li>
                   <a
-                    href={`https://uptime.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/status/default`}
+                    href={`https://uptime.${domain}/status/default`}
                   >
                     Service Status
                   </a>
@@ -173,7 +173,7 @@ function Header() {
             </li>
             <li className="dropdown">
               <a
-                href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/Category:Guides`}
+                href={`https://wiki.${domain}/wiki/Category:Guides`}
               >
                 <span>Guides</span> <i className="bi bi-chevron-down"></i>
               </a>
@@ -186,35 +186,35 @@ function Header() {
                   <ul>
                     <li>
                       <a
-                        href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/Common_Misconceptions_About_Psychedelics`}
+                        href={`https://wiki.${domain}/wiki/Common_Misconceptions_About_Psychedelics`}
                       >
                         Psychedelic Myths
                       </a>
                     </li>
                     <li>
                       <a
-                        href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/Test_Kits`}
+                        href={`https://wiki.${domain}/wiki/Test_Kits`}
                       >
                         Test Kits
                       </a>
                     </li>
                     <li>
                       <a
-                        href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/Scales`}
+                        href={`https://wiki.${domain}/wiki/Scales`}
                       >
                         Scales
                       </a>
                     </li>
                     <li>
                       <a
-                        href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/Storage`}
+                        href={`https://wiki.${domain}/wiki/Storage`}
                       >
                         Storage
                       </a>
                     </li>
                     <li>
                       <a
-                        href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/Sources_for_Laboratory_Analysis`}
+                        href={`https://wiki.${domain}/wiki/Sources_for_Laboratory_Analysis`}
                       >
                         Laboratory Analysis
                       </a>
@@ -234,28 +234,28 @@ function Header() {
                     </li>
                     <li>
                       <a
-                        href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/Hallucinogens`}
+                        href={`https://wiki.${domain}/wiki/Hallucinogens`}
                       >
                         Hallucinogens
                       </a>
                     </li>
                     <li>
                       <a
-                        href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/How_To_Tripsit_In_Real_Life`}
+                        href={`https://wiki.${domain}/wiki/How_To_Tripsit_In_Real_Life`}
                       >
                         TripSit in real life
                       </a>
                     </li>
                     <li>
                       <a
-                        href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/How_To_Tripsit_Online`}
+                        href={`https://wiki.${domain}/wiki/How_To_Tripsit_Online`}
                       >
                         TripSit online
                       </a>
                     </li>
                     <li>
                       <a
-                        href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/How_To_Deal_With_A_Bad_Trip`}
+                        href={`https://wiki.${domain}/wiki/How_To_Deal_With_A_Bad_Trip`}
                       >
                         Deal with a bad trip
                       </a>
@@ -270,35 +270,35 @@ function Header() {
                   <ul>
                     <li>
                       <a
-                        href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/Quick_Guide_to_Stimulant_Comedowns`}
+                        href={`https://wiki.${domain}/wiki/Quick_Guide_to_Stimulant_Comedowns`}
                       >
                         Stimulant Comedowns
                       </a>
                     </li>
                     <li>
                       <a
-                        href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/HPPD`}
+                        href={`https://wiki.${domain}/wiki/HPPD`}
                       >
                         HPPD
                       </a>
                     </li>
                     <li>
                       <a
-                        href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/Guide_to_Withdrawals`}
+                        href={`https://wiki.${domain}/wiki/Guide_to_Withdrawals`}
                       >
                         Guide to Withdrawals
                       </a>
                     </li>
                     <li>
                       <a
-                        href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/Addiction`}
+                        href={`https://wiki.${domain}/wiki/Addiction`}
                       >
                         Addiction
                       </a>
                     </li>
                     <li>
                       <a
-                        href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/Professional_Help_Resources`}
+                        href={`https://wiki.${domain}/wiki/Professional_Help_Resources`}
                       >
                         Professional Help Resources
                       </a>
@@ -312,42 +312,42 @@ function Header() {
                   <ul>
                     <li>
                       <a
-                        href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/Quick_Guide_to_Volumetric_Dosing`}
+                        href={`https://wiki.${domain}/wiki/Quick_Guide_to_Volumetric_Dosing`}
                       >
                         Volumetric Dosing
                       </a>
                     </li>
                     <li>
                       <a
-                        href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/Quick_Guide_to_Plugging`}
+                        href={`https://wiki.${domain}/wiki/Quick_Guide_to_Plugging`}
                       >
                         Rectal Administration (Plugging)
                       </a>
                     </li>
                     <li>
                       <a
-                        href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/Reducing_Pain_Caused_by_Insufflation`}
+                        href={`https://wiki.${domain}/wiki/Reducing_Pain_Caused_by_Insufflation`}
                       >
                         Reducing Snorting Pain
                       </a>
                     </li>
                     <li>
                       <a
-                        href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/Cannabinoid_Eliquid`}
+                        href={`https://wiki.${domain}/wiki/Cannabinoid_Eliquid`}
                       >
                         Cannabinoid Eliquid
                       </a>
                     </li>
                     <li>
                       <a
-                        href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/Cold_Water_Extraction`}
+                        href={`https://wiki.${domain}/wiki/Cold_Water_Extraction`}
                       >
                         Cold Water Extraction
                       </a>
                     </li>
                     <li>
                       <a
-                        href={`https://wiki.${process.env.NEXT_PUBLIC_DNS_DOMAIN}/wiki/Zim%27s_Clarified_ATB_Hybrid_Salt_Tek`}
+                        href={`https://wiki.${domain}/wiki/Zim%27s_Clarified_ATB_Hybrid_Salt_Tek`}
                       >
                         Acid-to-base Reduction
                       </a>
@@ -363,7 +363,7 @@ function Header() {
               <a href={`${domain}#faq`}>FAQ</a>
             </li>
             <li>
-              <a href={`https://updates.${process.env.NEXT_PUBLIC_DNS_DOMAIN}`}>
+              <a href={`https://updates.${domain}`}>
                 Updates
               </a>
             </li>

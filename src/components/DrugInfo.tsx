@@ -651,7 +651,11 @@ const addDosages = (drugData: Drug) => {
   );
 };
 
-export default function DrugInfoCard({ drugData }: { drugData: Drug }): ReactNode {
+export default function DrugInfoCard({
+  drugData,
+}: {
+  drugData: Drug;
+}): ReactNode {
   // This function goes through all the optional data in the drug and creates a nice and fancy expandable row
 
   // This is the array that will hold all the elements that will be displayed in the expanded row
@@ -670,9 +674,7 @@ export default function DrugInfoCard({ drugData }: { drugData: Drug }): ReactNod
       if (importantProperties.includes(property)) {
         const propertyName = property.replace(/_/g, " ");
         const propertyValue =
-          drugData.properties[
-            property as keyof typeof drugData.properties
-          ];
+          drugData.properties[property as keyof typeof drugData.properties];
         elements.push(
           <Grid
             item
@@ -734,13 +736,7 @@ export default function DrugInfoCard({ drugData }: { drugData: Drug }): ReactNod
       )
       .join(", ");
     elements.push(
-      <Grid
-        item
-        xs={12}
-        sm={4}
-        md={4}
-        key={`${drugData.name} categories`}
-      >
+      <Grid item xs={12} sm={4} md={4} key={`${drugData.name} categories`}>
         <Card>
           <CardContent>
             <Typography variant="h5" style={{ color: "black" }}>
@@ -797,9 +793,7 @@ export default function DrugInfoCard({ drugData }: { drugData: Drug }): ReactNod
       }
       const propertyName = property.replace(/_/g, " ");
       const propertyValue =
-        drugData.properties[
-          property as keyof typeof drugData.properties
-        ];
+        drugData.properties[property as keyof typeof drugData.properties];
       if (propertyName === "experiences") {
         elements.push(
           <Grid item xs={12} sm={6} md={4} key={propertyName}>
@@ -1096,9 +1090,7 @@ export default function DrugInfoCard({ drugData }: { drugData: Drug }): ReactNod
             <Typography variant="h5" style={{ color: "black" }}>
               Effects
             </Typography>
-            <Typography>
-              {drugData.formatted_effects.join(", ")}
-            </Typography>
+            <Typography>{drugData.formatted_effects.join(", ")}</Typography>
           </CardContent>
         </Card>
       </Grid>,

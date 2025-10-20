@@ -5,7 +5,7 @@
 function getKeycloakConfig() {
   return {
     realm: "TripSit",
-    url: process.env.NEXT_PUBLIC_KEYCLOAK_URL || "auth.tripsit.me",
+    url: process.env.NEXT_PUBLIC_KEYCLOAK_URL || "https://auth.tripsit.me",
     clientId: process.env.NEXT_PUBLIC_KEYCLOAK_CLIENT_ID || "website",
     redirectUri:
       typeof window !== "undefined" ? `${window.location.origin}/appeal` : "",

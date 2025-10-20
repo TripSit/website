@@ -4,9 +4,7 @@ import logo from "../../public/assets/img/logo.png";
 import ProfileButton from "./ProfileButton";
 
 function Header() {
-  const domain = process.env.NEXT_PUBLIC_DNS_DOMAIN
-    ? `https://${process.env.NEXT_PUBLIC_DNS_DOMAIN}`
-    : "tripsit.me";
+  const domain = process.env.NEXT_PUBLIC_DNS_DOMAIN || "tripsit.me";
   return (
     <header
       id="header"
@@ -14,29 +12,32 @@ function Header() {
       data-bs-theme="dark"
     >
       <div className="container d-flex align-items-center justify-content-between">
-        <a href={domain} className="logo">
+        <a href={`https://${domain}`} className="logo">
           <Image src={logo} alt="" className="logoImage" />
         </a>
 
         <nav id="navbar" className="navbar navbar-expand-lg bg-dark">
           <ul>
             <li>
-              <a className="nav-link scrollto active" href={`${domain}#hero`}>
+              <a
+                className="nav-link scrollto active"
+                href={`https://${domain}#hero`}
+              >
                 Home
               </a>
             </li>
             <li>
-              <a className="nav-link scrollto" href={`${domain}#about`}>
+              <a className="nav-link scrollto" href={`https://${domain}#about`}>
                 About
               </a>
             </li>
             <li className="nav-link scrollto dropdown">
-              <a href={`${domain}#resources`}>
+              <a href={`https://${domain}#resources`}>
                 <span>Resources</span> <i className="bi bi-chevron-down"></i>
               </a>
               <ul>
                 <li className="dropdown">
-                  <a href={`${domain}#`}>
+                  <a href={`https://${domain}#`}>
                     <span>Drug Info</span>{" "}
                     <i className="bi bi-chevron-right"></i>
                   </a>
@@ -45,13 +46,13 @@ function Header() {
                       <a href={`https://wiki.${domain}/wiki/Main_Page`}>Wiki</a>
                     </li>
                     <li>
-                      <a href={`${domain}/factsheets`}>Factsheets</a>
+                      <a href={`https://${domain}/factsheets`}>Factsheets</a>
                     </li>
                     <li>
                       <a href={`https://combo.${domain}`}>Comboapp</a>
                     </li>
                     <li>
-                      <a href={`${domain}#faq`}>Printing Information</a>
+                      <a href={`https://${domain}#faq`}>Printing Information</a>
                     </li>
                     <li>
                       <a href="https://www.reddit.com/r/Drugs/comments/131q1yb/the_drug_users_bible_download_it_free_of_charge/">
@@ -61,7 +62,7 @@ function Header() {
                   </ul>
                 </li>
                 <li className="dropdown">
-                  <a href={`${domain}#`}>
+                  <a href={`https://${domain}#`}>
                     <span>Calculators</span>{" "}
                     <i className="bi bi-chevron-right"></i>
                   </a>
@@ -79,7 +80,7 @@ function Header() {
                 </li>
 
                 <li className="dropdown">
-                  <a href={`${domain}#`}>
+                  <a href={`https://${domain}#`}>
                     <span>Test Kits</span>{" "}
                     <i className="bi bi-chevron-right"></i>
                   </a>
@@ -153,7 +154,7 @@ function Header() {
               </a>
               <ul>
                 <li className="dropdown">
-                  <a href={`${domain}#`}>
+                  <a href={`https://${domain}#`}>
                     <span>Harm Reduction</span>{" "}
                     <i className="bi bi-chevron-right"></i>
                   </a>
@@ -188,7 +189,7 @@ function Header() {
                   </ul>
                 </li>
                 <li className="dropdown">
-                  <a href={`${domain}#`}>
+                  <a href={`https://${domain}#`}>
                     <span>TripSitting</span>{" "}
                     <i className="bi bi-chevron-right"></i>
                   </a>
@@ -227,7 +228,7 @@ function Header() {
                   </ul>
                 </li>
                 <li className="dropdown">
-                  <a href={`${domain}#`}>
+                  <a href={`https://${domain}#`}>
                     <span>Recovery</span>{" "}
                     <i className="bi bi-chevron-right"></i>
                   </a>
@@ -264,7 +265,7 @@ function Header() {
                   </ul>
                 </li>
                 <li className="dropdown">
-                  <a href={`${domain}#`}>
+                  <a href={`https://${domain}#`}>
                     <span>Dosing</span> <i className="bi bi-chevron-right"></i>
                   </a>
                   <ul>
@@ -315,16 +316,16 @@ function Header() {
               </ul>
             </li>
             <li>
-              <a href={`${domain}#cta`}>Volunteer</a>
+              <a href={`https://${domain}#cta`}>Volunteer</a>
             </li>
             <li>
-              <a href={`${domain}#faq`}>FAQ</a>
+              <a href={`https://${domain}#faq`}>FAQ</a>
             </li>
             <li>
               <a href={`https://updates.${domain}`}>Updates</a>
             </li>
             <li>
-              <a href={`${domain}/appeal`}>Ban Appeal</a>
+              <a href={`https://${domain}/appeal`}>Ban Appeal</a>
             </li>
             <li>
               <a
@@ -335,7 +336,10 @@ function Header() {
               </a>
             </li>
             <li>
-              <a className="joindiscord scrollto" href={`${domain}/webchat`}>
+              <a
+                className="joindiscord scrollto"
+                href={`https://${domain}/webchat`}
+              >
                 Start Webchat
               </a>
             </li>

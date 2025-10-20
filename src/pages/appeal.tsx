@@ -532,7 +532,9 @@ const AppealPage: React.FC = () => {
                           <br />
                           <small className="text-muted">
                             {latestAppeal?.created_at
-                              ? new Date(latestAppeal.created_at).toLocaleString()
+                              ? new Date(
+                                  latestAppeal.created_at,
+                                ).toLocaleString()
                               : "Unknown"}
                           </small>
                         </div>

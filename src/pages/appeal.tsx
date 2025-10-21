@@ -92,7 +92,7 @@ const AppealPage: React.FC = () => {
             }
           })();
 
-          return refreshPromiseRef.current;
+          return await refreshPromiseRef.current;
         }
         sessionStorage.removeItem("kc_token");
         return null;

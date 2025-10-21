@@ -31,8 +31,16 @@ const AppealPage: React.FC = () => {
 
   // Use useRef to store the interval ID so we can clear it
   const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  // Use ref to prevent concurrent token refreshes
+  const isRefreshingRef = useRef<boolean>(false);
+  const refreshPromiseRef = useRef<Promise<string | null> | null>(null);
 
   async function refreshTokenIfNeeded() {
+    // If already refreshing, wait for that promise to complete
+    if (isRefreshingRef.current && refreshPromiseRef.current) {
+      return refreshPromiseRef.current;
+    }
+
     const savedToken = sessionStorage.getItem("kc_token");
     const refreshToken = sessionStorage.getItem("kc_refresh_token");
 
@@ -46,34 +54,45 @@ const AppealPage: React.FC = () => {
       // If token expires within 60 seconds, refresh it
       if (expiresAt - now < 60000) {
         if (refreshToken) {
-          const refreshRes = await fetch("/api/v2/keycloak/refresh", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ refresh_token: refreshToken }),
-          });
+          // Set flag and create promise to prevent concurrent refreshes
+          isRefreshingRef.current = true;
+          refreshPromiseRef.current = (async () => {
+            try {
+              const refreshRes = await fetch("/api/v2/keycloak/refresh", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ refresh_token: refreshToken }),
+              });
 
-          if (refreshRes.ok) {
-            const newTokens = await refreshRes.json();
-            sessionStorage.setItem("kc_token", newTokens.access_token);
+              if (refreshRes.ok) {
+                const newTokens = await refreshRes.json();
+                sessionStorage.setItem("kc_token", newTokens.access_token);
 
-            if (newTokens.refresh_token) {
-              sessionStorage.setItem(
-                "kc_refresh_token",
-                newTokens.refresh_token,
-              );
+                if (newTokens.refresh_token) {
+                  sessionStorage.setItem(
+                    "kc_refresh_token",
+                    newTokens.refresh_token,
+                  );
+                }
+
+                // Set ID token for post logout
+                if (newTokens.id_token) {
+                  sessionStorage.setItem("kc_id_token", newTokens.id_token);
+                }
+
+                window.dispatchEvent(new Event("tokensUpdated"));
+                return newTokens.access_token;
+              }
+              sessionStorage.removeItem("kc_token");
+              sessionStorage.removeItem("kc_refresh_token");
+              return null;
+            } finally {
+              isRefreshingRef.current = false;
+              refreshPromiseRef.current = null;
             }
+          })();
 
-            // Set ID token for post logout
-            if (newTokens.id_token) {
-              sessionStorage.setItem("kc_id_token", newTokens.id_token);
-            }
-
-            window.dispatchEvent(new Event("tokensUpdated"));
-            return newTokens.access_token;
-          }
-          sessionStorage.removeItem("kc_token");
-          sessionStorage.removeItem("kc_refresh_token");
-          return null;
+          return refreshPromiseRef.current;
         }
         sessionStorage.removeItem("kc_token");
         return null;
@@ -176,9 +195,12 @@ const AppealPage: React.FC = () => {
 
   async function checkBan() {
     try {
+      // Get auth headers once and reuse them for all requests in this function
+      const headers = await getAuthHeaders();
+
       // Check ban status (no Discord ID needed - comes from token)
       const banRes = await fetch("/api/v2/users/banned", {
-        headers: await getAuthHeaders(),
+        headers,
       });
 
       if (!banRes.ok) {
@@ -187,32 +209,25 @@ const AppealPage: React.FC = () => {
 
       const currentBanStatus = await banRes.json();
 
+      // Check for appeal history (works for both banned and not banned users)
+      const appealsRes = await fetch("/api/v2/appeals/latest", {
+        headers,
+      });
+
+      let appeal = null;
+      if (appealsRes.ok) {
+        appeal = await appealsRes.json();
+        setLatestAppeal(appeal);
+      }
+
       if (!currentBanStatus.banned) {
         setBanStatus("not_banned");
-
-        // Even if not banned, check for appeal history
-        const appealsRes = await fetch("/api/v2/appeals/latest", {
-          headers: await getAuthHeaders(),
-        });
-
-        if (appealsRes.ok) {
-          const appeal = await appealsRes.json();
-          setLatestAppeal(appeal);
-        }
-
         setLoading(false);
         return;
       }
 
-      // If banned, check for existing appeals
-      const appealsRes = await fetch("/api/v2/appeals/latest", {
-        headers: await getAuthHeaders(),
-      });
-
-      if (appealsRes.ok) {
-        const appeal = await appealsRes.json();
-        setLatestAppeal(appeal);
-
+      // User is banned - determine appeal status
+      if (appealsRes.ok && appeal) {
         // Check if this appeal is for the current ban
         if (appeal.status === "ACCEPTED") {
           // Previous appeal was accepted, they can make a new appeal for current ban

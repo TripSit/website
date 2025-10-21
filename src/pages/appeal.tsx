@@ -215,9 +215,15 @@ const AppealPage: React.FC = () => {
       });
 
       let appeal = null;
+      let hasAppeal = false;
+
       if (appealsRes.ok) {
-        appeal = await appealsRes.json();
-        setLatestAppeal(appeal);
+        const data = await appealsRes.json();
+        if (data.appeal) {
+          appeal = data.appeal;
+          hasAppeal = true;
+          setLatestAppeal(appeal);
+        }
       }
 
       if (!currentBanStatus.banned) {
@@ -227,7 +233,7 @@ const AppealPage: React.FC = () => {
       }
 
       // User is banned - determine appeal status
-      if (appealsRes.ok && appeal) {
+      if (hasAppeal && appeal) {
         // Check if this appeal is for the current ban
         if (appeal.status === "ACCEPTED") {
           // Previous appeal was accepted, they can make a new appeal for current ban
@@ -243,7 +249,8 @@ const AppealPage: React.FC = () => {
           // Appeal is still pending (RECEIVED status)
           setBanStatus("has_appeal");
         }
-      } else if (appealsRes.status === 404) {
+      } else if (!hasAppeal) {
+        // No appeal found - user can create one
         setBanStatus("can_appeal");
       } else {
         setBanStatus("unknown");

@@ -372,7 +372,14 @@ const AppealPage: React.FC = () => {
       if (validToken) {
         // Ensure token state is set BEFORE any other operations
         setToken(validToken);
-        // The token useEffect at line 403 will trigger checkBan() when token is set
+        // Clean up any lingering auth query params from URL
+        if (window.location.search) {
+          window.history.replaceState(
+            {},
+            document.title,
+            window.location.pathname,
+          );
+        }
       } else {
         // Look for auth code for fresh login
         const params = new URLSearchParams(window.location.search);
@@ -601,7 +608,9 @@ const AppealPage: React.FC = () => {
                           <div className="alert alert-danger" role="alert">
                             <strong>Moderator Response:</strong>
                             <br />
-                            {latestAppeal.response_message}
+                            <span style={{ whiteSpace: "pre-wrap" }}>
+                              {latestAppeal.response_message}
+                            </span>
                           </div>
                         </div>
                       )}
@@ -833,12 +842,23 @@ const AppealPage: React.FC = () => {
                       </div>
                       <div className="card-body">
                         {latestAppeal?.response_message && (
-                          <p className="mb-0">
+                          <p className="mb-3">
                             <strong>Moderator Response:</strong>
                             <br />
-                            {latestAppeal.response_message}
+                            <span style={{ whiteSpace: "pre-wrap" }}>
+                              {latestAppeal.response_message}
+                            </span>
                           </p>
                         )}
+                        <a
+                          href="https://discord.gg/TripSit"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn btn-success"
+                        >
+                          <i className="bi bi-discord me-2"></i>
+                          Rejoin Discord Server
+                        </a>
                       </div>
                     </div>
                   )}
@@ -856,12 +876,14 @@ const AppealPage: React.FC = () => {
                           <p className="mb-3">
                             <strong>Moderator Response:</strong>
                             <br />
-                            {latestAppeal.response_message}
+                            <span style={{ whiteSpace: "pre-wrap" }}>
+                              {latestAppeal.response_message}
+                            </span>
                           </p>
                         )}
                         <small className="text-muted">
                           <em>
-                            You can submit a new appeal one month after this
+                            You can submit a new appeal 3 months after this
                             decision.
                           </em>
                         </small>
@@ -910,7 +932,9 @@ const AppealPage: React.FC = () => {
                               {latestAppeal.response_message && (
                                 <p className="mb-0">
                                   <strong>Moderator Response:</strong>{" "}
-                                  {latestAppeal.response_message}
+                                  <span style={{ whiteSpace: "pre-wrap" }}>
+                                    {latestAppeal.response_message}
+                                  </span>
                                 </p>
                               )}
                             </div>
@@ -925,7 +949,9 @@ const AppealPage: React.FC = () => {
                               {latestAppeal.response_message && (
                                 <p className="mb-2">
                                   <strong>Moderator Response:</strong>{" "}
-                                  {latestAppeal.response_message}
+                                  <span style={{ whiteSpace: "pre-wrap" }}>
+                                    {latestAppeal.response_message}
+                                  </span>
                                 </p>
                               )}
                               <small className="text-muted">

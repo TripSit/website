@@ -99,11 +99,10 @@ const ProfileButton: React.FC = () => {
   };
 
   const handleLogout = () => {
-    // Clear tokens
-    localStorage.removeItem("kc_token");
-    localStorage.removeItem("kc_refresh_token");
+    // Clear tokens from sessionStorage
     sessionStorage.removeItem("kc_token");
     sessionStorage.removeItem("kc_refresh_token");
+    sessionStorage.removeItem("kc_id_token");
 
     // Reset avatar
     setAvatarUrl(GUEST_AVATAR_PATH);

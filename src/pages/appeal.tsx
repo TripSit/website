@@ -288,9 +288,7 @@ const AppealPage: React.FC = () => {
 
       if (res.ok) {
         const successData = await res.json();
-        setMessage(
-          successData.message || "Your appeal has been submitted.",
-        );
+        setMessage(successData.message || "Your appeal has been submitted.");
         setBanStatus("has_appeal");
         // Refresh to get the new appeal
         checkBan();

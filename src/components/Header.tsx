@@ -33,7 +33,7 @@ function Header() {
 
           <nav
             id="navbar"
-            className={`navbar navbar-expand-lg bg-dark ${mobileMenuOpen ? "navbar-mobile" : ""}`}
+            className={`navbar ${mobileMenuOpen ? "navbar-mobile" : ""}`}
           >
             <ul>
               <li>

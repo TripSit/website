@@ -534,22 +534,24 @@ const AppealPage: React.FC = () => {
                 </div>
               </div>
               <div className="text-center mt-4">
-                <a href={getLoginUrl()} className="btn-get-started-wrapper">
-                  <Button
-                    color="primary"
-                    size="lg"
-                    className="btn-get-started scrollto"
-                    style={{
-                      borderRadius: "50px",
-                      padding: "12px 30px",
-                      fontSize: "16px",
-                      fontWeight: "600",
-                      textTransform: "none",
-                    }}
-                  >
-                    Login with Discord
-                  </Button>
-                </a>
+                <Button
+                  as="a"
+                  href={getLoginUrl()}
+                  color="primary"
+                  size="lg"
+                  className="btn-get-started scrollto"
+                  style={{
+                    borderRadius: "50px",
+                    padding: "12px 30px",
+                    fontSize: "16px",
+                    fontWeight: "600",
+                    textTransform: "none",
+                    backgroundColor: "#2487ce",
+                    color: "#fff",
+                  }}
+                >
+                  Login with Discord
+                </Button>
               </div>
             </div>
           </section>
@@ -879,7 +881,7 @@ const AppealPage: React.FC = () => {
                           className="btn btn-success"
                         >
                           <i className="bi bi-discord me-2"></i>
-                          Rejoin Discord Server
+                          Join Discord
                         </a>
                       </div>
                     </div>
@@ -966,7 +968,7 @@ const AppealPage: React.FC = () => {
                                 className="btn btn-success btn-sm"
                               >
                                 <i className="bi bi-discord me-2"></i>
-                                Rejoin Discord Server
+                                Join Discord
                               </a>
                             </div>
                           )}

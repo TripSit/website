@@ -24,7 +24,10 @@ function Header() {
         </a>
 
         <div className="d-flex align-items-center gap-3">
-          <div style={{ display: mobileMenuOpen ? "none" : "block" }}>
+          <div
+            className="d-lg-none"
+            style={{ display: mobileMenuOpen ? "none" : "block" }}
+          >
             <ProfileButton />
           </div>
 
@@ -371,6 +374,11 @@ function Header() {
                 >
                   Start Webchat
                 </a>
+              </li>
+              <li className="d-none d-lg-block">
+                <div style={{ padding: "0 15px" }}>
+                  <ProfileButton />
+                </div>
               </li>
             </ul>
             <i

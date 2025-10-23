@@ -24,7 +24,7 @@ function Header() {
         </a>
 
         <div className="d-flex align-items-center gap-3">
-          <div style={{ zIndex: 1001 }}>
+          <div style={{ display: mobileMenuOpen ? "none" : "block" }}>
             <ProfileButton />
           </div>
 
@@ -380,6 +380,12 @@ function Header() {
           </nav>
         </div>
       </div>
+      <style jsx>{`
+        .navbar-mobile .joindiscord,
+        .navbar-mobile .joindiscord:focus {
+          margin: 15px;
+        }
+      `}</style>
     </header>
   );
 }

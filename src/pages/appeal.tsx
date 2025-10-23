@@ -195,6 +195,14 @@ const AppealPage: React.FC = () => {
 
   async function checkBan() {
     try {
+      // Verify we have a token in sessionStorage before attempting API calls
+      const savedToken = sessionStorage.getItem("kc_token");
+      if (!savedToken) {
+        setBanStatus("unknown");
+        setLoading(false);
+        return;
+      }
+
       // Get auth headers once and reuse them for all requests in this function
       const headers = await getAuthHeaders();
 
@@ -350,14 +358,18 @@ const AppealPage: React.FC = () => {
     const checkToken = async () => {
       const validToken = await refreshTokenIfNeeded();
       if (validToken) {
+        // Ensure token state is set BEFORE any other operations
         setToken(validToken);
+        // The token useEffect at line 403 will trigger checkBan() when token is set
       } else {
         // Look for auth code for fresh login
         const params = new URLSearchParams(window.location.search);
         const code = params.get("code");
         if (code) {
+          // exchangeCodeForToken handles both setToken and setLoading
           exchangeCodeForToken(code);
         } else {
+          // Only set loading to false if there's truly no token and no code
           setLoading(false);
         }
       }

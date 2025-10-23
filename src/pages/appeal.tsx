@@ -227,8 +227,8 @@ const AppealPage: React.FC = () => {
 
       if (appealsRes.ok) {
         const data = await appealsRes.json();
-        if (data.appeal) {
-          appeal = data.appeal;
+        if (data.id) {
+          appeal = data;
           hasAppeal = true;
           setLatestAppeal(appeal);
         }

@@ -548,7 +548,6 @@ const AppealPage: React.FC = () => {
                     textTransform: "none",
                     backgroundColor: "#2487ce",
                     color: "#fff",
-                    border: "2px solid #fff",
                   }}
                 >
                   Login with Discord

@@ -287,16 +287,30 @@ const AppealPage: React.FC = () => {
       });
 
       if (res.ok) {
-        setMessage("Your appeal has been submitted.");
+        const successData = await res.json();
+        setMessage(
+          successData.message || "Your appeal has been submitted.",
+        );
         setBanStatus("has_appeal");
         // Refresh to get the new appeal
         checkBan();
         setTimeout(() => setMessage(null), 3000);
       } else {
         const errorData = await res.json();
-        setMessage(
-          `Failed to submit appeal: ${errorData.error || "Unknown error"}`,
-        );
+        let userMessage = errorData.error || "Failed to submit appeal";
+
+        // Make technical error messages more user-friendly
+        if (userMessage.includes("User not found in database")) {
+          userMessage =
+            "Your account could not be found. Please try logging out and logging in again.";
+        } else if (
+          userMessage.includes("Failed to create appeal due to a server error")
+        ) {
+          userMessage =
+            "An error occurred while submitting your appeal. Please try again later.";
+        }
+
+        setMessage(userMessage);
       }
     } catch (e) {
       if (e instanceof Error && e.message === "No valid token available") {

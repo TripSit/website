@@ -1,14 +1,21 @@
 import Image from "next/image";
 import { Tooltip } from "@mui/material";
+import { useState } from "react";
 import logo from "../../public/assets/img/logo.png";
 import ProfileButton from "./ProfileButton";
 
 function Header() {
   const domain = process.env.NEXT_PUBLIC_DNS_DOMAIN || "tripsit.me";
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
+
   return (
     <header
       id="header"
-      className="fixed-top d-flex align-items-center bg-dark"
+      className="fixed-top navbar navbar-expand-lg bg-dark"
       data-bs-theme="dark"
     >
       <div className="container d-flex align-items-center justify-content-between">
@@ -16,8 +23,10 @@ function Header() {
           <Image src={logo} alt="" className="logoImage" />
         </a>
 
-        <nav id="navbar" className="navbar">
-          <i className="bi bi-list mobile-nav-toggle"></i>
+        <nav
+          id="navbar"
+          className={`navbar navbar-expand-lg bg-dark ${mobileMenuOpen ? "navbar-mobile" : ""}`}
+        >
           <ul>
             <li>
               <a
@@ -350,6 +359,10 @@ function Header() {
               </div>
             </li>
           </ul>
+          <i
+            className={`mobile-nav-toggle ${mobileMenuOpen ? "bi-x" : "bi-list"}`}
+            onClick={toggleMobileMenu}
+          ></i>
         </nav>
       </div>
     </header>

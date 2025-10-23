@@ -17,6 +17,7 @@ function Header() {
       id="header"
       className="fixed-top d-flex align-items-center bg-dark"
       data-bs-theme="dark"
+      style={{ backgroundColor: "#212529" }}
     >
       <div className="container d-flex align-items-center justify-content-between">
         <a href={`https://${domain}`} className="logo">

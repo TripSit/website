@@ -879,7 +879,7 @@ const AppealPage: React.FC = () => {
                           className="btn btn-success"
                         >
                           <i className="bi bi-discord me-2"></i>
-                          Rejoin Discord Server
+                          Join Discord
                         </a>
                       </div>
                     </div>
@@ -966,7 +966,7 @@ const AppealPage: React.FC = () => {
                                 className="btn btn-success btn-sm"
                               >
                                 <i className="bi bi-discord me-2"></i>
-                                Rejoin Discord Server
+                                Join Discord
                               </a>
                             </div>
                           )}

@@ -15,7 +15,7 @@ function Header() {
   return (
     <header
       id="header"
-      className="fixed-top navbar navbar-expand-lg bg-dark"
+      className="fixed-top d-flex align-items-center bg-dark"
       data-bs-theme="dark"
     >
       <div className="container d-flex align-items-center justify-content-between">
@@ -33,7 +33,7 @@ function Header() {
 
           <nav
             id="navbar"
-            className={`navbar navbar-expand-lg bg-dark ${mobileMenuOpen ? "navbar-mobile" : ""}`}
+            className={`navbar ${mobileMenuOpen ? "navbar-mobile" : ""}`}
           >
             <ul>
               <li>

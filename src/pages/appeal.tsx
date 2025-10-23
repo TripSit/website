@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import Head from "next/head";
 import { Button } from "@nextui-org/react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -34,6 +35,8 @@ const AppealPage: React.FC = () => {
   // Use ref to prevent concurrent token refreshes
   const isRefreshingRef = useRef<boolean>(false);
   const refreshPromiseRef = useRef<Promise<string | null> | null>(null);
+  // Use ref to prevent concurrent checkBan calls
+  const isCheckingBanRef = useRef<boolean>(false);
 
   async function refreshTokenIfNeeded() {
     // If already refreshing, wait for that promise to complete
@@ -143,6 +146,7 @@ const AppealPage: React.FC = () => {
         window.dispatchEvent(new Event("tokensUpdated"));
 
         // Clean up the URL by removing the query parameters
+        document.title = "Ban Appeal - TripSit";
         window.history.replaceState({}, "", window.location.pathname);
       }
     } catch {
@@ -190,7 +194,17 @@ const AppealPage: React.FC = () => {
   }
 
   async function checkBan() {
+    // Prevent concurrent executions
+    if (isCheckingBanRef.current) {
+      return;
+    }
+
+    isCheckingBanRef.current = true;
+
     try {
+      // Reset appeal state at start to prevent stale data
+      setLatestAppeal(null);
+
       // Verify we have a token in sessionStorage before attempting API calls
       const savedToken = sessionStorage.getItem("kc_token");
       if (!savedToken) {
@@ -263,6 +277,7 @@ const AppealPage: React.FC = () => {
       setBanStatus("unknown");
     } finally {
       setLoading(false);
+      isCheckingBanRef.current = false;
     }
   }
 
@@ -370,6 +385,7 @@ const AppealPage: React.FC = () => {
         setToken(validToken);
         // Clean up any lingering auth query params from URL
         if (window.location.search) {
+          document.title = "Ban Appeal - TripSit";
           window.history.replaceState({}, "", window.location.pathname);
         }
       } else {
@@ -401,14 +417,17 @@ const AppealPage: React.FC = () => {
       // Set up new interval to refresh every 30 seconds
       refreshIntervalRef.current = setInterval(async () => {
         const refreshedToken = await refreshTokenIfNeeded();
+        // Only update token state if it actually changed to prevent unnecessary re-renders
         if (refreshedToken && refreshedToken !== token) {
           setToken(refreshedToken);
-        } else if (!refreshedToken) {
+        } else if (!refreshedToken && token) {
+          // Token is now invalid, clear it
           setToken(null);
           if (refreshIntervalRef.current) {
             clearInterval(refreshIntervalRef.current);
           }
         }
+        // If refreshedToken === token, do nothing (no state change needed)
       }, 30000); // 30 seconds
     }
 
@@ -433,6 +452,9 @@ const AppealPage: React.FC = () => {
   if (loading) {
     return (
       <>
+        <Head>
+          <title>Ban Appeal - TripSit</title>
+        </Head>
         <Header />
         <main>
           <section
@@ -464,12 +486,20 @@ const AppealPage: React.FC = () => {
 
   return (
     <>
+      <Head>
+        <title>Ban Appeal - TripSit</title>
+      </Head>
       <Header />
       <main>
         {!token && (
           <section
             className="py-5"
-            style={{ minHeight: "80vh", display: "flex", alignItems: "center" }}
+            style={{
+              minHeight: "80vh",
+              display: "flex",
+              alignItems: "center",
+              marginTop: "80px",
+            }}
           >
             <div className="container position-relative">
               <div className="row justify-content-center">

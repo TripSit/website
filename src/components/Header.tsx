@@ -16,6 +16,8 @@ function Header() {
           <Image src={logo} alt="" className="logoImage" />
         </a>
 
+        <i className="bi bi-list mobile-nav-toggle"></i>
+
         <nav id="navbar" className="navbar navbar-expand-lg bg-dark">
           <ul>
             <li>
@@ -349,7 +351,6 @@ function Header() {
               </div>
             </li>
           </ul>
-          <i className="bi bi-list mobile-nav-toggle"></i>
         </nav>
       </div>
     </header>

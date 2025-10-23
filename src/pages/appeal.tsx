@@ -534,22 +534,22 @@ const AppealPage: React.FC = () => {
                 </div>
               </div>
               <div className="text-center mt-4">
-                <a href={getLoginUrl()} className="btn-get-started-wrapper">
-                  <Button
-                    color="primary"
-                    size="lg"
-                    className="btn-get-started scrollto"
-                    style={{
-                      borderRadius: "50px",
-                      padding: "12px 30px",
-                      fontSize: "16px",
-                      fontWeight: "600",
-                      textTransform: "none",
-                    }}
-                  >
-                    Login with Discord
-                  </Button>
-                </a>
+                <Button
+                  as="a"
+                  href={getLoginUrl()}
+                  color="primary"
+                  size="lg"
+                  className="btn-get-started scrollto"
+                  style={{
+                    borderRadius: "50px",
+                    padding: "12px 30px",
+                    fontSize: "16px",
+                    fontWeight: "600",
+                    textTransform: "none",
+                  }}
+                >
+                  Login with Discord
+                </Button>
               </div>
             </div>
           </section>

@@ -546,6 +546,9 @@ const AppealPage: React.FC = () => {
                     fontSize: "16px",
                     fontWeight: "600",
                     textTransform: "none",
+                    backgroundColor: "#2487ce",
+                    color: "#fff",
+                    border: "2px solid #fff",
                   }}
                 >
                   Login with Discord

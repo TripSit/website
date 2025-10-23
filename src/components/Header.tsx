@@ -8,7 +8,7 @@ function Header() {
   return (
     <header
       id="header"
-      className="fixed-top navbar navbar-expand-lg bg-dark"
+      className="fixed-top d-flex align-items-center bg-dark"
       data-bs-theme="dark"
     >
       <div className="container d-flex align-items-center justify-content-between">
@@ -16,9 +16,8 @@ function Header() {
           <Image src={logo} alt="" className="logoImage" />
         </a>
 
-        <i className="bi bi-list mobile-nav-toggle"></i>
-
-        <nav id="navbar" className="navbar navbar-expand-lg bg-dark">
+        <nav id="navbar" className="navbar">
+          <i className="bi bi-list mobile-nav-toggle"></i>
           <ul>
             <li>
               <a

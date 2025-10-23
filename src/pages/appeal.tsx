@@ -143,11 +143,7 @@ const AppealPage: React.FC = () => {
         window.dispatchEvent(new Event("tokensUpdated"));
 
         // Clean up the URL by removing the query parameters
-        window.history.replaceState(
-          {},
-          document.title,
-          window.location.pathname,
-        );
+        window.history.replaceState({}, "", window.location.pathname);
       }
     } catch {
       // Token exchange failed - loading will still be set to false
@@ -374,11 +370,7 @@ const AppealPage: React.FC = () => {
         setToken(validToken);
         // Clean up any lingering auth query params from URL
         if (window.location.search) {
-          window.history.replaceState(
-            {},
-            document.title,
-            window.location.pathname,
-          );
+          window.history.replaceState({}, "", window.location.pathname);
         }
       } else {
         // Look for auth code for fresh login
@@ -930,13 +922,22 @@ const AppealPage: React.FC = () => {
                                 Appeal Accepted!
                               </h6>
                               {latestAppeal.response_message && (
-                                <p className="mb-0">
+                                <p className="mb-3">
                                   <strong>Moderator Response:</strong>{" "}
                                   <span style={{ whiteSpace: "pre-wrap" }}>
                                     {latestAppeal.response_message}
                                   </span>
                                 </p>
                               )}
+                              <a
+                                href="https://discord.gg/TripSit"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="btn btn-success btn-sm"
+                              >
+                                <i className="bi bi-discord me-2"></i>
+                                Rejoin Discord Server
+                              </a>
                             </div>
                           )}
 

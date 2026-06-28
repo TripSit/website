@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { Tooltip } from "@mui/material";
 import { useState } from "react";
 import logo from "../../public/assets/img/logo.png";
@@ -72,7 +73,7 @@ function Header() {
                         <a href={`https://${domain}/factsheets`}>Factsheets</a>
                       </li>
                       <li>
-                        <a href={`https://combo.${domain}`}>Comboapp</a>
+                        <Link href="/combo">Comboapp</Link>
                       </li>
                       <li>
                         <a href={`https://${domain}#faq`}>

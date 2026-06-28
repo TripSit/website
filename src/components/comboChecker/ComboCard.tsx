@@ -27,7 +27,7 @@ function ComboCard({ title, risk, note, showNote, delay }: ComboCardProps) {
           </div>
         </div>
       </div>
-      {showNote && <p className={styles.cardNote}>{note}</p>}
+      {showNote && note && <p className={styles.cardNote}>{note}</p>}
     </div>
   );
 }

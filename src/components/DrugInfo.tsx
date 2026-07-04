@@ -2,7 +2,14 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 import React, { ReactNode } from "react";
 import { Card, CardContent, Container, Grid, Typography } from "@mui/material";
-import { Dosage, Dose, Drug, Duration, Status } from "tripsit_drug_db";
+import {
+  Dosage,
+  Dose,
+  Drug,
+  Duration,
+  Interactions,
+  Status,
+} from "tripsit_drug_db";
 import type { ApexAxisChartSeries } from "apexcharts";
 import dynamic from "next/dynamic";
 import comboDefinitions from "../assets/comboDefinitions.json";
@@ -890,27 +897,31 @@ export default function DrugInfoCard({
       },
     };
 
-    const comboObject = {
+    // Status.Self is deliberately excluded: a drug's combo with itself is never
+    // rendered (comboColors has no entry for it either).
+    const comboObject: {
+      [key in Exclude<Status, Status.Self>]: {
+        name: string;
+        note: string;
+      }[];
+    } = {
       Dangerous: [],
       Unsafe: [],
       Caution: [],
       "Low Risk & Synergy": [],
       "Low Risk & No Synergy": [],
       "Low Risk & Decrease": [],
-    } as {
-      [key in Status]: {
-        name: string;
-        note: string;
-      }[];
     };
 
     const drugBList = Object.keys(comboData);
     drugBList.forEach((drugB) => {
-      const { status, note } = comboData[drugB];
+      const combo = comboData[drugB as keyof Interactions];
+      if (!combo) return;
+      const { status, note } = combo;
 
       const drugBNote = note ? ` (${note})` : "";
 
-      comboObject[status as Status].push({
+      comboObject[status as Exclude<Status, Status.Self>].push({
         name: drugB,
         note: drugBNote,
       });

@@ -22,14 +22,14 @@
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
     "@heroui/react": "^2.8.10",
     "@mui/icons-material": "^6.5.0",
     "@mui/material": "^6.5.0",
     "@mui/x-date-pickers": "^8.29.2",
     "@tailwindcss/postcss": "^4.3.2",
     "@tanstack/react-query": "^5.101.2",
-    "@widgetbot/react-embed": "^1.9.0",
+    "@widgetbot/react-embed": "^1.11.3",
     "aos": "^2.3.4",
     "apexcharts": "^5.16.0",
     "autoprefixer": "^10.4.21",
@@ -50,7 +50,7 @@
     "typescript": "^5.9.3"
   },
   "devDependencies": {
-    "@types/aos": "^3.0.7",
+    "@types/aos": "^3.0.8",
     "@types/node": "^24.13.2",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
@@ -60,11 +60,11 @@
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-airbnb-typescript": "^17.1.0",
     "eslint-config-next": "^15.5.20",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-import": "^2.31.0",
+    "eslint-config-prettier": "^9.1.2",
+    "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-jest": "^27.9.0",
-    "eslint-plugin-prettier": "^5.2.3",
+    "eslint-plugin-prettier": "^5.5.6",
     "eslint-plugin-sonarjs": "^0.25.1",
-    "prettier": "^3.5.2"
+    "prettier": "^3.9.1"
   }
 }

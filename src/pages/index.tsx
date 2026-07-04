@@ -3,7 +3,7 @@ import Image from "next/image";
 import React from "react";
 import { Navigation, Pagination, Scrollbar, A11y } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Accordion, AccordionItem, Button } from "@nextui-org/react";
+import { Accordion, AccordionItem, Button } from "@heroui/react";
 import { Tooltip } from "@mui/material";
 import { useRouter } from "next/router";
 import JoinInnerOutlinedIcon from "@mui/icons-material/JoinInnerOutlined";

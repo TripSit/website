@@ -3,6 +3,7 @@
 import React, { ReactNode } from "react";
 import { Card, CardContent, Container, Grid, Typography } from "@mui/material";
 import { Dosage, Dose, Drug, Duration, Status } from "tripsit_drug_db";
+import type { ApexAxisChartSeries } from "apexcharts";
 import dynamic from "next/dynamic";
 import comboDefinitions from "../assets/comboDefinitions.json";
 import addDictionaryDefs from "./addDictionaryDefs";

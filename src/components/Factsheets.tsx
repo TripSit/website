@@ -28,7 +28,7 @@ import {
   Card,
   CardContent,
 } from "@mui/material";
-import { Accordion, AccordionItem } from "@nextui-org/react";
+import { Accordion, AccordionItem } from "@heroui/react";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import {
   QueryClient,
@@ -37,7 +37,7 @@ import {
   useQuery,
 } from "@tanstack/react-query"; // note: this is TanStack Rea`ct Query V5
 import { Category, Drug } from "tripsit_drug_db";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import Grid from "@mui/material/Grid";
 import KofiButton from "kofi-button";

@@ -10,6 +10,7 @@ import {
   Interactions,
   Status,
 } from "tripsit_drug_db";
+import type { ApexAxisChartSeries } from "apexcharts";
 import dynamic from "next/dynamic";
 import comboDefinitions from "../assets/comboDefinitions.json";
 import addDictionaryDefs from "./addDictionaryDefs";

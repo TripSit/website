@@ -1,4 +1,4 @@
-import { useRef, useEffect, CSSProperties } from "react";
+import { useRef, useEffect, CSSProperties, RefObject } from "react";
 import { useCountUp } from "react-countup";
 
 // https://www.npmjs.com/package/react-countup
@@ -22,11 +22,12 @@ const Counter = (props: CounterProps) => {
     styles,
     data: { startNum = 0, endNum, duration = 5, delay = 1 },
   } = props;
-  const countUpRef = useRef(null);
+  const countUpRef = useRef<HTMLDivElement>(null);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { start, pauseResume, reset, update } = useCountUp({
-    ref: countUpRef,
+    // react-countup typings predate React 19's RefObject<T | null>
+    ref: countUpRef as RefObject<HTMLElement>,
     start: startNum,
     end: endNum,
     separator: ",",

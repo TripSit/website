@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import Head from "next/head";
-import { Button } from "@nextui-org/react";
+import { Button } from "@heroui/react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import AppealForm from "../components/AppealForm";

@@ -16,7 +16,7 @@ export default async function NotFound() {
   if (referer) {
     const blogUrl = referer.replace("https://", "https://blog.");
     if (await fetchUrl(blogUrl)) {
-      permanentRedirect(blogUrl, "replace" as RedirectType);
+      permanentRedirect(blogUrl, RedirectType.replace);
     }
   }
   return (

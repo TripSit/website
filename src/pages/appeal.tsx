@@ -5,9 +5,11 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import AppealForm from "../components/AppealForm";
 import { getLoginUrl } from "../utils/keycloak";
+import BanStatus from "../constants/banStatus";
+import AppealStatus from "../constants/appealStatus";
 
 interface Appeal {
-  status: string;
+  status: AppealStatus;
   created_at: string;
   decided_at?: string;
   reminded_at?: string;
@@ -21,9 +23,7 @@ interface Appeal {
 const AppealPage: React.FC = () => {
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [banStatus, setBanStatus] = useState<
-    "unknown" | "can_appeal" | "has_appeal" | "not_banned" | "can_reappeal"
-  >("unknown");
+  const [banStatus, setBanStatus] = useState<BanStatus>(BanStatus.Unknown);
   const [latestAppeal, setLatestAppeal] = useState<Appeal | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -47,7 +47,9 @@ const AppealPage: React.FC = () => {
     const savedToken = sessionStorage.getItem("kc_token");
     const refreshToken = sessionStorage.getItem("kc_refresh_token");
 
-    if (!savedToken) return null;
+    if (!savedToken) {
+      return null;
+    }
 
     try {
       const tokenData = JSON.parse(atob(savedToken.split(".")[1]));
@@ -157,8 +159,13 @@ const AppealPage: React.FC = () => {
   }
 
   function canReappeal(appeal: Appeal | null): boolean {
-    if (!appeal || appeal.status !== "DENIED" || !appeal.decided_at)
+    if (
+      !appeal ||
+      appeal.status !== AppealStatus.Denied ||
+      !appeal.decided_at
+    ) {
       return false;
+    }
 
     const decidedAt = new Date(appeal.decided_at);
 
@@ -176,7 +183,9 @@ const AppealPage: React.FC = () => {
   }
 
   function canShowReminder(appeal: Appeal | null): boolean {
-    if (!appeal || appeal.status !== "RECEIVED") return false;
+    if (!appeal || appeal.status !== AppealStatus.Received) {
+      return false;
+    }
 
     const createdAt = new Date(appeal.created_at);
 
@@ -208,7 +217,7 @@ const AppealPage: React.FC = () => {
       // Verify we have a token in sessionStorage before attempting API calls
       const savedToken = sessionStorage.getItem("kc_token");
       if (!savedToken) {
-        setBanStatus("unknown");
+        setBanStatus(BanStatus.Unknown);
         setLoading(false);
         return;
       }
@@ -245,7 +254,7 @@ const AppealPage: React.FC = () => {
       }
 
       if (!currentBanStatus.banned) {
-        setBanStatus("not_banned");
+        setBanStatus(BanStatus.NotBanned);
         setLoading(false);
         return;
       }
@@ -253,28 +262,28 @@ const AppealPage: React.FC = () => {
       // User is banned - determine appeal status
       if (hasAppeal && appeal) {
         // Check if this appeal is for the current ban
-        if (appeal.status === "ACCEPTED") {
+        if (appeal.status === AppealStatus.Accepted) {
           // Previous appeal was accepted, they can make a new appeal for current ban
-          setBanStatus("can_appeal");
-        } else if (appeal.status === "DENIED") {
+          setBanStatus(BanStatus.CanAppeal);
+        } else if (appeal.status === AppealStatus.Denied) {
           // Check if enough time has passed to reappeal
           if (canReappeal(appeal)) {
-            setBanStatus("can_reappeal"); // Show reappeal UI with previous appeal info
+            setBanStatus(BanStatus.CanReappeal); // Show reappeal UI with previous appeal info
           } else {
-            setBanStatus("has_appeal"); // Show denial message and waiting period
+            setBanStatus(BanStatus.HasAppeal); // Show denial message and waiting period
           }
         } else {
           // Appeal is still pending (RECEIVED status)
-          setBanStatus("has_appeal");
+          setBanStatus(BanStatus.HasAppeal);
         }
       } else if (!hasAppeal) {
         // No appeal found - user can create one
-        setBanStatus("can_appeal");
+        setBanStatus(BanStatus.CanAppeal);
       } else {
-        setBanStatus("unknown");
+        setBanStatus(BanStatus.Unknown);
       }
     } catch {
-      setBanStatus("unknown");
+      setBanStatus(BanStatus.Unknown);
     } finally {
       setLoading(false);
       isCheckingBanRef.current = false;
@@ -300,7 +309,7 @@ const AppealPage: React.FC = () => {
       if (res.ok) {
         const successData = await res.json();
         setMessage(successData.message || "Your appeal has been submitted.");
-        setBanStatus("has_appeal");
+        setBanStatus(BanStatus.HasAppeal);
         // Refresh to get the new appeal
         checkBan();
         setTimeout(() => setMessage(null), 3000);
@@ -360,14 +369,14 @@ const AppealPage: React.FC = () => {
     }
   }
 
-  const getStatusBadge = (status?: string) => {
+  const getStatusBadge = (status?: AppealStatus) => {
     const s = status ?? "Unknown";
     switch (s) {
-      case "ACCEPTED":
+      case AppealStatus.Accepted:
         return <span className="badge bg-success fs-6">Accepted</span>;
-      case "DENIED":
+      case AppealStatus.Denied:
         return <span className="badge bg-danger fs-6">Denied</span>;
-      case "RECEIVED":
+      case AppealStatus.Received:
         return (
           <span className="badge bg-warning text-dark fs-6">Under Review</span>
         );
@@ -557,7 +566,7 @@ const AppealPage: React.FC = () => {
           </section>
         )}
 
-        {token && banStatus === "can_appeal" && (
+        {token && banStatus === BanStatus.CanAppeal && (
           <section className="py-5" style={{ marginTop: "80px" }}>
             <div className="container">
               <div className="row justify-content-center">
@@ -577,7 +586,7 @@ const AppealPage: React.FC = () => {
           </section>
         )}
 
-        {token && banStatus === "can_reappeal" && (
+        {token && banStatus === BanStatus.CanReappeal && (
           <section className="py-5" style={{ marginTop: "80px" }}>
             <div className="container">
               <div className="row justify-content-center">
@@ -648,7 +657,7 @@ const AppealPage: React.FC = () => {
           </section>
         )}
 
-        {token && banStatus === "has_appeal" && (
+        {token && banStatus === BanStatus.HasAppeal && (
           <section className="py-5" style={{ marginTop: "80px" }}>
             <div className="container">
               <div className="row justify-content-center">
@@ -666,7 +675,9 @@ const AppealPage: React.FC = () => {
                           </h5>
                           <p className="mb-2">
                             <strong>Status:</strong>{" "}
-                            {getStatusBadge(latestAppeal?.status || "RECEIVED")}
+                            {getStatusBadge(
+                              latestAppeal?.status || AppealStatus.Received,
+                            )}
                           </p>
                           <p className="text-muted mb-1">
                             <small>
@@ -679,7 +690,7 @@ const AppealPage: React.FC = () => {
                             </small>
                           </p>
 
-                          {latestAppeal?.status === "RECEIVED" && (
+                          {latestAppeal?.status === AppealStatus.Received && (
                             <p className="text-muted mb-1">
                               <small>
                                 <strong>Reminder available:</strong>{" "}
@@ -719,7 +730,7 @@ const AppealPage: React.FC = () => {
                           )}
                         </div>
                         <div className="col-md-4 text-md-end">
-                          {latestAppeal?.status === "RECEIVED" &&
+                          {latestAppeal?.status === AppealStatus.Received &&
                             (() => {
                               const canRemind = canShowReminder(latestAppeal);
                               const buttonClass = `btn ${canRemind ? "btn-outline-primary" : "btn-outline-secondary"}`;
@@ -835,7 +846,7 @@ const AppealPage: React.FC = () => {
                         </div>
                       )}
 
-                      {latestAppeal?.status === "RECEIVED" &&
+                      {latestAppeal?.status === AppealStatus.Received &&
                         !canShowReminder(latestAppeal) &&
                         !latestAppeal?.reminded_at && (
                           <div className="alert alert-info mt-3" role="alert">
@@ -856,7 +867,7 @@ const AppealPage: React.FC = () => {
                     </div>
                   </div>
 
-                  {latestAppeal?.status === "ACCEPTED" && (
+                  {latestAppeal?.status === AppealStatus.Accepted && (
                     <div className="card border-success mt-4">
                       <div className="card-header bg-success bg-opacity-10 border-success">
                         <h5 className="card-title text-success mb-0">
@@ -887,7 +898,7 @@ const AppealPage: React.FC = () => {
                     </div>
                   )}
 
-                  {latestAppeal?.status === "DENIED" && (
+                  {latestAppeal?.status === AppealStatus.Denied && (
                     <div className="card border-danger mt-4">
                       <div className="card-header bg-danger bg-opacity-10 border-danger">
                         <h5 className="card-title text-danger mb-0">
@@ -920,7 +931,7 @@ const AppealPage: React.FC = () => {
           </section>
         )}
 
-        {token && banStatus === "not_banned" && (
+        {token && banStatus === BanStatus.NotBanned && (
           <section className="py-5" style={{ marginTop: "80px" }}>
             <div className="container">
               <div className="row justify-content-center">
@@ -947,7 +958,7 @@ const AppealPage: React.FC = () => {
                             {getStatusBadge(latestAppeal.status)}
                           </p>
 
-                          {latestAppeal.status === "ACCEPTED" && (
+                          {latestAppeal.status === AppealStatus.Accepted && (
                             <div className="alert alert-success" role="alert">
                               <h6 className="alert-heading">
                                 <i className="bi bi-check-circle-fill me-2"></i>
@@ -973,7 +984,7 @@ const AppealPage: React.FC = () => {
                             </div>
                           )}
 
-                          {latestAppeal.status === "DENIED" && (
+                          {latestAppeal.status === AppealStatus.Denied && (
                             <div className="alert alert-warning" role="alert">
                               <h6 className="alert-heading">
                                 <i className="bi bi-exclamation-triangle-fill me-2"></i>
@@ -996,7 +1007,7 @@ const AppealPage: React.FC = () => {
                             </div>
                           )}
 
-                          {latestAppeal.status === "RECEIVED" && (
+                          {latestAppeal.status === AppealStatus.Received && (
                             <div className="alert alert-info" role="alert">
                               <h6 className="alert-heading">
                                 <i className="bi bi-clock me-2"></i>Appeal Still
@@ -1034,6 +1045,50 @@ const AppealPage: React.FC = () => {
                       </div>
                     </>
                   )}
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {token && banStatus === BanStatus.Unknown && (
+          <section className="py-5" style={{ marginTop: "80px" }}>
+            <div className="container">
+              <div className="row justify-content-center">
+                <div className="col-lg-8">
+                  <div className="text-center mb-5">
+                    <h1 className="display-6">Ban Appeal</h1>
+                  </div>
+
+                  <div className="card">
+                    <div className="card-body text-center">
+                      <div className="mb-4">
+                        <i
+                          className="bi bi-exclamation-circle-fill text-warning"
+                          style={{ fontSize: "3rem" }}
+                        ></i>
+                      </div>
+                      <h5 className="card-title">
+                        We couldn&apos;t load your appeal status
+                      </h5>
+                      <p className="card-text text-muted">
+                        Something went wrong while checking your ban and appeal
+                        status. This can happen if the service is temporarily
+                        unavailable. Please try again in a moment.
+                      </p>
+                      <button
+                        type="button"
+                        className="btn btn-primary mt-2"
+                        onClick={() => {
+                          setLoading(true);
+                          checkBan();
+                        }}
+                      >
+                        <i className="bi bi-arrow-clockwise me-2"></i>
+                        Try Again
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

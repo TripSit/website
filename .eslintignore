@@ -4,3 +4,6 @@
 # Alternatively, ignore a specific directory (e.g., public or assets)
 public/
 assets/
+.next/
+build/
+next-env.d.ts

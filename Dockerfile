@@ -5,7 +5,7 @@
 # We stop at the end of this step in development, so it also includes the deploy command
 # We install jest, eslint and ts-node so we can run tests and lint.
 
-FROM node:lts AS development
+FROM node:lts-alpine AS development
 
 ENV NODE_ENV=development
 
@@ -59,7 +59,7 @@ RUN npx next build
 USER node
 
 # Running `npm ci` removes the existing node_modules directory and passing in --only=production ensures that only the production dependencies are installed. This ensures that the node_modules directory is as optimized as possible
-RUN npm ci --omit:dev && npm cache clean --force
+RUN npm ci --omit=dev && npm cache clean --force
 
 ###################
 # PRODUCTION

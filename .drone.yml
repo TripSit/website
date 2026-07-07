@@ -20,6 +20,10 @@ steps:
         from_secret: DOCKER_BUILDKIT
       NEXT_PUBLIC_DNS_DOMAIN:
         from_secret: NEXT_PUBLIC_DNS_DOMAIN
+      NEXT_PUBLIC_KEYCLOAK_URL:
+        from_secret: NEXT_PUBLIC_KEYCLOAK_URL
+      NEXT_PUBLIC_KEYCLOAK_CLIENT_ID:
+        from_secret: NEXT_PUBLIC_KEYCLOAK_CLIENT_ID
       REDDIT_BOT_TOKEN:
         from_secret: REDDIT_BOT_TOKEN
       REDDIT_BOT_SECRET:

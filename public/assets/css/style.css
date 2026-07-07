@@ -161,7 +161,7 @@ h6 {
 * Desktop Navigation 
 */
 .navbar {
-  padding: 0;
+  padding: 4px;
 }
 
 .navbar ul {
@@ -691,12 +691,12 @@ section {
 .about .content section {
   margin-bottom: 0;
   padding: 10px 0 0 0;
-};
+}
 
 .about .content .aboutAccContent {
   margin-bottom: 0;
   padding: 10px 0 0 0;
-};
+}
 
 
 /*--------------------------------------------------------------
@@ -1259,12 +1259,12 @@ section {
 .cta .cta-list section {
   margin-bottom: 0;
   padding: 10px 0 0 0;
-};
+}
 
 .cta .cta-list .accContent {
   margin-bottom: 0;
   padding: 10px 0 0 0;
-};
+}
 
 .cta .cta-list .icon-help {
   font-size: 24px;
@@ -1783,12 +1783,12 @@ section {
 .faq .faq-list section {
   margin-bottom: 0;
   padding: 10px 0 0 0;
-};
+}
 
 .faq .faq-list .accContent {
   margin-bottom: 0;
   padding: 10px 0 0 0;
-};
+}
 
 .faq .faq-list .icon-help {
   font-size: 24px;
@@ -1942,12 +1942,12 @@ section {
 .appeal .content section {
   margin-bottom: 0;
   padding: 10px 0 0 0;
-};
+}
 
 .appeal .content .appealAccContent {
   margin-bottom: 0;
   padding: 10px 0 0 0;
-};
+}
 
 /*--------------------------------------------------------------
 # Contact
@@ -2354,9 +2354,9 @@ section {
 #factsheets section {  
   margin-bottom: 0;
   padding: 10px 0 0 0;
-};
+}
 
 #factsheets .factsheetsAccContent {
   margin-bottom: 0;
   padding: 10px 0 0 0;
-};
+}

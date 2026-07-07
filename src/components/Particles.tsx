@@ -9,7 +9,7 @@ import {
   // DropdownSection,
   Button,
   DropdownItem,
-} from "@nextui-org/react";
+} from "@heroui/react";
 
 const ParticlesBg = dynamic(() => import("particles-bg"), {
   ssr: false,

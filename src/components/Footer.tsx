@@ -123,6 +123,13 @@ export default function Footer() {
               className="text-ink transition hover:text-cyan"
             >
               Moonbear
+            </a>
+            ,{" "}
+            <a
+              href="https://github.com/Sympact06"
+              className="text-ink transition hover:text-cyan"
+            >
+              Sympact06
             </a>{" "}
             and Team TripSit
           </p>

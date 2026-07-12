@@ -306,8 +306,12 @@ export default function Home({ guild }: { guild: APIGuild }) {
       <Head />
       <Ghost />
 
-      {/* Hero is transparent so the particles canvas shows through */}
-      <section id="hero" className="relative px-5 pb-20 pt-28 md:pt-36">
+      {/* Hero is transparent and fills the viewport so the particles canvas
+          reads as a lazy-fullscreen animation once the content fades (Ghost) */}
+      <section
+        id="hero"
+        className="relative flex min-h-svh flex-col justify-center px-5 pb-20 pt-28 md:pt-36"
+      >
         <div
           className="relative z-10 mx-auto flex max-w-6xl flex-col items-center text-center"
           data-aos="fade-up"
@@ -350,7 +354,7 @@ export default function Home({ guild }: { guild: APIGuild }) {
               href="https://combo.tripsit.me/"
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-full border-[1px] border-solid border-line px-8 py-3.5 font-display text-base text-ink transition hover:border-cyan hover:text-cyan focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan"
+              className="rounded-full bg-cyan px-8 py-3.5 font-display text-base font-semibold text-night shadow-lg shadow-cyan/25 transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan"
             >
               Check drug combinations
             </a>

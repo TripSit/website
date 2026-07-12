@@ -1,0 +1,58 @@
+/*
+ * Tailwind v4, utilities only — no preflight, so the legacy Bootstrap/template
+ * CSS that still styles the other pages keeps working. Imported unlayered and
+ * after style.css so utility classes win on specificity and source order.
+ */
+@import "tailwindcss/theme.css";
+@import "tailwindcss/utilities.css";
+
+@theme inline {
+  /* Night palette anchored to the TripSit logo (violet/cyan glitch) */
+  --color-night: #0b0e1a;
+  --color-surface: #141930;
+  --color-line: #2a3152;
+  --color-ink: #e9ecfb;
+  --color-mute: #9aa3c7;
+  --color-violet: #a06bff;
+  --color-cyan: #46d8ec;
+  --color-amber: #f2b94b;
+
+  --font-display: var(--font-space-grotesk), "Futura", sans-serif;
+  --font-body: var(--font-inter), "Futura", sans-serif;
+}
+
+body {
+  background-color: #0b0e1a;
+}
+
+/*
+ * The legacy stylesheet has high-specificity #hero rules for the old
+ * template hero. The id must stay (Ghost.tsx and nav anchors target it),
+ * so neutralize what fights the new Tailwind markup.
+ */
+#hero {
+  height: auto;
+}
+#hero h1,
+#hero h2 {
+  margin: 0;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+}
+
+/* Swiper chrome in brand colors (testimonials slider) */
+.testimonials-swiper {
+  --swiper-theme-color: #a06bff;
+  --swiper-navigation-size: 28px;
+}
+
+/* AOS never leaves content hidden for people who opt out of motion */
+@media (prefers-reduced-motion: reduce) {
+  [data-aos] {
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+}

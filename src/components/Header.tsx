@@ -214,7 +214,7 @@ function NavAnchor({
 const buttonReset =
   "appearance-none [background:none] [border:none] [font:inherit]";
 const topLinkClass =
-  "rounded-lg px-3 py-2 text-sm text-mute transition hover:bg-surface hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan";
+  "whitespace-nowrap rounded-lg px-3 py-2 text-sm text-mute transition hover:bg-surface hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan";
 const panelLinkClass =
   "block rounded-md px-2 py-1.5 text-sm text-ink transition hover:text-cyan focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan";
 

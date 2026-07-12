@@ -225,118 +225,59 @@ const friends = [
 const testimonials = [
   {
     name: "loki_queen333",
-    role: "Discord Member",
     text: "I wanted to give a big kudos and air five...you know, covid haha...to everyone on the TripSit team. Even the community helpers. I've been watching for a bit and so happy even people who don't know each other make people feel safe and loved. Everyone is going through so much! This is a fun, safe, and helpful environment that I am proud to witness first hand. So thank you so much for keeping this network around when the rest of the world keeps turning to shit. People come and go but this truly feels like a network family. So awesome job everyone. If you haven't been told in awhile, well then I am so proud of you! ❤️",
   },
   {
     name: "Misted",
-    role: "Discord Member",
     text: "I just want to give huge hugs to every member of the TripSit Team for being so active member here ❤️ I love you guys for being here, helping people and giving your free time to grow a positive community for everyone to share their stories and lives that are surrounded by drugs. Places like this make the world a better place when you aren't demonized by anyone, which is amazing!",
   },
   {
     name: "Squonk",
-    role: "Discord Member",
     text: "I admire everyone's commitment to #TriPSiT throughout the years. And i am immensely proud and glad for the assistance\\social ground\\venting possibility~.., throughout the many many years. The educative vigor\\interests\\additions, in regards to advancement of both the www-site, Discord, and especially the IRC, in assisting and informing, is amazing. And i know a lot of people have had real life-altering\\life-saving, experiences throughout the many years. I thank you kindly, warmly, and genuinely lovingly, for being.",
   },
   {
     name: "Bloopiness",
-    role: "Discord Member",
     text: "I'd just like to thank everyone that is a part of Team TripSit for all of your continued efforts to make TripSit a better and more useful service, everyday! I'm sure I speak for everyone when I say that we're all very grateful that you all exist! I hope you're all having a wonderful day!",
   },
   {
     name: "Benjamin",
-    role: "Discord Member",
     text: "You're all fucking wonderful people. I can't emphasize this enough: I am glad to be friends with all of you. I haven't gotten in a single fight since being on here. There's just so much love. Thank you. I wouldn't be here without all of you.",
   },
   {
     name: "Eagle",
-    role: "Discord Member",
     text: "Thank you all for being here and taking the time to help people trough different things and big love to this community. i practiced way safer use with drugs and don't have the need anymore to overdo it keep it up ❤️ 💯",
   },
 ];
 
-const databaseDrugs = { startNum: 0, endNum: 780, duration: 4, delay: 1 };
-const subredditSubscribers = {
+const count = (endNum: number) => ({
   startNum: 0,
-  endNum: 57468,
+  endNum,
   duration: 4,
   delay: 1,
-};
+});
 
-function getTsAge(): number {
-  // Years since Sep 26, 2011
-  const today = new Date();
-  let years = today.getFullYear() - 2011;
-  if (today.getMonth() + 1 <= 9 && today.getDate() < 26) {
-    years -= 1;
-  }
-  return years;
-}
+// Years since Sep 26, 2011
+const getTsAge = () =>
+  Math.floor((Date.now() - Date.UTC(2011, 8, 26)) / 31557600000);
 
 /* ------------------------------------------------------------------ */
 /* Server-side data                                                    */
 /* ------------------------------------------------------------------ */
 
-async function getDiscordMetrics() {
+export async function getServerSideProps() {
   let guild = {} as APIGuild;
-
-  const baseUrl = "https://discord.com/api/v10";
-  const guildId = "179641883222474752";
-
-  const url = `${baseUrl}/guilds/${guildId}?with_counts=true`;
-
   try {
-    const response = await axios.get(url, {
-      headers: {
-        Authorization: `Bot ${process.env.DISCORD_CLIENT_TOKEN}`,
+    const response = await axios.get(
+      "https://discord.com/api/v10/guilds/179641883222474752?with_counts=true",
+      {
+        headers: { Authorization: `Bot ${process.env.DISCORD_CLIENT_TOKEN}` },
       },
-    });
+    );
     guild = response.data;
   } catch (error) {
     // Metrics are decorative; the page renders fine without them
   }
-
-  return {
-    props: { guild },
-  };
-}
-
-async function getSubredditMetrics() {
-  let subredditMetrics = {};
-
-  const baseUrl = "https://oauth.reddit.com";
-  const subreddit = "tripsit";
-
-  const url = `${baseUrl}/r/${subreddit}/about`;
-
-  try {
-    const response = await axios.get(url, {
-      headers: {
-        Authorization: `bearer ${process.env.REDDIT_BOT_TOKEN}`,
-        "User-Agent": "TripSitWebsite/0.1 by Techno_Shaman",
-      },
-    });
-    subredditMetrics = response.data;
-  } catch (error) {
-    // Metrics are decorative; the page renders fine without them
-  }
-
-  return {
-    props: { subredditMetrics },
-  };
-}
-
-export async function getServerSideProps() {
-  const [discordMetrics, subredditMetrics] = await Promise.all([
-    getDiscordMetrics(),
-    getSubredditMetrics(),
-  ]);
-  return {
-    props: {
-      ...discordMetrics.props,
-      ...subredditMetrics.props,
-    },
-  };
+  return { props: { guild } };
 }
 
 /* ------------------------------------------------------------------ */
@@ -347,21 +288,13 @@ export default function Home({ guild }: { guild: APIGuild }) {
   const onlineNow = guild.approximate_presence_count ?? 0;
 
   const stats = [
-    {
-      label: "Years of Service",
-      data: { ...databaseDrugs, endNum: getTsAge() },
-    },
+    { label: "Years of Service", data: count(getTsAge()) },
     {
       label: "Discord Members",
-      data: {
-        startNum: 0,
-        endNum: guild.approximate_member_count ?? 0,
-        duration: 4,
-        delay: 1,
-      },
+      data: count(guild.approximate_member_count ?? 0),
     },
-    { label: "Drugs in our Database", data: databaseDrugs },
-    { label: "Subreddit Subscribers", data: subredditSubscribers },
+    { label: "Drugs in our Database", data: count(780) },
+    { label: "Subreddit Subscribers", data: count(57468) },
   ];
 
   return (
@@ -425,8 +358,17 @@ export default function Home({ guild }: { guild: APIGuild }) {
 
           <div className="mt-16 grid w-full grid-cols-1 gap-4 text-left sm:grid-cols-2 lg:grid-cols-4">
             {quickLinks.map((card) => {
-              const inner = (
-                <>
+              const Comp = card.external ? "a" : Link;
+              return (
+                <Comp
+                  key={card.title}
+                  href={card.href}
+                  {...(card.external && {
+                    target: "_blank",
+                    rel: "noopener noreferrer",
+                  })}
+                  className="group flex h-full flex-col rounded-2xl border-[1px] border-solid border-line bg-surface/80 p-6 text-ink backdrop-blur transition hover:-translate-y-0.5 hover:border-violet/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan motion-reduce:hover:translate-y-0"
+                >
                   <span className="mb-4 inline-flex text-3xl text-cyan">
                     {card.icon}
                   </span>
@@ -436,24 +378,7 @@ export default function Home({ guild }: { guild: APIGuild }) {
                   <p className="text-sm leading-relaxed text-mute">
                     {card.text}
                   </p>
-                </>
-              );
-              const cardClass =
-                "group flex h-full flex-col rounded-2xl border-[1px] border-solid border-line bg-surface/80 p-6 text-ink backdrop-blur transition hover:-translate-y-0.5 hover:border-violet/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan motion-reduce:hover:translate-y-0";
-              return card.external ? (
-                <a
-                  key={card.title}
-                  href={card.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={cardClass}
-                >
-                  {inner}
-                </a>
-              ) : (
-                <Link key={card.title} href={card.href} className={cardClass}>
-                  {inner}
-                </Link>
+                </Comp>
               );
             })}
           </div>
@@ -516,9 +441,9 @@ export default function Home({ guild }: { guild: APIGuild }) {
               </p>
               <p className="rounded-xl border-[1px] border-solid border-amber/40 bg-amber/10 p-4 text-sm leading-relaxed text-ink">
                 We&apos;re a passionate group of volunteers, not certified
-                professionals. Our suite of services is designed to assist
-                those seeking information, an unbiased ear, testing resources,
-                or just a welcoming space.
+                professionals. Our suite of services is designed to assist those
+                seeking information, an unbiased ear, testing resources, or just
+                a welcoming space.
               </p>
             </div>
           </div>
@@ -621,8 +546,8 @@ export default function Home({ guild }: { guild: APIGuild }) {
               <p className="mt-4 italic text-mute">
                 We give permissions to print and distribute our chart for
                 non-profit usage. <br />
-                Full details of usage rights are in our FAQ below, but it
-                boils down to:
+                Full details of usage rights are in our FAQ below, but it boils
+                down to:
               </p>
               <ul className="mt-6 space-y-4">
                 {[
@@ -714,7 +639,7 @@ export default function Home({ guild }: { guild: APIGuild }) {
                       {quote.name}
                     </p>
                     <p className="text-xs uppercase tracking-widest text-mute">
-                      {quote.role}
+                      Discord Member
                     </p>
                   </figcaption>
                 </figure>
@@ -731,8 +656,18 @@ export default function Home({ guild }: { guild: APIGuild }) {
         >
           <div className="grid gap-[1.25rem] sm:grid-cols-2 lg:grid-cols-3">
             {resources.map((tool) => {
-              const inner = (
-                <>
+              const external = !tool.href.startsWith("/");
+              const Comp = external ? "a" : Link;
+              return (
+                <Comp
+                  key={tool.title}
+                  href={tool.href}
+                  {...(external && {
+                    target: "_blank",
+                    rel: "noopener noreferrer",
+                  })}
+                  className="group flex h-full flex-col rounded-2xl border-[1px] border-solid border-line bg-surface p-6 transition hover:-translate-y-0.5 hover:border-violet/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan motion-reduce:hover:translate-y-0"
+                >
                   <span className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-violet/15 text-2xl text-violet transition group-hover:bg-violet group-hover:text-night">
                     {tool.icon}
                   </span>
@@ -742,24 +677,7 @@ export default function Home({ guild }: { guild: APIGuild }) {
                   <p className="text-sm leading-relaxed text-mute">
                     {tool.text}
                   </p>
-                </>
-              );
-              const cardClass =
-                "group flex h-full flex-col rounded-2xl border-[1px] border-solid border-line bg-surface p-6 transition hover:-translate-y-0.5 hover:border-violet/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan motion-reduce:hover:translate-y-0";
-              return tool.href.startsWith("/") ? (
-                <Link key={tool.title} href={tool.href} className={cardClass}>
-                  {inner}
-                </Link>
-              ) : (
-                <a
-                  key={tool.title}
-                  href={tool.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={cardClass}
-                >
-                  {inner}
-                </a>
+                </Comp>
               );
             })}
           </div>

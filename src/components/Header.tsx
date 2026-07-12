@@ -198,23 +198,14 @@ function NavAnchor({
   className: string;
   onNavigate?: () => void;
 }) {
-  if (isInternal(link.href)) {
-    return (
-      <Link href={link.href} className={className} onClick={onNavigate}>
-        {link.label}
-        {link.note && (
-          <span className="mt-0.5 block text-xs text-mute">{link.note}</span>
-        )}
-      </Link>
-    );
-  }
+  const Comp = isInternal(link.href) ? Link : "a";
   return (
-    <a href={link.href} className={className} onClick={onNavigate}>
+    <Comp href={link.href} className={className} onClick={onNavigate}>
       {link.label}
       {link.note && (
         <span className="mt-0.5 block text-xs text-mute">{link.note}</span>
       )}
-    </a>
+    </Comp>
   );
 }
 

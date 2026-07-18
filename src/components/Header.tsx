@@ -231,7 +231,9 @@ function Header() {
       }
     };
     const onPointerDown = (e: PointerEvent) => {
-      if (!(e.target as Element).closest("header")) setOpenMenu(null);
+      if (e.target instanceof Element && !e.target.closest("header")) {
+        setOpenMenu(null);
+      }
     };
     document.addEventListener("keydown", onKey);
     document.addEventListener("pointerdown", onPointerDown);

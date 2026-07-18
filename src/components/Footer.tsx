@@ -117,7 +117,9 @@ export default function Footer() {
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-1.5 py-6 text-center text-xs text-mute sm:flex-row sm:justify-between sm:text-left">
           <p>&copy; {new Date().getFullYear()} TripSit. All Rights Reserved.</p>
           <p>
-            Made with ❤️ by{" "}
+            Made with{" "}
+            <i className="bx bxs-heart align-middle text-violet" aria-hidden />
+            <span className="sr-only">love</span> by{" "}
             <a
               href="https://github.com/LunaUrsa"
               className="text-ink transition hover:text-cyan"

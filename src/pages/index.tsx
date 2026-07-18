@@ -264,20 +264,23 @@ const getTsAge = () =>
 /* Server-side data                                                    */
 /* ------------------------------------------------------------------ */
 
-export async function getServerSideProps() {
-  let guild = {} as APIGuild;
+const GUILD_ID = "179641883222474752";
+const GUILD_URL = `https://discord.com/api/v10/guilds/${GUILD_ID}?with_counts=true`;
+
+async function getDiscordGuild(): Promise<APIGuild> {
   try {
-    const response = await axios.get(
-      "https://discord.com/api/v10/guilds/179641883222474752?with_counts=true",
-      {
-        headers: { Authorization: `Bot ${process.env.DISCORD_CLIENT_TOKEN}` },
-      },
-    );
-    guild = response.data;
-  } catch (error) {
-    // Metrics are decorative; the page renders fine without them
+    const { data } = await axios.get<APIGuild>(GUILD_URL, {
+      timeout: 3000,
+      headers: { Authorization: `Bot ${process.env.DISCORD_CLIENT_TOKEN}` },
+    });
+    return data;
+  } catch {
+    return {} as APIGuild;
   }
-  return { props: { guild } };
+}
+
+export async function getServerSideProps() {
+  return { props: { guild: await getDiscordGuild() } };
 }
 
 /* ------------------------------------------------------------------ */

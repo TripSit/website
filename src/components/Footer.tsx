@@ -72,6 +72,12 @@ const columns = [
 const footerLinkClass =
   "text-sm text-mute transition hover:text-cyan focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan";
 
+const credits = [
+  { name: "Moonbear", href: "https://github.com/LunaUrsa" },
+  { name: "Sympact06", href: "https://github.com/Sympact06" },
+  { name: "Team TripSit" },
+];
+
 export default function Footer() {
   return (
     <footer className="border-t border-line/60 bg-night px-5 text-ink">

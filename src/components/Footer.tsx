@@ -122,17 +122,26 @@ export default function Footer() {
       <div className="border-t border-line/60">
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-1.5 py-6 text-center text-xs text-mute sm:flex-row sm:justify-between sm:text-left">
           <p>&copy; {new Date().getFullYear()} TripSit. All Rights Reserved.</p>
-           <p>Made with <i className="bx bxs-heart align-middle text-violet" aria-hidden />
-            <span className="sr-only">love</span> by {credits.map((c, i) => (
+          <p>
+            {" "}
+            Made with{" "}
+            <i className="bx bxs-heart align-middle text-violet" aria-hidden />
+            <span className="sr-only">love</span> by{" "}
+            {credits.map((c, i) => (
               <span key={c.name}>
-                {i > 0 && (i === credits.length - 1 ? " and " : ", ")}
+                {" "}
+                {i > 0 && (i === credits.length - 1 ? " and " : ", ")}{" "}
                 {c.href ? (
-                  <a href={c.href} className="text-ink transition hover:text-cyan">
-                    {c.name}
+                  <a
+                    href={c.href}
+                    className="text-ink transition hover:text-cyan"
+                  >
+                    {" "}
+                    {c.name}{" "}
                   </a>
                 ) : (
                   c.name
-                )}
+                )}{" "}
               </span>
             ))}
           </p>

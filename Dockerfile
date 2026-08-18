@@ -19,9 +19,7 @@ COPY --chown=node:node package*.json ./
 
 # Install app dependencies using the `npm ci` command instead of `npm install`
 # Use NPM CI even though this may be your first time, cuz package-lock already thinks you installed stuff
-# The cache mount persists npm's download cache across builds on the same host,
-# so unchanged dependencies don't get re-fetched every time.
-RUN --mount=type=cache,target=/root/.npm npm ci
+RUN npm ci
 
 # Bundle app source
 COPY --chown=node:node . .
@@ -56,9 +54,7 @@ COPY --chown=node:node --from=development /usr/src/app/node_modules ./node_modul
 # Copy over the existing source code
 COPY --chown=node:node . .
 
-# The cache mount persists Next's webpack/turbopack build cache across builds
-# on the same host, so unchanged pages don't get fully recompiled every time.
-RUN --mount=type=cache,target=/usr/src/app/.next/cache npx next build
+RUN npx next build
 
 ###################
 # PRODUCTION

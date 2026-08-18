@@ -1,4 +1,3 @@
-/* eslint-disable arrow-parens */
 import React, { useState } from "react";
 import { TypeProp } from "particles-bg";
 import dynamic from "next/dynamic";
@@ -99,8 +98,8 @@ export default function Particles() {
   // Handle the button click
   const changeEffect = (selection: {
     type: TypeProp;
-    color?: string | undefined;
-    num?: number | undefined;
+    color?: string;
+    num?: number;
   }) => {
     setEffectType(selection);
   };

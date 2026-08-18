@@ -52,12 +52,12 @@ const columns = [
       },
       {
         label: "Reddit",
-        href: "http://reddit.com/r/TripSit",
+        href: "https://reddit.com/r/TripSit",
         icon: "bxl-reddit",
       },
       {
         label: "Matrix",
-        href: "http://element.tripsit.me",
+        href: "https://element.tripsit.me",
         icon: "bx-message-square-dots",
       },
       {

@@ -6,7 +6,7 @@ async function fetchUrl(url: string): Promise<boolean> {
   try {
     const res = await fetch(url);
     return res.ok;
-  } catch (error) {
+  } catch {
     return false;
   }
 }

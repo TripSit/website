@@ -24,8 +24,7 @@ const Counter = (props: CounterProps) => {
   } = props;
   const countUpRef = useRef<HTMLDivElement>(null);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { start, pauseResume, reset, update } = useCountUp({
+  const { start } = useCountUp({
     // react-countup typings predate React 19's RefObject<T | null>
     ref: countUpRef as RefObject<HTMLElement>,
     start: startNum,

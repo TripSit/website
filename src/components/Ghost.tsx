@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 export default function Ghost() {
-  const [lastActivity, setLastActivity] = useState(Date.now());
+  const [lastActivity, setLastActivity] = useState(() => Date.now());
   const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
 
   useEffect(() => {

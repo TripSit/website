@@ -1,4 +1,16 @@
 {
+    "explorer.fileNesting.enabled": true,
+    "explorer.fileNesting.patterns": {
+        "package.json": "package-lock.json, .nvmrc, .editorconfig, .gitattributes, .gitignore, .dockerignore, .eslintrc, .eslintignore, .prettierrc, next.config.js, postcss.config.js, tailwind.config.ts, tsconfig.json, tsconfig.copy.json, sonar-project.properties, .env, .env.example, .drone.yml, docker-compose.website.yml, Dockerfile"
+    },
+    "files.exclude": {
+        "**/node_modules": true,
+        "**/.DS_Store": true,
+        "**/.git": true,
+        ".husky": true,
+        "coverage": true,
+        ".next": true
+    },
     "files.autoSave": "off",
     "editor.defaultFormatter": "rvest.vs-code-prettier-eslint",
     "editor.formatOnPaste": false, // required 

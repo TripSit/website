@@ -6,8 +6,9 @@ steps:
   - name: Rebuild Website
     image: docker
     commands:
-      - apk update
-      - apk upgrade
+      # `apk add --no-cache` refreshes the index itself, so a separate `apk
+      # update` (and a full `apk upgrade` of this throwaway container's
+      # unrelated system packages) just burns build time for no benefit.
       - apk add --no-cache git
       - docker compose -f docker-compose.website-prod.yml --project-name website up -d --force-recreate --build
       # - tail -f /dev/null
@@ -38,7 +39,7 @@ steps:
   - name: discord notification
     image: appleboy/drone-discord
     settings:
-      webhook_id: 
+      webhook_id:
         from_secret: WEBHOOK_ID
       webhook_token:
         from_secret: WEBHOOK_TOKEN
@@ -84,8 +85,6 @@ steps:
   - name: Rebuild Website UAT
     image: docker
     commands:
-      - apk update
-      - apk upgrade
       - apk add --no-cache git
       - docker compose -f docker-compose.website-prod.yml --project-name website up -d --force-recreate --build
       # - tail -f /dev/null

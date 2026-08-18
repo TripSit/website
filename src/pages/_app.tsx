@@ -15,6 +15,8 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 // Main CSS file
 import "../../public/assets/css/style.css";
+// Tailwind utilities (after style.css so utilities win the cascade)
+import "../styles/tailwind.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"; // note: this is TanStack Rea`ct Query V5
 // import generateRandomString from "@/utils/randomString";
 

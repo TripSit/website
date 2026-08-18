@@ -1,5 +1,3 @@
-/* eslint-disable no-underscore-dangle */
-/* eslint-disable sonarjs/no-duplicate-string */
 import React, { ReactNode } from "react";
 import { Card, CardContent, Container, Grid, Typography } from "@mui/material";
 import {
@@ -187,7 +185,7 @@ const addDurations = (drugData: Drug) => {
                     strokeWidth: 2,
                     strokeColor: "#000000",
                   },
-                ] as {}[],
+                ] as Record<string, unknown>[],
               },
             ],
           } as ApexAxisChartSeries[number];
@@ -1034,7 +1032,7 @@ export default function DrugInfoCard({
                           }
 
                           const cleanNote = combo.note
-                            .replace(/(\(|\))/g, "")
+                            .replace(/[()]/g, "")
                             .replace(/ {2}/g, " ");
 
                           return (

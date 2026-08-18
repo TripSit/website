@@ -403,7 +403,6 @@ const AppealPage: React.FC = () => {
     };
 
     checkToken();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Set up background token refresh when we have a token
@@ -438,7 +437,6 @@ const AppealPage: React.FC = () => {
         refreshIntervalRef.current = null;
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   // Fetch ban status when we have a token

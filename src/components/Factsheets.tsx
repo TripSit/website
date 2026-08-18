@@ -1,5 +1,5 @@
-/* eslint-disable no-underscore-dangle */ // We use this because we have the _unit property
-/* eslint-disable sonarjs/no-duplicate-string */ // Make things easier to read
+// We use this because we have the _unit property
+// Make things easier to read
 
 /* Welcome Developers to TripSit's Factsheets, brought to you by THC and spite. 
 
@@ -52,7 +52,7 @@ import DrugInfoCard from "./DrugInfo";
 
 // If you want to debug a specific drug, change the below variable to the name of the drug
 // and then use the commented-out code below that to display what you need to debug
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 // const debugDrug = "cocaine";
 // if (drugData.original.name === debugDrug) {
 //   console.log(`roaString: ${JSON.stringify(roaString, null, 2)}`);
@@ -254,13 +254,12 @@ const Factsheets = () => {
   }>({
     queryKey: ["table-data"],
     queryFn: async () => {
-      let drugList = [] as Drug[];
       const response = await fetch(
         // TripSit's drug database file
         // This is fetched every time the user loads the page to ensure they have the latest data
         "https://raw.githubusercontent.com/TripSit/drugs/main/drugs.json",
       );
-      drugList = Object.values(
+      const drugList: Drug[] = Object.values(
         (await response.json()) as { [key: string]: Drug },
       );
       return {

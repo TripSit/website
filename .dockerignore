@@ -1,1 +1,9 @@
 node_modules/
+.next/
+.git/
+.github/
+.husky/
+.vscode/
+.devcontainer/
+*.md
+tsconfig.copy.json

@@ -125,129 +125,46 @@ const ProfileButton: React.FC = () => {
     }
   };
 
+  // Legacy stylesheet is unlayered and beats Tailwind's @layer utilities on
+  // the cascade, so colors that must hold are set inline (inline wins both)
+  const showAvatar = isLoggedIn && !isLoadingAvatar;
+
   return (
-    <div className="profile-button-container" ref={dropdownRef}>
+    <div className="relative" ref={dropdownRef}>
       <Tooltip title={isLoggedIn ? "Account" : "Login"} placement="bottom">
         <button
-          className="profile-button"
+          className="flex h-10 w-10 cursor-pointer appearance-none items-center justify-center overflow-hidden rounded-full bg-cover bg-center p-0 text-lg text-mute transition hover:text-cyan focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan"
           onClick={toggleDropdown}
           aria-label={isLoggedIn ? "Account menu" : "Login"}
-          style={
-            !isLoadingAvatar
-              ? {
-                  backgroundImage: `url(${avatarUrl})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  backgroundRepeat: "no-repeat",
-                }
-              : {}
-          }
+          style={{
+            border: "1px solid var(--color-line)",
+            background: "var(--color-surface)",
+            ...(showAvatar && { backgroundImage: `url(${avatarUrl})` }),
+          }}
         >
-          {isLoadingAvatar && (
-            <div className="loading-spinner">
-              <div className="spinner"></div>
-            </div>
+          {isLoadingAvatar ? (
+            <span className="h-5 w-5 animate-spin rounded-full border-2 border-line border-t-cyan" />
+          ) : (
+            !isLoggedIn && <i className="bi bi-person-fill" aria-hidden />
           )}
         </button>
       </Tooltip>
 
       {isLoggedIn && isDropdownOpen && (
-        <div className="profile-dropdown">
-          <button className="dropdown-item" onClick={handleLogout}>
-            <i className="bi bi-box-arrow-right"></i>
+        <div
+          className="absolute right-0 top-full z-50 mt-2 min-w-32 overflow-hidden rounded-xl bg-surface p-1 shadow-2xl shadow-night/60"
+          style={{ border: "1px solid var(--color-line)" }}
+        >
+          <button
+            className="flex w-full cursor-pointer appearance-none items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-ink transition hover:bg-violet/15 hover:text-cyan"
+            onClick={handleLogout}
+            style={{ border: "none", background: "none" }}
+          >
+            <i className="bi bi-box-arrow-right" aria-hidden />
             Logout
           </button>
         </div>
       )}
-
-      <style jsx>{`
-        .profile-button-container {
-          position: relative;
-        }
-
-        .profile-button {
-          width: 50px;
-          height: 50px;
-          border-radius: 50%;
-          background: rgba(255, 255, 255, 0.1);
-          color: #fff;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          font-size: 20px;
-        }
-
-        .profile-button:hover {
-          background: rgba(255, 255, 255, 0.2);
-          border-color: rgba(255, 255, 255, 0.4);
-          transform: scale(1.05);
-        }
-
-        .loading-spinner {
-          width: 100%;
-          height: 100%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .spinner {
-          width: 20px;
-          height: 20px;
-          border: 2px solid rgba(255, 255, 255, 0.3);
-          border-top: 2px solid #fff;
-          border-radius: 50%;
-          animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-          0% {
-            transform: rotate(0deg);
-          }
-          100% {
-            transform: rotate(360deg);
-          }
-        }
-
-        .profile-dropdown {
-          position: absolute;
-          top: 100%;
-          right: 0;
-          margin-top: 8px;
-          background: #2c3e50;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 8px;
-          min-width: 120px;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-          z-index: 1000;
-          overflow: hidden;
-        }
-
-        .dropdown-item {
-          width: 100%;
-          padding: 12px 16px;
-          background: none;
-          border: none;
-          color: #fff;
-          text-align: left;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          font-size: 14px;
-          transition: background-color 0.2s ease;
-        }
-
-        .dropdown-item:hover {
-          background: rgba(255, 255, 255, 0.1);
-        }
-
-        .dropdown-item i {
-          font-size: 16px;
-        }
-      `}</style>
     </div>
   );
 };

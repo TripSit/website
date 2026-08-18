@@ -109,14 +109,29 @@ export default function Particles() {
     <div>
       {/* Particle component */}
       <ParticlesBg {...effect} bg={true} />
-      <div id="animationButton">
-        <Dropdown>
+      {/* Floating background-animation picker, tucked under the hero */}
+      <div
+        id="animationButton"
+        className="relative z-10 mx-auto -mt-16 flex max-w-6xl justify-end px-5 pb-4"
+      >
+        <Dropdown
+          classNames={{
+            content:
+              "min-w-44 rounded-xl border border-line bg-surface p-1 shadow-2xl shadow-night/60",
+          }}
+        >
           <DropdownTrigger>
-            <Button variant="bordered">Animations</Button>
+            <Button
+              disableRipple
+              className="appearance-none [font:inherit] inline-flex cursor-pointer items-center gap-2 rounded-full border-[1px] border-solid border-line bg-surface/70 px-4 py-2 text-sm text-mute backdrop-blur transition hover:border-cyan hover:text-cyan focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan"
+            >
+              Animations
+            </Button>
           </DropdownTrigger>
           <DropdownMenu
-            aria-label="Static Actions"
+            aria-label="Background animation"
             items={items}
+            classNames={{ list: "outline-none" }}
             onAction={(key) => {
               const effectProps = particleEffects.find((e) => e.type === key);
               if (effectProps) changeEffect(effectProps);
@@ -125,7 +140,9 @@ export default function Particles() {
             {(item) => (
               <DropdownItem
                 key={(item as { key: string; label: string }).key}
-                className={(item as { key: string; label: string }).key}
+                classNames={{
+                  base: "cursor-pointer rounded-lg px-3 py-2 text-sm text-ink outline-none transition data-[hover=true]:bg-violet/15 data-[hover=true]:text-cyan",
+                }}
               >
                 {(item as { key: string; label: string }).label}
               </DropdownItem>

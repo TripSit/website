@@ -66,3 +66,8 @@ If you cannot run docker for whatever reason, or you're in codespace.
 
 But it worked on my system (tm) when im running on an ubuntu vps, so give it a shot.
 Also now works on windows as of 2/1/2025 on my machine (tm), if fails try WSL first before NVM
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for branching conventions (feature branches target `uat`, not `main`) and
+the checks that run in CI.

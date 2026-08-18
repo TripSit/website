@@ -1,0 +1,4 @@
+# Code owners for the TripSit website.
+# See https://docs.github.com/articles/about-codeowners for syntax.
+
+* @TripSit/website

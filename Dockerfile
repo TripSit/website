@@ -59,7 +59,9 @@ RUN npx next build
 USER node
 
 # Running `npm ci` removes the existing node_modules directory and passing in --only=production ensures that only the production dependencies are installed. This ensures that the node_modules directory is as optimized as possible
-RUN npm ci --omit=dev && npm cache clean --force
+# The `prepare` script (husky) is dropped first since husky is a devDependency: `--omit=dev` removes its
+# binary, but npm still runs `prepare` on install, which would otherwise fail with "husky: not found".
+RUN npm pkg delete scripts.prepare && npm ci --omit=dev && npm cache clean --force
 
 ###################
 # PRODUCTION

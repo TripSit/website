@@ -1,5 +1,5 @@
-/* eslint-disable no-underscore-dangle */ // We use this because we have the _unit property
-/* eslint-disable sonarjs/no-duplicate-string */ // Make things easier to read
+// We use this because we have the _unit property
+// Make things easier to read
 
 import { useRouter } from "next/router";
 
@@ -28,13 +28,12 @@ export default function DrugInfo() {
   }>({
     queryKey: ["table-data"],
     queryFn: async () => {
-      let drugList = [] as Drug[];
       const response = await fetch(
         // TripSit's drug database file
         // This is fetched every time the user loads the page to ensure they have the latest data
         "https://raw.githubusercontent.com/TripSit/drugs/main/drugs.json",
       );
-      drugList = Object.values(
+      const drugList: Drug[] = Object.values(
         (await response.json()) as { [key: string]: Drug },
       );
       return {

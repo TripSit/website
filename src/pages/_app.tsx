@@ -1,4 +1,3 @@
-/* eslint-disable no-alert */
 import { AppProps } from "next/app";
 import React, { useEffect } from "react";
 // import React, { useEffect, useState } from "react";
@@ -23,7 +22,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"; // not
 // const F = "_app.tsx";
 
 export default function App({ Component, pageProps }: AppProps) {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   // const [stateParam, setStateParam] = useState("");
 
   // const setNewStateParam = () => {

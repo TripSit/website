@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // require("dotenv").config();
 
@@ -17,7 +16,6 @@ export const env = {
 export default env;
 
 declare global {
-  // eslint-disable-next-line no-var, vars-on-top
   var env: any; // NOSONAR
 }
 

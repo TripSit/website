@@ -51,7 +51,7 @@ const grotesk = Space_Grotesk({
 const accordionItemClassNames = {
   // hairline divider as box-shadow: border utilities lose the cascade fight
   // against bootstrap's border rules here
-  base: "shadow-[0_1px_0_0_rgba(42,49,82,0.6)] last:shadow-none",
+  base: "shadow-[0_1px_0_0_rgba(42,49,82,0.6)] last:shadow-none [&>section]:!py-0",
   // flex collapses the h2 heading slot to the trigger height (bootstrap's
   // heading font-size otherwise adds a phantom line box)
   heading: "m-0 flex",

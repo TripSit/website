@@ -617,42 +617,57 @@ export default function Home({ guild }: { guild: APIGuild }) {
           lead="We are so proud of our volunteer force and the work they do! The amount of empathy, compassion and knowledge they bring to the table is astounding. We are so lucky to have them!"
           tint
         >
-          <Swiper
-            className="testimonials-swiper !pb-12"
-            modules={[Navigation, Pagination, A11y]}
-            spaceBetween={24}
-            slidesPerView={1}
-            breakpoints={{
-              768: { slidesPerView: 2 },
-              1280: { slidesPerView: 3 },
-            }}
-            navigation
-            pagination={{ clickable: true }}
-          >
-            {testimonials.map((quote) => (
-              <SwiperSlide key={quote.name} className="!h-auto">
-                <figure className="flex h-full flex-col rounded-2xl border-[1px] border-solid border-line bg-surface p-6">
-                  <blockquote className="flex-1 text-sm leading-relaxed text-mute">
-                    <span
-                      aria-hidden
-                      className="mb-2 block font-display text-4xl leading-none text-violet/60"
-                    >
-                      &ldquo;
-                    </span>
-                    {quote.text}
-                  </blockquote>
-                  <figcaption className="mt-5">
-                    <p className="font-display font-semibold text-ink">
-                      {quote.name}
-                    </p>
-                    <p className="text-xs uppercase tracking-widest text-mute">
-                      Discord Member
-                    </p>
-                  </figcaption>
-                </figure>
-              </SwiperSlide>
-            ))}
-          </Swiper>
+          <div className="testimonials-swiper relative px-12">
+            <Swiper
+              className="!pb-12"
+              modules={[Navigation, Pagination, A11y]}
+              spaceBetween={24}
+              slidesPerView={1}
+              breakpoints={{
+                768: { slidesPerView: 2 },
+                1280: { slidesPerView: 3 },
+              }}
+              navigation={{
+                prevEl: ".testimonials-prev",
+                nextEl: ".testimonials-next",
+              }}
+              pagination={{ clickable: true }}
+            >
+              {testimonials.map((quote) => (
+                <SwiperSlide key={quote.name} className="!h-auto">
+                  <figure className="flex h-full flex-col rounded-2xl border-[1px] border-solid border-line bg-surface p-6">
+                    <blockquote className="flex-1 text-sm leading-relaxed text-mute">
+                      <span
+                        aria-hidden
+                        className="mb-2 block font-display text-4xl leading-none text-violet/60"
+                      >
+                        &ldquo;
+                      </span>
+                      {quote.text}
+                    </blockquote>
+                    <figcaption className="mt-5">
+                      <p className="font-display font-semibold text-ink">
+                        {quote.name}
+                      </p>
+                      <p className="text-xs uppercase tracking-widest text-mute">
+                        Discord Member
+                      </p>
+                    </figcaption>
+                  </figure>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+            <button
+              type="button"
+              aria-label="Previous testimonials"
+              className="testimonials-prev swiper-button-prev appearance-none [background:none] [border:none] cursor-pointer !left-0 !top-[calc(50%-1.5rem)]"
+            />
+            <button
+              type="button"
+              aria-label="Next testimonials"
+              className="testimonials-next swiper-button-next appearance-none [background:none] [border:none] cursor-pointer !right-0 !top-[calc(50%-1.5rem)]"
+            />
+          </div>
         </Section>
 
         {/* Resources */}

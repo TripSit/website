@@ -456,7 +456,7 @@ export default function Home({ guild }: { guild: APIGuild }) {
           </div>
 
           <div className="mt-10">
-            <Accordion>
+            <Accordion showDivider={false}>
               <AccordionItem
                 key="0"
                 aria-label="Learn More"
@@ -712,7 +712,7 @@ export default function Home({ guild }: { guild: APIGuild }) {
           lead="At TripSit, we're a close-knit, volunteer-driven community. Whether you bring technical prowess, a knack for research, or simply a friendly spirit to chat in the lounge, there's a place for you here. Our ongoing development projects always welcome an extra pair of hands, and our drug databases eagerly await updates with the latest substances. Every piece of information benefits from meticulous review and proofreading. No contribution is too small, and every effort is deeply valued!"
           tint
         >
-          <Accordion>
+          <Accordion showDivider={false}>
             <AccordionItem
               key="1"
               aria-label="Join the community"
@@ -905,7 +905,7 @@ export default function Home({ guild }: { guild: APIGuild }) {
           title="Frequently Asked Questions"
           lead="Answers to our most commonly asked questions. Is your question not here? Contact us using a method below!"
         >
-          <Accordion>
+          <Accordion showDivider={false}>
             <AccordionItem
               key="1"
               aria-label="Can I print the combo chart?"

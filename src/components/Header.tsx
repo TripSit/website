@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import logo from "../../public/assets/img/logo.png";
 import ProfileButton from "./ProfileButton";
+import { solidButton } from "./buttonClasses";
 
 const domain = process.env.NEXT_PUBLIC_DNS_DOMAIN || "tripsit.me";
 
@@ -343,13 +344,13 @@ function Header() {
           <div className="flex shrink-0 items-center gap-3">
             <a
               href="https://discord.gg/tripsit"
-              className="hidden rounded-full border-[1px] border-solid border-cyan px-4 py-2 text-sm text-cyan transition hover:bg-cyan/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan md:block"
+              className="hidden rounded-full border-[1px] border-solid border-cyan px-4 py-2 text-sm text-cyan transition hover:bg-cyan/10 hover:text-cyan focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan md:block"
             >
               Join Discord
             </a>
             <Link
               href="/webchat"
-              className="hidden rounded-full bg-violet px-4 py-2 text-sm font-semibold text-night transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan md:block"
+              className={`${solidButton} hidden bg-violet px-4 py-2 text-sm md:block`}
               onClick={closeAll}
             >
               Get Help Now
@@ -381,14 +382,14 @@ function Header() {
           <div className="mb-6 flex gap-3 md:hidden">
             <Link
               href="/webchat"
-              className="flex-1 rounded-full bg-violet px-4 py-2.5 text-center text-sm font-semibold text-night"
+              className={`${solidButton} flex-1 bg-violet px-4 py-2.5 text-center text-sm`}
               onClick={closeAll}
             >
               Get Help Now
             </Link>
             <a
               href="https://discord.gg/tripsit"
-              className="flex-1 rounded-full border-[1px] border-solid border-line px-4 py-2.5 text-center text-sm text-ink"
+              className="flex-1 rounded-full border-[1px] border-solid border-line px-4 py-2.5 text-center text-sm text-ink transition hover:text-cyan"
             >
               Join Discord
             </a>

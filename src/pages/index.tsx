@@ -21,6 +21,7 @@ import { APIGuild } from "discord-api-types/v10";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Head from "../components/Head";
+import { solidButton } from "../components/buttonClasses";
 import bluelightLogo from "../../public/assets/img/logos/bluelight.jpg";
 import seiLogo from "../../public/assets/img/logos/sei.png";
 import rdrugsLogo from "../../public/assets/img/logos/rdrugs.png";
@@ -349,7 +350,7 @@ export default function Home({ guild }: { guild: APIGuild }) {
           <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row">
             <Link
               href="/webchat"
-              className="rounded-full bg-violet px-8 py-3.5 font-display text-base font-semibold text-night transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan"
+              className={`${solidButton} bg-violet px-8 py-3.5 font-display text-base`}
             >
               I want to talk to a Trip Sitter
             </Link>
@@ -357,7 +358,7 @@ export default function Home({ guild }: { guild: APIGuild }) {
               href="https://combo.tripsit.me/"
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-full bg-cyan px-8 py-3.5 font-display text-base font-semibold text-night shadow-lg shadow-cyan/25 transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan"
+              className={`${solidButton} bg-cyan px-8 py-3.5 font-display text-base shadow-lg shadow-cyan/25`}
             >
               Check drug combinations
             </a>

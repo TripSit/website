@@ -39,7 +39,7 @@
     "@heroui/react": "^2.8.10",
     "@mui/icons-material": "^6.5.0",
     "@mui/material": "^6.5.0",
-    "@mui/x-date-pickers": "^8.29.2",
+    "@mui/x-date-pickers": "^9.11.0",
     "@tailwindcss/postcss": "^4.3.2",
     "@tanstack/react-query": "^5.101.2",
     "@widgetbot/react-embed": "^1.11.3",

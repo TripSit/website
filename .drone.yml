@@ -2,42 +2,48 @@ kind: pipeline
 type: docker
 name: Deploy Website
 
+# The signed hook delegates checkout/build to the production server.
+clone:
+  disable: true
+
+# Run on this server's runner only (the UAT pipeline below pins env: uat)
+node:
+  env: prod
+
 steps:
   - name: Rebuild Website
-    image: docker
-    commands:
-      # `apk add --no-cache` refreshes the index itself, so a separate `apk
-      # update` (and a full `apk upgrade` of this throwaway container's
-      # unrelated system packages) just burns build time for no benefit.
-      - apk add --no-cache git
-      - docker compose -f docker-compose.website-prod.yml --project-name website up -d --force-recreate --build
-      # - tail -f /dev/null
+    # The server rebuilds and restarts this itself (docker/deploy/ on the server); this step only asks it to.
+    # This step requests only its hook key; runner-wide host mounts/socket access must also be removed at cutover.
+    image: local/tripsit-deploy-client:1-20261104
+    pull: never
     environment:
-      NODE_ENV:
-        from_secret: NODE_ENV
-      DOCKER_HOST:
-        from_secret: DOCKER_HOST
-      DOCKER_BUILDKIT:
-        from_secret: DOCKER_BUILDKIT
-      NEXT_PUBLIC_DNS_DOMAIN:
-        from_secret: NEXT_PUBLIC_DNS_DOMAIN
-      NEXT_PUBLIC_KEYCLOAK_URL:
-        from_secret: NEXT_PUBLIC_KEYCLOAK_URL
-      NEXT_PUBLIC_KEYCLOAK_CLIENT_ID:
-        from_secret: NEXT_PUBLIC_KEYCLOAK_CLIENT_ID
-      REDDIT_BOT_TOKEN:
-        from_secret: REDDIT_BOT_TOKEN
-      REDDIT_BOT_SECRET:
-        from_secret: REDDIT_BOT_SECRET
-      REDDIT_BOT_ID:
-        from_secret: REDDIT_BOT_ID
-      DISCORD_CLIENT_ID:
-        from_secret: DISCORD_CLIENT_ID
-      DISCORD_CLIENT_TOKEN:
-        from_secret: DISCORD_CLIENT_TOKEN
+      DEPLOY_HOOK_SECRET:
+        from_secret: DEPLOY_HOOK_SECRET
+    commands:
+      - |
+        set -eu
+        [ "$DRONE_COMMIT_BRANCH" = main ] || { echo "Refusing non-main production deployment" >&2; exit 1; }
+        [ "$DRONE_BUILD_EVENT" = push ] || { echo "Refusing non-push production deployment" >&2; exit 1; }
+        BODY=$(printf '{"target":"website","build":"%s","sha":"%s","ts":"%s"}' "$DRONE_BUILD_NUMBER" "$DRONE_COMMIT_SHA" "$(date +%s)")
+        SIG=$(printf '%s' "$BODY" | openssl dgst -sha256 -hmac "$DEPLOY_HOOK_SECRET" | sed 's/^.* //')
+        if HTTP_STATUS=$(curl -sS --connect-timeout 10 --max-time 3000 --retry 0 \
+          -o deploy.log -w '%{http_code}' -X POST -H 'Content-Type: application/json' \
+          -H "X-Signature: sha256=$SIG" --data-binary "$BODY" http://deployer:9000/hooks/deploy-website); then
+          :
+        else
+          RC=$?
+          echo "Deploy request failed (curl exit $RC); server may still be running it. No retry performed." >&2
+          exit "$RC"
+        fi
+        cat deploy.log
+        [ "$HTTP_STATUS" = 200 ] || { echo "Deploy hook HTTP $HTTP_STATUS" >&2; exit 1; }
+        grep -qx 'DEPLOY_RESULT=success' deploy.log
+        grep -qx "DEPLOY_COMMIT=$DRONE_COMMIT_SHA" deploy.log
 
   - name: discord notification
-    image: appleboy/drone-discord
+    image: appleboy/drone-discord:1.5.2@sha256:c850372e85a4b86465e8fa89876fe86263f7b1979f1f0c8d51243b78b792155c
+    when:
+      status: [success, failure]
     settings:
       webhook_id:
         from_secret: WEBHOOK_ID
@@ -66,7 +72,6 @@ trigger:
   - main
   event:
   # - cron
-  - custom
   - push
   # - pull_request
   # - tag

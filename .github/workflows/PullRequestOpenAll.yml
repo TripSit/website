@@ -10,6 +10,13 @@ on:
       - synchronize
       - reopened
 
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-open-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   lint:
     name: Lint

@@ -21,6 +21,7 @@ import { APIGuild } from "discord-api-types/v10";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Head from "../components/Head";
+import { solidButton } from "../components/buttonClasses";
 import bluelightLogo from "../../public/assets/img/logos/bluelight.jpg";
 import seiLogo from "../../public/assets/img/logos/sei.png";
 import rdrugsLogo from "../../public/assets/img/logos/rdrugs.png";
@@ -51,7 +52,7 @@ const grotesk = Space_Grotesk({
 const accordionItemClassNames = {
   // hairline divider as box-shadow: border utilities lose the cascade fight
   // against bootstrap's border rules here
-  base: "shadow-[0_1px_0_0_rgba(42,49,82,0.6)] last:shadow-none",
+  base: "shadow-[0_1px_0_0_rgba(42,49,82,0.6)] last:shadow-none [&>section]:!py-0",
   // flex collapses the h2 heading slot to the trigger height (bootstrap's
   // heading font-size otherwise adds a phantom line box)
   heading: "m-0 flex",
@@ -349,7 +350,7 @@ export default function Home({ guild }: { guild: APIGuild }) {
           <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row">
             <Link
               href="/webchat"
-              className="rounded-full bg-violet px-8 py-3.5 font-display text-base font-semibold text-night transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan"
+              className={`${solidButton} bg-violet px-8 py-3.5 font-display text-base`}
             >
               I want to talk to a Trip Sitter
             </Link>
@@ -357,7 +358,7 @@ export default function Home({ guild }: { guild: APIGuild }) {
               href="https://combo.tripsit.me/"
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-full bg-cyan px-8 py-3.5 font-display text-base font-semibold text-night shadow-lg shadow-cyan/25 transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan"
+              className={`${solidButton} bg-cyan px-8 py-3.5 font-display text-base shadow-lg shadow-cyan/25`}
             >
               Check drug combinations
             </a>
@@ -456,7 +457,7 @@ export default function Home({ guild }: { guild: APIGuild }) {
           </div>
 
           <div className="mt-10">
-            <Accordion>
+            <Accordion showDivider={false}>
               <AccordionItem
                 key="0"
                 aria-label="Learn More"
@@ -617,42 +618,57 @@ export default function Home({ guild }: { guild: APIGuild }) {
           lead="We are so proud of our volunteer force and the work they do! The amount of empathy, compassion and knowledge they bring to the table is astounding. We are so lucky to have them!"
           tint
         >
-          <Swiper
-            className="testimonials-swiper !pb-12"
-            modules={[Navigation, Pagination, A11y]}
-            spaceBetween={24}
-            slidesPerView={1}
-            breakpoints={{
-              768: { slidesPerView: 2 },
-              1280: { slidesPerView: 3 },
-            }}
-            navigation
-            pagination={{ clickable: true }}
-          >
-            {testimonials.map((quote) => (
-              <SwiperSlide key={quote.name} className="!h-auto">
-                <figure className="flex h-full flex-col rounded-2xl border-[1px] border-solid border-line bg-surface p-6">
-                  <blockquote className="flex-1 text-sm leading-relaxed text-mute">
-                    <span
-                      aria-hidden
-                      className="mb-2 block font-display text-4xl leading-none text-violet/60"
-                    >
-                      &ldquo;
-                    </span>
-                    {quote.text}
-                  </blockquote>
-                  <figcaption className="mt-5">
-                    <p className="font-display font-semibold text-ink">
-                      {quote.name}
-                    </p>
-                    <p className="text-xs uppercase tracking-widest text-mute">
-                      Discord Member
-                    </p>
-                  </figcaption>
-                </figure>
-              </SwiperSlide>
-            ))}
-          </Swiper>
+          <div className="testimonials-swiper relative px-12">
+            <Swiper
+              className="!pb-12"
+              modules={[Navigation, Pagination, A11y]}
+              spaceBetween={24}
+              slidesPerView={1}
+              breakpoints={{
+                768: { slidesPerView: 2 },
+                1280: { slidesPerView: 3 },
+              }}
+              navigation={{
+                prevEl: ".testimonials-prev",
+                nextEl: ".testimonials-next",
+              }}
+              pagination={{ clickable: true }}
+            >
+              {testimonials.map((quote) => (
+                <SwiperSlide key={quote.name} className="!h-auto">
+                  <figure className="flex h-full flex-col rounded-2xl border-[1px] border-solid border-line bg-surface p-6">
+                    <blockquote className="flex-1 text-sm leading-relaxed text-mute">
+                      <span
+                        aria-hidden
+                        className="mb-2 block font-display text-4xl leading-none text-violet/60"
+                      >
+                        &ldquo;
+                      </span>
+                      {quote.text}
+                    </blockquote>
+                    <figcaption className="mt-5">
+                      <p className="font-display font-semibold text-ink">
+                        {quote.name}
+                      </p>
+                      <p className="text-xs uppercase tracking-widest text-mute">
+                        Discord Member
+                      </p>
+                    </figcaption>
+                  </figure>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+            <button
+              type="button"
+              aria-label="Previous testimonials"
+              className="testimonials-prev swiper-button-prev appearance-none [background:none] [border:none] cursor-pointer !left-0 !top-[calc(50%-1.5rem)]"
+            />
+            <button
+              type="button"
+              aria-label="Next testimonials"
+              className="testimonials-next swiper-button-next appearance-none [background:none] [border:none] cursor-pointer !right-0 !top-[calc(50%-1.5rem)]"
+            />
+          </div>
         </Section>
 
         {/* Resources */}
@@ -697,7 +713,7 @@ export default function Home({ guild }: { guild: APIGuild }) {
           lead="At TripSit, we're a close-knit, volunteer-driven community. Whether you bring technical prowess, a knack for research, or simply a friendly spirit to chat in the lounge, there's a place for you here. Our ongoing development projects always welcome an extra pair of hands, and our drug databases eagerly await updates with the latest substances. Every piece of information benefits from meticulous review and proofreading. No contribution is too small, and every effort is deeply valued!"
           tint
         >
-          <Accordion>
+          <Accordion showDivider={false}>
             <AccordionItem
               key="1"
               aria-label="Join the community"
@@ -890,7 +906,7 @@ export default function Home({ guild }: { guild: APIGuild }) {
           title="Frequently Asked Questions"
           lead="Answers to our most commonly asked questions. Is your question not here? Contact us using a method below!"
         >
-          <Accordion>
+          <Accordion showDivider={false}>
             <AccordionItem
               key="1"
               aria-label="Can I print the combo chart?"

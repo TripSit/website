@@ -116,7 +116,7 @@ export default function Particles() {
         <Dropdown
           classNames={{
             content:
-              "min-w-44 rounded-xl border border-line bg-surface p-1 shadow-2xl shadow-night/60",
+              "w-44 rounded-2xl border-[1px] border-solid border-line bg-surface p-1 shadow-2xl shadow-night/60",
           }}
         >
           <DropdownTrigger>
@@ -130,7 +130,7 @@ export default function Particles() {
           <DropdownMenu
             aria-label="Background animation"
             items={items}
-            classNames={{ list: "outline-none" }}
+            classNames={{ list: "m-0 list-none p-0 outline-none" }}
             onAction={(key) => {
               const effectProps = particleEffects.find((e) => e.type === key);
               if (effectProps) changeEffect(effectProps);

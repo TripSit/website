@@ -437,6 +437,8 @@ timer isn't cleared on unmount.
 
 - Priority: P3 · Area: docs
 - Status: open
+- Notes: #250 removes the Dutch comment together with the `transpilePackages` workaround it
+  described; the other items are still open.
 - Files: `README.md`, `package.json`, `next.config.js`
 
 **Problem.**
@@ -454,12 +456,13 @@ translate the comment.
 
 - Priority: P3 · Area: perf
 - Status: needs-decision — which component system to standardise on
+- Notes: Dependabot's major bumps are handled by #250 (MUI 9), #251 (TypeScript 6 rather
+  than 7) and #253 (HeroUI 3). `material-react-table` never blocked MUI (its peers allow
+  `>=6`); the three MUI packages just had to move together.
 - Files: `package.json`, `src/pages/_app.tsx`
 
 **Problem.** Bootstrap CSS and JS, MUI with Emotion, HeroUI and Tailwind all ship, plus four
-icon sets (bootstrap-icons, boxicons, remixicon, MUI icons). Dependabot has open major-version
-PRs for MUI 9, HeroUI 3 and TypeScript 7; MUI is held back by `material-react-table` (see
-`next.config.js`).
+icon sets (bootstrap-icons, boxicons, remixicon, MUI icons).
 
 **Fix.** Choose one system, migrate, and measure with `@next/bundle-analyzer`.
 

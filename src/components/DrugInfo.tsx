@@ -294,12 +294,12 @@ const addDurations = (drugData: Drug) => {
   const gridSpacing = Math.max(12 / (allTypes.length + 1), 2); // Ensure a minimum size for the grid
 
   return (
-    <Grid item xs={12} key="durations">
+    <Grid size={{ xs: 12 }} key="durations">
       <Card>
         <CardContent>
           <Grid container spacing={2}>
             {/* Duration Chart */}
-            <Grid item xs={12} sm={6} md={6}>
+            <Grid size={{ xs: 12, sm: 6, md: 6 }}>
               <Typography variant="h5" style={{ color: "black" }}>
                 Durations
               </Typography>
@@ -313,15 +313,15 @@ const addDurations = (drugData: Drug) => {
             </Grid>
 
             {/* Duration Text */}
-            <Grid item xs={12} sm={6} md={6}>
+            <Grid size={{ xs: 12, sm: 6, md: 6 }}>
               <div style={{ height: "48px" }}></div>
               <Grid container spacing={0}>
                 {/* Strength Headers */}
-                <Grid item xs={gridSpacing}>
+                <Grid size={{ xs: gridSpacing }}>
                   <Typography></Typography>
                 </Grid>
                 {allTypes.map((type) => (
-                  <Grid item xs={gridSpacing} key={type}>
+                  <Grid size={{ xs: gridSpacing }} key={type}>
                     <Typography>{type}</Typography>
                   </Grid>
                 ))}
@@ -329,7 +329,7 @@ const addDurations = (drugData: Drug) => {
                 {/* Duration Rows */}
                 {Object.keys(durationTiming).map((roa) => (
                   <React.Fragment key={roa}>
-                    <Grid item xs={gridSpacing}>
+                    <Grid size={{ xs: gridSpacing }}>
                       <Typography>
                         <b>{roa}</b>
                       </Typography>
@@ -370,7 +370,7 @@ const addDurations = (drugData: Drug) => {
                       }
 
                       return (
-                        <Grid item xs={gridSpacing} key={`${roa}-${type}`}>
+                        <Grid size={{ xs: gridSpacing }} key={`${roa}-${type}`}>
                           <Typography>
                             {durationMinText} to {durationMaxText}
                           </Typography>
@@ -585,12 +585,12 @@ const addDosages = (drugData: Drug) => {
   const gridSpacing = Math.max(12 / (allStrengths.length + 1), 2); // Ensure a minimum size for the grid
 
   return (
-    <Grid item xs={12} key="dosage">
+    <Grid size={{ xs: 12 }} key="dosage">
       <Card>
         <CardContent>
           <Grid container spacing={2}>
             {/* Dosage Chart */}
-            <Grid item xs={12} sm={6} md={6}>
+            <Grid size={{ xs: 12, sm: 6, md: 6 }}>
               <Typography variant="h5" style={{ color: "black" }}>
                 Dosages
               </Typography>
@@ -604,15 +604,15 @@ const addDosages = (drugData: Drug) => {
             </Grid>
 
             {/* Dosage Text */}
-            <Grid item xs={12} sm={6} md={6}>
+            <Grid size={{ xs: 12, sm: 6, md: 6 }}>
               <div style={{ height: "48px" }}></div>
               <Grid container spacing={0}>
                 {/* Strength Headers */}
-                <Grid item xs={gridSpacing}>
+                <Grid size={{ xs: gridSpacing }}>
                   <Typography></Typography>
                 </Grid>
                 {allStrengths.map((strength) => (
-                  <Grid item xs={gridSpacing} key={strength}>
+                  <Grid size={{ xs: gridSpacing }} key={strength}>
                     <Typography
                       style={{
                         backgroundColor:
@@ -627,13 +627,16 @@ const addDosages = (drugData: Drug) => {
                 {/* ROA Rows */}
                 {Object.keys(doseText).map((roa) => (
                   <React.Fragment key={roa}>
-                    <Grid item xs={gridSpacing}>
+                    <Grid size={{ xs: gridSpacing }}>
                       <Typography>
                         <b>{roa}</b>
                       </Typography>
                     </Grid>
                     {allStrengths.map((strength) => (
-                      <Grid item xs={gridSpacing} key={`${roa}-${strength}`}>
+                      <Grid
+                        size={{ xs: gridSpacing }}
+                        key={`${roa}-${strength}`}
+                      >
                         <Typography
                           style={{
                             backgroundColor:
@@ -683,10 +686,7 @@ export default function DrugInfoCard({
           drugData.properties[property as keyof typeof drugData.properties];
         elements.push(
           <Grid
-            item
-            xs={12}
-            sm={12}
-            md={12}
+            size={{ xs: 12, sm: 12, md: 12 }}
             key={`${drugData.name}-${propertyName}`}
           >
             <Card>
@@ -705,7 +705,7 @@ export default function DrugInfoCard({
 
   // Always push the drug name since it's the one required field
   elements.push(
-    <Grid item xs={12} sm={4} md={4} key="pretty_name">
+    <Grid size={{ xs: 12, sm: 4, md: 4 }} key="pretty_name">
       <Card>
         <CardContent>
           <Typography variant="h5" style={{ color: "black" }}>
@@ -719,7 +719,7 @@ export default function DrugInfoCard({
 
   if (drugData.aliases) {
     elements.push(
-      <Grid item xs={12} sm={4} md={4} key="aliases">
+      <Grid size={{ xs: 12, sm: 4, md: 4 }} key="aliases">
         <Card>
           <CardContent>
             <Typography variant="h5" style={{ color: "black" }}>
@@ -742,7 +742,7 @@ export default function DrugInfoCard({
       )
       .join(", ");
     elements.push(
-      <Grid item xs={12} sm={4} md={4} key={`${drugData.name} categories`}>
+      <Grid size={{ xs: 12, sm: 4, md: 4 }} key={`${drugData.name} categories`}>
         <Card>
           <CardContent>
             <Typography variant="h5" style={{ color: "black" }}>
@@ -759,7 +759,7 @@ export default function DrugInfoCard({
     // Take the category list, capitalize each word, and join them with commas
 
     elements.push(
-      <Grid item xs={12} sm={12} md={12} key="summary">
+      <Grid size={{ xs: 12, sm: 12, md: 12 }} key="summary">
         <Card>
           <CardContent>
             <Typography variant="h5" style={{ color: "black" }}>
@@ -802,7 +802,7 @@ export default function DrugInfoCard({
         drugData.properties[property as keyof typeof drugData.properties];
       if (propertyName === "experiences") {
         elements.push(
-          <Grid item xs={12} sm={6} md={4} key={propertyName}>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }} key={propertyName}>
             <Card>
               <CardContent>
                 <Typography variant="h5" style={{ color: "black" }}>
@@ -823,7 +823,7 @@ export default function DrugInfoCard({
         );
       } else {
         elements.push(
-          <Grid item xs={12} sm={6} md={4} key={propertyName}>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }} key={propertyName}>
             <Card>
               <CardContent>
                 <Typography variant="h5" style={{ color: "black" }}>
@@ -841,7 +841,7 @@ export default function DrugInfoCard({
   // Dose note comes before dosage
   if (drugData.dose_note) {
     elements.push(
-      <Grid item xs={12} sm={12} md={12} key="dose_note">
+      <Grid size={{ xs: 12, sm: 12, md: 12 }} key="dose_note">
         <Card>
           <CardContent sx={{ backgroundColor: "yellow" }}>
             <Typography variant="h5" style={{ color: "black" }}>
@@ -926,7 +926,7 @@ export default function DrugInfoCard({
     });
 
     elements.push(
-      <Grid item xs={12} sm={12} md={12} key="combos">
+      <Grid size={{ xs: 12, sm: 12, md: 12 }} key="combos">
         <Card>
           <CardContent>
             <Typography variant="h5" style={{ color: "black" }}>
@@ -976,8 +976,7 @@ export default function DrugInfoCard({
                   <Card>
                     <CardContent>
                       <Grid
-                        item
-                        xs={12}
+                        size={{ xs: 12 }}
                         style={{
                           background: colorDef["background-color"],
                           border: `2px solid ${colorDef["border-color"]}`,
@@ -1036,7 +1035,7 @@ export default function DrugInfoCard({
                             .replace(/ {2}/g, " ");
 
                           return (
-                            <Grid item xs={12} key={`${combo}`}>
+                            <Grid size={{ xs: 12 }} key={`${combo}`}>
                               <Typography>
                                 <b>{drugBName}</b>
                                 {combo.note ? (
@@ -1065,7 +1064,7 @@ export default function DrugInfoCard({
 
   if (drugData.pweffects !== undefined) {
     elements.push(
-      <Grid item xs={12} sm={12} md={12} key="pweffects">
+      <Grid size={{ xs: 12, sm: 12, md: 12 }} key="pweffects">
         <Card>
           <CardContent>
             <Typography variant="h5" style={{ color: "black" }}>
@@ -1073,7 +1072,7 @@ export default function DrugInfoCard({
             </Typography>
             <Grid container spacing={1}>
               {Object.keys(drugData.pweffects).map((property) => (
-                <Grid item xs={3} key={property}>
+                <Grid size={{ xs: 3 }} key={property}>
                   <Typography>
                     <a
                       href={`https://psychonautwiki.org/wiki/${property}`}
@@ -1094,7 +1093,7 @@ export default function DrugInfoCard({
 
   if (drugData.formatted_effects) {
     elements.push(
-      <Grid item xs={12} sm={6} md={6} key="effects">
+      <Grid size={{ xs: 12, sm: 6, md: 6 }} key="effects">
         <Card>
           <CardContent>
             <Typography variant="h5" style={{ color: "black" }}>
@@ -1112,7 +1111,7 @@ export default function DrugInfoCard({
     const linkKeys = Object.keys(drugData.links);
 
     elements.push(
-      <Grid item xs={12} sm={6} md={6} key="links">
+      <Grid size={{ xs: 12, sm: 6, md: 6 }} key="links">
         <Card>
           <CardContent>
             <Typography variant="h5" style={{ color: "black" }}>
@@ -1139,7 +1138,7 @@ export default function DrugInfoCard({
     const sourceData = drugData.sources;
     const links = Object.values(sourceData);
     elements.push(
-      <Grid item xs={12} sm={6} md={6} key="sources">
+      <Grid size={{ xs: 12, sm: 6, md: 6 }} key="sources">
         <Card>
           <CardContent>
             <Typography variant="h5" style={{ color: "black" }}>

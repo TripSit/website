@@ -493,7 +493,7 @@ in `eslint.config.mjs` as known debt).
 ### WEB-026 — Dev-only advisories remain
 
 - Priority: P3 · Area: deps
-- Status: fixed — chore/WEB-026-update-deps
+- Status: fixed — chore/WEB-026-update-deps (#265)
 - Notes: on 2026-11-08 (`uat` at `7963e49`) `npm audit` reports 2 high, 27 moderate and 3 low,
   from `brace-expansion`, `zod`, `minimatch`, `glob` and `deepmerge`; `--omit=dev` reports none.
   After the upgrade the highs are gone; 27 moderate and 3 low remain, all under eslint and

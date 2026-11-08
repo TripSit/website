@@ -213,7 +213,7 @@ and pass `code_verifier` to the token endpoint. Quote and validate the avatar UR
 ### WEB-007 — `QueryClient` recreated on every render
 
 - Priority: P1 · Area: perf
-- Status: fixed — fix/WEB-007-query-client
+- Status: fixed — fix/WEB-007-query-client (#264)
 - Notes: `_app.tsx` keeps one `QueryClient` in `useState`. The table and the factsheet pages
   share one `useDrugs()` hook (`src/utils/drugs.ts`, key `["drugs"]`, 30 min `staleTime`), so
   `drugs.json` downloads once per page load. Their old queries used the same key with different
@@ -545,7 +545,7 @@ on the server. Until then, keep the busy-retry in each pipeline.
 ### WEB-029 — Factsheets pager ignores filters
 
 - Priority: P3 · Area: bug
-- Status: fixed — fix/WEB-007-query-client
+- Status: fixed — fix/WEB-007-query-client (#264)
 - Files: `src/components/Factsheets.tsx`
 
 **Problem.** The table passed `rowCount: meta.totalRowCount` (all 555 drugs) to

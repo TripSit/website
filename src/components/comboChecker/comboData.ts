@@ -1,9 +1,7 @@
 // Combo Checker data + interaction logic.
-// Interaction data is TripSit's canonical combo dataset (comboInteractions.json,
-// the same matrix used at combo.tripsit.me). The visual risk system (colors/glyphs)
-// comes from the Claude Design "Combo Checker" handoff.
+// Interaction data comes from the TripSit drug database.
 
-import rawInteractions from "./comboInteractions.json";
+import rawInteractions from "tripsit_drug_db/combos.json";
 
 export type RiskKey =
   | "synergy"
@@ -23,7 +21,7 @@ export interface RiskDef {
 }
 
 // Display order + grouping from TripSit's combo chart config (tableOrder / groupNames).
-// Substance labels here are lowercased to look up keys in comboInteractions.json.
+// Display labels are normalized to database keys when looking up a pair.
 export const GROUPS: { name: string; substances: string[] }[] = [
   {
     name: "Psychedelics",
@@ -154,12 +152,17 @@ const STATUS_TO_RISK: Record<string, RiskKey> = {
 const UNKNOWN_NOTE =
   "There isn't enough reliable data on this combination. Treat it as potentially risky and research it thoroughly.";
 
+function comboKey(substance: string): string {
+  const key = substance.toLowerCase();
+  return key === "dxm" ? "dextromethorphan" : key;
+}
+
 export function getCombo(
   a: string,
   b: string,
 ): { risk: RiskKey; note: string } {
-  const ka = a.toLowerCase();
-  const kb = b.toLowerCase();
+  const ka = comboKey(a);
+  const kb = comboKey(b);
   const entry = INTERACTIONS[ka]?.[kb] ?? INTERACTIONS[kb]?.[ka];
   if (!entry) return { risk: "unknown", note: UNKNOWN_NOTE };
   return {

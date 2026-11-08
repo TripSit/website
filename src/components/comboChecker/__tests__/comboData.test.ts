@@ -23,12 +23,21 @@ describe("getCombo", () => {
     });
   });
 
-  it("falls back to the reverse pairing when only that direction is present", () => {
+  it("returns the same result in either order", () => {
     const forward = getCombo("Alcohol", "GHB/GBL");
     const reverse = getCombo("GHB/GBL", "Alcohol");
     expect(forward).toEqual(reverse);
     expect(forward.risk).toBe("dangerous");
     expect(forward.note).not.toBe("");
+  });
+
+  it.each([
+    ["DXM", "MXE"],
+    ["MXE", "DXM"],
+  ])("rates %s + %s as Unsafe", (first, second) => {
+    const result = getCombo(first, second);
+    expect(result.risk).toBe("unsafe");
+    expect(result.note).toMatch(/serotonin syndrome/i);
   });
 
   it("includes the note when the dataset provides one", () => {

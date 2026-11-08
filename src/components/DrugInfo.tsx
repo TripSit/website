@@ -12,6 +12,7 @@ import type { ApexAxisChartSeries } from "apexcharts";
 import dynamic from "next/dynamic";
 import comboDefinitions from "../assets/comboDefinitions.json";
 import addDictionaryDefs from "./addDictionaryDefs";
+import { parseDoseRangeMg } from "../utils/parseDoseRangeMg";
 
 // We need to dynamically load this module
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
@@ -454,71 +455,23 @@ const addDosages = (drugData: Drug) => {
         [strength]: strengthData,
       };
 
-      // This essentially looks for "(any digit) (optional dash) (any digit) (optional unit)"
-      const regex = /(\d+(?:\.\d+)?)(?:-(\d+(?:\.\d+)?))?([a-zA-Z]+)?/;
-      const match = RegExp(regex).exec(strengthData);
+      const range = parseDoseRangeMg(strengthData);
+      if (!range) return;
 
-      // This is mostly for type-safety
-      if (match) {
-        // The minimum number is the first number to appear
-        const strengthMinNumber = parseFloat(match[1]);
-
-        // The maximum number is either the second number, or if there is no second number, the first number * 1.5
-        // Later, we have code that says "if there is no maximum, then do a fade out", the "1.5" is purely cosmetic
-        // The doseText above displays the "+" so it's clear to the user, they never see the (dosage * 1.5) value
-        const strengthMaxNumber = match[2]
-          ? parseFloat(match[2])
-          : strengthMinNumber * 1.5;
-
-        // Get the color associated with the strength
-        const strengthColor =
-          doseColorData[strength as keyof typeof doseColorData];
-        // If it's not already in the doseColors table, add it
-        if (!doseColors.includes(strengthColor)) {
-          doseColors.push(strengthColor);
-        }
-
-        // Get the gradient color associated with the strength
-        // If it's not already in the doseGradientToColors table, add it
-        const strengthGradientColor = match[2]
-          ? doseGradientData[strength as keyof typeof doseGradientData]
-          : "#ffffff";
-        if (!doseGradientToColors.includes(strengthGradientColor)) {
-          doseGradientToColors.push(strengthGradientColor);
-        }
-
-        // Check if the doseSeries already has a series with the same name
-        // If it does, push the new data to that series
-        // If it doesn't, create a new series
-        const existingSeries = doseSeries.find(
-          (series) => series.name === strength,
-        );
-
-        const roaUnit = match[3] ? ` (${match[3]})` : ``;
-        if (existingSeries) {
-          const existingSeriesData = existingSeries.data as {
-            x: string;
-            y: number[];
-          }[];
-
-          existingSeriesData.push({
-            x: `${roa}${roaUnit}`,
-            y: [strengthMinNumber, strengthMaxNumber],
-          });
-          return;
-        }
-
-        const dosePropertySeries = {
-          name: strength,
-          data: [
-            {
-              x: `${roa}${roaUnit}`,
-              y: [strengthMinNumber, strengthMaxNumber],
-            },
-          ],
-        };
-        doseSeries.push(dosePropertySeries);
+      const point = { x: `${roa} (mg)`, y: range };
+      const existingSeries = doseSeries.find(
+        (series) => series.name === strength,
+      );
+      if (existingSeries) {
+        (existingSeries.data as (typeof point)[]).push(point);
+        return;
       }
+
+      doseColors.push(doseColorData[strength as keyof typeof doseColorData]);
+      doseGradientToColors.push(
+        doseGradientData[strength as keyof typeof doseGradientData],
+      );
+      doseSeries.push({ name: strength, data: [point] });
     });
   });
 
@@ -594,13 +547,21 @@ const addDosages = (drugData: Drug) => {
               <Typography variant="h5" style={{ color: "black" }}>
                 Dosages
               </Typography>
-              <ReactApexChart
-                type="rangeBar"
-                options={option}
-                series={doseSeries}
-                height={200}
-                width={500}
-              />
+              {doseSeries.length > 0 && (
+                <>
+                  <Typography variant="body2">
+                    Chart shows bounded mass ranges in mg. See the table for all
+                    doses.
+                  </Typography>
+                  <ReactApexChart
+                    type="rangeBar"
+                    options={option}
+                    series={doseSeries}
+                    height={200}
+                    width={500}
+                  />
+                </>
+              )}
             </Grid>
 
             {/* Dosage Text */}

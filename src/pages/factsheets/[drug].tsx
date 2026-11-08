@@ -4,8 +4,7 @@
 import { useRouter } from "next/router";
 
 import React from "react";
-import { keepPreviousData, useQuery } from "@tanstack/react-query"; // note: this is TanStack Rea`ct Query V5
-import { Drug } from "tripsit_drug_db";
+import { useDrugs } from "../../utils/drugs";
 
 import Header from "../../components/Header";
 import Head from "../../components/Head";
@@ -21,27 +20,7 @@ const debugDrug = "cocaine";
 // }
 
 export default function DrugInfo() {
-  const {
-    data: { data = [] } = {}, // your data and api response will probably be different
-  } = useQuery<{
-    data: Array<Drug>;
-  }>({
-    queryKey: ["table-data"],
-    queryFn: async () => {
-      const response = await fetch(
-        // TripSit's drug database file
-        // This is fetched every time the user loads the page to ensure they have the latest data
-        "https://raw.githubusercontent.com/TripSit/drugs/main/drugs.json",
-      );
-      const drugList: Drug[] = Object.values(
-        (await response.json()) as { [key: string]: Drug },
-      );
-      return {
-        data: drugList,
-      };
-    },
-    placeholderData: keepPreviousData,
-  });
+  const { data = [] } = useDrugs();
 
   // Go through the drug list and find the drug that matches the name, pretty_name, or any aliases we're looking for
   const router = useRouter();

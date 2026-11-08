@@ -55,17 +55,23 @@ Priorities: **P0** exploitable or critical, fix now · **P1** real bug or exposu
 | WEB-024 | P3  | perf           | Five UI/CSS systems and four icon sets ship together                                       |
 | WEB-025 | P3  | lint           | Two `react-hooks/set-state-in-effect` warnings                                             |
 | WEB-026 | P3  | deps           | Dev-only advisories remain (brace-expansion, js-yaml, zod)                                 |
+| WEB-027 | P2  | deploy         | Both Drone servers build every push; the other server's build hangs as pending             |
+| WEB-028 | P2  | deploy         | The shared deployer gives up after ~60 s when another deploy is running                    |
+| WEB-029 | P3  | bug            | Factsheets pager shows the full count ("1-10 of 555") after filtering                      |
+| WEB-030 | P2  | perf           | Expanding a factsheet row keeps the browser busy for tens of seconds                       |
 
 ### Overlap groups (same files; take together or in sequence)
 
 - **Lockfile:** WEB-001 first, then anything else that changes `package.json` or
   `package-lock.json` (WEB-016, WEB-019, WEB-024, WEB-026).
 - **Template scripts:** WEB-008, WEB-009, WEB-022 (`_document.tsx`, `_app.tsx`, `public/assets/vendor`).
-- **Drug data:** WEB-007, WEB-010 (`_app.tsx`, `Factsheets.tsx`, `factsheets/[drug].tsx`).
+- **Drug data:** WEB-007, WEB-010, WEB-029, WEB-030 (`_app.tsx`, `Factsheets.tsx`,
+  `factsheets/[drug].tsx`, `DrugInfo.tsx`).
 - **Auth:** WEB-005, WEB-006, WEB-025 (`keycloak.ts`, `ProfileButton.tsx`, `appeal.tsx`).
 - **Homepage:** WEB-003, WEB-020, WEB-021 (`pages/index.tsx`, `Counter.tsx`, `Ghost.tsx`).
 - **Workflows:** WEB-012, WEB-013, WEB-015, WEB-017 (`.github/workflows/`).
-- **Docker/Drone:** WEB-014, WEB-016, WEB-018 (`.drone.yml`, `Dockerfile`, `.dockerignore`).
+- **Docker/Drone:** WEB-014, WEB-016, WEB-018, WEB-027, WEB-028 (`.drone.yml`, `Dockerfile`,
+  `.dockerignore`, Drone and deployer settings on the servers).
 
 ---
 
@@ -207,7 +213,11 @@ and pass `code_verifier` to the token endpoint. Quote and validate the avatar UR
 ### WEB-007 — `QueryClient` recreated on every render
 
 - Priority: P1 · Area: perf
-- Status: open
+- Status: fixed — fix/WEB-007-query-client
+- Notes: `_app.tsx` keeps one `QueryClient` in `useState`. The table and the factsheet pages
+  share one `useDrugs()` hook (`src/utils/drugs.ts`, key `["drugs"]`, 30 min `staleTime`), so
+  `drugs.json` downloads once per page load. Their old queries used the same key with different
+  data shapes, which would have clashed in a shared cache. Also fixes WEB-029.
 - Files: `src/pages/_app.tsx:48`, `src/components/Factsheets.tsx:418`
 
 **Problem.** `<QueryClientProvider client={new QueryClient()}>` builds a new client each time
@@ -313,6 +323,8 @@ does), add `permissions: contents: read` at the top of every workflow, and grant
 
 - Priority: P2 · Area: deploy
 - Status: open
+- Notes: `docker-compose.website-prod.yml` lives on the UAT server; `DISCORD_GUILD_ID` was
+  added to it for #258. How the Drone step's checkout reaches it is still undocumented.
 - Files: `.drone.yml:72-125`
 
 **Problem.**
@@ -482,6 +494,8 @@ in `eslint.config.mjs` as known debt).
 
 - Priority: P3 · Area: deps
 - Status: open
+- Notes: on 2026-11-08 (`uat` at `7963e49`) `npm audit` reports 2 high, 27 moderate and 3 low,
+  from `brace-expansion`, `zod`, `minimatch`, `glob` and `deepmerge`; `--omit=dev` reports none.
 - Files: `package-lock.json`
 
 **Problem.** After WEB-001, full `npm audit` still reports 3 high and 19 moderate advisories,
@@ -492,3 +506,65 @@ churn for the security PR, so it was left out.
 
 **Fix.** In a separate PR, run `npm audit fix` (no `--force`), then lint, test and build.
 Belongs to the lockfile overlap group.
+
+### WEB-027 — Both Drone servers build every push
+
+- Priority: P2 · Area: deploy
+- Status: open
+- Files: `.drone.yml`; repository settings on drone.tripsit.io and drone.tripsit.me
+
+**Problem.** The repository is active on two Drone servers. drone.tripsit.io has the UAT
+runner (`env: uat`) and drone.tripsit.me has the production runner (`env: prod`). Both
+receive every push and both start a build. The one without a matching runner keeps it
+pending until the next push skips it (for example .me #115 and #117 for `uat`, .io #35 and
+#39 for `main`). Both report under the same GitHub status, `continuous-integration/drone/push`,
+so whichever server reports last sets the commit's status. If Drone kills a pending build
+(.me #109 was "killed"), the commit can show as failed even though its deploy worked.
+
+**Fix.** Keep each branch's pipeline on one server: deactivate the repo on the server that
+doesn't deploy that branch, or give the servers different status names. If both must stay
+active, check how each server handles builds it can't run.
+
+### WEB-028 — The shared deployer gives up after about 60 s when another deploy is running
+
+- Priority: P2 · Area: deploy
+- Status: open
+- Notes: #259 makes the website's production step retry the "busy" answer (6 attempts, 30 s
+  apart). TripBot's `.drone.yml` needs the same change.
+- Files: deployer on the production server (`docker/deploy/`, not in this repo); `.drone.yml`
+
+**Problem.** The website and TripBot deploy through one deployer (`http://deployer:9000`),
+which runs one deployment at a time. A deploy takes about 4.5 minutes, but a second request
+waits only about 60 s and then fails with `DEPLOY_RESULT=failure (deployer busy; no deployment
+started)`. On 2026-11-08 this failed the website's production build #118 while TripBot #724
+was deploying. It had to be restarted by hand.
+
+**Fix.** Raise the deployer's wait for its lock above the longest deploy, or queue requests
+on the server. Until then, keep the busy-retry in each pipeline.
+
+### WEB-029 — Factsheets pager ignores filters
+
+- Priority: P3 · Area: bug
+- Status: fixed — fix/WEB-007-query-client
+- Files: `src/components/Factsheets.tsx`
+
+**Problem.** The table passed `rowCount: meta.totalRowCount` (all 555 drugs) to
+material-react-table. `rowCount` is meant for server-side pagination, so the footer showed
+"1-10 of 555" even when a filter left one row. Production showed the same.
+
+**Fix.** Drop `rowCount`; the table counts filtered rows itself.
+
+### WEB-030 — Expanding a factsheet row keeps the browser busy
+
+- Priority: P2 · Area: perf
+- Status: open
+- Files: `src/components/Factsheets.tsx`, `src/components/DrugInfo.tsx`
+
+**Problem.** After a row on `/factsheets` is expanded, its detail cards appear in about
+0.4 s, but Chrome's renderer stays busy afterwards: screenshots time out for 30–60 s and one
+measured frame took about 2 s. tripsit.me (MUI 6) and tripsit.io (MUI 9) behave the same.
+The cause hasn't been investigated; `DrugInfo` renders around 50–130 MUI `Grid` items per
+drug, and the table is wrapped in several providers and animations.
+
+**Fix.** Profile an expansion in Chrome DevTools (Performance panel) to find what keeps the
+main thread or compositor busy, then fix that.

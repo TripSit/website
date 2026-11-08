@@ -54,6 +54,18 @@ COPY --chown=node:node --from=development /usr/src/app/node_modules ./node_modul
 # Copy over the existing source code
 COPY --chown=node:node . .
 
+# Next.js writes `process.env.NEXT_PUBLIC_*` into the browser bundle as literal
+# values during `next build`, so they must be set here, at build time. Setting
+# them on the running container has no effect on client code. Pass them with
+# `docker build --build-arg` or `build.args` in compose. An unset arg becomes an
+# empty string, and the code then uses its fallback (see src/utils/keycloak.ts).
+ARG NEXT_PUBLIC_DNS_DOMAIN
+ARG NEXT_PUBLIC_KEYCLOAK_URL
+ARG NEXT_PUBLIC_KEYCLOAK_CLIENT_ID
+ENV NEXT_PUBLIC_DNS_DOMAIN=$NEXT_PUBLIC_DNS_DOMAIN \
+    NEXT_PUBLIC_KEYCLOAK_URL=$NEXT_PUBLIC_KEYCLOAK_URL \
+    NEXT_PUBLIC_KEYCLOAK_CLIENT_ID=$NEXT_PUBLIC_KEYCLOAK_CLIENT_ID
+
 RUN npx next build
 
 ###################

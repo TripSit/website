@@ -82,11 +82,11 @@ const InfoBar = (
         isOpen ? <UnfoldLessDoubleIcon /> : <UnfoldMoreDoubleIcon />
       }
     >
-      <Grid item key="factsheetInfo">
+      <Grid key="factsheetInfo">
         <Card>
           <CardContent>
             <Grid container spacing={2}>
-              <Grid item xs={12} sm={11} md={10}>
+              <Grid size={{ xs: 12, sm: 11, md: 10 }}>
                 <Typography>
                   TripSit&apos;s factsheets are meticulously crafted to deliver
                   clear, concise, and reliable information about various
@@ -122,19 +122,19 @@ const InfoBar = (
                 </Typography>
               </Grid>
 
-              <Grid item xs={12} sm={1} md={2}>
-                <Grid container direction="column" spacing={2}>
-                  <Grid item xs={12}>
+              <Grid size={{ xs: 12, sm: 1, md: 2 }}>
+                <Grid container spacing={2}>
+                  <Grid size={{ xs: 12 }}>
                     <KofiButton
                       color="#0a9396"
                       title="TripSit Ko-Fi"
                       kofiID="J3J5NOJCE"
                     />
                   </Grid>
-                  <Grid item xs={12}>
+                  <Grid size={{ xs: 12 }}>
                     <PatreonButton />
                   </Grid>
-                  <Grid item xs={12}>
+                  <Grid size={{ xs: 12 }}>
                     <GithubButton />
                   </Grid>
                 </Grid>

@@ -59,6 +59,7 @@ Priorities: **P0** exploitable or critical, fix now · **P1** real bug or exposu
 | WEB-028 | P2  | deploy         | The shared deployer gives up after ~60 s when another deploy is running                    |
 | WEB-029 | P3  | bug            | Factsheets pager shows the full count ("1-10 of 555") after filtering                      |
 | WEB-030 | P2  | perf           | Expanding a factsheet row keeps the browser busy for tens of seconds                       |
+| WEB-031 | P1  | auth, build    | Ban-appeal login fails: the Keycloak client ID never reaches `next build`                  |
 
 ### Overlap groups (same files; take together or in sequence)
 
@@ -67,11 +68,11 @@ Priorities: **P0** exploitable or critical, fix now · **P1** real bug or exposu
 - **Template scripts:** WEB-008, WEB-009, WEB-022 (`_document.tsx`, `_app.tsx`, `public/assets/vendor`).
 - **Drug data:** WEB-007, WEB-010, WEB-029, WEB-030 (`_app.tsx`, `Factsheets.tsx`,
   `factsheets/[drug].tsx`, `DrugInfo.tsx`).
-- **Auth:** WEB-005, WEB-006, WEB-025 (`keycloak.ts`, `ProfileButton.tsx`, `appeal.tsx`).
+- **Auth:** WEB-005, WEB-006, WEB-025, WEB-031 (`keycloak.ts`, `ProfileButton.tsx`, `appeal.tsx`).
 - **Homepage:** WEB-003, WEB-020, WEB-021 (`pages/index.tsx`, `Counter.tsx`, `Ghost.tsx`).
 - **Workflows:** WEB-012, WEB-013, WEB-015, WEB-017 (`.github/workflows/`).
-- **Docker/Drone:** WEB-014, WEB-016, WEB-018, WEB-027, WEB-028 (`.drone.yml`, `Dockerfile`,
-  `.dockerignore`, Drone and deployer settings on the servers).
+- **Docker/Drone:** WEB-014, WEB-016, WEB-018, WEB-027, WEB-028, WEB-031 (`.drone.yml`,
+  `Dockerfile`, `.dockerignore`, Drone and deployer settings on the servers).
 
 ---
 
@@ -568,3 +569,25 @@ drug, and the table is wrapped in several providers and animations.
 
 **Fix.** Profile an expansion in Chrome DevTools (Performance panel) to find what keeps the
 main thread or compositor busy, then fix that.
+
+### WEB-031 — Ban-appeal login fails: the Keycloak client ID never reaches `next build`
+
+- Priority: P1 · Area: auth, build
+- Status: fixed — fix/WEB-031-keycloak-build-args
+- Notes: Also needs `build.args` for the three `NEXT_PUBLIC_*` variables in the compose files
+  that build the image: `docker-compose.website-prod.yml` on the UAT server (WEB-014) and
+  `docker-compose.website.yml` in the production server's repo. Production builds from `main`.
+- Files: `Dockerfile`, `src/utils/keycloak.ts`
+
+**Problem.** Logging in at `/appeal` fails after the user signs in. TripBot logs "Keycloak
+token error" and `POST /api/v2/keycloak/token` returns 500. Keycloak binds an auth code to
+the client that requested it, and TripBot redeems it as the ban-appeals client
+(`KEYCLOAK_BAN_APPEALS_CLIENT_ID`). The browser asked as `website`. Next.js writes
+`NEXT_PUBLIC_*` values into the browser bundle during `next build`, but the Dockerfile never
+declared them, so the build saw none. The live bundle still has
+`process.env.NEXT_PUBLIC_KEYCLOAK_CLIENT_ID||"website"` and always uses the fallback.
+
+**Fix.** Declare the three variables as `ARG`/`ENV` in the Dockerfile's build stage and pass
+them as compose `build.args`. `keycloak.ts` no longer falls back to `website`: a missing
+client ID throws outside production and is logged in production, where Keycloak then rejects
+the request before the user signs in.

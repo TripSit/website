@@ -5,3 +5,16 @@ updates:
     target-branch: "uat"
     schedule:
       interval: "weekly"
+    groups:
+      # @mui/material, @mui/icons-material and @mui/x-date-pickers peer-depend
+      # on each other's majors, so separate PRs can never install (#239, #240,
+      # #242). Bump them together.
+      mui:
+        patterns:
+          - "@mui/*"
+    ignore:
+      # typescript-eslint supports only typescript <6.1.0 (as of 8.72.1), so
+      # TypeScript 7 fails npm ci (#222). Remove once typescript-eslint
+      # supports 7.
+      - dependency-name: "typescript"
+        versions: [">=7.0.0"]

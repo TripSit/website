@@ -16,8 +16,9 @@ stepping on each other. Read the next section before starting work.
 - **Respect the overlap groups below.** Issues in the same group touch the same files; one
   agent should take the whole group, or do them one after another.
 - **Branch from `uat`, open PRs into `uat`** (see `CONTRIBUTING.md` and `CICD-POLICY.md`).
-- **Do not use `git add -A`, `git add .` or `git commit -a` until WEB-004 is fixed.** It would
-  strip bytes from 11 binary font files and corrupt them. Stage paths explicitly.
+- **Do not use `git add -A`, `git add .` or `git commit -a` on a branch without #248
+  (WEB-004).** On those branches it would strip bytes from 11 binary font files and corrupt
+  them, so stage paths explicitly. Branches cut from `uat` after #248 merges are safe.
 - **Check your work with:** `npx eslint .`, `npm test`, `npx next build`. Install with
   `npm ci --ignore-scripts` if you don't want husky's `prepare` script to set `core.hooksPath`.
 
@@ -73,7 +74,7 @@ Priorities: **P0** exploitable or critical, fix now · **P1** real bug or exposu
 ### WEB-001 — Next.js 16.3.1 has critical RCE advisories; other deps vulnerable
 
 - Priority: P0 · Area: deps
-- Status: fixed — fix/review-top-three
+- Status: fixed — fix/review-top-three (#247)
 - Notes: `next` and `eslint-config-next` 16.4.5; `npm update` of axios 1.21.0,
   follow-redirects 1.16.2, sharp 0.35.5, source-map-js 1.2.2. Production audit now shows
   only 53 low findings. Remaining dev-only advisories are tracked in WEB-026.
@@ -94,7 +95,7 @@ Check whether Dependabot security updates are enabled; no PR was opened for thes
 ### WEB-002 — 404 page fetches and redirects to the `Referer` header
 
 - Priority: P0 · Area: security
-- Status: fixed — fix/review-top-three
+- Status: fixed — fix/review-top-three (#247)
 - Notes: the page no longer reads headers, fetches or redirects, and is now static.
   `src/components/BlogSuggestion.tsx` links to `https://blog.<domain><path>` (the server
   HTML links to the blog root; the browser fills in the path). Tests:
@@ -124,7 +125,7 @@ URLs are still wanted, configure them in Traefik for a known list of paths.
 ### WEB-003 — Homepage embeds the full Discord guild object; calls Discord on every request
 
 - Priority: P0 · Area: security, perf
-- Status: fixed — fix/review-top-three
+- Status: fixed — fix/review-top-three (#247)
 - Notes: `src/utils/discordStats.ts` returns `{ memberCount, presenceCount } | null`; the
   homepage uses `getStaticProps` with `revalidate: 300` (30 when the fetch fails). Build shows
   `/` as ISR. Local HTML props are `{"discord":null}` (no token locally). Tests:
@@ -151,7 +152,10 @@ regenerated on the first request after 30 s.
 ### WEB-004 — `.gitattributes` treats fonts as text
 
 - Priority: P1 · Area: repo
-- Status: open
+- Status: fixed — fix/gitattributes-binaries (#248)
+- Notes: `* text=auto eol=lf` plus `binary` for png, jpg, jpeg, gif, ico, webp, pdf, ttf, otf,
+  woff, woff2 and eot. A fresh clone now shows 0 modified files. The 6 CRLF vendor files are
+  left as committed; renormalizing them (or deleting them via WEB-008/WEB-009) is optional.
 - Files: `.gitattributes`
 
 **Problem.** `* text eol=lf` applies to every file and only `*.png` is marked binary. Git

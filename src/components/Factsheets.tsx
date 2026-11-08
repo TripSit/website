@@ -31,15 +31,8 @@ import {
 import { Accordion } from "@heroui/react";
 import AccordionSection from "./AccordionSection";
 import RefreshIcon from "@mui/icons-material/Refresh";
-import {
-  QueryClient,
-  QueryClientProvider,
-  keepPreviousData,
-  useQuery,
-} from "@tanstack/react-query"; // note: this is TanStack Rea`ct Query V5
 import { Category, Drug } from "tripsit_drug_db";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { useDrugs } from "../utils/drugs";
 import Grid from "@mui/material/Grid";
 import KofiButton from "kofi-button";
 import UnfoldMoreDoubleIcon from "@mui/icons-material/UnfoldMoreDouble";
@@ -241,37 +234,7 @@ const addCategoryStyle = (text: string | undefined) => {
 };
 
 const Factsheets = () => {
-  const {
-    data: { data = [], meta } = {}, // your data and api response will probably be different
-    isError,
-    isRefetching,
-    isLoading,
-    refetch,
-  } = useQuery<{
-    data: Array<Drug>;
-    meta: {
-      totalRowCount: number;
-    };
-  }>({
-    queryKey: ["table-data"],
-    queryFn: async () => {
-      const response = await fetch(
-        // TripSit's drug database file
-        // This is fetched every time the user loads the page to ensure they have the latest data
-        "https://raw.githubusercontent.com/TripSit/drugs/main/drugs.json",
-      );
-      const drugList: Drug[] = Object.values(
-        (await response.json()) as { [key: string]: Drug },
-      );
-      return {
-        data: drugList,
-        meta: {
-          totalRowCount: drugList.length,
-        },
-      };
-    },
-    placeholderData: keepPreviousData,
-  });
+  const { data = [], isError, isRefetching, isLoading, refetch } = useDrugs();
 
   // Define the columns
   const columns = useMemo<MRT_ColumnDef<Drug>[]>(
@@ -369,7 +332,6 @@ const Factsheets = () => {
     enableTopToolbar: true,
     enableTableHead: true,
     enableHiding: true,
-    rowCount: meta?.totalRowCount ?? 0,
     state: {
       isLoading,
       showAlertBanner: isError,
@@ -417,13 +379,4 @@ const Factsheets = () => {
   return <MaterialReactTable table={table} data-bs-theme="dark" />;
 };
 
-const ExamplePage = () => (
-  // App.tsx or AppProviders file. Don't just wrap this component with QueryClientProvider! Wrap your whole App!
-  <LocalizationProvider dateAdapter={AdapterDateFns}>
-    <QueryClientProvider client={new QueryClient()}>
-      <Factsheets />
-    </QueryClientProvider>
-  </LocalizationProvider>
-);
-
-export default ExamplePage;
+export default Factsheets;

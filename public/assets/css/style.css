@@ -2351,7 +2351,8 @@ section {
   text-align: center;
 }
 
-#factsheets section {  
+#factsheets section,
+#factsheets [data-slot="accordion-panel"] {
   margin-bottom: 0;
   padding: 10px 0 0 0;
 }

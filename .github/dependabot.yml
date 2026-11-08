@@ -12,6 +12,14 @@ updates:
       mui:
         patterns:
           - "@mui/*"
+      # jest and jest-environment-jsdom share Jest's internal packages. Bumping
+      # one alone (#256) installs a second copy of them, so bump them together.
+      jest:
+        patterns:
+          - "jest"
+          - "jest-*"
+          - "@jest/*"
+          - "@types/jest"
     ignore:
       # typescript-eslint supports only typescript <6.1.0 (as of 8.72.1), so
       # TypeScript 7 fails npm ci (#222). Remove once typescript-eslint

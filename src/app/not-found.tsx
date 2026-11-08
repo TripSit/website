@@ -1,28 +1,16 @@
 import Link from "next/link";
-import { RedirectType, permanentRedirect } from "next/navigation";
-import { headers } from "next/headers";
+import BlogSuggestion from "../components/BlogSuggestion";
 
-async function fetchUrl(url: string): Promise<boolean> {
-  try {
-    const res = await fetch(url);
-    return res.ok;
-  } catch {
-    return false;
-  }
-}
+const domain = process.env.NEXT_PUBLIC_DNS_DOMAIN || "tripsit.me";
 
-export default async function NotFound() {
-  const referer = (await headers()).get("referer");
-  if (referer) {
-    const blogUrl = referer.replace("https://", "https://blog.");
-    if (await fetchUrl(blogUrl)) {
-      permanentRedirect(blogUrl, RedirectType.replace);
-    }
-  }
+// Never fetch or redirect to URLs built from request headers here (see WEB-002 in
+// REVIEW-ISSUES.md); only link to the blog on a fixed host.
+export default function NotFound() {
   return (
     <div className="global">
-      <h2>Not Found </h2>
+      <h2>Not Found</h2>
       <p>Could not find requested resource</p>
+      <BlogSuggestion blogOrigin={`https://blog.${domain}`} />
       <Link href="/">Return Home</Link>
     </div>
   );

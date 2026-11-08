@@ -16,8 +16,6 @@ import SmartToyOutlinedIcon from "@mui/icons-material/SmartToyOutlined";
 import PhoneAndroidOutlinedIcon from "@mui/icons-material/PhoneAndroidOutlined";
 import MenuBookOutlinedIcon from "@mui/icons-material/MenuBookOutlined";
 import ForumOutlinedIcon from "@mui/icons-material/ForumOutlined";
-import axios from "axios";
-import { APIGuild } from "discord-api-types/v10";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Head from "../components/Head";
@@ -33,6 +31,7 @@ import logo from "../../public/assets/img/logo.png";
 import Ghost from "../components/Ghost";
 import Particles from "../components/Particles";
 import Counter from "../components/Counter";
+import { DiscordStats, getDiscordStats } from "../utils/discordStats";
 
 // Import Swiper styles
 import "swiper/css";
@@ -265,37 +264,29 @@ const getTsAge = () =>
 /* Server-side data                                                    */
 /* ------------------------------------------------------------------ */
 
-const GUILD_ID = "179641883222474752";
-const GUILD_URL = `https://discord.com/api/v10/guilds/${GUILD_ID}?with_counts=true`;
-
-async function getDiscordGuild(): Promise<APIGuild> {
-  try {
-    const { data } = await axios.get<APIGuild>(GUILD_URL, {
-      timeout: 3000,
-      headers: { Authorization: `Bot ${process.env.DISCORD_CLIENT_TOKEN}` },
-    });
-    return data;
-  } catch {
-    return {} as APIGuild;
-  }
-}
-
-export async function getServerSideProps() {
-  return { props: { guild: await getDiscordGuild() } };
+export async function getStaticProps() {
+  const discord = await getDiscordStats();
+  // Regenerate at most every 5 minutes; retry sooner if the counts couldn't be
+  // fetched (for example, no token at build time).
+  return { props: { discord }, revalidate: discord ? 300 : 30 };
 }
 
 /* ------------------------------------------------------------------ */
 /* Page                                                                */
 /* ------------------------------------------------------------------ */
 
-export default function Home({ guild }: { guild: APIGuild }) {
-  const onlineNow = guild.approximate_presence_count ?? 0;
+export default function Home({
+  discord,
+}: {
+  readonly discord: DiscordStats | null;
+}) {
+  const onlineNow = discord?.presenceCount ?? 0;
 
   const stats = [
     { label: "Years of Service", data: count(getTsAge()) },
     {
       label: "Discord Members",
-      data: count(guild.approximate_member_count ?? 0),
+      data: count(discord?.memberCount ?? 0),
     },
     { label: "Drugs in our Database", data: count(780) },
     { label: "Subreddit Subscribers", data: count(57468) },

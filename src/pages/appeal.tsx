@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
 import Head from "next/head";
-import { Button } from "@heroui/react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import AppealForm from "../components/AppealForm";
@@ -532,11 +531,8 @@ const AppealPage: React.FC = () => {
                 </div>
               </div>
               <div className="text-center mt-4">
-                <Button
-                  as="a"
+                <a
                   href={getLoginUrl()}
-                  color="primary"
-                  size="lg"
                   className="btn-get-started scrollto"
                   style={{
                     borderRadius: "50px",
@@ -549,7 +545,7 @@ const AppealPage: React.FC = () => {
                   }}
                 >
                   Login with Discord
-                </Button>
+                </a>
               </div>
             </div>
           </section>

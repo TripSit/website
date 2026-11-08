@@ -3,7 +3,8 @@ import Link from "next/link";
 import React, { ReactNode } from "react";
 import { Navigation, Pagination, A11y } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Accordion, AccordionItem } from "@heroui/react";
+import { Accordion } from "@heroui/react";
+import AccordionSection from "../components/AccordionSection";
 import { Tooltip } from "@mui/material";
 import { Inter, Space_Grotesk } from "next/font/google";
 import JoinInnerOutlinedIcon from "@mui/icons-material/JoinInnerOutlined";
@@ -51,7 +52,7 @@ const grotesk = Space_Grotesk({
 const accordionItemClassNames = {
   // hairline divider as box-shadow: border utilities lose the cascade fight
   // against bootstrap's border rules here
-  base: "shadow-[0_1px_0_0_rgba(42,49,82,0.6)] last:shadow-none [&>section]:!py-0",
+  base: "shadow-[0_1px_0_0_rgba(42,49,82,0.6)] last:shadow-none",
   // flex collapses the h2 heading slot to the trigger height (bootstrap's
   // heading font-size otherwise adds a phantom line box)
   heading: "m-0 flex",
@@ -448,8 +449,8 @@ export default function Home({
           </div>
 
           <div className="mt-10">
-            <Accordion showDivider={false}>
-              <AccordionItem
+            <Accordion hideSeparator className="w-full px-2">
+              <AccordionSection
                 key="0"
                 aria-label="Learn More"
                 title="Learn More"
@@ -517,7 +518,7 @@ export default function Home({
                 <p>
                   From all of us at TripSit: Stay safe and dose responsibly.
                 </p>
-              </AccordionItem>
+              </AccordionSection>
             </Accordion>
           </div>
         </Section>
@@ -704,8 +705,8 @@ export default function Home({
           lead="At TripSit, we're a close-knit, volunteer-driven community. Whether you bring technical prowess, a knack for research, or simply a friendly spirit to chat in the lounge, there's a place for you here. Our ongoing development projects always welcome an extra pair of hands, and our drug databases eagerly await updates with the latest substances. Every piece of information benefits from meticulous review and proofreading. No contribution is too small, and every effort is deeply valued!"
           tint
         >
-          <Accordion showDivider={false}>
-            <AccordionItem
+          <Accordion hideSeparator className="w-full px-2">
+            <AccordionSection
               key="1"
               aria-label="Join the community"
               startContent={accStart("👥")}
@@ -732,8 +733,8 @@ export default function Home({
                 to contribute or simply observe the evolution, Discord is your
                 go-to platform!
               </p>
-            </AccordionItem>
-            <AccordionItem
+            </AccordionSection>
+            <AccordionSection
               key="2"
               aria-label="Become a Helper"
               startContent={accStart("🤝")}
@@ -755,8 +756,8 @@ export default function Home({
                 Display consistent dedication and contribution, and we&apos;ll
                 be thrilled to welcome you as a full-fledged TripSitter!
               </p>
-            </AccordionItem>
-            <AccordionItem
+            </AccordionSection>
+            <AccordionSection
               key="3"
               aria-label="Help with Research"
               startContent={accStart("🔍")}
@@ -788,8 +789,8 @@ export default function Home({
                 into the Development section for a clearer picture of how you
                 can play a part.
               </p>
-            </AccordionItem>
-            <AccordionItem
+            </AccordionSection>
+            <AccordionSection
               key="4"
               aria-label="Assist with Development"
               startContent={accStart("💻")}
@@ -887,7 +888,7 @@ export default function Home({
                 </a>
                 .
               </p>
-            </AccordionItem>
+            </AccordionSection>
           </Accordion>
         </Section>
 
@@ -897,8 +898,8 @@ export default function Home({
           title="Frequently Asked Questions"
           lead="Answers to our most commonly asked questions. Is your question not here? Contact us using a method below!"
         >
-          <Accordion showDivider={false}>
-            <AccordionItem
+          <Accordion hideSeparator className="w-full px-2">
+            <AccordionSection
               key="1"
               aria-label="Can I print the combo chart?"
               startContent={accStart("?")}
@@ -965,8 +966,8 @@ export default function Home({
                 scope of this license, please reach out through one of our
                 contact methods below.
               </p>
-            </AccordionItem>
-            <AccordionItem
+            </AccordionSection>
+            <AccordionSection
               key="2"
               aria-label="What happened to the IRC?"
               startContent={accStart("?")}
@@ -995,8 +996,8 @@ export default function Home({
                 associated with Discord and our reservations about relying on
                 older software platforms.
               </p>
-            </AccordionItem>
-            <AccordionItem
+            </AccordionSection>
+            <AccordionSection
               key="3"
               aria-label="Can I interview TripSit?"
               startContent={accStart("?")}
@@ -1011,8 +1012,8 @@ export default function Home({
                 The most effective way to reach out to our team is via our
                 Discord.
               </p>
-            </AccordionItem>
-            <AccordionItem
+            </AccordionSection>
+            <AccordionSection
               key="4"
               aria-label="I sent an email and you didn't respond, what gives?"
               startContent={accStart("?")}
@@ -1026,7 +1027,7 @@ export default function Home({
                 response or more direct engagement, reaching out to us on
                 Discord is highly recommended.
               </p>
-            </AccordionItem>
+            </AccordionSection>
           </Accordion>
         </Section>
       </main>

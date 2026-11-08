@@ -28,7 +28,8 @@ import {
   Card,
   CardContent,
 } from "@mui/material";
-import { Accordion, AccordionItem } from "@heroui/react";
+import { Accordion } from "@heroui/react";
+import AccordionSection from "./AccordionSection";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import {
   QueryClient,
@@ -62,8 +63,8 @@ import DrugInfoCard from "./DrugInfo";
 // We can use this for announcements or updates
 const InfoBar = (
   // We use the accordion item to make it collapsible
-  <Accordion>
-    <AccordionItem
+  <Accordion className="w-full px-2">
+    <AccordionSection
       key="0"
       aria-label="TripSit's Factsheets"
       title="TripSit's Factsheets"
@@ -143,7 +144,7 @@ const InfoBar = (
           </CardContent>
         </Card>
       </Grid>
-    </AccordionItem>
+    </AccordionSection>
   </Accordion>
 );
 

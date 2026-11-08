@@ -129,7 +129,9 @@ URLs are still wanted, configure them in Traefik for a known list of paths.
 - Notes: `src/utils/discordStats.ts` returns `{ memberCount, presenceCount } | null`; the
   homepage uses `getStaticProps` with `revalidate: 300` (30 when the fetch fails). Build shows
   `/` as ISR. Local HTML props are `{"discord":null}` (no token locally). Tests:
-  `src/utils/__tests__/discordStats.test.ts`.
+  `src/utils/__tests__/discordStats.test.ts`. UAT showed 0 members because its bot is not in
+  the production server (Discord: 404 "Unknown Guild"); #257 reads the server ID from
+  `DISCORD_GUILD_ID`, defaulting to production.
 - Files: `src/pages/index.tsx`
 
 **Problem.** `getServerSideProps` returns the whole `APIGuild` response as page props, so every
@@ -145,7 +147,8 @@ most every few minutes. Optional follow-up (needs decision): use the public invi
 
 **Deploy note.** `DISCORD_CLIENT_TOKEN` must be in the production _runtime_ environment, as it
 already had to be. If it is missing at build time the page is built with zero counts and
-regenerated on the first request after 30 s.
+regenerated on the first request after 30 s. Any environment whose bot is not in the
+production server (UAT) must also set `DISCORD_GUILD_ID` to a server that bot is in.
 
 **Done when.** Homepage HTML contains only the two counts; the page is ISR, not per-request SSR.
 

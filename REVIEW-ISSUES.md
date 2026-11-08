@@ -493,9 +493,14 @@ in `eslint.config.mjs` as known debt).
 ### WEB-026 — Dev-only advisories remain
 
 - Priority: P3 · Area: deps
-- Status: open
+- Status: fixed — chore/WEB-026-update-deps
 - Notes: on 2026-11-08 (`uat` at `7963e49`) `npm audit` reports 2 high, 27 moderate and 3 low,
   from `brace-expansion`, `zod`, `minimatch`, `glob` and `deepmerge`; `--omit=dev` reports none.
+  After the upgrade the highs are gone; 27 moderate and 3 low remain, all under eslint and
+  jest. `minimatch` and `glob` are fixed only in new majors (11 and 14), which eslint and jest
+  don't accept yet; minimatch 11 changes `partial` matching, which eslint uses to walk
+  directories, so overriding could silently change which files get linted. `deepmerge` has no
+  fixed release. Recheck when eslint or jest move to minimatch 11.
 - Files: `package-lock.json`
 
 **Problem.** After WEB-001, full `npm audit` still reports 3 high and 19 moderate advisories,

@@ -3,8 +3,8 @@ import BlogSuggestion from "../components/BlogSuggestion";
 
 const domain = process.env.NEXT_PUBLIC_DNS_DOMAIN || "tripsit.me";
 
-// Never fetch or redirect to URLs built from request headers here (see WEB-002 in
-// REVIEW-ISSUES.md); only link to the blog on a fixed host.
+// Never fetch or redirect to URLs built from request headers here (SSRF and open redirect,
+// WEB-002, fixed in #247); only link to the blog on a fixed host.
 export default function NotFound() {
   return (
     <div className="global">

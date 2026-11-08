@@ -116,6 +116,9 @@ steps:
         from_secret: DISCORD_CLIENT_ID
       DISCORD_CLIENT_TOKEN:
         from_secret: DISCORD_CLIENT_TOKEN
+      # The server the homepage Discord stats read; UAT's bot is only in the test server.
+      DISCORD_GUILD_ID:
+        from_secret: DISCORD_GUILD_ID
 
   - name: discord notification
     image: appleboy/drone-discord

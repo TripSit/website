@@ -573,7 +573,7 @@ main thread or compositor busy, then fix that.
 ### WEB-031 — Ban-appeal login fails: the Keycloak client ID never reaches `next build`
 
 - Priority: P1 · Area: auth, build
-- Status: fixed — fix/WEB-031-keycloak-build-args
+- Status: fixed — fix/WEB-031-keycloak-build-args (#266)
 - Notes: Also needs `build.args` for the three `NEXT_PUBLIC_*` variables in the compose files
   that build the image: `docker-compose.website-prod.yml` on the UAT server (WEB-014) and
   `docker-compose.website.yml` in the production server's repo. Production builds from `main`.

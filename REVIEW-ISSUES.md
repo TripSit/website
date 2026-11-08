@@ -130,8 +130,8 @@ URLs are still wanted, configure them in Traefik for a known list of paths.
   homepage uses `getStaticProps` with `revalidate: 300` (30 when the fetch fails). Build shows
   `/` as ISR. Local HTML props are `{"discord":null}` (no token locally). Tests:
   `src/utils/__tests__/discordStats.test.ts`. UAT showed 0 members because its bot is not in
-  the production server (Discord: 404 "Unknown Guild"); `fix/discord-guild-id` reads the
-  server ID from `DISCORD_GUILD_ID`, defaulting to production.
+  the production server (Discord: 404 "Unknown Guild"); #257 reads the server ID from
+  `DISCORD_GUILD_ID`, defaulting to production.
 - Files: `src/pages/index.tsx`
 
 **Problem.** `getServerSideProps` returns the whole `APIGuild` response as page props, so every

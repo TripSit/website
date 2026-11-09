@@ -112,7 +112,7 @@ test("keeps dose text and charts the ranges for each route", () => {
   expect(screen.getByText("unknown")).toBeVisible();
   expect(screen.getByText("1-2mg")).toBeVisible();
   expect(screen.getByLabelText("Tooltip for common")).toHaveTextContent(
-    /oral .*:.*1 - 2/,
+    "oral (mg): 1 - 2",
   );
   expect(
     JSON.parse(screen.getByLabelText("Chart series").textContent ?? ""),

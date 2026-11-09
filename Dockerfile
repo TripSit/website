@@ -25,7 +25,8 @@ RUN npm ci
 COPY --chown=node:node . .
 
 # Use the node user from the image (instead of the root user)
-# USER node
+RUN chown node:node /usr/src/app
+USER node
 
 # For container development, the following command runs forever, so we can inspect the container
 CMD ["npm", "run", ".dev"]

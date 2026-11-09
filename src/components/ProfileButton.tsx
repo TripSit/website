@@ -72,11 +72,7 @@ const ProfileButton: React.FC = () => {
       }
     };
 
-    if (isLoggedIn) {
-      fetchAvatar();
-    } else {
-      setAvatarUrl(GUEST_AVATAR_PATH);
-    }
+    if (isLoggedIn) fetchAvatar();
   }, [isLoggedIn]);
 
   // Close dropdown when clicking outside
@@ -138,7 +134,7 @@ const ProfileButton: React.FC = () => {
           aria-label={isLoggedIn ? "Account menu" : "Login"}
           style={{
             border: "1px solid var(--color-line)",
-            background: "var(--color-surface)",
+            backgroundColor: "var(--color-surface)",
             ...(showAvatar && { backgroundImage: `url(${avatarUrl})` }),
           }}
         >

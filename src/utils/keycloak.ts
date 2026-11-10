@@ -53,7 +53,22 @@ export function getPostLogoutUrl(): string {
   const params = new URLSearchParams({
     post_logout_redirect_uri:
       typeof window !== "undefined" ? window.location.origin : "",
-    id_token_hint: sessionStorage.getItem("kc_id_token") || "",
+    id_token_hint:
+      sessionStorage.getItem("kc_id_token") ||
+      localStorage.getItem("kc_id_token") ||
+      "",
   });
   return `${config.url}/realms/${config.realm}/protocol/openid-connect/logout?${params.toString()}`;
+}
+
+// Preserve the logout hint before removing credentials from both storage locations.
+// Some older sessions still have tokens in localStorage; never leave those usable.
+export function prepareKeycloakLogout(): string {
+  const logoutUrl = getPostLogoutUrl();
+  for (const storage of [sessionStorage, localStorage]) {
+    storage.removeItem("kc_token");
+    storage.removeItem("kc_refresh_token");
+    storage.removeItem("kc_id_token");
+  }
+  return logoutUrl;
 }

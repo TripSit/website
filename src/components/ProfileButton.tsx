@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Tooltip } from "@mui/material";
-import { getLoginUrl, getPostLogoutUrl } from "@/utils/keycloak";
+import { getLoginUrl, prepareKeycloakLogout } from "@/utils/keycloak";
 
 const GUEST_AVATAR_PATH = "/assets/img/guest.png";
 
@@ -95,10 +95,7 @@ const ProfileButton: React.FC = () => {
   };
 
   const handleLogout = () => {
-    // Clear tokens from sessionStorage
-    sessionStorage.removeItem("kc_token");
-    sessionStorage.removeItem("kc_refresh_token");
-    sessionStorage.removeItem("kc_id_token");
+    const logoutUrl = prepareKeycloakLogout();
 
     // Reset avatar
     setAvatarUrl(GUEST_AVATAR_PATH);
@@ -110,7 +107,7 @@ const ProfileButton: React.FC = () => {
     // Notify other components about token changes
     window.dispatchEvent(new Event("tokensUpdated"));
 
-    window.location.href = getPostLogoutUrl();
+    window.location.href = logoutUrl;
   };
 
   const toggleDropdown = () => {

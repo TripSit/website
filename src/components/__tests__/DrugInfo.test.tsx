@@ -8,6 +8,9 @@ import DrugInfo from "../DrugInfo";
 jest.mock("next/router", () => ({ useRouter: jest.fn() }));
 jest.mock("@/utils/drugs", () => ({ useDrugs: jest.fn() }));
 jest.mock("../Header", () => () => null);
+// Called on every chart render. In the browser, react-apexcharts redraws the chart whenever it
+// re-renders with a new options object, so a render here stands for a redraw there.
+const mockChartRender = jest.fn();
 jest.mock(
   "next/dynamic",
   () => () =>
@@ -17,6 +20,7 @@ jest.mock(
     }: {
       series: unknown;
       options: {
+        chart: unknown;
         tooltip: {
           custom: (input: {
             seriesIndex: number;
@@ -26,6 +30,7 @@ jest.mock(
         };
       };
     }) {
+      mockChartRender(options.chart);
       return (
         <>
           <output aria-label="Chart series">{JSON.stringify(series)}</output>
@@ -125,6 +130,25 @@ test("keeps dose text and charts the ranges for each route", () => {
       ],
     },
   ]);
+});
+
+test("draws an open card's charts once, without animation", () => {
+  mockChartRender.mockClear();
+  const drugData = {
+    ...drug,
+    formatted_dose: { oral: { common: "1-2mg" } },
+    formatted_duration: { oral: "1-2", _unit: "hours" as Unit },
+  } as Drug;
+  const { rerender } = render(<DrugInfo drugData={drugData} />);
+  expect(mockChartRender).toHaveBeenCalledTimes(2);
+  expect(mockChartRender.mock.calls).toEqual([
+    [expect.objectContaining({ animations: { enabled: false } })],
+    [expect.objectContaining({ animations: { enabled: false } })],
+  ]);
+
+  // The factsheets table re-renders the panel of an expanded row on every keystroke in a filter
+  rerender(<DrugInfo drugData={drugData} />);
+  expect(mockChartRender).toHaveBeenCalledTimes(2);
 });
 
 test("keeps unplottable doses in the table", () => {

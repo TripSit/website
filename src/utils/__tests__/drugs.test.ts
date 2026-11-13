@@ -1,4 +1,8 @@
-import { DRUGS_URL, fetchDrugs } from "../drugs";
+import { DRUGS_STALE_TIME, DRUGS_URL, fetchDrugs } from "../drugs";
+
+test("keeps drug downloads fresh for thirty minutes", () => {
+  expect(DRUGS_STALE_TIME).toBe(30 * 60 * 1000);
+});
 
 describe("fetchDrugs", () => {
   const originalFetch = global.fetch;

@@ -167,32 +167,30 @@ const addDurations = (drugData: Drug) => {
   const durationSeries = [] as ApexAxisChartSeries;
   Object.keys(durationTiming).forEach((roa) => {
     const roaData = durationTiming[roa as keyof typeof durationTiming];
-    if (roaData) {
-      Object.keys(roaData).forEach((timing) => {
-        const timingData = roaData[timing as keyof typeof roaData];
-        if (timingData) {
-          const data = {
-            name: timing,
-            data: [
+    Object.keys(roaData).forEach((timing) => {
+      const timingData = roaData[timing as keyof typeof roaData] as NonNullable<
+        (typeof roaData)[keyof typeof roaData]
+      >;
+      const data = {
+        name: timing,
+        data: [
+          {
+            x: roa,
+            y: [timingData.startTime, timingData.endTime],
+            goals: [
+              // The black line that signifies the minimum duration
               {
-                x: roa,
-                y: [timingData.startTime, timingData.endTime],
-                goals: [
-                  // The black line that signifies the minimum duration
-                  {
-                    name: "Minimum",
-                    value: timingData.min + timingData.startTime,
-                    strokeWidth: 2,
-                    strokeColor: "#000000",
-                  },
-                ] as Record<string, unknown>[],
+                name: "Minimum",
+                value: timingData.min + timingData.startTime,
+                strokeWidth: 2,
+                strokeColor: "#000000",
               },
-            ],
-          } as ApexAxisChartSeries[number];
-          durationSeries.push(data);
-        }
-      });
-    }
+            ] as Record<string, unknown>[],
+          },
+        ],
+      } as ApexAxisChartSeries[number];
+      durationSeries.push(data);
+    });
   });
 
   // Create chart options
@@ -239,13 +237,12 @@ const addDurations = (drugData: Drug) => {
         const roaTimingData =
           durationTiming[s.x as keyof typeof durationTiming];
 
-        const periodData =
-          roaTimingData[
-            w.config.series[seriesIndex].name as keyof typeof roaTimingData
-          ];
+        const periodData = roaTimingData[
+          w.config.series[seriesIndex].name as keyof typeof roaTimingData
+        ] as NonNullable<(typeof roaTimingData)[keyof typeof roaTimingData]>;
 
-        const yStartValue = periodData ? periodData.min : 0;
-        const yEndValue = periodData ? periodData.max : 0;
+        const yStartValue = periodData.min;
+        const yEndValue = periodData.max;
 
         let yStart = `${yStartValue}` as string;
         let yEnd = `${yEndValue}h` as string;
@@ -669,39 +666,37 @@ export default function DrugInfoCard({
 
   // This is the array that will hold all the elements that will be displayed in the expanded row
   const elements = [] as React.JSX.Element[];
+  const properties = drugData.properties ?? {};
 
   // If there's a warning, display it first
-  if (drugData.properties) {
-    Object.keys(drugData.properties).forEach((property) => {
-      const importantProperties = [
-        "avoid",
-        "warning",
-        "risks",
-        "adverseEffects",
-        "contraindications",
-      ];
-      if (importantProperties.includes(property)) {
-        const propertyName = property.replace(/_/g, " ");
-        const propertyValue =
-          drugData.properties[property as keyof typeof drugData.properties];
-        elements.push(
-          <Grid
-            size={{ xs: 12, sm: 12, md: 12 }}
-            key={`${drugData.name}-${propertyName}`}
-          >
-            <Card>
-              <CardContent sx={{ backgroundColor: "pink" }}>
-                <Typography variant="h5" style={{ color: "black" }}>
-                  {propertyName.charAt(0).toUpperCase() + propertyName.slice(1)}{" "}
-                  {propertyValue}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>,
-        );
-      }
-    });
-  }
+  Object.keys(properties).forEach((property) => {
+    const importantProperties = [
+      "avoid",
+      "warning",
+      "risks",
+      "adverseEffects",
+      "contraindications",
+    ];
+    if (importantProperties.includes(property)) {
+      const propertyName = property.replace(/_/g, " ");
+      const propertyValue = properties[property as keyof typeof properties];
+      elements.push(
+        <Grid
+          size={{ xs: 12, sm: 12, md: 12 }}
+          key={`${drugData.name}-${propertyName}`}
+        >
+          <Card>
+            <CardContent sx={{ backgroundColor: "pink" }}>
+              <Typography variant="h5" style={{ color: "black" }}>
+                {propertyName.charAt(0).toUpperCase() + propertyName.slice(1)}{" "}
+                {propertyValue}
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>,
+      );
+    }
+  });
 
   // Always push the drug name since it's the one required field
   elements.push(
@@ -755,7 +750,7 @@ export default function DrugInfoCard({
     );
   }
 
-  if (drugData.properties.summary) {
+  if (properties.summary) {
     // Take the category list, capitalize each word, and join them with commas
 
     elements.push(
@@ -765,78 +760,73 @@ export default function DrugInfoCard({
             <Typography variant="h5" style={{ color: "black" }}>
               Summary
             </Typography>
-            <Typography>
-              {addDictionaryDefs(drugData.properties.summary)}
-            </Typography>
+            <Typography>{addDictionaryDefs(properties.summary)}</Typography>
           </CardContent>
         </Card>
       </Grid>,
     );
   }
 
-  if (drugData.properties) {
-    Object.keys(drugData.properties).forEach((property) => {
-      const duplicatedProperties = [
-        "avoid",
-        "name",
-        "summary",
-        "categories",
-        "aliases",
-        "afterEffects",
-        "dose",
-        "duration",
-        "onset",
-        "effects",
-        "after-effects",
-        "pweffects",
-        "combos",
-        "sources",
-        "links",
-        "warning",
-      ];
-      if (duplicatedProperties.includes(property)) {
-        return;
-      }
-      const propertyName = property.replace(/_/g, " ");
-      const propertyValue =
-        drugData.properties[property as keyof typeof drugData.properties];
-      if (propertyName === "experiences") {
-        elements.push(
-          <Grid size={{ xs: 12, sm: 6, md: 4 }} key={propertyName}>
-            <Card>
-              <CardContent>
-                <Typography variant="h5" style={{ color: "black" }}>
-                  {propertyName.charAt(0).toUpperCase() + propertyName.slice(1)}
-                </Typography>
-                <Typography>
-                  <a
-                    href={propertyValue as string}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Erowid Experience Vault
-                  </a>
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>,
-        );
-      } else {
-        elements.push(
-          <Grid size={{ xs: 12, sm: 6, md: 4 }} key={propertyName}>
-            <Card>
-              <CardContent>
-                <Typography variant="h5" style={{ color: "black" }}>
-                  {propertyName.charAt(0).toUpperCase() + propertyName.slice(1)}
-                </Typography>
-                <Typography>{propertyValue}</Typography>
-              </CardContent>
-            </Card>
-          </Grid>,
-        );
-      }
-    });
-  }
+  Object.keys(properties).forEach((property) => {
+    const duplicatedProperties = [
+      "avoid",
+      "name",
+      "summary",
+      "categories",
+      "aliases",
+      "afterEffects",
+      "dose",
+      "duration",
+      "onset",
+      "effects",
+      "after-effects",
+      "pweffects",
+      "combos",
+      "sources",
+      "links",
+      "warning",
+    ];
+    if (duplicatedProperties.includes(property)) {
+      return;
+    }
+    const propertyName = property.replace(/_/g, " ");
+    const propertyValue = properties[property as keyof typeof properties];
+    if (propertyName === "experiences") {
+      elements.push(
+        <Grid size={{ xs: 12, sm: 6, md: 4 }} key={propertyName}>
+          <Card>
+            <CardContent>
+              <Typography variant="h5" style={{ color: "black" }}>
+                {propertyName.charAt(0).toUpperCase() + propertyName.slice(1)}
+              </Typography>
+              <Typography>
+                <a
+                  href={propertyValue as string}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Erowid Experience Vault
+                </a>
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>,
+      );
+    } else {
+      elements.push(
+        <Grid size={{ xs: 12, sm: 6, md: 4 }} key={propertyName}>
+          <Card>
+            <CardContent>
+              <Typography variant="h5" style={{ color: "black" }}>
+                {propertyName.charAt(0).toUpperCase() + propertyName.slice(1)}
+              </Typography>
+              <Typography>{propertyValue}</Typography>
+            </CardContent>
+          </Card>
+        </Grid>,
+      );
+    }
+  });
 
   // Dose note comes before dosage
   if (drugData.dose_note) {

@@ -57,6 +57,21 @@ const drug = {
   properties: {},
 } as Drug;
 
+test("renders older database records without properties", () => {
+  render(
+    <DrugInfo
+      drugData={
+        {
+          name: "legacy",
+          pretty_name: "Legacy",
+          properties: undefined,
+        } as unknown as Drug
+      }
+    />,
+  );
+  expect(screen.getByText("Legacy")).toBeVisible();
+});
+
 test.each(["EXAMPLE", "example compound", "ALIAS"])(
   "looks up a factsheet by %s",
   (name) => {
@@ -227,6 +242,33 @@ test("displays after effects without onset or duration data", () => {
   );
 });
 
+test("renders fractional hour durations without after effects", () => {
+  render(
+    <DrugInfo
+      drugData={{
+        ...drug,
+        aliases: undefined,
+        formatted_duration: { oral: "1.5-2.5", _unit: "hours" as Unit },
+      }}
+    />,
+  );
+  expect(screen.getByText("1h 30m to 2h 30m")).toBeVisible();
+  expect(screen.queryByText("Aliases")).toBeNull();
+});
+
+test("renders an empty factsheet result while the database is loading", () => {
+  jest
+    .mocked(useRouter)
+    .mockReturnValue({ query: { drug: "example" } } as unknown as ReturnType<
+      typeof useRouter
+    >);
+  jest.mocked(useDrugs).mockReturnValue({} as ReturnType<typeof useDrugs>);
+  render(<DrugPage />);
+  expect(
+    screen.getByRole("heading", { name: /drug not found/i }),
+  ).toBeVisible();
+});
+
 test("renders optional references, warnings, and combination notes", () => {
   render(
     <DrugInfo
@@ -240,6 +282,7 @@ test("renders optional references, warnings, and combination notes", () => {
             experiences: "https://example.test/experiences",
           },
           combos: {
+            absent: undefined,
             mdma: { status: "Caution", note: "(Sample combination note)" },
             alcohol: { status: "Dangerous" },
           } as Drug["combos"],
@@ -267,4 +310,22 @@ test("renders optional references, warnings, and combination notes", () => {
     "href",
     "https://psychonautwiki.org/wiki/Nausea",
   );
+});
+
+test("keeps open-ended dose text while plotting its existing visual range", () => {
+  render(
+    <DrugInfo
+      drugData={{
+        ...drug,
+        formatted_dose: { oral: { common: "2+" } },
+      }}
+    />,
+  );
+  expect(screen.getByText("2+")).toBeVisible();
+  expect(screen.getByLabelText("Tooltip for common")).toHaveTextContent(
+    "oral: 2 - 3",
+  );
+  expect(
+    JSON.parse(screen.getByLabelText("Chart series").textContent ?? ""),
+  ).toEqual([{ name: "common", data: [{ x: "oral", y: [2, 3] }] }]);
 });

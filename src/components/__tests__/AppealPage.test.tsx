@@ -112,6 +112,50 @@ jest.mock("@/utils/keycloak", () => ({
 
 const fetchMock = jest.fn();
 const originalFetch = global.fetch;
+
+test("keeps a still-valid token without repeating the ban check on each interval", async () => {
+  jest.useFakeTimers();
+  const access = validToken();
+  sessionStorage.setItem("kc_token", access);
+  fetchMock
+    .mockResolvedValueOnce(reply({ banned: false }))
+    .mockResolvedValueOnce(reply({}));
+  render(<AppealPage />);
+  expect(
+    await screen.findByRole("heading", { name: "Not Banned" }),
+  ).toBeVisible();
+  await act(() => jest.advanceTimersByTimeAsync(90000));
+  expect(sessionStorage.getItem("kc_token")).toBe(access);
+  expect(fetchMock).toHaveBeenCalledTimes(2);
+});
+
+test("avoids overlapping ban checks when the token refreshes during a slow request", async () => {
+  jest.useFakeTimers();
+  sessionStorage.setItem("kc_token", token(Date.now() / 1000 + 75));
+  sessionStorage.setItem("kc_refresh_token", "refresh");
+  let completeBanCheck: (value: ReturnType<typeof reply>) => void = () => {};
+  const pendingBanCheck = new Promise<ReturnType<typeof reply>>((resolve) => {
+    completeBanCheck = resolve;
+  });
+  fetchMock.mockImplementation(async (url: string) => {
+    if (url === "/api/v2/users/banned") return pendingBanCheck;
+    if (url === "/api/v2/keycloak/refresh")
+      return reply({ access_token: validToken() });
+    return reply({});
+  });
+  render(<AppealPage />);
+  await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+  await act(() => jest.advanceTimersByTimeAsync(30000));
+  expect(
+    fetchMock.mock.calls.filter(([url]) => url === "/api/v2/users/banned"),
+  ).toHaveLength(1);
+  await act(async () => {
+    completeBanCheck(reply({ banned: false }));
+  });
+  expect(
+    await screen.findByRole("heading", { name: "Not Banned" }),
+  ).toBeVisible();
+});
 const token = (exp: number) =>
   `header.${btoa(JSON.stringify({ exp }))}.signature`;
 const validToken = () => token(Date.now() / 1000 + 3600);
@@ -136,10 +180,101 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  jest.restoreAllMocks();
   jest.useRealTimers();
   global.fetch = originalFetch;
   sessionStorage.clear();
   window.history.replaceState({}, "", "/");
+});
+
+test("exchanges a code when the server supplies only an access token", async () => {
+  window.history.replaceState({}, "", "/appeal?code=minimal");
+  fetchMock
+    .mockResolvedValueOnce(reply({ access_token: validToken() }))
+    .mockResolvedValueOnce(reply({ banned: false }))
+    .mockResolvedValueOnce(reply({ id: "history" }));
+  render(<AppealPage />);
+  expect(
+    await screen.findByRole("heading", { name: "Appeal History" }),
+  ).toBeVisible();
+  expect(screen.getByText("Unknown")).toBeVisible();
+  expect(sessionStorage.getItem("kc_refresh_token")).toBeNull();
+  expect(sessionStorage.getItem("kc_id_token")).toBeNull();
+});
+
+test("keeps a denied appeal locked when no decision timestamp is available", async () => {
+  sessionStorage.setItem("kc_token", validToken());
+  fetchMock
+    .mockResolvedValueOnce(reply({ banned: true }))
+    .mockResolvedValueOnce(
+      reply({ id: "denied", status: "DENIED", created_at: daysAgo(1) }),
+    );
+  render(<AppealPage />);
+  expect(
+    await screen.findByRole("heading", { name: "Your Appeal Status" }),
+  ).toBeVisible();
+  expect(screen.queryByRole("button", { name: "Submit Appeal" })).toBeNull();
+});
+
+test("shares a background token refresh with an appeal submission", async () => {
+  jest.useFakeTimers();
+  sessionStorage.setItem("kc_token", token(Date.now() / 1000 + 75));
+  sessionStorage.setItem("kc_refresh_token", "refresh");
+  let completeRefresh: (value: ReturnType<typeof reply>) => void = () => {};
+  const pendingRefresh = new Promise<ReturnType<typeof reply>>((resolve) => {
+    completeRefresh = resolve;
+  });
+  fetchMock.mockImplementation(async (url: string) => {
+    if (url === "/api/v2/keycloak/refresh") return pendingRefresh;
+    if (url === "/api/v2/users/banned") return reply({ banned: true });
+    if (url === "/api/v2/appeals/create")
+      return reply({ message: "Submission success" });
+    return reply({});
+  });
+  render(<AppealPage />);
+  const submit = await screen.findByRole("button", { name: "Submit Appeal" });
+  for (const label of [
+    /why you were banned/i,
+    /make amends/i,
+    /avoid repeating/i,
+  ]) {
+    fireEvent.change(screen.getByRole("textbox", { name: label }), {
+      target: { value: "Answer" },
+    });
+  }
+  await act(() => jest.advanceTimersByTimeAsync(30000));
+  fireEvent.click(submit);
+  expect(
+    fetchMock.mock.calls.filter(([url]) => url === "/api/v2/keycloak/refresh"),
+  ).toHaveLength(1);
+  await act(async () => {
+    completeRefresh(reply({ access_token: validToken() }));
+  });
+  expect(await screen.findByText("Submission success")).toBeVisible();
+  expect(
+    fetchMock.mock.calls.filter(([url]) => url === "/api/v2/appeals/create"),
+  ).toHaveLength(1);
+  expect(
+    fetchMock.mock.calls.filter(([url]) => url === "/api/v2/keycloak/refresh"),
+  ).toHaveLength(1);
+});
+
+test("handles credentials removed between initialization and the ban check", async () => {
+  const getItem = Storage.prototype.getItem;
+  let tokenReads = 0;
+  jest.spyOn(Storage.prototype, "getItem").mockImplementation(function (
+    this: Storage,
+    key: string,
+  ) {
+    if (key === "kc_token") {
+      tokenReads += 1;
+      return tokenReads === 1 ? validToken() : null;
+    }
+    return getItem.call(this, key);
+  });
+  render(<AppealPage />);
+  await waitFor(() => expect(tokenReads).toBeGreaterThan(1));
+  expect(fetchMock).not.toHaveBeenCalled();
 });
 
 test.each(["missing token", "network error"])(
@@ -403,6 +538,7 @@ test("disables reminders for a newly submitted appeal", async () => {
 });
 
 test("submits an appeal and refreshes its status", async () => {
+  jest.useFakeTimers();
   sessionStorage.setItem("kc_token", validToken());
   fetchMock
     .mockResolvedValueOnce(reply({ banned: true }))
@@ -426,4 +562,7 @@ test("submits an appeal and refreshes its status", async () => {
   expect(await screen.findByText("Under Review")).toBeVisible();
   expect(screen.getByText("Your appeal has been submitted.")).toBeVisible();
   expect(fetchMock).toHaveBeenCalledTimes(5);
+  await act(() => jest.advanceTimersByTimeAsync(3000));
+  expect(screen.queryByText("Your appeal has been submitted.")).toBeNull();
+  expect(screen.getByText("Under Review")).toBeVisible();
 });

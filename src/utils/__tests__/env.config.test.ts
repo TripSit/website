@@ -17,6 +17,10 @@ test.each([
         expect(env.NODE_ENV).toBe(expected);
         expect(env.DISCORD_GUILD_ID).toBe("test-guild");
         expect(global.env).toBe(env);
+        expect(
+          jest.requireActual<typeof import("../env.config")>("../env.config")
+            .default,
+        ).toBe(env);
       });
     } finally {
       global.env = previousEnv;

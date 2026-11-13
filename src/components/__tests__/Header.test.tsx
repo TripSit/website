@@ -6,6 +6,13 @@ test("opens the desktop menu and dismisses it on outside interaction or Escape",
   const nav = within(screen.getByRole("navigation", { name: "Main" }));
   const resources = nav.getByRole("button", { name: "Resources" });
   fireEvent.click(resources);
+  fireEvent.pointerDown(resources);
+  expect(resources).toHaveAttribute("aria-expanded", "true");
+  fireEvent.keyDown(document, { key: "Enter" });
+  expect(resources).toHaveAttribute("aria-expanded", "true");
+  fireEvent.click(resources);
+  expect(resources).toHaveAttribute("aria-expanded", "false");
+  fireEvent.click(resources);
   expect(resources).toHaveAttribute("aria-expanded", "true");
   expect(nav.getByRole("link", { name: "Factsheets" })).toHaveAttribute(
     "href",
@@ -16,6 +23,18 @@ test("opens the desktop menu and dismisses it on outside interaction or Escape",
   fireEvent.click(resources);
   fireEvent.keyDown(document, { key: "Escape" });
   expect(nav.queryByRole("link", { name: "Factsheets" })).toBeNull();
+});
+
+test("clears a pending hover timer when navigation is unmounted", () => {
+  jest.useFakeTimers();
+  try {
+    const { unmount } = render(<Header />);
+    fireEvent.mouseLeave(screen.getByRole("button", { name: "Resources" }));
+    unmount();
+    expect(jest.getTimerCount()).toBe(0);
+  } finally {
+    jest.useRealTimers();
+  }
 });
 
 test("gives the pointer time to cross from the menu trigger to the panel", () => {

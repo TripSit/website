@@ -373,7 +373,11 @@ const Factsheets = () => {
         {InfoBar}
       </>
     ),
-    renderDetailPanel: ({ row }) => DrugInfoCard({ drugData: row.original }),
+    // MRT calls this for every row on the page on every render, expanded or not, and only
+    // mounts the result once the row is expanded. Return an element rather than calling
+    // DrugInfoCard directly, so the card (its charts, combos and dictionary tooltips) is only
+    // built for expanded rows.
+    renderDetailPanel: ({ row }) => <DrugInfoCard drugData={row.original} />,
   });
 
   return <MaterialReactTable table={table} data-bs-theme="dark" />;

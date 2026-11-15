@@ -57,6 +57,21 @@ const drug = {
   properties: {},
 } as Drug;
 
+test("renders older database records without properties", () => {
+  render(
+    <DrugInfo
+      drugData={
+        {
+          name: "legacy",
+          pretty_name: "Legacy",
+          properties: undefined,
+        } as unknown as Drug
+      }
+    />,
+  );
+  expect(screen.getByText("Legacy")).toBeVisible();
+});
+
 test.each(["EXAMPLE", "example compound", "ALIAS"])(
   "looks up a factsheet by %s",
   (name) => {
@@ -95,24 +110,24 @@ test.each([
   ).toBeVisible();
 });
 
-test("keeps dose text and charts the ranges for each route", () => {
+test("keeps all doses in the table and charts only bounded mass ranges", () => {
   render(
     <DrugInfo
       drugData={{
         ...drug,
         dose_note: "Example dose note",
         formatted_dose: {
-          oral: { common: "1-2mg", light: "unknown" },
-          insufflated: { common: "3-4mg" },
+          oral: { common: "100–200 µg", light: "unknown" },
+          insufflated: { common: "1-2 mg" },
         },
       }}
     />,
   );
   expect(screen.getByText("Example dose note")).toBeVisible();
   expect(screen.getByText("unknown")).toBeVisible();
-  expect(screen.getByText("1-2mg")).toBeVisible();
+  expect(screen.getByText("100–200 µg")).toBeVisible();
   expect(screen.getByLabelText("Tooltip for common")).toHaveTextContent(
-    "oral (mg): 1 - 2",
+    "oral (mg): 0.1 - 0.2",
   );
   expect(
     JSON.parse(screen.getByLabelText("Chart series").textContent ?? ""),
@@ -120,21 +135,21 @@ test("keeps dose text and charts the ranges for each route", () => {
     {
       name: "common",
       data: [
-        { x: "oral (mg)", y: [1, 2] },
-        { x: "insufflated (mg)", y: [3, 4] },
+        { x: "oral (mg)", y: [0.1, 0.2] },
+        { x: "insufflated (mg)", y: [1, 2] },
       ],
     },
   ]);
 });
 
-test("keeps unplottable doses in the table", () => {
+test("omits the dose chart when no ranges can be plotted", () => {
   render(
     <DrugInfo
       drugData={{ ...drug, formatted_dose: { oral: { light: "unknown" } } }}
     />,
   );
   expect(screen.getByText("unknown")).toBeVisible();
-  expect(screen.getByLabelText("Chart series")).toHaveTextContent("[]");
+  expect(screen.queryByLabelText("Chart series")).toBeNull();
 });
 
 test("converts onset to hours and offsets duration and after effects", () => {
@@ -227,6 +242,33 @@ test("displays after effects without onset or duration data", () => {
   );
 });
 
+test("renders fractional hour durations without after effects", () => {
+  render(
+    <DrugInfo
+      drugData={{
+        ...drug,
+        aliases: undefined,
+        formatted_duration: { oral: "1.5-2.5", _unit: "hours" as Unit },
+      }}
+    />,
+  );
+  expect(screen.getByText("1h 30m to 2h 30m")).toBeVisible();
+  expect(screen.queryByText("Aliases")).toBeNull();
+});
+
+test("renders an empty factsheet result while the database is loading", () => {
+  jest
+    .mocked(useRouter)
+    .mockReturnValue({ query: { drug: "example" } } as unknown as ReturnType<
+      typeof useRouter
+    >);
+  jest.mocked(useDrugs).mockReturnValue({} as ReturnType<typeof useDrugs>);
+  render(<DrugPage />);
+  expect(
+    screen.getByRole("heading", { name: /drug not found/i }),
+  ).toBeVisible();
+});
+
 test("renders optional references, warnings, and combination notes", () => {
   render(
     <DrugInfo
@@ -240,6 +282,7 @@ test("renders optional references, warnings, and combination notes", () => {
             experiences: "https://example.test/experiences",
           },
           combos: {
+            absent: undefined,
             mdma: { status: "Caution", note: "(Sample combination note)" },
             alcohol: { status: "Dangerous" },
           } as Drug["combos"],

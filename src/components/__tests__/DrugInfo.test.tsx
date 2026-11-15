@@ -166,14 +166,49 @@ test("draws an open card's charts once, without animation", () => {
   expect(mockChartRender).toHaveBeenCalledTimes(2);
 });
 
-test("keeps unplottable doses in the table", () => {
+test("keeps unplottable doses in the table and hides the empty chart", () => {
   render(
     <DrugInfo
-      drugData={{ ...drug, formatted_dose: { oral: { light: "unknown" } } }}
+      drugData={{
+        ...drug,
+        formatted_dose: {
+          oral: { light: "unknown", common: "3mg+", strong: "25-50ug/hr" },
+        },
+      }}
     />,
   );
   expect(screen.getByText("unknown")).toBeVisible();
-  expect(screen.getByLabelText("Chart series")).toHaveTextContent("[]");
+  expect(screen.getByText("3mg+")).toBeVisible();
+  expect(screen.getByText("25-50ug/hr")).toBeVisible();
+  expect(screen.queryByLabelText("Chart series")).not.toBeInTheDocument();
+  expect(screen.queryByText(/bounded mass ranges/)).not.toBeInTheDocument();
+});
+
+test("charts mixed mass units on one milligram scale", () => {
+  render(
+    <DrugInfo
+      drugData={{
+        ...drug,
+        formatted_dose: {
+          oral: { common: "800-1500ug" },
+          insufflated: { common: "1-2mg" },
+        },
+      }}
+    />,
+  );
+  expect(screen.getByText("800-1500ug")).toBeVisible();
+  expect(screen.getByText(/bounded mass ranges in mg/)).toBeVisible();
+  expect(
+    JSON.parse(screen.getByLabelText("Chart series").textContent ?? ""),
+  ).toEqual([
+    {
+      name: "common",
+      data: [
+        { x: "oral (mg)", y: [0.8, 1.5] },
+        { x: "insufflated (mg)", y: [1, 2] },
+      ],
+    },
+  ]);
 });
 
 test("converts onset to hours and offsets duration and after effects", () => {
@@ -336,7 +371,7 @@ test("renders optional references, warnings, and combination notes", () => {
   );
 });
 
-test("keeps open-ended dose text while plotting its existing visual range", () => {
+test("keeps open-ended dose text without plotting an invented upper bound", () => {
   render(
     <DrugInfo
       drugData={{
@@ -346,10 +381,6 @@ test("keeps open-ended dose text while plotting its existing visual range", () =
     />,
   );
   expect(screen.getByText("2+")).toBeVisible();
-  expect(screen.getByLabelText("Tooltip for common")).toHaveTextContent(
-    "oral: 2 - 3",
-  );
-  expect(
-    JSON.parse(screen.getByLabelText("Chart series").textContent ?? ""),
-  ).toEqual([{ name: "common", data: [{ x: "oral", y: [2, 3] }] }]);
+  expect(screen.queryByLabelText("Tooltip for common")).not.toBeInTheDocument();
+  expect(screen.queryByLabelText("Chart series")).not.toBeInTheDocument();
 });

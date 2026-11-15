@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React, { memo, ReactNode } from "react";
 import { Card, CardContent, Container, Grid, Typography } from "@mui/material";
 import {
   Dosage,
@@ -197,6 +197,9 @@ const addDurations = (drugData: Drug) => {
   const option = {
     chart: {
       id: "durationChart",
+      // The grow-in animation keeps the browser drawing frames for about two seconds after a
+      // factsheet row is expanded. Draw the chart once instead.
+      animations: { enabled: false },
     },
     plotOptions: {
       bar: {
@@ -522,6 +525,7 @@ const addDosages = (drugData: Drug) => {
   const option = {
     chart: {
       id: "doseChart",
+      animations: { enabled: false }, // See the duration chart above
     },
     plotOptions: {
       bar: {
@@ -657,11 +661,7 @@ const addDosages = (drugData: Drug) => {
   );
 };
 
-export default function DrugInfoCard({
-  drugData,
-}: {
-  drugData: Drug;
-}): ReactNode {
+function DrugInfoCard({ drugData }: { drugData: Drug }): ReactNode {
   // This function goes through all the optional data in the drug and creates a nice and fancy expandable row
 
   // This is the array that will hold all the elements that will be displayed in the expanded row
@@ -1149,3 +1149,9 @@ export default function DrugInfoCard({
     </Container>
   );
 }
+
+// The factsheets table re-renders on every state change (each keystroke in a filter, for
+// example) and asks for the detail panel of every row each time. Without memo, an open card
+// re-renders too, and react-apexcharts treats the fresh options object (its tooltip functions
+// never compare equal) as a change and redraws both charts from scratch.
+export default memo(DrugInfoCard);

@@ -25,6 +25,10 @@ test("introduces the app with store and community links, its features and its le
     screen.getByRole("link", { name: "Read the terms of service" }),
   ).toHaveAttribute("href", "/reflect/terms");
   expect(screen.getByRole("navigation", { name: "Main" })).toBeVisible();
+  expect(screen.getByRole("link", { name: "Reflect App" })).toHaveAttribute(
+    "href",
+    "/reflect",
+  );
 });
 
 test.each([

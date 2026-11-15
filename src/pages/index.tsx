@@ -193,10 +193,10 @@ const resources = [
     text: "Introducing our multifunctional Discord Bot, designed to seamlessly blend moderation capabilities with TripSit-session management. Perfect not just for TripSit, but adaptable for any Discord guild. Interested in launching your own TripSit-inspired initiative? Our tools are at your disposal.",
   },
   {
-    href: "https://play.google.com/store/apps/details?id=me.tripsit.mobile",
+    href: "/reflect",
     icon: <PhoneAndroidOutlinedIcon fontSize="inherit" />,
-    title: "Android Mobile App",
-    text: "Stay informed anytime, anywhere with our Android Mobile App. Enjoy offline access to comprehensive drug factsheets and essential combination data at your fingertips.",
+    title: "Reflect App",
+    text: "Keep a private journal of what you took, when, and how it went with Reflect, our harm-reduction app for Android. See an estimated effect timeline as it happens, with everything stored on your phone.",
   },
 ];
 

@@ -10,7 +10,7 @@ export default function NotFound() {
     <div className="global">
       <h2>Not Found</h2>
       <p>Could not find requested resource</p>
-      <BlogSuggestion blogOrigin={`https://blog.${domain}`} />
+      <BlogSuggestion blogOrigin={`https://updates.${domain}`} />
       <Link href="/">Return Home</Link>
     </div>
   );

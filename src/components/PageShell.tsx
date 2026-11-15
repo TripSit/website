@@ -11,11 +11,11 @@ export default function PageShell({
   title,
   description,
   children,
-}: {
+}: Readonly<{
   title: string;
   description: string;
   children: ReactNode;
-}) {
+}>) {
   return (
     <div
       data-bs-theme="dark"

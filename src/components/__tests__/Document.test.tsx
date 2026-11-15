@@ -8,8 +8,11 @@ import Patreon from "../Patreon";
 
 jest.mock("next/document", () => ({
   __esModule: true,
-  default: class {},
-  Html: ({ children }: { children: ReactNode }) => <html>{children}</html>,
+  // The real Document is a React component class that _document.tsx extends.
+  default: jest.requireActual("react").Component,
+  Html: ({ children, lang }: { children: ReactNode; lang?: string }) => (
+    <html lang={lang}>{children}</html>
+  ),
   Head: ({ children }: { children: ReactNode }) => <div>{children}</div>,
   Main: () => <main>Page content</main>,
   NextScript: () => <output data-script-src="/next-runtime.js" />,
@@ -24,6 +27,7 @@ jest.mock(
 
 test("renders the document shell, favicons and browser scripts", () => {
   const html = renderToStaticMarkup(Document.prototype.render());
+  expect(html).toContain('<html lang="en">');
   expect(html).toContain('rel="icon"');
   expect(html).toContain("Page content");
   expect(html).toContain("/next-runtime.js");

@@ -11,14 +11,6 @@ import Head from "../../components/Head";
 
 import DrugInfoCard from "../../components/DrugInfo";
 
-// If you want to debug a specific drug, change the below variable to the name of the drug
-// and then use the commented-out code below that to display what you need to debug
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const debugDrug = "cocaine";
-// if (drugData.original.name === debugDrug) {
-//   console.log(`roaString: ${JSON.stringify(roaString, null, 2)}`);
-// }
-
 export default function DrugInfo() {
   const { data = [] } = useDrugs();
 

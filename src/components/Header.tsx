@@ -4,8 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import logo from "../../public/assets/img/logo.png";
 import ProfileButton from "./ProfileButton";
 import { solidButton } from "./buttonClasses";
+import { envOrDefault } from "../utils/envOrDefault";
 
-const domain = process.env.NEXT_PUBLIC_DNS_DOMAIN || "tripsit.me";
+const domain = envOrDefault(process.env.NEXT_PUBLIC_DNS_DOMAIN, "tripsit.me");
 
 type NavLink = { label: string; href: string; note?: string };
 type NavGroup = { label: string; links: NavLink[] };
@@ -192,11 +193,11 @@ function NavAnchor({
   link,
   className,
   onNavigate,
-}: {
+}: Readonly<{
   link: NavLink;
   className: string;
   onNavigate?: () => void;
-}) {
+}>) {
   const Comp = isInternal(link.href) ? Link : "a";
   return (
     <Comp href={link.href} className={className} onClick={onNavigate}>
@@ -281,8 +282,12 @@ function Header() {
             ))}
 
             {menus.map((menu) => (
+              // Only tracks the pointer over the trigger and its panel (hover opens the menu).
+              // Keyboard users open it with the button and close it with Escape, so this
+              // wrapper is presentational.
               <div
                 key={menu.label}
+                role="none"
                 className="relative"
                 onMouseEnter={() => openNow(menu.label)}
                 onMouseLeave={closeSoon}

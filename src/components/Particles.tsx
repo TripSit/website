@@ -70,16 +70,9 @@ const particleEffects = [
   num?: number;
 }[];
 
-// function getRandomEffect() {
-//   const randomIndex = Math.floor(Math.random() * particleEffects.length);
-//   return particleEffects[randomIndex];
-// }
-
-// const startEffect = getRandomEffect();
-
 export default function Particles() {
   // Initial effect is 'thick'
-  const [effect, setEffectType] = useState({
+  const [effect, setEffect] = useState({
     type: "cobweb",
     color: "#FFFFFF",
   } as {
@@ -94,7 +87,7 @@ export default function Particles() {
     color?: string;
     num?: number;
   }) => {
-    setEffectType(selection);
+    setEffect(selection);
   };
 
   return (

@@ -15,10 +15,11 @@ It creates charts using ApexCharts: https://apexcharts.com/
 Pull requests are welcome! If you have any questions, feel free to ask in #dev on the TripSit Discord: https://discord.gg/tripsit
 */
 
-import React, { useMemo } from "react";
+import React, { Fragment, useMemo } from "react";
 import {
   MaterialReactTable,
   useMaterialReactTable,
+  type MRT_Cell,
   type MRT_ColumnDef,
 } from "material-react-table";
 import {
@@ -39,18 +40,11 @@ import UnfoldMoreDoubleIcon from "@mui/icons-material/UnfoldMoreDouble";
 import UnfoldLessDoubleIcon from "@mui/icons-material/UnfoldLessDouble";
 import PatreonButton from "./Patreon";
 import addDictionaryDefs from "./addDictionaryDefs";
+import { splitWords } from "../utils/splitWords";
 
 import dictionary from "../assets/dictionary.json";
 import GithubButton from "./Github";
 import DrugInfoCard from "./DrugInfo";
-
-// If you want to debug a specific drug, change the below variable to the name of the drug
-// and then use the commented-out code below that to display what you need to debug
-
-// const debugDrug = "cocaine";
-// if (drugData.original.name === debugDrug) {
-//   console.log(`roaString: ${JSON.stringify(roaString, null, 2)}`);
-// }
 
 // This appears at the top and can contain any information you want
 // We can use this for announcements or updates
@@ -143,10 +137,10 @@ const InfoBar = (
 
 // Function to add styling to categories within a given text.
 // It processes the text to highlight each category word with specific styles.
-const addCategoryStyle = (text: string | undefined) => {
-  // Return an empty string if the input text is undefined
+const addCategoryStyle = (text: string | undefined): React.JSX.Element[] => {
+  // Nothing to render if the input text is undefined
   if (text === undefined) {
-    return "";
+    return [];
   }
 
   // Define a mapping of category names to their respective color styles
@@ -199,9 +193,7 @@ const addCategoryStyle = (text: string | undefined) => {
   };
 
   // Split the input text into individual words
-  const words = text.split(" ");
-
-  return words.map((word, index) => {
+  return splitWords(text).map(({ word, key }) => {
     // Remove the comma, we need to keep hyphens though:
     const cleanWord = word.replace(/,/g, "").toLowerCase();
 
@@ -210,7 +202,7 @@ const addCategoryStyle = (text: string | undefined) => {
       const colorDef = categoryColors[cleanWord as keyof typeof categoryColors];
       const definition = dictionary[cleanWord as keyof typeof dictionary];
       return (
-        <Tooltip arrow key={index} title={definition}>
+        <Tooltip arrow key={key} title={definition}>
           <Typography
             style={{
               display: "inline",
@@ -229,9 +221,21 @@ const addCategoryStyle = (text: string | undefined) => {
 
     // If the word is not included in the categoryColors, just return the word
     // This should not happen in practice, but it's here just in case
-    return `${word} `;
+    return <Fragment key={key}>{`${word} `}</Fragment>;
   });
 };
+
+// Table cell renderers. Defined once here rather than inline in the column definitions, so
+// React sees the same component type on every render instead of remounting the cells.
+type DrugCellProps = Readonly<{ cell: MRT_Cell<Drug> }>;
+
+const CategoryCell = ({ cell }: DrugCellProps) => (
+  <span>{addCategoryStyle(cell.getValue<string | undefined>())}</span>
+);
+
+const DictionaryCell = ({ cell }: DrugCellProps) => (
+  <span>{addDictionaryDefs(cell.getValue<string | undefined>())}</span>
+);
 
 const Factsheets = () => {
   const { data = [], isError, isRefetching, isLoading, refetch } = useDrugs();
@@ -265,9 +269,7 @@ const Factsheets = () => {
         filterVariant: "text",
         enableGlobalFilter: false,
         size: 180, // This is the default value, but it stops the column from changing when the table is resized
-        Cell: ({ cell }) => (
-          <span>{addCategoryStyle(cell.getValue<string | undefined>())}</span>
-        ),
+        Cell: CategoryCell,
       },
       {
         accessorFn: (row) => {
@@ -288,9 +290,7 @@ const Factsheets = () => {
         filterVariant: "text",
         enableGlobalFilter: false,
         size: 180, // This is the default value, but it stops the column from changing when the table is resized
-        Cell: ({ cell }) => (
-          <span>{addDictionaryDefs(cell.getValue<string | undefined>())}</span>
-        ),
+        Cell: DictionaryCell,
       },
       {
         accessorFn: (row) =>
@@ -300,9 +300,7 @@ const Factsheets = () => {
         filterVariant: "text",
         enableGlobalFilter: false,
         size: 180, // This is the default value, but it stops the column from changing when the table is resized
-        Cell: ({ cell }) => (
-          <span>{addDictionaryDefs(cell.getValue<string | undefined>())}</span>
-        ),
+        Cell: DictionaryCell,
       },
       {
         accessorFn: (row) => row.properties.summary,
@@ -311,9 +309,7 @@ const Factsheets = () => {
         filterVariant: "text",
         enableGlobalFilter: true,
         size: 900, // Make this one bigger because of the long text
-        Cell: ({ cell }) => (
-          <span>{addDictionaryDefs(cell.getValue<string | undefined>())}</span>
-        ),
+        Cell: DictionaryCell,
       },
     ],
     [],

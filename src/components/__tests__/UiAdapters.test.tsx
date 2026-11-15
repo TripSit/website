@@ -47,16 +47,18 @@ jest.mock("@heroui/react", () => {
       }) => (
         <div>
           {items.map((item) => (
-            <div key={item.key} onClick={() => onAction(item.key)}>
+            <button
+              type="button"
+              key={item.key}
+              onClick={() => onAction(item.key)}
+            >
               {children(item)}
-            </div>
+            </button>
           ))}
           <button onClick={() => onAction("unknown")}>Unknown effect</button>
         </div>
       ),
-      Item: ({ children }: { children: ReactNode }) => (
-        <button>{children}</button>
-      ),
+      Item: ({ children }: { children: ReactNode }) => <span>{children}</span>,
     }),
   };
 });

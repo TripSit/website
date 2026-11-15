@@ -1,21 +1,22 @@
 import { Tooltip, Typography } from "@mui/material";
+import { Fragment } from "react";
 import dictionary from "../assets/dictionary.json";
+import { splitWords } from "../utils/splitWords";
 
 export default function addDictionaryDefs(
   text: string | undefined,
-): (string | React.JSX.Element)[] {
+): React.JSX.Element[] {
   if (text === undefined) {
-    return [""];
+    return [];
   }
-  const words = text.split(" ");
-  return words.map((word, index) => {
+  return splitWords(text).map(({ word, key }) => {
     // Remove the comma, we need to keep hyphens though:
     const cleanWord = word.replace(/,/g, "").toLowerCase();
 
     if (dictionary[cleanWord as keyof typeof dictionary]) {
       const definition = dictionary[cleanWord as keyof typeof dictionary];
       return (
-        <Tooltip arrow key={index} title={definition}>
+        <Tooltip arrow key={key} title={definition}>
           <span>
             <Typography
               component="span"
@@ -43,6 +44,6 @@ export default function addDictionaryDefs(
         </Tooltip>
       );
     }
-    return `${word} `;
+    return <Fragment key={key}>{`${word} `}</Fragment>;
   });
 }

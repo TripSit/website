@@ -35,14 +35,17 @@ jest.mock(
         <>
           <output aria-label="Chart series">{JSON.stringify(series)}</output>
           {Array.isArray(series) &&
-            series.map(({ name }, seriesIndex) => {
+            series.map(({ name, data }, seriesIndex) => {
               const html = options.tooltip.custom({
                 seriesIndex,
                 dataPointIndex: 0,
                 w: { config: { series } },
               });
               return (
-                <output key={seriesIndex} aria-label={`Tooltip for ${name}`}>
+                <output
+                  key={`${data[0].x}-${name}`}
+                  aria-label={`Tooltip for ${name}`}
+                >
                   {
                     new DOMParser().parseFromString(html, "text/html").body
                       .textContent

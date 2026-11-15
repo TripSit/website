@@ -19,115 +19,100 @@ const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
 });
 
-type DurationTiming = {
-  [key: string]: {
-    // ROA, eg "Oral"
-    // all numbers are in hours, including minutes (30 mins = .5 hours)
-    Onset?: {
-      min: number;
-      max: number;
-      startTime: number;
-      endTime: number;
-    };
-    Duration?: {
-      min: number;
-      max: number;
-      startTime: number;
-      endTime: number;
-    };
-    "After Effects"?: {
-      min: number;
-      max: number;
-      startTime: number;
-      endTime: number;
-    };
-  };
+type TimingKey = "Onset" | "Duration" | "After Effects";
+
+// All numbers are in hours, including minutes (30 mins = .5 hours)
+type TimingWindow = {
+  min: number;
+  max: number;
+  startTime: number;
+  endTime: number;
 };
+
+// Keyed by ROA, eg "Oral"
+type DurationTiming = {
+  [roa: string]: Partial<Record<TimingKey, TimingWindow>>;
+};
+
+// Each phase starts once the one before it is underway: Duration follows Onset,
+// and After Effects follows Duration.
+const PREVIOUS_PHASE: Record<TimingKey, TimingKey | undefined> = {
+  Onset: undefined,
+  Duration: "Onset",
+  "After Effects": "Duration",
+};
+
+const round2 = (value: number) => parseFloat(value.toFixed(2));
+
+// Pulls the min and max hours out of a string like "1-2", "30" or "1.5-3hours".
+// If there is no dash, the single number is the max and the min is 0.
+function parseRangeHours(
+  text: string,
+  unit: string | undefined,
+): { min: number; max: number } | undefined {
+  const match = /(\d+(?:\.\d+)?)(?:-(\d+(?:\.\d+)?))?([a-zA-Z]+)?/.exec(text);
+  if (!match) {
+    return undefined;
+  }
+  const divisor = unit === "minutes" ? 60 : 1;
+  const max = parseFloat(match[2] ?? match[1]) / divisor;
+  const min = match[2] ? parseFloat(match[1]) / divisor : 0;
+  return { min, max };
+}
+
+// Places a phase on the timeline: right after the previous phase when we know it,
+// otherwise on its own (Onset always starts at 0).
+function placeWindow(
+  timingKey: TimingKey,
+  range: { min: number; max: number },
+  previous: TimingWindow | undefined,
+): Pick<TimingWindow, "startTime" | "endTime"> {
+  if (previous) {
+    return {
+      startTime: previous.startTime + previous.min,
+      endTime: previous.startTime + previous.max + round2(range.max),
+    };
+  }
+  return {
+    startTime: timingKey === "Onset" ? 0 : round2(range.min),
+    endTime: round2(range.max),
+  };
+}
 
 // This function is called for each of the three types of duration data:
 // onset, duration, and after effects
 function addDurationData(
   timingData: Duration,
-  timingKey: "Onset" | "Duration" | "After Effects",
+  timingKey: TimingKey,
   timingObject: DurationTiming,
 ): DurationTiming {
-  // If there is a "value" parameter, then assume the ROA is "Oral" and that it is the only ROA
-  // Otherwise, get a list of ROAs, and either way loop through that "list"
-  const roaList = timingData.value ? ["Oral"] : Object.keys(timingData);
+  // If there is a "value" parameter, then assume the ROA is "Oral" and that it is the only ROA.
+  // Otherwise every key except "_unit" is a ROA holding that ROA's timing string.
+  const roaEntries: [string, string][] = timingData.value
+    ? [["Oral", timingData.value]]
+    : Object.entries(timingData).filter(([roa]) => roa !== "_unit");
 
   const durationTiming = timingObject;
+  const previousPhase = PREVIOUS_PHASE[timingKey];
 
-  roaList.forEach((roa) => {
-    // Get the string for the ROA. If it's a 'value' parameter, then use that, otherwise use the key
-    const roaString: string = timingData.value
-      ? (timingData.value as string)
-      : (timingData[roa as keyof typeof timingData] as string);
-
-    // Ignore the "_unit" property
-    if (roa !== "_unit") {
-      // Use regex to pull out the first value separated by a dash
-      // This is the minimum value
-      // If there is no dash, then the minimum and maximum values are the same
-      const regex = /(\d+(?:\.\d+)?)(?:-(\d+(?:\.\d+)?))?([a-zA-Z]+)?/;
-      const match = RegExp(regex).exec(roaString);
-
-      // This is mostly for type-safety
-      if (match) {
-        // Max number is either the second number, or the /only/ number
-        let durationMaxNumber = match[2]
-          ? parseFloat(match[2])
-          : parseFloat(match[1]);
-
-        let durationMinNumber = match[2] ? parseFloat(match[1]) : 0;
-
-        // Convert the unit to hours
-        if (timingData._unit === "minutes") {
-          durationMinNumber /= 60;
-          durationMaxNumber /= 60;
-        }
-
-        let startTime = 0;
-        let endTime = parseFloat(durationMaxNumber.toFixed(2));
-
-        // If this is the Duration property, then we know this comes after Onset, so we need to
-        // adjust the start and end times accordingly
-        if (timingKey === "Duration") {
-          const onsetData = durationTiming[roa]?.Onset;
-          startTime = onsetData
-            ? onsetData.startTime + onsetData.min
-            : parseFloat(durationMinNumber.toFixed(2));
-          endTime = onsetData
-            ? onsetData.startTime +
-              onsetData.max +
-              parseFloat(durationMaxNumber.toFixed(2))
-            : parseFloat(durationMaxNumber.toFixed(2));
-        }
-
-        // Same thing for After Effects
-        if (timingKey === "After Effects") {
-          const durationData = durationTiming[roa]?.Duration;
-          startTime = durationData
-            ? durationData.startTime + durationData.min
-            : parseFloat(durationMinNumber.toFixed(2));
-          endTime = durationData
-            ? durationData.startTime +
-              durationData.max +
-              parseFloat(durationMaxNumber.toFixed(2))
-            : parseFloat(durationMaxNumber.toFixed(2));
-        }
-
-        // Add it all to the object
-        durationTiming[roa] = {
-          ...durationTiming[roa],
-          [timingKey]: {
-            min: parseFloat(durationMinNumber.toFixed(2)),
-            max: parseFloat(durationMaxNumber.toFixed(2)),
-            startTime,
-            endTime,
-          },
-        };
-      }
+  roaEntries.forEach(([roa, roaString]) => {
+    const range = parseRangeHours(roaString, timingData._unit);
+    if (!range) {
+      return;
     }
+
+    const previous = previousPhase
+      ? durationTiming[roa]?.[previousPhase]
+      : undefined;
+
+    durationTiming[roa] = {
+      ...durationTiming[roa],
+      [timingKey]: {
+        min: round2(range.min),
+        max: round2(range.max),
+        ...placeWindow(timingKey, range, previous),
+      },
+    };
   });
 
   return durationTiming;
@@ -248,8 +233,8 @@ const addDurations = (drugData: Drug) => {
         const yStartValue = periodData.min;
         const yEndValue = periodData.max;
 
-        let yStart = `${yStartValue}` as string;
-        let yEnd = `${yEndValue}h` as string;
+        let yStart = `${yStartValue}`;
+        let yEnd = `${yEndValue}h`;
 
         // Check if the value is a decimal, if so, convert it to minutes
         if (yStartValue % 1) {
@@ -622,7 +607,7 @@ const addDosages = (drugData: Drug) => {
   );
 };
 
-function DrugInfoCard({ drugData }: { drugData: Drug }): ReactNode {
+function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
   // This function goes through all the optional data in the drug and creates a nice and fancy expandable row
 
   // This is the array that will hold all the elements that will be displayed in the expanded row
@@ -909,7 +894,7 @@ function DrugInfoCard({ drugData }: { drugData: Drug }): ReactNode {
               >
                 combo.tripsit.me
               </a>
-              .
+              {"."}
             </Typography>
             {Object.keys(comboObject).map((status) => {
               const colorDef = comboColors[status as keyof typeof comboColors];
@@ -943,14 +928,6 @@ function DrugInfoCard({ drugData }: { drugData: Drug }): ReactNode {
                       </Grid>
                       {comboObject[status as keyof typeof comboObject].map(
                         (combo) => {
-                          // This doesn't work because we use categories in the table, but we'll use this one day
-                          // Find the drug in the database so we can get the pretty name
-                          // const drugB = data.find((drug) => drug.name === combo.name);
-
-                          // if (!drugB) {
-                          //   throw new Error(`Drug ${combo.name} not found`);
-                          // }
-
                           const capitalDrugs = [
                             "2c-t-x",
                             "2c-x",
@@ -986,7 +963,7 @@ function DrugInfoCard({ drugData }: { drugData: Drug }): ReactNode {
                             .replace(/ {2}/g, " ");
 
                           return (
-                            <Grid size={{ xs: 12 }} key={`${combo}`}>
+                            <Grid size={{ xs: 12 }} key={combo.name}>
                               <Typography>
                                 <b>{drugBName}</b>
                                 {combo.note ? (

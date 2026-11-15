@@ -75,9 +75,9 @@ test("loads the Discord member count and starts its counter on the animation eve
     getCountUp: jest.fn(),
   });
   render(
-    <div className="count-box" role="region" aria-label="Discord count">
+    <section className="count-box" aria-label="Discord count">
       <DiscordMembers />
-    </div>,
+    </section>,
   );
   expect(screen.getByText("0")).toBeVisible();
 

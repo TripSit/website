@@ -29,43 +29,53 @@ jest.mock("@heroui/react", () => {
     }),
   };
 });
-jest.mock("material-react-table", () => ({
-  useMaterialReactTable: (options: unknown) => options,
-  MaterialReactTable: ({
-    table,
-  }: {
-    table: {
-      data: Drug[];
-      columns: {
-        id?: string;
-        accessorKey?: keyof Drug;
-        accessorFn?: (row: Drug) => unknown;
-        Cell?: (props: { cell: { getValue: () => unknown } }) => ReactNode;
-      }[];
-      renderTopToolbarCustomActions: () => ReactNode;
-    };
-  }) => (
-    <>
-      {table.renderTopToolbarCustomActions()}
-      {table.data.map((row) => (
-        <div key={row.name}>
-          {table.columns.map((column) => {
-            const value = column.accessorFn
-              ? column.accessorFn(row)
-              : row[column.accessorKey as keyof Drug];
-            return (
+jest.mock("material-react-table", () => {
+  // Every factsheet column holds text (or nothing), so the mock treats values as strings.
+  type Column = {
+    id?: string;
+    accessorKey?: keyof Drug;
+    accessorFn?: (row: Drug) => string | undefined;
+    Cell?: (props: {
+      cell: { getValue: () => string | undefined };
+    }) => ReactNode;
+  };
+
+  // Renders one cell the way the real table does: through the column's Cell when it has one.
+  function renderCell(column: Column, row: Drug) {
+    const value = column.accessorFn
+      ? column.accessorFn(row)
+      : (row[column.accessorKey as keyof Drug] as string | undefined);
+    return column.Cell
+      ? column.Cell({ cell: { getValue: () => value } })
+      : (value ?? "");
+  }
+
+  return {
+    useMaterialReactTable: (options: unknown) => options,
+    MaterialReactTable: ({
+      table,
+    }: {
+      table: {
+        data: Drug[];
+        columns: Column[];
+        renderTopToolbarCustomActions: () => ReactNode;
+      };
+    }) => (
+      <>
+        {table.renderTopToolbarCustomActions()}
+        {table.data.map((row) => (
+          <div key={row.name}>
+            {table.columns.map((column) => (
               <div key={column.id ?? column.accessorKey}>
-                {column.Cell
-                  ? column.Cell({ cell: { getValue: () => value } })
-                  : String(value ?? "")}
+                {renderCell(column, row)}
               </div>
-            );
-          })}
-        </div>
-      ))}
-    </>
-  ),
-}));
+            ))}
+          </div>
+        ))}
+      </>
+    ),
+  };
+});
 
 test("formats all optional factsheet columns and tolerates missing values", () => {
   const refetch = jest.fn();

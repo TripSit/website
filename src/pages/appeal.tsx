@@ -17,12 +17,30 @@ interface Appeal {
   extra?: string;
 }
 
+type BanStatus =
+  "unknown" | "can_appeal" | "has_appeal" | "not_banned" | "can_reappeal";
+
+// What a banned user can do next, based on their latest appeal (if any)
+function statusForBannedUser(
+  appeal: Appeal | null,
+  canReappeal: (appeal: Appeal) => boolean,
+): BanStatus {
+  // No appeal yet, or the last one was accepted (so it was for an earlier ban)
+  if (!appeal || appeal.status === "ACCEPTED") {
+    return "can_appeal";
+  }
+  // A denied appeal can be retried once the waiting period is over
+  if (appeal.status === "DENIED" && canReappeal(appeal)) {
+    return "can_reappeal";
+  }
+  // Still pending (RECEIVED), or denied and still inside the waiting period
+  return "has_appeal";
+}
+
 const AppealPage: React.FC = () => {
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [banStatus, setBanStatus] = useState<
-    "unknown" | "can_appeal" | "has_appeal" | "not_banned" | "can_reappeal"
-  >("unknown");
+  const [banStatus, setBanStatus] = useState<BanStatus>("unknown");
   const [latestAppeal, setLatestAppeal] = useState<Appeal | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -223,14 +241,12 @@ const AppealPage: React.FC = () => {
         headers,
       });
 
-      let appeal = null;
-      let hasAppeal = false;
+      let appeal: Appeal | null = null;
 
       if (appealsRes.ok) {
         const data = await appealsRes.json();
         if (data.id) {
           appeal = data;
-          hasAppeal = true;
           setLatestAppeal(appeal);
         }
       }
@@ -242,26 +258,7 @@ const AppealPage: React.FC = () => {
       }
 
       // User is banned - determine appeal status
-      if (hasAppeal && appeal) {
-        // Check if this appeal is for the current ban
-        if (appeal.status === "ACCEPTED") {
-          // Previous appeal was accepted, they can make a new appeal for current ban
-          setBanStatus("can_appeal");
-        } else if (appeal.status === "DENIED") {
-          // Check if enough time has passed to reappeal
-          if (canReappeal(appeal)) {
-            setBanStatus("can_reappeal"); // Show reappeal UI with previous appeal info
-          } else {
-            setBanStatus("has_appeal"); // Show denial message and waiting period
-          }
-        } else {
-          // Appeal is still pending (RECEIVED status)
-          setBanStatus("has_appeal");
-        }
-      } else {
-        // No appeal found - user can create one
-        setBanStatus("can_appeal");
-      }
+      setBanStatus(statusForBannedUser(appeal, canReappeal));
     } catch {
       setBanStatus("unknown");
     } finally {
@@ -288,14 +285,14 @@ const AppealPage: React.FC = () => {
 
       if (res.ok) {
         const successData = await res.json();
-        setMessage(successData.message || "Your appeal has been submitted.");
+        setMessage(successData.message ?? "Your appeal has been submitted.");
         setBanStatus("has_appeal");
         // Refresh to get the new appeal
         checkBan();
         setTimeout(() => setMessage(null), 3000);
       } else {
         const errorData = await res.json();
-        let userMessage = errorData.error || "Failed to submit appeal";
+        let userMessage = errorData.error ?? "Failed to submit appeal";
 
         // Make technical error messages more user-friendly
         if (userMessage.includes("User not found in database")) {
@@ -398,17 +395,20 @@ const AppealPage: React.FC = () => {
   useEffect(() => {
     if (!token) return;
     // Set up new interval to refresh every 30 seconds
-    const refreshInterval = setInterval(async () => {
-      const refreshedToken = await refreshTokenIfNeeded();
-      // Only update token state if it actually changed to prevent unnecessary re-renders
-      if (refreshedToken && refreshedToken !== token) {
-        setToken(refreshedToken);
-      } else if (!refreshedToken) {
-        // Token is now invalid, clear it
-        setToken(null);
-        clearInterval(refreshInterval);
-      }
-      // If refreshedToken === token, do nothing (no state change needed)
+    // setInterval ignores a callback's return value, so hand it a plain function and let
+    // the refresh promise run on its own.
+    const refreshInterval = setInterval(() => {
+      void refreshTokenIfNeeded().then((refreshedToken) => {
+        // Only update token state if it actually changed to prevent unnecessary re-renders
+        if (refreshedToken && refreshedToken !== token) {
+          setToken(refreshedToken);
+        } else if (!refreshedToken) {
+          // Token is now invalid, clear it
+          setToken(null);
+          clearInterval(refreshInterval);
+        }
+        // If refreshedToken === token, do nothing (no state change needed)
+      });
     }, 30000); // 30 seconds
     return () => clearInterval(refreshInterval);
   }, [token]);
@@ -436,13 +436,12 @@ const AppealPage: React.FC = () => {
             <div className="container">
               <div className="row justify-content-center">
                 <div className="col-md-6 text-center">
-                  <div
+                  <output
                     className="spinner-border text-primary"
-                    role="status"
                     style={{ width: "3rem", height: "3rem" }}
                   >
                     <span className="visually-hidden">Loading...</span>
-                  </div>
+                  </output>
                   <p className="mt-3 text-muted">
                     Loading your appeal status...
                   </p>
@@ -635,7 +634,7 @@ const AppealPage: React.FC = () => {
                           </h5>
                           <p className="mb-2">
                             <strong>Status:</strong>{" "}
-                            {getStatusBadge(latestAppeal?.status || "RECEIVED")}
+                            {getStatusBadge(latestAppeal?.status ?? "RECEIVED")}
                           </p>
                           <p className="text-muted mb-1">
                             <small>
@@ -699,23 +698,23 @@ const AppealPage: React.FC = () => {
                                   <>
                                     <span
                                       className="spinner-border spinner-border-sm me-2"
-                                      role="status"
+                                      aria-hidden="true"
                                     ></span>
-                                    Sending...
+                                    {"Sending..."}
                                   </>
                                 );
                               } else if (canRemind) {
                                 buttonContent = (
                                   <>
-                                    <i className="bi bi-bell me-2"></i>
-                                    Send Reminder
+                                    <i className="bi bi-bell me-2"></i>Send
+                                    Reminder
                                   </>
                                 );
                               } else {
                                 buttonContent = (
                                   <>
-                                    <i className="bi bi-clock me-2"></i>
-                                    Come back in 48 hours
+                                    <i className="bi bi-clock me-2"></i>Come
+                                    back in 48 hours
                                   </>
                                 );
                               }
@@ -747,8 +746,8 @@ const AppealPage: React.FC = () => {
                               aria-expanded="false"
                               aria-controls="appealContent"
                             >
-                              <i className="bi bi-eye me-2"></i>
-                              View Your Appeal Content
+                              <i className="bi bi-eye me-2"></i>View Your Appeal
+                              Content
                             </button>
                           </div>
                           <div className="collapse mt-3" id="appealContent">
@@ -808,9 +807,9 @@ const AppealPage: React.FC = () => {
                         !canShowReminder(latestAppeal) &&
                         !latestAppeal?.reminded_at && (
                           <div className="alert alert-info mt-3" role="alert">
-                            <i className="bi bi-info-circle me-2"></i>
-                            You can send a reminder 48 hours after submitting
-                            your appeal.
+                            <i className="bi bi-info-circle me-2"></i>You can
+                            send a reminder 48 hours after submitting your
+                            appeal.
                           </div>
                         )}
 
@@ -868,8 +867,8 @@ const AppealPage: React.FC = () => {
                       <div className="text-center mb-5">
                         <h1 className="display-6">Appeal History</h1>
                         <p className="lead text-success">
-                          <i className="bi bi-check-circle me-2"></i>
-                          You are not currently banned from the server.
+                          <i className="bi bi-check-circle me-2"></i>You are not
+                          currently banned from the server.
                         </p>
                       </div>
 
@@ -889,7 +888,7 @@ const AppealPage: React.FC = () => {
                             <div className="alert alert-success" role="alert">
                               <h6 className="alert-heading">
                                 <i className="bi bi-check-circle-fill me-2"></i>
-                                Appeal Accepted!
+                                {"Appeal Accepted!"}
                               </h6>
                               {latestAppeal.response_message && (
                                 <p className="mb-3">
@@ -905,8 +904,8 @@ const AppealPage: React.FC = () => {
                                 rel="noopener noreferrer"
                                 className="btn btn-success btn-sm"
                               >
-                                <i className="bi bi-discord me-2"></i>
-                                Join Discord
+                                <i className="bi bi-discord me-2"></i>Join
+                                Discord
                               </a>
                             </div>
                           )}
@@ -915,7 +914,7 @@ const AppealPage: React.FC = () => {
                             <div className="alert alert-warning" role="alert">
                               <h6 className="alert-heading">
                                 <i className="bi bi-exclamation-triangle-fill me-2"></i>
-                                Appeal was Denied
+                                {"Appeal was Denied"}
                               </h6>
                               {latestAppeal.response_message && (
                                 <p className="mb-2">

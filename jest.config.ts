@@ -9,6 +9,14 @@ const createJestConfig = nextJest({
 
 const config: Config = {
   testEnvironment: "jsdom",
+  collectCoverageFrom: [
+    "src/**/*.{ts,tsx}",
+    "!src/**/*.d.ts",
+    "!src/**/__tests__/**",
+  ],
+  coverageThreshold: {
+    global: { branches: 90 },
+  },
   setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
   testPathIgnorePatterns: ["<rootDir>/.next/", "<rootDir>/node_modules/"],
   modulePathIgnorePatterns: ["<rootDir>/.next/"],

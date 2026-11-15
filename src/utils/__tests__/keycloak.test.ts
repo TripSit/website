@@ -1,4 +1,4 @@
-import { getLoginUrl } from "../keycloak";
+import { getLoginUrl, getPostLogoutUrl } from "../keycloak";
 
 // NODE_ENV is typed read-only; tests need to switch it.
 const env = process.env as Record<string, string | undefined>;
@@ -23,7 +23,21 @@ afterEach(() => {
   restore("NEXT_PUBLIC_KEYCLOAK_URL");
   restore("NEXT_PUBLIC_KEYCLOAK_CLIENT_ID");
   jest.restoreAllMocks();
+  sessionStorage.clear();
 });
+
+test.each(["", "test-id-token"])(
+  "builds a logout URL with token hint %p",
+  (hint) => {
+    if (hint) sessionStorage.setItem("kc_id_token", hint);
+    const url = new URL(getPostLogoutUrl());
+    expect(url.pathname).toBe("/realms/TripSit/protocol/openid-connect/logout");
+    expect(url.searchParams.get("post_logout_redirect_uri")).toBe(
+      window.location.origin,
+    );
+    expect(url.searchParams.get("id_token_hint")).toBe(hint);
+  },
+);
 
 describe("getLoginUrl", () => {
   it("asks Keycloak for a code as the configured client", () => {

@@ -77,6 +77,28 @@ describe("getDiscordStats", () => {
     expect(mockedGet).not.toHaveBeenCalled();
   });
 
+  it("reads the configured bot token when called without arguments", async () => {
+    jest.replaceProperty(process, "env", {
+      ...process.env,
+      DISCORD_CLIENT_TOKEN: "configured",
+    });
+    mockedGet.mockResolvedValue({ data: {} });
+    try {
+      await expect(getDiscordStats()).resolves.toEqual({
+        memberCount: 0,
+        presenceCount: 0,
+      });
+      expect(mockedGet).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          headers: { Authorization: "Bot configured" },
+        }),
+      );
+    } finally {
+      jest.restoreAllMocks();
+    }
+  });
+
   it("returns null when Discord fails", async () => {
     mockedGet.mockRejectedValue(new Error("timeout"));
 

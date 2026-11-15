@@ -29,17 +29,14 @@ const AppealPage: React.FC = () => {
   const [reminding, setReminding] = useState(false);
   const [remindMessage, setRemindMessage] = useState<string | null>(null);
 
-  // Use useRef to store the interval ID so we can clear it
-  const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  // Use ref to prevent concurrent token refreshes
-  const isRefreshingRef = useRef<boolean>(false);
+  // Share a pending refresh so concurrent requests use the same tokens.
   const refreshPromiseRef = useRef<Promise<string | null> | null>(null);
   // Use ref to prevent concurrent checkBan calls
   const isCheckingBanRef = useRef<boolean>(false);
 
   async function refreshTokenIfNeeded() {
     // If already refreshing, wait for that promise to complete
-    if (isRefreshingRef.current && refreshPromiseRef.current) {
+    if (refreshPromiseRef.current) {
       return refreshPromiseRef.current;
     }
 
@@ -56,8 +53,7 @@ const AppealPage: React.FC = () => {
       // If token expires within 60 seconds, refresh it
       if (expiresAt - now < 60000) {
         if (refreshToken) {
-          // Set flag and create promise to prevent concurrent refreshes
-          isRefreshingRef.current = true;
+          // Share the promise to prevent concurrent refreshes.
           refreshPromiseRef.current = (async () => {
             try {
               const refreshRes = await fetch("/api/v2/keycloak/refresh", {
@@ -89,7 +85,6 @@ const AppealPage: React.FC = () => {
               sessionStorage.removeItem("kc_refresh_token");
               return null;
             } finally {
-              isRefreshingRef.current = false;
               refreshPromiseRef.current = null;
             }
           })();
@@ -156,8 +151,7 @@ const AppealPage: React.FC = () => {
   }
 
   function canReappeal(appeal: Appeal | null): boolean {
-    if (!appeal || appeal.status !== "DENIED" || !appeal.decided_at)
-      return false;
+    if (!appeal?.decided_at) return false;
 
     const decidedAt = new Date(appeal.decided_at);
 
@@ -174,9 +168,7 @@ const AppealPage: React.FC = () => {
     return decidedAt <= threeMonthsAgo;
   }
 
-  function canShowReminder(appeal: Appeal | null): boolean {
-    if (!appeal || appeal.status !== "RECEIVED") return false;
-
+  function canShowReminder(appeal: Appeal): boolean {
     const createdAt = new Date(appeal.created_at);
 
     // 30 seconds for development
@@ -266,11 +258,9 @@ const AppealPage: React.FC = () => {
           // Appeal is still pending (RECEIVED status)
           setBanStatus("has_appeal");
         }
-      } else if (!hasAppeal) {
+      } else {
         // No appeal found - user can create one
         setBanStatus("can_appeal");
-      } else {
-        setBanStatus("unknown");
       }
     } catch {
       setBanStatus("unknown");
@@ -406,36 +396,21 @@ const AppealPage: React.FC = () => {
 
   // Set up background token refresh when we have a token
   useEffect(() => {
-    if (token) {
-      // Clear any existing interval
-      if (refreshIntervalRef.current) {
-        clearInterval(refreshIntervalRef.current);
+    if (!token) return;
+    // Set up new interval to refresh every 30 seconds
+    const refreshInterval = setInterval(async () => {
+      const refreshedToken = await refreshTokenIfNeeded();
+      // Only update token state if it actually changed to prevent unnecessary re-renders
+      if (refreshedToken && refreshedToken !== token) {
+        setToken(refreshedToken);
+      } else if (!refreshedToken) {
+        // Token is now invalid, clear it
+        setToken(null);
+        clearInterval(refreshInterval);
       }
-
-      // Set up new interval to refresh every 30 seconds
-      refreshIntervalRef.current = setInterval(async () => {
-        const refreshedToken = await refreshTokenIfNeeded();
-        // Only update token state if it actually changed to prevent unnecessary re-renders
-        if (refreshedToken && refreshedToken !== token) {
-          setToken(refreshedToken);
-        } else if (!refreshedToken && token) {
-          // Token is now invalid, clear it
-          setToken(null);
-          if (refreshIntervalRef.current) {
-            clearInterval(refreshIntervalRef.current);
-          }
-        }
-        // If refreshedToken === token, do nothing (no state change needed)
-      }, 30000); // 30 seconds
-    }
-
-    // Cleanup function
-    return () => {
-      if (refreshIntervalRef.current) {
-        clearInterval(refreshIntervalRef.current);
-        refreshIntervalRef.current = null;
-      }
-    };
+      // If refreshedToken === token, do nothing (no state change needed)
+    }, 30000); // 30 seconds
+    return () => clearInterval(refreshInterval);
   }, [token]);
 
   // Fetch ban status when we have a token
@@ -849,37 +824,6 @@ const AppealPage: React.FC = () => {
                       )}
                     </div>
                   </div>
-
-                  {latestAppeal?.status === "ACCEPTED" && (
-                    <div className="card border-success mt-4">
-                      <div className="card-header bg-success bg-opacity-10 border-success">
-                        <h5 className="card-title text-success mb-0">
-                          <i className="bi bi-check-circle-fill me-2"></i>Appeal
-                          Accepted!
-                        </h5>
-                      </div>
-                      <div className="card-body">
-                        {latestAppeal?.response_message && (
-                          <p className="mb-3">
-                            <strong>Moderator Response:</strong>
-                            <br />
-                            <span style={{ whiteSpace: "pre-wrap" }}>
-                              {latestAppeal.response_message}
-                            </span>
-                          </p>
-                        )}
-                        <a
-                          href="https://discord.gg/TripSit"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="btn btn-success"
-                        >
-                          <i className="bi bi-discord me-2"></i>
-                          Join Discord
-                        </a>
-                      </div>
-                    </div>
-                  )}
 
                   {latestAppeal?.status === "DENIED" && (
                     <div className="card border-danger mt-4">

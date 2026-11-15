@@ -1,7 +1,8 @@
 import { render, screen } from "@testing-library/react";
+import { envOrDefault } from "@/utils/envOrDefault";
 import NotFound from "../not-found";
 
-const blogHost = `updates.${process.env.NEXT_PUBLIC_DNS_DOMAIN || "tripsit.me"}`;
+const blogHost = `updates.${envOrDefault(process.env.NEXT_PUBLIC_DNS_DOMAIN, "tripsit.me")}`;
 
 function blogLink() {
   return new URL(

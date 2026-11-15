@@ -77,13 +77,13 @@ function Section({
   lead,
   tint = false,
   children,
-}: {
+}: Readonly<{
   id: string;
   title?: string;
   lead?: string;
   tint?: boolean;
   children: ReactNode;
-}) {
+}>) {
   return (
     <section
       id={id}
@@ -869,7 +869,7 @@ export default function Home({
                 <a href="https://github.com/TripSit/tripsit-mobile">
                   https://github.com/TripSit/tripsit-mobile
                 </a>
-                .
+                {"."}
               </p>
               <h3>Main Website</h3>
               <p>
@@ -880,7 +880,7 @@ export default function Home({
                 <a href="https://github.com/TripSit/website">
                   https://github.com/TripSit/website
                 </a>
-                .
+                {"."}
               </p>
             </AccordionSection>
           </Accordion>

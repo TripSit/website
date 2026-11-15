@@ -4,9 +4,10 @@
 import { readdirSync } from "node:fs";
 import path from "node:path";
 import blogPaths from "@/assets/blogPaths.json";
+import { envOrDefault } from "@/utils/envOrDefault";
 import nextConfig from "../../next.config.js";
 
-const blogOrigin = `https://updates.${process.env.NEXT_PUBLIC_DNS_DOMAIN || "tripsit.me"}`;
+const blogOrigin = `https://updates.${envOrDefault(process.env.NEXT_PUBLIC_DNS_DOMAIN, "tripsit.me")}`;
 const repoRoot = path.join(__dirname, "../..");
 
 // First URL segment of everything this site serves: pages, app routes and public files.

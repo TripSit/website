@@ -6,7 +6,6 @@ export default function Ghost() {
 
   useEffect(() => {
     const handleUserActivity = () => {
-      // console.log("Activity detected!");
       setLastActivity(Date.now());
 
       if (timeoutId) {

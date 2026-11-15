@@ -16,7 +16,7 @@ function SubstanceSelector({
   onToggle,
   onQuery,
   onClearAll,
-}: SubstanceSelectorProps) {
+}: Readonly<SubstanceSelectorProps>) {
   const q = query.trim().toLowerCase();
 
   return (

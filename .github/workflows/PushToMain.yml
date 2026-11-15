@@ -53,7 +53,22 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - uses: sonarsource/sonarqube-scan-action@master
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+      - name: Install dependencies
+        run: npm ci
+      - name: Copy env
+        run: cp .env.example .env
+      - name: Test with coverage
+        # Writes coverage/lcov.info, which sonar-project.properties points the scanner at.
+        run: npm run test:coverage
+      - name: SonarQube scan
+        # Still upload the analysis if a test or the coverage threshold fails.
+        if: ${{ !cancelled() }}
+        uses: sonarsource/sonarqube-scan-action@master
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}

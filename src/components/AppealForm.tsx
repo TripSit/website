@@ -25,7 +25,7 @@ const AppealForm: React.FC<AppealFormProps> = ({
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     // Validate required fields
@@ -149,10 +149,9 @@ const AppealForm: React.FC<AppealFormProps> = ({
                 <>
                   <span
                     className="spinner-border spinner-border-sm me-2"
-                    role="status"
                     aria-hidden="true"
                   ></span>
-                  Submitting...
+                  {"Submitting..."}
                 </>
               ) : (
                 "Submit Appeal"

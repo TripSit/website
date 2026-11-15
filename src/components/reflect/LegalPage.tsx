@@ -12,12 +12,12 @@ export default function LegalPage({
   updated,
   description,
   children,
-}: {
+}: Readonly<{
   title: string;
   updated: string;
   description: string;
   children: ReactNode;
-}) {
+}>) {
   return (
     <PageShell title={`${title} - Reflect - TripSit`} description={description}>
       <article className="px-5 py-16 md:py-24">
@@ -27,7 +27,7 @@ export default function LegalPage({
             className="inline-flex items-center gap-1.5 text-sm text-mute transition hover:text-cyan focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan"
           >
             <i className="bi bi-arrow-left" aria-hidden />
-            Back to Reflect
+            {"Back to Reflect"}
           </Link>
           <p className="mb-0 mt-8 text-xs font-semibold uppercase tracking-widest text-violet">
             Reflect

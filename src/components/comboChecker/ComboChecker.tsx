@@ -2,6 +2,7 @@ import { useState, type CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import logo from "../../../public/assets/img/logo.png";
+import { envOrDefault } from "../../utils/envOrDefault";
 import { SUBSTANCES } from "./comboData";
 import Legend from "./Legend";
 import SubstanceSelector from "./SubstanceSelector";
@@ -21,8 +22,8 @@ function ComboChecker({
   accent = "#2487ce",
   showExplanations = true,
   sortBySeverity = true,
-}: ComboCheckerProps) {
-  const domain = process.env.NEXT_PUBLIC_DNS_DOMAIN || "tripsit.me";
+}: Readonly<ComboCheckerProps>) {
+  const domain = envOrDefault(process.env.NEXT_PUBLIC_DNS_DOMAIN, "tripsit.me");
   const [selected, setSelected] = useState<string[]>([]);
   const [query, setQuery] = useState("");
 

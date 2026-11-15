@@ -6,8 +6,7 @@ jest.mock(
   () => () =>
     function Widget({ server, channel }: { server: string; channel: string }) {
       return (
-        <div
-          role="region"
+        <section
           aria-label="Chat widget"
           data-server={server}
           data-channel={channel}

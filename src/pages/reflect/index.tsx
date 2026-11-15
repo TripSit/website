@@ -75,7 +75,10 @@ const privacyPoints: Point[] = [
 const outlineButton =
   "inline-flex items-center justify-center gap-2 rounded-full border-[1px] border-solid border-line px-6 py-3 text-sm text-ink transition hover:border-cyan hover:text-cyan focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan";
 
-function SectionHeading({ title, lead }: { title: string; lead: string }) {
+function SectionHeading({
+  title,
+  lead,
+}: Readonly<{ title: string; lead: string }>) {
   return (
     <header className="mb-10 max-w-3xl md:mb-14">
       <h2 className="m-0 font-display text-3xl font-semibold tracking-tight text-ink md:text-4xl">
@@ -88,7 +91,7 @@ function SectionHeading({ title, lead }: { title: string; lead: string }) {
   );
 }
 
-function PointCard({ point }: { point: Point }) {
+function PointCard({ point }: Readonly<{ point: Point }>) {
   return (
     <div className="h-full rounded-2xl border-[1px] border-solid border-line bg-surface/60 p-6">
       <span className="mb-4 inline-flex text-3xl text-cyan">{point.icon}</span>
@@ -104,96 +107,106 @@ function PointCard({ point }: { point: Point }) {
 // onset / come-up / peak / offset phases and a "now" marker
 function TimelinePreview() {
   return (
-    <figure
-      className="mx-auto w-full max-w-md rounded-[2rem] border-[1px] border-solid border-line bg-surface/80 p-6 shadow-2xl shadow-violet/10 backdrop-blur"
-      aria-label="Illustration of an estimated effect timeline showing two overlapping doses"
-      role="img"
-    >
-      <div className="mb-5 flex items-center justify-between">
-        <span className="font-display text-sm font-semibold text-ink">
-          Active session
-        </span>
-        <span className="rounded-full bg-cyan/15 px-3 py-1 text-xs font-medium text-cyan">
-          Peak
-        </span>
-      </div>
-      <svg viewBox="0 0 320 190" className="block h-auto w-full" aria-hidden>
-        <defs>
-          <linearGradient id="reflect-fill-violet" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stopColor="#a06bff" stopOpacity="0.35" />
-            <stop offset="100%" stopColor="#a06bff" stopOpacity="0" />
-          </linearGradient>
-          <linearGradient id="reflect-fill-cyan" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stopColor="#46d8ec" stopOpacity="0.3" />
-            <stop offset="100%" stopColor="#46d8ec" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-        <line x1="10" y1="160" x2="310" y2="160" className="stroke-line" />
-        <path
-          d="M10 160 C 45 160, 60 40, 100 40 L 150 40 C 195 40, 215 160, 265 160 Z"
-          fill="url(#reflect-fill-violet)"
-        />
-        <path
-          d="M10 160 C 45 160, 60 40, 100 40 L 150 40 C 195 40, 215 160, 265 160"
-          fill="none"
-          strokeWidth="3"
-          strokeLinecap="round"
-          className="stroke-violet"
-        />
-        <path
-          d="M80 160 C 110 160, 120 85, 155 85 L 185 85 C 225 85, 245 160, 305 160 Z"
-          fill="url(#reflect-fill-cyan)"
-        />
-        <path
-          d="M80 160 C 110 160, 120 85, 155 85 L 185 85 C 225 85, 245 160, 305 160"
-          fill="none"
-          strokeWidth="3"
-          strokeLinecap="round"
-          className="stroke-cyan"
-        />
-        <line
-          x1="128"
-          y1="18"
-          x2="128"
-          y2="160"
-          strokeDasharray="4 4"
-          className="stroke-ink/60"
-        />
-        <text
-          x="128"
-          y="12"
-          textAnchor="middle"
-          className="fill-ink text-[10px]"
-        >
-          Now
-        </text>
-        {[
-          { x: 30, label: "Onset" },
-          { x: 75, label: "Come-up" },
-          { x: 125, label: "Peak" },
-          { x: 215, label: "Offset" },
-        ].map((phase) => (
+    <figure className="mx-auto w-full max-w-md rounded-[2rem] border-[1px] border-solid border-line bg-surface/80 p-6 shadow-2xl shadow-violet/10 backdrop-blur">
+      <figcaption className="sr-only">
+        Illustration of an estimated effect timeline showing two overlapping
+        doses
+      </figcaption>
+      <div aria-hidden="true">
+        <div className="mb-5 flex items-center justify-between">
+          <span className="font-display text-sm font-semibold text-ink">
+            Active session
+          </span>
+          <span className="rounded-full bg-cyan/15 px-3 py-1 text-xs font-medium text-cyan">
+            Peak
+          </span>
+        </div>
+        <svg viewBox="0 0 320 190" className="block h-auto w-full" aria-hidden>
+          <defs>
+            <linearGradient
+              id="reflect-fill-violet"
+              x1="0"
+              x2="0"
+              y1="0"
+              y2="1"
+            >
+              <stop offset="0%" stopColor="#a06bff" stopOpacity="0.35" />
+              <stop offset="100%" stopColor="#a06bff" stopOpacity="0" />
+            </linearGradient>
+            <linearGradient id="reflect-fill-cyan" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stopColor="#46d8ec" stopOpacity="0.3" />
+              <stop offset="100%" stopColor="#46d8ec" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          <line x1="10" y1="160" x2="310" y2="160" className="stroke-line" />
+          <path
+            d="M10 160 C 45 160, 60 40, 100 40 L 150 40 C 195 40, 215 160, 265 160 Z"
+            fill="url(#reflect-fill-violet)"
+          />
+          <path
+            d="M10 160 C 45 160, 60 40, 100 40 L 150 40 C 195 40, 215 160, 265 160"
+            fill="none"
+            strokeWidth="3"
+            strokeLinecap="round"
+            className="stroke-violet"
+          />
+          <path
+            d="M80 160 C 110 160, 120 85, 155 85 L 185 85 C 225 85, 245 160, 305 160 Z"
+            fill="url(#reflect-fill-cyan)"
+          />
+          <path
+            d="M80 160 C 110 160, 120 85, 155 85 L 185 85 C 225 85, 245 160, 305 160"
+            fill="none"
+            strokeWidth="3"
+            strokeLinecap="round"
+            className="stroke-cyan"
+          />
+          <line
+            x1="128"
+            y1="18"
+            x2="128"
+            y2="160"
+            strokeDasharray="4 4"
+            className="stroke-ink/60"
+          />
           <text
-            key={phase.label}
-            x={phase.x}
-            y="180"
+            x="128"
+            y="12"
             textAnchor="middle"
-            className="fill-mute text-[10px]"
+            className="fill-ink text-[10px]"
           >
-            {phase.label}
+            Now
           </text>
-        ))}
-      </svg>
-      <ul className="m-0 mt-5 list-none space-y-2 pl-0 text-sm">
-        <li className="flex items-center gap-3 text-ink">
-          <span className="h-2.5 w-2.5 rounded-full bg-violet" />
-          Dose 1<span className="ml-auto text-mute">2h 10m in</span>
-        </li>
-        <li className="flex items-center gap-3 text-ink">
-          <span className="h-2.5 w-2.5 rounded-full bg-cyan" />
-          Dose 2<span className="ml-auto text-mute">+1h 15m</span>
-        </li>
-      </ul>
+          {[
+            { x: 30, label: "Onset" },
+            { x: 75, label: "Come-up" },
+            { x: 125, label: "Peak" },
+            { x: 215, label: "Offset" },
+          ].map((phase) => (
+            <text
+              key={phase.label}
+              x={phase.x}
+              y="180"
+              textAnchor="middle"
+              className="fill-mute text-[10px]"
+            >
+              {phase.label}
+            </text>
+          ))}
+        </svg>
+        <ul className="m-0 mt-5 list-none space-y-2 pl-0 text-sm">
+          <li className="flex items-center gap-3 text-ink">
+            <span className="h-2.5 w-2.5 rounded-full bg-violet" />
+            {"Dose 1"}
+            <span className="ml-auto text-mute">2h 10m in</span>
+          </li>
+          <li className="flex items-center gap-3 text-ink">
+            <span className="h-2.5 w-2.5 rounded-full bg-cyan" />
+            {"Dose 2"}
+            <span className="ml-auto text-mute">+1h 15m</span>
+          </li>
+        </ul>
+      </div>
     </figure>
   );
 }
@@ -214,7 +227,7 @@ export default function ReflectPage() {
           <div data-aos="fade-up">
             <p className="mb-5 inline-flex items-center gap-2 rounded-full border-[1px] border-solid border-line bg-surface/70 px-3 py-1 text-xs uppercase tracking-widest text-mute">
               <i className="bi bi-android2" aria-hidden />
-              TripSit for Android
+              {"TripSit for Android"}
             </p>
             <h1 className="m-0 font-display text-5xl font-semibold tracking-tight text-ink md:text-6xl">
               Reflect
@@ -248,7 +261,7 @@ export default function ReflectPage() {
               </a>
               <a href={DISCORD_URL} className={outlineButton}>
                 <i className="bi bi-discord" aria-hidden />
-                Join the Reflect Discord
+                {"Join the Reflect Discord"}
               </a>
             </div>
             <p className="mb-0 mt-4 text-sm text-mute">

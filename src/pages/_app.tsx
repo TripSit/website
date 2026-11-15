@@ -1,6 +1,5 @@
 import { AppProps } from "next/app";
 import React, { useEffect, useState } from "react";
-// import React, { useEffect, useState } from "react";
 import AOS from "aos";
 // Vendor CSS Files
 import "../../public/assets/vendor/aos/aos.css";
@@ -16,27 +15,14 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import "../../public/assets/css/style.css";
 // Tailwind utilities (after style.css so utilities win the cascade)
 import "../styles/tailwind.css";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"; // note: this is TanStack Rea`ct Query V5
-// import generateRandomString from "@/utils/randomString";
-
-// const F = "_app.tsx";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"; // note: this is TanStack React Query V5
 
 export default function App({ Component, pageProps }: AppProps) {
   // One client for the whole session. Creating it during render would replace it (and empty
   // its cache) on every navigation, so drugs.json would be downloaded again on every page.
   const [queryClient] = useState(() => new QueryClient());
-  // const [stateParam, setStateParam] = useState("");
-
-  // const setNewStateParam = () => {
-  //   const rndStr = generateRandomString();
-  //   localStorage.setItem("stateParam", rndStr);
-  //   setStateParam(rndStr);
-  // };
 
   useEffect(() => {
-    // setNewStateParam();
-    // console.debug(F, `Reset state`);
-
     AOS.init({
       duration: 1000,
       easing: "ease-in-out",
@@ -46,12 +32,10 @@ export default function App({ Component, pageProps }: AppProps) {
   }, []);
 
   return (
-    <>
-      <LocalizationProvider dateAdapter={AdapterDateFns}>
-        <QueryClientProvider client={queryClient}>
-          <Component {...pageProps} />
-        </QueryClientProvider>
-      </LocalizationProvider>
-    </>
+    <LocalizationProvider dateAdapter={AdapterDateFns}>
+      <QueryClientProvider client={queryClient}>
+        <Component {...pageProps} />
+      </QueryClientProvider>
+    </LocalizationProvider>
   );
 }

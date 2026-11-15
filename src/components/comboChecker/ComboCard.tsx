@@ -9,7 +9,13 @@ interface ComboCardProps {
   delay: string;
 }
 
-function ComboCard({ title, risk, note, showNote, delay }: ComboCardProps) {
+function ComboCard({
+  title,
+  risk,
+  note,
+  showNote,
+  delay,
+}: Readonly<ComboCardProps>) {
   const r = RISK[risk];
   return (
     <div className={styles.card} style={{ animationDelay: delay }}>

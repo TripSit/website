@@ -6,7 +6,6 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Accordion } from "@heroui/react";
 import AccordionSection from "../components/AccordionSection";
 import { Tooltip } from "@mui/material";
-import { Inter, Space_Grotesk } from "next/font/google";
 import JoinInnerOutlinedIcon from "@mui/icons-material/JoinInnerOutlined";
 import FactCheckOutlinedIcon from "@mui/icons-material/FactCheckOutlined";
 import SchoolOutlinedIcon from "@mui/icons-material/SchoolOutlined";
@@ -21,6 +20,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Head from "../components/Head";
 import { solidButton } from "../components/buttonClasses";
+import { fontVariables } from "../components/fonts";
 import bluelightLogo from "../../public/assets/img/logos/bluelight.jpg";
 import seiLogo from "../../public/assets/img/logos/sei.png";
 import rdrugsLogo from "../../public/assets/img/logos/rdrugs.png";
@@ -38,12 +38,6 @@ import { DiscordStats, getDiscordStats } from "../utils/discordStats";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const grotesk = Space_Grotesk({
-  subsets: ["latin"],
-  variable: "--font-space-grotesk",
-});
 
 /* ------------------------------------------------------------------ */
 /* Shared bits                                                         */
@@ -296,7 +290,7 @@ export default function Home({
   return (
     <div
       data-bs-theme="dark"
-      className={`${inter.variable} ${grotesk.variable} font-body text-ink antialiased`}
+      className={`${fontVariables} font-body text-ink antialiased`}
     >
       <Header />
       <Head />

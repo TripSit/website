@@ -60,6 +60,9 @@ test("links to trip sitting and shows online counts when available", () => {
   ).toHaveAttribute("href", "/webchat");
   expect(screen.getByText("1,234")).toBeVisible();
   expect(screen.getByRole("heading", { name: "About Us" })).toBeVisible();
+  expect(
+    screen.getByRole("heading", { level: 3, name: "Reflect App" }).closest("a"),
+  ).toHaveAttribute("href", "/reflect");
   rerender(<Home discord={null} />);
   expect(screen.queryByText(/people are here right now/i)).toBeNull();
 });

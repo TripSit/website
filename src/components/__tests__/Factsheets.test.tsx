@@ -11,9 +11,12 @@ const drugs = {
     name: "example",
     pretty_name: "Example compound",
     aliases: ["Test alias"],
+    formatted_effects: ["Sample effects"],
+    pweffects: { Nausea: "example" },
     properties: {
       summary: "Example summary",
       categories: ["Stimulant", "tentative", "supplement"],
+      "test-kits": "Sample reagent results",
     },
   },
   minimal: { name: "minimal", pretty_name: "Minimal compound", properties: {} },

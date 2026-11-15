@@ -13,6 +13,7 @@ type NavGroup = { label: string; links: NavLink[] };
 const directLinks: NavLink[] = [
   { label: "Home", href: "/" },
   { label: "About", href: "/#about" },
+  { label: "Reflect", href: "/reflect" },
 ];
 
 const menus: { label: string; groups: NavGroup[] }[] = [
@@ -73,10 +74,7 @@ const menus: { label: string; groups: NavGroup[] }[] = [
         label: "More",
         links: [
           { label: "Learning Platform", href: `https://learn.${domain}` },
-          {
-            label: "Android App",
-            href: "https://play.google.com/store/apps/details?id=me.tripsit.mobile&hl=en_US&gl=US",
-          },
+          { label: "Reflect App", href: "/reflect" },
           {
             label: "Service Status",
             href: `https://uptime.${domain}/status/default`,

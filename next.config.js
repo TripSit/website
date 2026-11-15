@@ -1,3 +1,25 @@
+// This file is CommonJS, loaded by Node as-is, so it can't use `import`.
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const blogPaths = require("./src/assets/blogPaths.json");
+
+// Old articles moved from <domain>/<post> to the WordPress blog at updates.<domain>/<post>/.
+// The blog no longer changes, so a fixed list (taken from its sitemap.xml, minus its home
+// page and a test page) replaces the Cloudflare Worker that checked the blog on every miss.
+// Redirects run before pages, so src/__tests__/blogRedirects.test.ts checks that no redirect
+// below starts with a path this site serves.
+const blogOrigin = `https://updates.${process.env.NEXT_PUBLIC_DNS_DOMAIN || "tripsit.me"}`;
+
+// Send <path>, and anything under it such as a post's feed, to the same place on the blog.
+// Blog URLs end in "/". Linking there directly skips the blog's own slash redirect, which
+// points at an internal port (:8080) and never loads.
+function toBlog(path, rest = ":rest*") {
+  return {
+    source: `${path}/${rest}`,
+    destination: `${blogOrigin}${path}/${rest}/`,
+    permanent: true,
+  };
+}
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Standalone output traces each page's actual dependencies into
@@ -5,6 +27,21 @@ const nextConfig = {
   // without needing the full node_modules tree (or a second `npm ci`) copied in.
   output: "standalone",
   turbopack: { root: __dirname },
+  async redirects() {
+    return [
+      ...blogPaths.map((path) => toBlog(path)),
+      // Not in the sitemap, but still linked from elsewhere: feed readers subscribed to the
+      // old address, the blog's front-page pages, and images other sites embed from posts.
+      toBlog("/feed"),
+      toBlog("/comments", ":rest+"),
+      toBlog("/page", ":rest+"),
+      {
+        source: "/wp-content/:path*",
+        destination: `${blogOrigin}/wp-content/:path*`,
+        permanent: true,
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;

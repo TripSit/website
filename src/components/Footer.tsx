@@ -25,10 +25,7 @@ const columns = [
       { label: "Combo App", href: "https://combo.tripsit.me/" },
       { label: "Factsheets", href: "https://drugs.tripsit.me/" },
       { label: "Live Chat", href: "https://chat.tripsit.me" },
-      {
-        label: "Android App",
-        href: "https://play.google.com/store/apps/details?id=me.tripsit.mobile",
-      },
+      { label: "Reflect App", href: "/reflect" },
       { label: "Learning Portal", href: "https://learn.tripsit.me/" },
     ],
   },

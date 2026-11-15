@@ -13,6 +13,7 @@ type NavGroup = { label: string; links: NavLink[] };
 const directLinks: NavLink[] = [
   { label: "Home", href: "/" },
   { label: "About", href: "/#about" },
+  { label: "Reflect", href: "/reflect" },
 ];
 
 const menus: { label: string; groups: NavGroup[] }[] = [

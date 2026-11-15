@@ -25,6 +25,41 @@ test("uses animation defaults when only the ending count is supplied", () => {
   expect(useCountUp).toHaveBeenLastCalledWith(
     expect.objectContaining({ start: 0, end: 25, duration: 5, delay: 1 }),
   );
+  const options = jest.mocked(useCountUp).mock.calls.at(-1)?.[0];
+  expect(options?.easingFn?.(0, 5, 10, 2)).toBe(5);
+  expect(options?.easingFn?.(2, 5, 10, 2)).toBe(15);
+});
+
+test("tolerates missing hero elements during inactivity", () => {
+  jest.useFakeTimers();
+  try {
+    render(<Ghost />);
+    act(() => jest.advanceTimersByTime(10));
+    fireEvent.mouseMove(document);
+    act(() => jest.advanceTimersByTime(10000));
+    fireEvent.keyDown(document);
+    expect(document.getElementById("hero")).toBeNull();
+  } finally {
+    jest.useRealTimers();
+  }
+});
+
+test("waits until inactivity exceeds ten seconds before fading", () => {
+  jest.useFakeTimers();
+  try {
+    render(
+      <>
+        <Ghost />
+        <section id="hero" aria-label="Hero" />
+        <button id="animationButton">Animations</button>
+      </>,
+    );
+    fireEvent.mouseMove(document);
+    act(() => jest.advanceTimersByTime(10000));
+    expect(screen.getByRole("region", { name: "Hero" }).style.opacity).toBe("");
+  } finally {
+    jest.useRealTimers();
+  }
 });
 
 test("loads the Discord member count and starts its counter on the animation event", async () => {

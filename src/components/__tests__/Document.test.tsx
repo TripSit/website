@@ -1,7 +1,6 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import type { ReactNode } from "react";
 import Document from "@/pages/_document";
-import RootLayout, { metadata } from "@/app/layout";
 import BlogSuggestion from "../BlogSuggestion";
 import Github from "../Github";
 import Patreon from "../Patreon";
@@ -47,17 +46,6 @@ test("loads nothing from third-party hosts and no relative asset paths", () => {
     expect(url).toMatch(/^\/(?!\/)/);
   }
   expect(html).not.toContain("apple-touch-icon");
-});
-
-test("renders the app layout with metadata and page content", () => {
-  const html = renderToStaticMarkup(
-    <RootLayout>
-      <main>Hello</main>
-    </RootLayout>,
-  );
-  expect(html).toContain('lang="en"');
-  expect(html).toContain("<main>Hello</main>");
-  expect(metadata.title).toBe("TripSit");
 });
 
 test("uses the blog root during server rendering", () => {

@@ -1,4 +1,4 @@
-import { useRef, useEffect, CSSProperties, RefObject } from "react";
+import { useRef, CSSProperties, RefObject } from "react";
 import { useCountUp } from "react-countup";
 
 // https://www.npmjs.com/package/react-countup
@@ -24,7 +24,10 @@ const Counter = (props: CounterProps) => {
   } = props;
   const countUpRef = useRef<HTMLDivElement>(null);
 
-  const { start } = useCountUp({
+  // enableScrollSpy starts the count when the number scrolls into view. (An earlier version
+  // also listened for an "aos:in" event, but AOS 2 never sends one, and the listener was
+  // added again on every render.)
+  useCountUp({
     // react-countup typings predate React 19's RefObject<T | null>
     ref: countUpRef as RefObject<HTMLElement>,
     start: startNum,
@@ -36,12 +39,6 @@ const Counter = (props: CounterProps) => {
     easingFn,
     delay,
     duration,
-  });
-
-  useEffect(() => {
-    const element = document.querySelector(".count-box");
-    if (!element) return;
-    element.addEventListener("aos:in", start);
   });
 
   return (

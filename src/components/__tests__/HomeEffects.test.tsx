@@ -27,6 +27,32 @@ test("uses animation defaults when only the ending count is supplied", () => {
   expect(options?.easingFn?.(2, 5, 10, 2)).toBe(15);
 });
 
+test("adds no event listeners when it re-renders", () => {
+  const add = jest.spyOn(EventTarget.prototype, "addEventListener");
+  try {
+    const data = { endNum: 25 } as React.ComponentProps<typeof Counter>["data"];
+    const { rerender } = render(
+      <div className="count-box">
+        <Counter data={data} />
+      </div>,
+    );
+    for (let i = 0; i < 3; i++) {
+      rerender(
+        <div className="count-box">
+          <Counter data={data} />
+        </div>,
+      );
+    }
+    // Starting the count is left to react-countup's scroll spy
+    expect(add.mock.calls.filter(([type]) => type === "aos:in")).toEqual([]);
+    expect(useCountUp).toHaveBeenLastCalledWith(
+      expect.objectContaining({ enableScrollSpy: true }),
+    );
+  } finally {
+    add.mockRestore();
+  }
+});
+
 test("tolerates missing hero elements during inactivity", () => {
   jest.useFakeTimers();
   try {
@@ -41,7 +67,7 @@ test("tolerates missing hero elements during inactivity", () => {
   }
 });
 
-test("waits until inactivity exceeds ten seconds before fading", () => {
+test("fades ten seconds after the last activity, not before", () => {
   jest.useFakeTimers();
   try {
     render(
@@ -51,10 +77,49 @@ test("waits until inactivity exceeds ten seconds before fading", () => {
         <button id="animationButton">Animations</button>
       </>,
     );
+    const hero = screen.getByRole("region", { name: "Hero" });
     fireEvent.mouseMove(document);
-    act(() => jest.advanceTimersByTime(10000));
-    expect(screen.getByRole("region", { name: "Hero" }).style.opacity).toBe("");
+    act(() => jest.advanceTimersByTime(9999));
+    expect(hero.style.opacity).toBe("");
+    // More activity starts the ten seconds again
+    fireEvent.keyDown(document);
+    act(() => jest.advanceTimersByTime(9999));
+    expect(hero.style.opacity).not.toBe("0");
+    act(() => jest.advanceTimersByTime(1));
+    expect(hero).toHaveStyle({ opacity: "0" });
   } finally {
+    jest.useRealTimers();
+  }
+});
+
+test("listens once, however much the visitor moves, and stops on unmount", () => {
+  jest.useFakeTimers();
+  const add = jest.spyOn(document, "addEventListener");
+  const remove = jest.spyOn(document, "removeEventListener");
+  const hero = document.createElement("section");
+  hero.id = "hero";
+  document.body.append(hero);
+  try {
+    const { unmount } = render(<Ghost />);
+    for (let i = 0; i < 20; i++) {
+      fireEvent.mouseMove(document);
+    }
+    const added = (type: string) =>
+      add.mock.calls.filter(([t]) => t === type).length;
+    expect(added("mousemove")).toBe(1);
+    expect(added("keydown")).toBe(1);
+
+    unmount();
+    expect(remove.mock.calls.map(([type]) => type)).toEqual(
+      expect.arrayContaining(["mousemove", "keydown"]),
+    );
+    // The fade that was pending at unmount never runs
+    act(() => jest.advanceTimersByTime(30000));
+    expect(hero.style.opacity).toBe("1");
+  } finally {
+    hero.remove();
+    add.mockRestore();
+    remove.mockRestore();
     jest.useRealTimers();
   }
 });

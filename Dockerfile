@@ -5,7 +5,9 @@
 # We stop at the end of this step in development, so it also includes the deploy command
 # We install jest, eslint and ts-node so we can run tests and lint.
 
-FROM node:lts-alpine AS development
+# Node's major version is pinned here and in .nvmrc, which CI uses, so production runs the
+# version the checks ran on. Change both together.
+FROM node:26-alpine AS development
 
 ENV NODE_ENV=development
 
@@ -41,7 +43,7 @@ CMD ["npm", "run", ".dev"]
 # real dependencies into .next/standalone, so we no longer need a second
 # `npm ci --omit=dev` pass to shrink node_modules afterward.
 
-FROM node:lts-alpine AS build
+FROM node:26-alpine AS build
 
 ENV NODE_ENV=production
 
@@ -76,7 +78,7 @@ RUN npx next build
 # node_modules each page actually needs, so we just copy that output over
 # along with the static assets it doesn't bundle by default.
 
-FROM node:lts-alpine AS production
+FROM node:26-alpine AS production
 
 ENV NODE_ENV=production
 

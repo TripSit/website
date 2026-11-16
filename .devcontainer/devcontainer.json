@@ -10,7 +10,7 @@
 	},
 	"waitFor": "updateContentCommand",
 	"updateContentCommand": "npm ci",
-	"postCreateCommand": "echo 'Container setup complete. Please run \"npm run .dev\" to start the development server.'",
+	"postCreateCommand": "echo 'Container setup complete. Please run \"npm run dev\" to start the development server.'",
 	// "postCreateCommand": "npx next dev",
 	"features": {
 		"ghcr.io/devcontainers/features/github-cli:1": {}

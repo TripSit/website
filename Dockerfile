@@ -28,7 +28,7 @@ COPY --chown=node:node . .
 # USER node
 
 # For container development, the following command runs forever, so we can inspect the container
-CMD ["npm", "run", ".dev"]
+CMD ["npm", "run", "dev"]
 
 ###################
 # BUILD FOR PRODUCTION

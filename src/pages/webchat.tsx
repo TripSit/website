@@ -8,7 +8,11 @@ export default function Home() {
   return (
     <>
       <Header />
-      <Head />
+      <Head
+        title="Live Chat - TripSit"
+        description="Talk to TripSit's volunteers in our 24/7 live chat for on-the-spot harm reduction help. We're volunteers, not medical professionals."
+        path="/webchat"
+      />
       <section id="webchat" className="d-flex align-items-center">
         <Webchat />
       </section>

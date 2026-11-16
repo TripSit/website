@@ -11,15 +11,21 @@ export default function LegalPage({
   title,
   updated,
   description,
+  path,
   children,
 }: Readonly<{
   title: string;
   updated: string;
   description: string;
+  path: string;
   children: ReactNode;
 }>) {
   return (
-    <PageShell title={`${title} - Reflect - TripSit`} description={description}>
+    <PageShell
+      title={`${title} - Reflect - TripSit`}
+      description={description}
+      path={path}
+    >
       <article className="px-5 py-16 md:py-24">
         <div className="mx-auto max-w-3xl">
           <Link

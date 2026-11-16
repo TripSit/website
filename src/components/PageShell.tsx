@@ -1,4 +1,3 @@
-import NextHead from "next/head";
 import type { ReactNode } from "react";
 import Footer from "./Footer";
 import Head from "./Head";
@@ -10,10 +9,13 @@ import { fontVariables } from "./fonts";
 export default function PageShell({
   title,
   description,
+  path,
   children,
 }: Readonly<{
   title: string;
   description: string;
+  // The page's path for its canonical link and link previews; see Head
+  path?: string;
   children: ReactNode;
 }>) {
   return (
@@ -21,13 +23,7 @@ export default function PageShell({
       data-bs-theme="dark"
       className={`${fontVariables} font-body text-ink antialiased`}
     >
-      <Head />
-      {/* Rendered after <Head />: next/head keeps the last title and
-          description it sees, so these override the site defaults */}
-      <NextHead>
-        <title>{title}</title>
-        <meta name="description" content={description} />
-      </NextHead>
+      <Head title={title} description={description} path={path} />
       <Header />
       <main id="main" className="pt-20">
         {children}

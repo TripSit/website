@@ -1,4 +1,4 @@
-import Head from "next/head";
+import Head from "../components/Head";
 import type { Drug } from "tripsit_drug_db";
 import ComboChecker from "../components/comboChecker/ComboChecker";
 import { substanceNicknames } from "../components/comboChecker/comboData";
@@ -19,14 +19,14 @@ export default function ComboPage({
 }: Readonly<{ nicknames?: Record<string, string[]> }>) {
   return (
     <>
-      <Head>
-        <title>Drug Combinations - TripSit</title>
-        <meta
-          name="description"
-          content="Check how two or more substances interact before you mix. A quick-reference harm-reduction guide from TripSit."
-        />
-        {/* ComboChecker loads Poppins with next/font; Futura/Letter Gothic are self-hosted via the CSS module. */}
-      </Head>
+      <Head
+        title="Drug Combinations - TripSit"
+        description="Check how two or more substances interact before you mix. A quick-reference harm-reduction guide from TripSit."
+        path="/combo"
+        image="/assets/img/comboChart.png"
+        imageAlt="TripSit's drug combination chart"
+      />
+      {/* ComboChecker loads Poppins with next/font; Futura/Letter Gothic are self-hosted via the CSS module. */}
       <ComboChecker nicknames={nicknames} />
     </>
   );

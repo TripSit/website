@@ -6,6 +6,7 @@ export default function ReflectTermsPage() {
     <LegalPage
       title="Terms of Service"
       updated="15 November 2026"
+      path="/reflect/terms"
       description="The terms that apply when you use Reflect - Experience Journal, TripSit's harm-reduction journal for Android."
     >
       <p>

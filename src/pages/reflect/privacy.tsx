@@ -5,6 +5,7 @@ export default function ReflectPrivacyPage() {
     <LegalPage
       title="Privacy Policy"
       updated="15 November 2026"
+      path="/reflect/privacy"
       description="What Reflect - Experience Journal, TripSit's harm-reduction journal for Android, stores, where it goes, and how to remove it."
     >
       <p>

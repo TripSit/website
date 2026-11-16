@@ -300,7 +300,7 @@ export default function Home({
       className={`${fontVariables} font-body text-ink antialiased`}
     >
       <Header />
-      <Head />
+      <Head path="/" />
       <Ghost />
 
       {/* Hero is transparent and fills the viewport so the particles canvas

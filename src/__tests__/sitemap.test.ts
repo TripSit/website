@@ -20,6 +20,7 @@ const PAGES = [
   "/benzos",
   "/dxm",
   "/volume",
+  "/levels",
   "/webchat",
   "/reflect",
   "/reflect/privacy",

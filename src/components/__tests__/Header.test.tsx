@@ -22,6 +22,10 @@ test("opens the desktop menu and dismisses it on outside interaction or Escape",
     "href",
     "/reflect",
   );
+  expect(nav.getByRole("link", { name: "Discord Levels" })).toHaveAttribute(
+    "href",
+    "/levels",
+  );
   fireEvent.pointerDown(document.body);
   expect(resources).toHaveAttribute("aria-expanded", "false");
   fireEvent.click(resources);

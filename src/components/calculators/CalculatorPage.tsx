@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import PageShell from "../PageShell";
 
-// Shared layout for the dosing calculators (/benzos, /volume). These used to be
+// Shared layout for the dosing calculators (/benzos, /dxm, /volume). These used to be
 // separate apps on their own subdomains; new calculators should use this too.
 export default function CalculatorPage({
   title,
@@ -55,6 +55,9 @@ export default function CalculatorPage({
 // Text inputs and read-only results share one look across the calculators.
 export const fieldClass =
   "w-24 rounded-lg border-[1px] border-solid border-line bg-night px-3 py-2 text-center text-ink focus-visible:border-cyan focus-visible:outline-none";
+
+export const selectClass =
+  "max-w-full rounded-lg border-[1px] border-solid border-line bg-night px-3 py-2 text-ink focus-visible:border-cyan focus-visible:outline-none";
 
 export const cardClass =
   "rounded-2xl border-[1px] border-solid border-line bg-surface/60 p-6";

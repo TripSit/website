@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { useState, type ReactNode } from "react";
-import { cardClass, fieldClass } from "./CalculatorPage";
+import { cardClass, fieldClass, selectClass } from "./CalculatorPage";
 import { formatAmount, parseAmount } from "./amounts";
 import { convertDose, type Benzo } from "./benzoData";
 
@@ -19,9 +19,6 @@ function defaultValue(benzos: Benzo[], name: string, fallback: number) {
 
 const capitalise = (text: string) =>
   text.charAt(0).toUpperCase() + text.slice(1);
-
-const selectClass =
-  "max-w-full rounded-lg border-[1px] border-solid border-line bg-night px-3 py-2 text-ink focus-visible:border-cyan focus-visible:outline-none";
 
 function BenzoSelect({
   label,

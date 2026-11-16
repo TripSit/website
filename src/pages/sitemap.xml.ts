@@ -8,6 +8,7 @@ const PAGES = [
   "/factsheets",
   "/combo",
   "/benzos",
+  "/dxm",
   "/volume",
   "/webchat",
   "/reflect",

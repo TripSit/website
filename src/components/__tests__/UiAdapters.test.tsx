@@ -117,3 +117,20 @@ test("changes the background effect and ignores unknown selections", () => {
     "cobweb #FFFFFF",
   );
 });
+
+test("shows no background animation or picker to someone who prefers reduced motion", () => {
+  const original = window.matchMedia;
+  window.matchMedia = ((query: string) => ({
+    matches: query === "(prefers-reduced-motion: reduce)",
+    media: query,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+  })) as unknown as typeof window.matchMedia;
+  try {
+    const { container } = render(<Particles />);
+    expect(container).toBeEmptyDOMElement();
+    expect(screen.queryByLabelText("Background effect")).toBeNull();
+  } finally {
+    window.matchMedia = original;
+  }
+});

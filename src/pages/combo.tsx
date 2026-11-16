@@ -1,7 +1,22 @@
 import Head from "next/head";
+import type { Drug } from "tripsit_drug_db";
 import ComboChecker from "../components/comboChecker/ComboChecker";
+import { substanceNicknames } from "../components/comboChecker/comboData";
 
-export default function ComboPage() {
+export async function getStaticProps() {
+  // Only the nicknames reach the page, so the 1.6 MB drug database stays on the server.
+  const { default: drugs } = await import("tripsit_drug_db/drugs.json");
+  // TypeScript gives the JSON a literal type; the package's Drug type describes its entries.
+  return {
+    props: {
+      nicknames: substanceNicknames(drugs as unknown as Record<string, Drug>),
+    },
+  };
+}
+
+export default function ComboPage({
+  nicknames = {},
+}: Readonly<{ nicknames?: Record<string, string[]> }>) {
   return (
     <>
       <Head>
@@ -12,7 +27,7 @@ export default function ComboPage() {
         />
         {/* ComboChecker loads Poppins with next/font; Futura/Letter Gothic are self-hosted via the CSS module. */}
       </Head>
-      <ComboChecker />
+      <ComboChecker nicknames={nicknames} />
     </>
   );
 }

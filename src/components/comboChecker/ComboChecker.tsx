@@ -17,12 +17,15 @@ interface ComboCheckerProps {
   showExplanations?: boolean;
   /** Sort result cards by severity (most dangerous first). */
   sortBySeverity?: boolean;
+  /** Other names for each substance, listed under the results for the selected ones. */
+  nicknames?: Record<string, string[]>;
 }
 
 function ComboChecker({
   accent = "#2487ce",
   showExplanations = true,
   sortBySeverity = true,
+  nicknames = {},
 }: Readonly<ComboCheckerProps>) {
   const domain = envOrDefault(process.env.NEXT_PUBLIC_DNS_DOMAIN, "tripsit.me");
   const [selected, setSelected] = useState<string[]>([]);
@@ -100,6 +103,24 @@ function ComboChecker({
           showExplanations={showExplanations}
           sortBySeverity={sortBySeverity}
         />
+
+        {selected.some((name) => nicknames[name]) && (
+          <section className={styles.nicknames} aria-label="Also known as">
+            <p className={`${styles.nicknamesTitle} ${styles.disp}`}>
+              Also known as
+            </p>
+            <dl className={styles.nicknamesList}>
+              {selected
+                .filter((name) => nicknames[name])
+                .map((name) => (
+                  <div key={name}>
+                    <dt>{name}</dt>
+                    <dd>{nicknames[name].join(", ")}</dd>
+                  </div>
+                ))}
+            </dl>
+          </section>
+        )}
 
         <div className={styles.disclaimer}>
           This tool, like the combo chart, is a quick-reference guide.{" "}

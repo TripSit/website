@@ -306,6 +306,9 @@ test("renders optional references, warnings, and combination notes", () => {
   expect(screen.getByText("Sample summary")).toBeVisible();
   expect(screen.getByText("MDMA")).toBeVisible();
   expect(screen.getByText("Sample combination note")).toBeVisible();
+  expect(
+    screen.getByRole("link", { name: "tripsit.me/combo" }),
+  ).toHaveAttribute("href", "/combo");
   expect(screen.getByText("Sample effect")).toBeVisible();
   expect(screen.getByText("Sample source")).toBeVisible();
   expect(

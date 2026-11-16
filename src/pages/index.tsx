@@ -114,8 +114,8 @@ function Section({
 
 const quickLinks = [
   {
-    href: "https://combo.tripsit.me/",
-    external: true,
+    href: "/combo",
+    external: false,
     icon: <JoinInnerOutlinedIcon fontSize="inherit" />,
     title: "Compare drug combos",
     text: "Explore our interactive chart detailing the effects of combining popular drugs for informed decisions.",
@@ -145,7 +145,7 @@ const quickLinks = [
 
 const resources = [
   {
-    href: "https://combo.tripsit.me/",
+    href: "/combo",
     icon: <JoinInnerOutlinedIcon fontSize="inherit" />,
     title: "Combo App",
     text: "Explore our innovative Combo Chart, a must-see resource for informed substance combinations. Dive in now!",
@@ -347,14 +347,12 @@ export default function Home({
             >
               I want to talk to a Trip Sitter
             </Link>
-            <a
-              href="https://combo.tripsit.me/"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/combo"
               className={`${solidButton} bg-cyan px-8 py-3.5 font-display text-base shadow-lg shadow-cyan/25`}
             >
               Check drug combinations
-            </a>
+            </Link>
           </div>
 
           <div className="mt-16 grid w-full grid-cols-1 gap-4 text-left sm:grid-cols-2 lg:grid-cols-4">
@@ -527,10 +525,8 @@ export default function Home({
         {/* Combo chart */}
         <Section id="about-video" tint>
           <div className="grid items-center gap-10 lg:grid-cols-2">
-            <a
-              href="https://combo.tripsit.me/"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/combo"
               className="block overflow-hidden rounded-2xl border-[1px] border-solid border-line transition hover:border-violet/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan"
               data-aos="fade-right"
             >
@@ -539,7 +535,7 @@ export default function Home({
                 alt="The TripSit drug combination chart"
                 className="h-auto w-full"
               />
-            </a>
+            </Link>
             <div data-aos="fade-left">
               <h2 className="font-display text-2xl font-semibold tracking-tight text-ink md:text-3xl">
                 Our Combo Chart is a cornerstone of the HR scene.

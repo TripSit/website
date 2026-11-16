@@ -10,6 +10,7 @@ import {
 } from "tripsit_drug_db";
 import type { ApexAxisChartSeries } from "apexcharts";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import comboDefinitions from "../assets/comboDefinitions.json";
 import addDictionaryDefs from "./addDictionaryDefs";
 import { parseDoseRangeMg } from "../utils/parseDoseRangeMg";
@@ -887,13 +888,7 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
                 wiki
               </a>
               . The nice combo chart can be found on{" "}
-              <a
-                href="https://combo.tripsit.me/"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                combo.tripsit.me
-              </a>
+              <Link href="/combo">tripsit.me/combo</Link>
               {"."}
             </Typography>
             {Object.keys(comboObject).map((status) => {

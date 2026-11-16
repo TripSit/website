@@ -22,6 +22,13 @@ const WEIGHT_UNITS = Object.keys(KG_PER_UNIT) as WeightUnit[];
 
 const sentenceClass = "m-0 flex flex-wrap items-center gap-x-2 gap-y-3";
 
+// On a phone the table has about 260px, so the columns sit closer, the
+// amounts are smaller and the label reads "1st" (the column says "Plateau").
+// pr-3 would be Bootstrap's !important 1rem, hence the arbitrary value.
+const cellGap = "pr-[0.75rem] md:pr-6";
+const valueClass =
+  "text-right text-base font-semibold tabular-nums text-cyan md:text-lg";
+
 const noteClass =
   "rounded-xl border-[1px] border-solid border-amber/50 bg-amber/10 px-6 py-3.5 text-sm leading-relaxed text-ink [&_a]:text-cyan [&_a]:underline [&_a]:underline-offset-2";
 
@@ -211,10 +218,13 @@ export default function DxmCalculator() {
           <table className="w-full border-collapse text-left text-ink">
             <thead>
               <tr className="text-xs uppercase tracking-widest text-mute">
-                <th scope="col" className="pb-2 pr-6 font-semibold">
+                <th scope="col" className={`pb-2 ${cellGap} font-semibold`}>
                   Plateau
                 </th>
-                <th scope="col" className="pb-2 pr-6 text-right font-semibold">
+                <th
+                  scope="col"
+                  className={`pb-2 ${cellGap} text-right font-semibold`}
+                >
                   Minimum
                 </th>
                 <th scope="col" className="pb-2 text-right font-semibold">
@@ -228,18 +238,19 @@ export default function DxmCalculator() {
                   key={plateau.name}
                   className="border-x-0 border-b-0 border-t-[1px] border-solid border-line"
                 >
-                  <th scope="row" className="py-2.5 pr-6 font-normal">
+                  <th scope="row" className={`py-2.5 ${cellGap} font-normal`}>
                     <span className="block font-semibold">
-                      {plateau.name} plateau
+                      {plateau.name}
+                      <span className="max-md:sr-only"> plateau</span>
                     </span>
-                    <span className="block text-sm text-mute">
+                    <span className="block whitespace-nowrap text-sm text-mute">
                       {plateau.minMgPerKg}–{plateau.maxMgPerKg} mg/kg
                     </span>
                   </th>
-                  <td className="py-2.5 pr-6 text-right text-lg font-semibold tabular-nums text-cyan">
+                  <td className={`py-2.5 ${cellGap} ${valueClass}`}>
                     {show(plateau.min)}
                   </td>
-                  <td className="py-2.5 text-right text-lg font-semibold tabular-nums text-cyan">
+                  <td className={`py-2.5 ${valueClass}`}>
                     {show(plateau.max)}
                   </td>
                 </tr>

@@ -3,8 +3,8 @@
  */
 import { DRUGS_URL } from "@/utils/drugs";
 import { envOrDefault } from "@/utils/envOrDefault";
-import robots from "../robots";
-import sitemap, { PAGES, revalidate } from "../sitemap";
+import robots from "@/app/robots";
+import sitemap, { PAGES, revalidate } from "@/app/sitemap";
 
 const origin = `https://${envOrDefault(process.env.NEXT_PUBLIC_DNS_DOMAIN, "tripsit.me")}`;
 

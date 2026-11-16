@@ -6,9 +6,12 @@ import { parseAmount } from "./amounts";
 export const MAX_LEVEL = 1000;
 // For messages and for voice hours
 const MAX_ACTIVITY = 1_000_000;
-// Rough averages: TripBot gives each message a few XP either side of this.
+// TripBot gives 15 to 25 XP for a message, but only for one message a minute.
+// In a voice channel it gives the same every 2 minutes, while you're unmuted
+// with other people there. So these are averages.
 const XP_PER_MESSAGE = 20;
-const XP_PER_VOICE_HOUR = 10 * 60;
+const XP_PER_VOICE_MINUTE = 10;
+const XP_PER_VOICE_HOUR = XP_PER_VOICE_MINUTE * 60;
 
 // The XP it takes to get from this level to the next one, as in TripBot's
 // expForNextLevel (src/global/utils/experience.ts).
@@ -18,8 +21,8 @@ export function xpForNextLevel(level: number): number {
 
 // TOTAL_XP[level] is the total XP that reaches each level from 0 to MAX_LEVEL.
 // Like TripBot's getTotalLevel, everyone starts at level 0, so level 1 takes
-// xpForNextLevel(0) = 100 XP. (The old Netlify page started from
-// xpForNextLevel(1), which put every total one level too high.)
+// xpForNextLevel(0) = 100 XP. (The repo's old index.html started from
+// xpForNextLevel(1), a level too high; the live Netlify page didn't.)
 const TOTAL_XP = [0];
 for (let level = 1; level <= MAX_LEVEL; level += 1) {
   TOTAL_XP.push(TOTAL_XP[level - 1] + xpForNextLevel(level - 1));
@@ -35,8 +38,22 @@ export function levelForXp(xp: number): number {
   return TOTAL_XP.findLastIndex((total) => total <= xp);
 }
 
-// Typing filters: levels and messages are whole numbers. Voice hours may have
-// one decimal point (or comma); anything after a second one is dropped.
+// Minutes as "1d 7h 58m", rounded up to the next minute.
+export function formatDuration(minutes: number): string {
+  const total = Math.ceil(minutes);
+  const units: [number, string][] = [
+    [Math.floor(total / 1440), "d"],
+    [Math.floor((total % 1440) / 60), "h"],
+    [total % 60, "m"],
+  ];
+  const parts = units
+    .filter(([value]) => value > 0)
+    .map(([value, unit]) => `${value}${unit}`);
+  return parts.length > 0 ? parts.join(" ") : "0m";
+}
+
+// Typing filters: levels, XP and messages are whole numbers. Voice hours may
+// have one decimal point (or comma); anything after a second one is dropped.
 export function keepDigits(text: string, maxLength: number): string {
   return text.replaceAll(/\D/g, "").slice(0, maxLength);
 }
@@ -62,14 +79,16 @@ export type StartFrom = "level" | "activity";
 export type LevelInputs = {
   startFrom: StartFrom;
   currentLevel: string;
+  // XP already earned towards the next level, as /levels shows it (optional)
+  levelXp: string;
   messages: string;
   voiceHours: string;
   desiredLevel: string;
 };
 
-// An amount of XP, and roughly what it takes to earn it with messages alone or
-// with voice chat alone.
-export type XpAmount = { xp: number; messages: number; voiceHours: number };
+// An amount of XP, and roughly what it takes to earn it with messages alone
+// (one a minute, at best) or with voice chat alone.
+export type XpAmount = { xp: number; messages: number; voiceMinutes: number };
 
 export type LevelResult = {
   // Why the results are zero, when there's a problem with the input
@@ -87,7 +106,7 @@ function amount(xp: number): XpAmount {
   return {
     xp,
     messages: Math.ceil(xp / XP_PER_MESSAGE),
-    voiceHours: xp / XP_PER_VOICE_HOUR,
+    voiceMinutes: xp / XP_PER_VOICE_MINUTE,
   };
 }
 
@@ -106,6 +125,7 @@ function warning(text: string): LevelResult {
 export function calculateLevels(inputs: LevelInputs): LevelResult {
   const fromActivity = inputs.startFrom === "activity";
   const enteredLevel = read(inputs.currentLevel);
+  const levelXp = read(inputs.levelXp);
   const messages = read(inputs.messages);
   const voiceHours = read(inputs.voiceHours);
   const desiredLevel = read(inputs.desiredLevel);
@@ -122,7 +142,9 @@ export function calculateLevels(inputs: LevelInputs): LevelResult {
 
   const startXp = fromActivity
     ? Math.round(messages * XP_PER_MESSAGE + voiceHours * XP_PER_VOICE_HOUR)
-    : totalXpForLevel(enteredLevel);
+    : // TripBot levels you up before the XP in a level reaches the next one.
+      totalXpForLevel(enteredLevel) +
+      Math.min(levelXp, xpForNextLevel(enteredLevel));
   const currentLevel = fromActivity ? levelForXp(startXp) : enteredLevel;
   const estimate = fromActivity
     ? { xp: startXp, level: currentLevel }

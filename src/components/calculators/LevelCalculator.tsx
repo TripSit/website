@@ -5,6 +5,7 @@ import { solidButton } from "../buttonClasses";
 import { cardClass, fieldClass } from "./CalculatorPage";
 import {
   calculateLevels,
+  formatDuration,
   keepDecimal,
   keepDigits,
   MAX_LEVEL,
@@ -31,13 +32,10 @@ const COLOURS = {
 const wholeNumber = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 0,
 });
-const oneDecimal = new Intl.NumberFormat("en-US", {
-  minimumFractionDigits: 1,
-  maximumFractionDigits: 1,
-});
 const compact = new Intl.NumberFormat("en-US", { notation: "compact" });
 
-// The chart shows levels 1 to 100, or further when a marked level is higher.
+// The chart shows levels 0 to 100, or further when a marked level is higher.
+// A multiple of 10 keeps the axis ticks on whole levels.
 export function chartLevels(currentLevel: number, desiredLevel: number) {
   const highest = Math.max(100, currentLevel, desiredLevel);
   return Math.min(MAX_LEVEL, Math.ceil(highest / 10) * 10);
@@ -79,9 +77,9 @@ export function levelChart(
     series: [
       {
         name: "Total XP",
-        data: Array.from({ length: levels }, (_, index) => [
-          index + 1,
-          totalXpForLevel(index + 1),
+        data: Array.from({ length: levels + 1 }, (_, level) => [
+          level,
+          totalXpForLevel(level),
         ]),
       },
     ],
@@ -101,14 +99,19 @@ export function levelChart(
       legend: { show: false },
       grid: { borderColor: COLOURS.line },
       annotations: { points },
+      // Fewer level ticks on a phone, so the labels don't crowd
+      responsive: [{ breakpoint: 640, options: { xaxis: { tickAmount: 5 } } }],
       xaxis: {
         type: "numeric",
-        min: 1,
+        min: 0,
         max: levels,
         tickAmount: 10,
         title: { text: "Level" },
         tooltip: { enabled: false },
-        labels: { formatter: (value) => wholeNumber.format(Number(value)) },
+        labels: {
+          rotate: 0,
+          formatter: (value) => wholeNumber.format(Number(value)),
+        },
       },
       yaxis: {
         title: { text: "Total XP" },
@@ -143,16 +146,22 @@ function XpCard({
         </output>{" "}
         XP
       </p>
-      <p className="mb-0 mt-2 text-base leading-relaxed text-mute">
-        About{" "}
+      <p className="mb-0 mt-3 text-base leading-relaxed text-mute">
+        <strong className="text-ink">If you chat:</strong> about{" "}
         <output aria-label={`Messages ${label}`} className="text-ink">
           {wholeNumber.format(amount.messages)}
         </output>{" "}
-        messages, or{" "}
-        <output aria-label={`Voice hours ${label}`} className="text-ink">
-          {oneDecimal.format(amount.voiceHours)}
+        messages, so at least{" "}
+        <output aria-label={`Chat time ${label}`} className="text-ink">
+          {formatDuration(amount.messages)}
         </output>{" "}
-        hours in voice chat
+        of chatting
+      </p>
+      <p className="mb-0 mt-2 text-base leading-relaxed text-mute">
+        <strong className="text-ink">In voice chat:</strong> about{" "}
+        <output aria-label={`Voice time ${label}`} className="text-ink">
+          {formatDuration(amount.voiceMinutes)}
+        </output>
       </p>
     </section>
   );
@@ -172,6 +181,7 @@ const toggleClass =
 export default function LevelCalculator() {
   const [startFrom, setStartFrom] = useState<StartFrom>("level");
   const [currentLevel, setCurrentLevel] = useState("");
+  const [levelXp, setLevelXp] = useState("");
   const [messages, setMessages] = useState("");
   const [voiceHours, setVoiceHours] = useState("");
   const [desiredLevel, setDesiredLevel] = useState("");
@@ -179,6 +189,7 @@ export default function LevelCalculator() {
   const result = calculateLevels({
     startFrom,
     currentLevel,
+    levelXp,
     messages,
     voiceHours,
     desiredLevel,
@@ -197,6 +208,8 @@ export default function LevelCalculator() {
       setter(filter(event.target.value));
   }
   const levelFilter = (text: string) => keepDigits(text, 4);
+  // The most XP in one level is about 5 million (level 1000)
+  const xpFilter = (text: string) => keepDigits(text, 7);
 
   return (
     <div className="grid gap-6">
@@ -240,10 +253,22 @@ export default function LevelCalculator() {
                 value={currentLevel}
                 onChange={typed(setCurrentLevel, levelFilter)}
               />
+              <span>with</span>
+              <input
+                type="text"
+                inputMode="numeric"
+                placeholder="0"
+                aria-label="XP already earned in this level"
+                className={wideFieldClass}
+                value={levelXp}
+                onChange={typed(setLevelXp, xpFilter)}
+              />
+              <span>XP towards the next one.</span>
             </p>
             <p className="mb-0 mt-2 text-sm text-mute">
               Use <code className="text-cyan">/levels</code> in the TripSit
-              Discord to see your level.
+              Discord to see your level and XP. Leave the XP at 0 if you&apos;re
+              not sure.
             </p>
           </div>
         ) : (

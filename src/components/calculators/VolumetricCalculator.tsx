@@ -123,10 +123,10 @@ function SentenceCalc({ calc }: Readonly<{ calc: Calc }>) {
         </output>
         <span>{p3}</span>
       </p>
-      <div className="mt-5 flex items-center gap-4">
+      <div className="mt-6 flex items-center gap-4">
         <button
           type="button"
-          className={`${solidButton} bg-violet px-5 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-40`}
+          className={`${solidButton} bg-violet px-6 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-40`}
           disabled={shown === undefined}
           onClick={copy}
         >

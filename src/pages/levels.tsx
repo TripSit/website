@@ -17,9 +17,11 @@ export default function LevelsPage() {
             roughly how many messages or hours of voice chat that takes.
           </p>
           <p>
-            The messages and voice hours are estimates, based on about 20 XP for
-            each message and 10 XP for each minute in voice chat. Thanks to
-            Hipperooni, who made the original calculator.
+            The messages and voice times are estimates. TripBot gives about 20
+            XP for a message, but only for one message a minute. In a voice
+            channel it gives about 20 XP every 2 minutes, while you and at least
+            one other person there are unmuted. Thanks to Hipperooni, who made
+            the original calculator.
           </p>
         </>
       }

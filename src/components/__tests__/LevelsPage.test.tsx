@@ -3,6 +3,7 @@ import type { ApexOptions } from "apexcharts";
 import LevelsPage from "@/pages/levels";
 import {
   calculateLevels,
+  formatDuration,
   keepDecimal,
   keepDigits,
   levelForXp,
@@ -43,6 +44,7 @@ jest.mock(
 
 // The expected totals and levels come from TripBot's own levelling code
 // (getTotalLevel in src/global/utils/experience.ts), run on the same numbers.
+// The XP-in-level and time results match the live Netlify page for the same input.
 
 test("uses TripBot's XP formula, starting from level 0", () => {
   expect(xpForNextLevel(0)).toBe(100);
@@ -65,6 +67,16 @@ test("finds the level an amount of XP reaches", () => {
   expect(levelForXp(Number.MAX_SAFE_INTEGER)).toBe(1000);
 });
 
+test("shows minutes as days, hours and minutes, rounded up", () => {
+  expect(formatDuration(0)).toBe("0m");
+  expect(formatDuration(0.2)).toBe("1m");
+  expect(formatDuration(59)).toBe("59m");
+  expect(formatDuration(60)).toBe("1h");
+  expect(formatDuration(959)).toBe("15h 59m");
+  expect(formatDuration(1500)).toBe("1d 1h");
+  expect(formatDuration(1917.5)).toBe("1d 7h 58m");
+});
+
 test("keeps only digits, and at most one decimal point for hours", () => {
   expect(keepDigits("1a2b3", 4)).toBe("123");
   expect(keepDigits("123456", 4)).toBe("1234");
@@ -78,9 +90,11 @@ test("keeps only digits, and at most one decimal point for hours", () => {
 const fromLevel = (
   currentLevel: string,
   desiredLevel: string,
+  levelXp = "",
 ): LevelInputs => ({
   startFrom: "level",
   currentLevel,
+  levelXp,
   messages: "",
   voiceHours: "",
   desiredLevel,
@@ -93,6 +107,7 @@ const fromActivity = (
 ): LevelInputs => ({
   startFrom: "activity",
   currentLevel: "",
+  levelXp: "",
   messages,
   voiceHours,
   desiredLevel,
@@ -103,8 +118,8 @@ test("works out the XP left and the total", () => {
     estimate: undefined,
     currentLevel: 10,
     desiredLevel: 20,
-    left: { xp: 19175, messages: 959, voiceHours: 19175 / 600 },
-    total: { xp: 23850, messages: 1193, voiceHours: 23850 / 600 },
+    left: { xp: 19175, messages: 959, voiceMinutes: 1917.5 },
+    total: { xp: 23850, messages: 1193, voiceMinutes: 2385 },
   });
   expect(calculateLevels(fromLevel("", "1")).left.xp).toBe(100);
   expect(calculateLevels(fromLevel("57", "58")).left.xp).toBe(19195);
@@ -115,13 +130,25 @@ test("works out the XP left and the total", () => {
   expect(calculateLevels(fromLevel("12", "12")).left.xp).toBe(0);
 });
 
+test("takes off the XP already earned in the current level, up to a level's worth", () => {
+  expect(calculateLevels(fromLevel("10", "20", "500")).left.xp).toBe(18675);
+  // Level 10 to 11 takes 1,100 XP, so more than that counts as 1,100
+  expect(calculateLevels(fromLevel("10", "20", "99999")).left.xp).toBe(18075);
+  expect(calculateLevels(fromLevel("10", "20", "99999")).total.xp).toBe(23850);
+  // It only counts when working from a level
+  expect(
+    calculateLevels({ ...fromActivity("100", "", "20"), levelXp: "500" })
+      .estimate?.xp,
+  ).toBe(2000);
+});
+
 test("estimates the starting XP from messages and voice hours", () => {
   expect(calculateLevels(fromActivity("100", "2", "20"))).toEqual({
     estimate: { xp: 3200, level: 8 },
     currentLevel: 8,
     desiredLevel: 20,
-    left: { xp: 20650, messages: 1033, voiceHours: 20650 / 600 },
-    total: { xp: 23850, messages: 1193, voiceHours: 23850 / 600 },
+    left: { xp: 20650, messages: 1033, voiceMinutes: 2065 },
+    total: { xp: 23850, messages: 1193, voiceMinutes: 2385 },
   });
   expect(calculateLevels(fromActivity("50000", "300", "100")).left.xp).toBe(
     719250,
@@ -137,13 +164,13 @@ test("waits for a level to aim for before working anything out", () => {
     estimate: undefined,
     currentLevel: 5,
     desiredLevel: 0,
-    left: { xp: 0, messages: 0, voiceHours: 0 },
-    total: { xp: 0, messages: 0, voiceHours: 0 },
+    left: { xp: 0, messages: 0, voiceMinutes: 0 },
+    total: { xp: 0, messages: 0, voiceMinutes: 0 },
   });
 });
 
 test("keeps the old limits of level 1000 and a million messages or hours", () => {
-  const nothing = { xp: 0, messages: 0, voiceHours: 0 };
+  const nothing = { xp: 0, messages: 0, voiceMinutes: 0 };
   expect(calculateLevels(fromLevel("5", "1001"))).toEqual({
     warning: "The desired level can't be over 1000.",
     currentLevel: 0,
@@ -176,12 +203,12 @@ test("says so when the desired level is already reached", () => {
     estimate: undefined,
     currentLevel: 20,
     desiredLevel: 0,
-    left: { xp: 0, messages: 0, voiceHours: 0 },
-    total: { xp: 0, messages: 0, voiceHours: 0 },
+    left: { xp: 0, messages: 0, voiceMinutes: 0 },
+    total: { xp: 0, messages: 0, voiceMinutes: 0 },
   });
 });
 
-test("charts levels 1 to 100, or up to the highest marked level", () => {
+test("charts levels 0 to 100, or up to the highest marked level", () => {
   expect(chartLevels(0, 0)).toBe(100);
   expect(chartLevels(5, 50)).toBe(100);
   expect(chartLevels(141, 3)).toBe(150);
@@ -191,8 +218,9 @@ test("charts levels 1 to 100, or up to the highest marked level", () => {
 
 test("marks the current and desired levels on the chart", () => {
   const { series, options } = levelChart(10, 20);
-  expect(series[0].data).toHaveLength(100);
-  expect(series[0].data[9]).toEqual([10, 4675]);
+  expect(series[0].data).toHaveLength(101);
+  expect(series[0].data[0]).toEqual([0, 0]);
+  expect(series[0].data[10]).toEqual([10, 4675]);
   expect(options.annotations?.points).toEqual([
     expect.objectContaining({
       x: 10,
@@ -206,6 +234,10 @@ test("marks the current and desired levels on the chart", () => {
     }),
   ]);
   expect(levelChart(0, 0).options.annotations?.points).toEqual([]);
+  // Five level ticks instead of ten on a phone
+  expect(options.responsive).toEqual([
+    { breakpoint: 640, options: { xaxis: { tickAmount: 5 } } },
+  ]);
 });
 
 test("labels the chart's axes and tooltip", () => {
@@ -256,7 +288,7 @@ test("has the page heading, the Discord link and the credit", () => {
 test("shows the XP, messages and voice hours as levels are typed", () => {
   render(<LevelsPage />);
   expect(shown("XP still needed")).toHaveTextContent("0");
-  expect(shown("Levels on the chart")).toHaveTextContent("100");
+  expect(shown("Levels on the chart")).toHaveTextContent("101");
 
   type("Your current level", "10");
   type("Level you want to reach", "20");
@@ -266,16 +298,31 @@ test("shows the XP, messages and voice hours as levels are typed", () => {
     left.getByRole("status", { name: "XP still needed" }),
   ).toHaveTextContent("19,175");
   expect(shown("Messages still needed")).toHaveTextContent("959");
-  expect(shown("Voice hours still needed")).toHaveTextContent("32.0");
+  expect(shown("Chat time still needed")).toHaveTextContent("15h 59m");
+  expect(shown("Voice time still needed")).toHaveTextContent("1d 7h 58m");
   expect(shown("XP in total")).toHaveTextContent("23,850");
   expect(shown("Messages in total")).toHaveTextContent("1,193");
-  expect(shown("Voice hours in total")).toHaveTextContent("39.8");
+  expect(shown("Chat time in total")).toHaveTextContent("19h 53m");
+  expect(shown("Voice time in total")).toHaveTextContent("1d 15h 45m");
   expect(shown("Chart markers")).toHaveTextContent("Now: 10, Goal: 20");
   expect(screen.queryByRole("alert")).not.toBeInTheDocument();
 
   // Levels past 100 stretch the chart
   type("Level you want to reach", "250");
-  expect(shown("Levels on the chart")).toHaveTextContent("250");
+  expect(shown("Levels on the chart")).toHaveTextContent("251");
+
+  // XP already earned in level 10
+  type("Level you want to reach", "20");
+  type("XP already earned in this level", "500 xp");
+  expect(
+    screen.getByRole("textbox", { name: "XP already earned in this level" }),
+  ).toHaveValue("500");
+  expect(shown("XP still needed")).toHaveTextContent("18,675");
+  type("XP already earned in this level", "123456789");
+  expect(
+    screen.getByRole("textbox", { name: "XP already earned in this level" }),
+  ).toHaveValue("1234567");
+  expect(shown("XP still needed")).toHaveTextContent("18,075");
 });
 
 test("drops anything but digits from the level boxes", () => {

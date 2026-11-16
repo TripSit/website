@@ -261,9 +261,15 @@ const getTsAge = () =>
 
 export async function getStaticProps() {
   const discord = await getDiscordStats();
+  // Counted from the drug database package this site is built with. Imported here, so the
+  // 1.6 MB file stays on the server and out of the browser bundle.
+  const { default: drugs } = await import("tripsit_drug_db/drugs.json");
   // Regenerate at most every 5 minutes; retry sooner if the counts couldn't be
   // fetched (for example, no token at build time).
-  return { props: { discord }, revalidate: discord ? 300 : 30 };
+  return {
+    props: { discord, drugCount: Object.keys(drugs).length },
+    revalidate: discord ? 300 : 30,
+  };
 }
 
 /* ------------------------------------------------------------------ */
@@ -272,8 +278,10 @@ export async function getStaticProps() {
 
 export default function Home({
   discord,
+  drugCount,
 }: {
   readonly discord: DiscordStats | null;
+  readonly drugCount: number;
 }) {
   const onlineNow = discord?.presenceCount ?? 0;
 
@@ -283,8 +291,7 @@ export default function Home({
       label: "Discord Members",
       data: count(discord?.memberCount ?? 0),
     },
-    { label: "Drugs in our Database", data: count(780) },
-    { label: "Subreddit Subscribers", data: count(57468) },
+    { label: "Drugs in our Database", data: count(drugCount) },
   ];
 
   return (
@@ -383,7 +390,7 @@ export default function Home({
       <main id="main" className="relative">
         {/* Stats */}
         <section id="counts" className="border-y border-line/60 bg-night px-5">
-          <div className="mx-auto grid max-w-6xl grid-cols-2 gap-x-4 gap-y-10 py-12 md:py-16 lg:grid-cols-4">
+          <div className="mx-auto grid max-w-6xl grid-cols-1 gap-x-4 gap-y-10 py-12 sm:grid-cols-3 md:py-16">
             {stats.map((stat) => (
               <div key={stat.label} className="count-box text-center">
                 <span className="font-display text-4xl font-semibold tracking-tight text-ink md:text-5xl [&_div]:inline">

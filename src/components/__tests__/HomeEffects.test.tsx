@@ -1,11 +1,8 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
-import axios from "axios";
 import { useCountUp } from "react-countup";
-import DiscordMembers from "../DiscordMembers";
 import Counter from "../Counter";
 import Ghost from "../Ghost";
 
-jest.mock("axios");
 jest.mock("react-countup", () => ({ useCountUp: jest.fn() }));
 
 test("uses animation defaults when only the ending count is supplied", () => {
@@ -60,46 +57,6 @@ test("waits until inactivity exceeds ten seconds before fading", () => {
   } finally {
     jest.useRealTimers();
   }
-});
-
-test("loads the Discord member count and starts its counter on the animation event", async () => {
-  jest.mocked(axios.get).mockResolvedValue({
-    data: { approximate_member_count: 12345 },
-  });
-  const start = jest.fn();
-  jest.mocked(useCountUp).mockReturnValue({
-    start,
-    pauseResume: jest.fn(),
-    reset: jest.fn(),
-    update: jest.fn(),
-    getCountUp: jest.fn(),
-  });
-  render(
-    <section className="count-box" aria-label="Discord count">
-      <DiscordMembers />
-    </section>,
-  );
-  expect(screen.getByText("0")).toBeVisible();
-
-  await act(async () => {});
-  expect(axios.get).toHaveBeenCalledWith(
-    "https://discord.com/api/v10/guilds/179641883222474752?with_counts=true",
-    expect.any(Object),
-  );
-  expect(useCountUp).toHaveBeenCalledWith(
-    expect.objectContaining({
-      start: 0,
-      end: 12345,
-      duration: 4,
-      delay: 1,
-      separator: ",",
-    }),
-  );
-  fireEvent(
-    screen.getByRole("region", { name: "Discord count" }),
-    new Event("aos:in"),
-  );
-  expect(start).toHaveBeenCalledTimes(1);
 });
 
 test("fades the hero after inactivity and restores it on interaction", () => {

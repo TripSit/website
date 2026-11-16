@@ -169,7 +169,7 @@ const resources = [
     text: "Utilize our Benzo Converter for approximate conversions between different types of benzodiazepines.",
   },
   {
-    href: "https://dxm.tripsit.me/",
+    href: "/dxm",
     icon: <CalculateOutlinedIcon fontSize="inherit" />,
     title: "DXM Calculator",
     text: "Determine the optimal safe DXM dosage tailored to your body weight with our intuitive calculator.",
@@ -814,7 +814,7 @@ export default function Home({
                   <a href="https://github.com/TripSit/combogen">Comboapp</a>
                 </li>
                 <li>
-                  <a href="https://github.com/TripSit/DXM-Calculator/">
+                  <a href="https://github.com/TripSit/website/tree/main/src/components/calculators">
                     DXM Calculator
                   </a>
                 </li>

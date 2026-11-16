@@ -22,7 +22,7 @@ function ComboResults({
   accent,
   showExplanations,
   sortBySeverity,
-}: ComboResultsProps) {
+}: Readonly<ComboResultsProps>) {
   const cards = useMemo<Card[]>(() => {
     const out: (Card & { rank: number })[] = [];
     for (let i = 0; i < selected.length; i += 1) {

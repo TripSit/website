@@ -15,7 +15,7 @@ const ProfileButton: React.FC = () => {
   useEffect(() => {
     const checkLoginStatus = () => {
       const token =
-        localStorage.getItem("kc_token") || sessionStorage.getItem("kc_token");
+        localStorage.getItem("kc_token") ?? sessionStorage.getItem("kc_token");
       setIsLoggedIn(!!token);
     };
 
@@ -42,7 +42,7 @@ const ProfileButton: React.FC = () => {
   useEffect(() => {
     const fetchAvatar = async () => {
       const token =
-        localStorage.getItem("kc_token") || sessionStorage.getItem("kc_token");
+        localStorage.getItem("kc_token") ?? sessionStorage.getItem("kc_token");
       if (!token || !isLoggedIn) {
         setAvatarUrl(GUEST_AVATAR_PATH);
         return;
@@ -157,7 +157,7 @@ const ProfileButton: React.FC = () => {
             style={{ border: "none", background: "none" }}
           >
             <i className="bi bi-box-arrow-right" aria-hidden />
-            Logout
+            {"Logout"}
           </button>
         </div>
       )}

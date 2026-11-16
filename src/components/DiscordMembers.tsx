@@ -17,7 +17,6 @@ function DiscordMembers() {
           Authorization: `Bot ${process.env.DISCORD_CLIENT_TOKEN}`,
         },
       });
-      // console.log("Discord metrics:", response.data);
       setDiscordmembers(response.data.approximate_member_count);
     }
 

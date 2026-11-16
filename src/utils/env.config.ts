@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// require("dotenv").config();
 
 const isProd = process.env.NODE_ENV === "production";
 

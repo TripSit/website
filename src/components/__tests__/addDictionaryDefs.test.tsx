@@ -3,13 +3,13 @@ import addDictionaryDefs from "../addDictionaryDefs";
 import dictionary from "../../assets/dictionary.json";
 
 describe("addDictionaryDefs", () => {
-  it("returns [''] for undefined text", () => {
-    expect(addDictionaryDefs(undefined)).toEqual([""]);
+  it("returns nothing for undefined text", () => {
+    expect(addDictionaryDefs(undefined)).toEqual([]);
   });
 
-  it("leaves words with no dictionary entry as plain strings", () => {
-    const result = addDictionaryDefs("hello world");
-    expect(result).toEqual(["hello ", "world "]);
+  it("leaves words with no dictionary entry as plain text", () => {
+    const { container } = render(<>{addDictionaryDefs("hello world")}</>);
+    expect(container.innerHTML).toBe("hello world ");
   });
 
   it("wraps a recognized word in a tooltip carrying its definition", () => {

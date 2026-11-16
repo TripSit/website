@@ -18,6 +18,10 @@ test("opens the desktop menu and dismisses it on outside interaction or Escape",
     "href",
     "/factsheets",
   );
+  expect(nav.getByRole("link", { name: "Reflect App" })).toHaveAttribute(
+    "href",
+    "/reflect",
+  );
   fireEvent.pointerDown(document.body);
   expect(resources).toHaveAttribute("aria-expanded", "false");
   fireEvent.click(resources);
@@ -35,6 +39,21 @@ test("clears a pending hover timer when navigation is unmounted", () => {
   } finally {
     jest.useRealTimers();
   }
+});
+
+test("links to the Reflect app page from both desktop and mobile navigation", () => {
+  render(<Header />);
+  const main = within(screen.getByRole("navigation", { name: "Main" }));
+  expect(main.getByRole("link", { name: "Reflect" })).toHaveAttribute(
+    "href",
+    "/reflect",
+  );
+  fireEvent.click(screen.getByRole("button", { name: "Open menu" }));
+  const mobile = within(screen.getByRole("navigation", { name: "Mobile" }));
+  expect(mobile.getByRole("link", { name: "Reflect" })).toHaveAttribute(
+    "href",
+    "/reflect",
+  );
 });
 
 test("gives the pointer time to cross from the menu trigger to the panel", () => {

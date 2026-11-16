@@ -5,7 +5,7 @@ import Script from "next/script";
 class MyDocument extends Document {
   render() {
     return (
-      <Html>
+      <Html lang="en">
         <Head>
           {/* <!-- Favicons --> */}
           <link href="assets/img/favicon.png" rel="icon" />

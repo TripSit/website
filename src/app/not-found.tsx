@@ -1,7 +1,8 @@
 import Link from "next/link";
 import BlogSuggestion from "../components/BlogSuggestion";
+import { envOrDefault } from "../utils/envOrDefault";
 
-const domain = process.env.NEXT_PUBLIC_DNS_DOMAIN || "tripsit.me";
+const domain = envOrDefault(process.env.NEXT_PUBLIC_DNS_DOMAIN, "tripsit.me");
 
 // Never fetch or redirect to URLs built from request headers here (SSRF and open redirect,
 // WEB-002, fixed in #247); only link to the blog on a fixed host.
@@ -10,7 +11,7 @@ export default function NotFound() {
     <div className="global">
       <h2>Not Found</h2>
       <p>Could not find requested resource</p>
-      <BlogSuggestion blogOrigin={`https://blog.${domain}`} />
+      <BlogSuggestion blogOrigin={`https://updates.${domain}`} />
       <Link href="/">Return Home</Link>
     </div>
   );

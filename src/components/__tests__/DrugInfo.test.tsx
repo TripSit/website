@@ -8,6 +8,9 @@ import DrugInfo from "../DrugInfo";
 jest.mock("next/router", () => ({ useRouter: jest.fn() }));
 jest.mock("@/utils/drugs", () => ({ useDrugs: jest.fn() }));
 jest.mock("../Header", () => () => null);
+// Called on every chart render. In the browser, react-apexcharts redraws the chart whenever it
+// re-renders with a new options object, so a render here stands for a redraw there.
+const mockChartRender = jest.fn();
 jest.mock(
   "next/dynamic",
   () => () =>
@@ -17,6 +20,7 @@ jest.mock(
     }: {
       series: unknown;
       options: {
+        chart: unknown;
         tooltip: {
           custom: (input: {
             seriesIndex: number;
@@ -26,18 +30,22 @@ jest.mock(
         };
       };
     }) {
+      mockChartRender(options.chart);
       return (
         <>
           <output aria-label="Chart series">{JSON.stringify(series)}</output>
           {Array.isArray(series) &&
-            series.map(({ name }, seriesIndex) => {
+            series.map(({ name, data }, seriesIndex) => {
               const html = options.tooltip.custom({
                 seriesIndex,
                 dataPointIndex: 0,
                 w: { config: { series } },
               });
               return (
-                <output key={seriesIndex} aria-label={`Tooltip for ${name}`}>
+                <output
+                  key={`${data[0].x}-${name}`}
+                  aria-label={`Tooltip for ${name}`}
+                >
                   {
                     new DOMParser().parseFromString(html, "text/html").body
                       .textContent
@@ -110,24 +118,24 @@ test.each([
   ).toBeVisible();
 });
 
-test("keeps all doses in the table and charts only bounded mass ranges", () => {
+test("keeps dose text and charts the ranges for each route", () => {
   render(
     <DrugInfo
       drugData={{
         ...drug,
         dose_note: "Example dose note",
         formatted_dose: {
-          oral: { common: "100–200 µg", light: "unknown" },
-          insufflated: { common: "1-2 mg" },
+          oral: { common: "1-2mg", light: "unknown" },
+          insufflated: { common: "3-4mg" },
         },
       }}
     />,
   );
   expect(screen.getByText("Example dose note")).toBeVisible();
   expect(screen.getByText("unknown")).toBeVisible();
-  expect(screen.getByText("100–200 µg")).toBeVisible();
+  expect(screen.getByText("1-2mg")).toBeVisible();
   expect(screen.getByLabelText("Tooltip for common")).toHaveTextContent(
-    "oral (mg): 0.1 - 0.2",
+    "oral (mg): 1 - 2",
   );
   expect(
     JSON.parse(screen.getByLabelText("Chart series").textContent ?? ""),
@@ -135,21 +143,75 @@ test("keeps all doses in the table and charts only bounded mass ranges", () => {
     {
       name: "common",
       data: [
-        { x: "oral (mg)", y: [0.1, 0.2] },
-        { x: "insufflated (mg)", y: [1, 2] },
+        { x: "oral (mg)", y: [1, 2] },
+        { x: "insufflated (mg)", y: [3, 4] },
       ],
     },
   ]);
 });
 
-test("omits the dose chart when no ranges can be plotted", () => {
+test("draws an open card's charts once, without animation", () => {
+  mockChartRender.mockClear();
+  const drugData = {
+    ...drug,
+    formatted_dose: { oral: { common: "1-2mg" } },
+    formatted_duration: { oral: "1-2", _unit: "hours" as Unit },
+  } as Drug;
+  const { rerender } = render(<DrugInfo drugData={drugData} />);
+  expect(mockChartRender).toHaveBeenCalledTimes(2);
+  expect(mockChartRender.mock.calls).toEqual([
+    [expect.objectContaining({ animations: { enabled: false } })],
+    [expect.objectContaining({ animations: { enabled: false } })],
+  ]);
+
+  // The factsheets table re-renders the panel of an expanded row on every keystroke in a filter
+  rerender(<DrugInfo drugData={drugData} />);
+  expect(mockChartRender).toHaveBeenCalledTimes(2);
+});
+
+test("keeps unplottable doses in the table and hides the empty chart", () => {
   render(
     <DrugInfo
-      drugData={{ ...drug, formatted_dose: { oral: { light: "unknown" } } }}
+      drugData={{
+        ...drug,
+        formatted_dose: {
+          oral: { light: "unknown", common: "3mg+", strong: "25-50ug/hr" },
+        },
+      }}
     />,
   );
   expect(screen.getByText("unknown")).toBeVisible();
-  expect(screen.queryByLabelText("Chart series")).toBeNull();
+  expect(screen.getByText("3mg+")).toBeVisible();
+  expect(screen.getByText("25-50ug/hr")).toBeVisible();
+  expect(screen.queryByLabelText("Chart series")).not.toBeInTheDocument();
+  expect(screen.queryByText(/bounded mass ranges/)).not.toBeInTheDocument();
+});
+
+test("charts mixed mass units on one milligram scale", () => {
+  render(
+    <DrugInfo
+      drugData={{
+        ...drug,
+        formatted_dose: {
+          oral: { common: "800-1500ug" },
+          insufflated: { common: "1-2mg" },
+        },
+      }}
+    />,
+  );
+  expect(screen.getByText("800-1500ug")).toBeVisible();
+  expect(screen.getByText(/bounded mass ranges in mg/)).toBeVisible();
+  expect(
+    JSON.parse(screen.getByLabelText("Chart series").textContent ?? ""),
+  ).toEqual([
+    {
+      name: "common",
+      data: [
+        { x: "oral (mg)", y: [0.8, 1.5] },
+        { x: "insufflated (mg)", y: [1, 2] },
+      ],
+    },
+  ]);
 });
 
 test("converts onset to hours and offsets duration and after effects", () => {
@@ -310,4 +372,18 @@ test("renders optional references, warnings, and combination notes", () => {
     "href",
     "https://psychonautwiki.org/wiki/Nausea",
   );
+});
+
+test("keeps open-ended dose text without plotting an invented upper bound", () => {
+  render(
+    <DrugInfo
+      drugData={{
+        ...drug,
+        formatted_dose: { oral: { common: "2+" } },
+      }}
+    />,
+  );
+  expect(screen.getByText("2+")).toBeVisible();
+  expect(screen.queryByLabelText("Tooltip for common")).not.toBeInTheDocument();
+  expect(screen.queryByLabelText("Chart series")).not.toBeInTheDocument();
 });

@@ -7,6 +7,8 @@
 // build args (see the Dockerfile). Next.js only replaces the full
 // `process.env.NAME` expression, so don't destructure or index process.env here.
 
+import { envOrDefault } from "./envOrDefault";
+
 const CLIENT_ID_MISSING =
   "NEXT_PUBLIC_KEYCLOAK_CLIENT_ID was not set when this bundle was built. " +
   "Set it to the ban-appeals Keycloak client that TripBot redeems the code " +
@@ -15,7 +17,10 @@ const CLIENT_ID_MISSING =
 function getKeycloakConfig() {
   return {
     realm: "TripSit",
-    url: process.env.NEXT_PUBLIC_KEYCLOAK_URL || "https://auth.tripsit.me",
+    url: envOrDefault(
+      process.env.NEXT_PUBLIC_KEYCLOAK_URL,
+      "https://auth.tripsit.me",
+    ),
   };
 }
 
@@ -53,7 +58,7 @@ export function getPostLogoutUrl(): string {
   const params = new URLSearchParams({
     post_logout_redirect_uri:
       typeof window !== "undefined" ? window.location.origin : "",
-    id_token_hint: sessionStorage.getItem("kc_id_token") || "",
+    id_token_hint: sessionStorage.getItem("kc_id_token") ?? "",
   });
   return `${config.url}/realms/${config.realm}/protocol/openid-connect/logout?${params.toString()}`;
 }

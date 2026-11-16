@@ -1,5 +1,6 @@
 import axios from "axios";
 import type { APIGuild } from "discord-api-types/v10";
+import { envOrDefault } from "./envOrDefault";
 
 // The production TripSit server. Other environments set DISCORD_GUILD_ID to a server their
 // own bot belongs to: Discord answers 404 "Unknown Guild" for a server the bot isn't in.
@@ -14,7 +15,10 @@ export type DiscordStats = {
 // object (roles, permissions, emojis, channel IDs) must never be passed through.
 export async function getDiscordStats(
   token: string | undefined = process.env.DISCORD_CLIENT_TOKEN,
-  guildId: string = process.env.DISCORD_GUILD_ID || DEFAULT_GUILD_ID,
+  guildId: string = envOrDefault(
+    process.env.DISCORD_GUILD_ID,
+    DEFAULT_GUILD_ID,
+  ),
 ): Promise<DiscordStats | null> {
   if (!token) return null;
   try {

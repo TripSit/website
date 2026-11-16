@@ -3,7 +3,9 @@ import ProfileButton from "../ProfileButton";
 
 jest.mock("@/utils/keycloak", () => ({
   getLoginUrl: () => "#login",
-  getPostLogoutUrl: () => "#logout",
+  // Records the ID token that was still stored when the logout URL was built.
+  getPostLogoutUrl: () =>
+    `#logout-hint-${sessionStorage.getItem("kc_id_token") ?? "missing"}`,
 }));
 
 const originalFetch = global.fetch;
@@ -70,7 +72,15 @@ test("closes the menu on a second click and clears session tokens on logout", as
   fireEvent.click(screen.getByRole("button", { name: "Logout" }));
   expect(sessionStorage).toHaveLength(0);
   expect(screen.getByRole("button", { name: "Login" })).toBeVisible();
-  expect(window.location.hash).toBe("#logout");
+  // The logout URL was built before the ID token was cleared.
+  expect(window.location.hash).toBe("#logout-hint-id");
+});
+
+test("ignores a token in localStorage, which logout doesn't clear", () => {
+  localStorage.setItem("kc_token", "stale-token");
+  render(<ProfileButton />);
+  expect(screen.getByRole("button", { name: "Login" })).toBeVisible();
+  expect(fetchMock).not.toHaveBeenCalled();
 });
 
 test("reacts to session changes and dismisses the account menu outside", async () => {
@@ -115,7 +125,7 @@ test.each(["HTTP error", "network error"])(
   async (error) => {
     if (error === "HTTP error") fetchMock.mockResolvedValue({ ok: false });
     else fetchMock.mockRejectedValue(new Error("Offline"));
-    localStorage.setItem("kc_token", "stored-token");
+    sessionStorage.setItem("kc_token", "stored-token");
     render(<ProfileButton />);
     const account = screen.getByRole("button", { name: "Account menu" });
     await waitFor(() =>

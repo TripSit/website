@@ -14,9 +14,8 @@ const ProfileButton: React.FC = () => {
   // Check if user is logged in by checking for tokens
   useEffect(() => {
     const checkLoginStatus = () => {
-      const token =
-        localStorage.getItem("kc_token") ?? sessionStorage.getItem("kc_token");
-      setIsLoggedIn(!!token);
+      // The appeal page keeps the tokens in sessionStorage, and logout clears them there.
+      setIsLoggedIn(!!sessionStorage.getItem("kc_token"));
     };
 
     // Check initially
@@ -41,8 +40,7 @@ const ProfileButton: React.FC = () => {
   // Fetch avatar when login status changes
   useEffect(() => {
     const fetchAvatar = async () => {
-      const token =
-        localStorage.getItem("kc_token") ?? sessionStorage.getItem("kc_token");
+      const token = sessionStorage.getItem("kc_token");
       if (!token || !isLoggedIn) {
         setAvatarUrl(GUEST_AVATAR_PATH);
         return;
@@ -95,6 +93,10 @@ const ProfileButton: React.FC = () => {
   };
 
   const handleLogout = () => {
+    // Build the logout URL first: it sends the ID token to Keycloak as id_token_hint, so
+    // Keycloak can end the session and return to this site without a confirmation page.
+    const logoutUrl = getPostLogoutUrl();
+
     // Clear tokens from sessionStorage
     sessionStorage.removeItem("kc_token");
     sessionStorage.removeItem("kc_refresh_token");
@@ -110,7 +112,7 @@ const ProfileButton: React.FC = () => {
     // Notify other components about token changes
     window.dispatchEvent(new Event("tokensUpdated"));
 
-    window.location.href = getPostLogoutUrl();
+    window.location.href = logoutUrl;
   };
 
   const toggleDropdown = () => {

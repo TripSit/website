@@ -1,7 +1,7 @@
 /**
  * @jest-environment node
  */
-import { readdirSync } from "node:fs";
+import { existsSync, readdirSync } from "node:fs";
 import path from "node:path";
 import blogPaths from "@/assets/blogPaths.json";
 import { envOrDefault } from "@/utils/envOrDefault";
@@ -13,6 +13,9 @@ const repoRoot = path.join(__dirname, "../..");
 // First URL segment of everything this site serves: pages, app routes and public files.
 // Route groups like "(marketing)" add no segment, so their children count as top level.
 function siteSegments(dir: string): string[] {
+  if (!existsSync(path.join(repoRoot, dir))) {
+    return [];
+  }
   return readdirSync(path.join(repoRoot, dir), { withFileTypes: true }).flatMap(
     (entry) => {
       if (entry.isDirectory() && entry.name.startsWith("(")) {

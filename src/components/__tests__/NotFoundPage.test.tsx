@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { envOrDefault } from "@/utils/envOrDefault";
-import NotFound from "../not-found";
+import NotFound from "@/pages/404";
 
 const blogHost = `updates.${envOrDefault(process.env.NEXT_PUBLIC_DNS_DOMAIN, "tripsit.me")}`;
 
@@ -39,12 +39,25 @@ describe("NotFound", () => {
     expect(blogLink().host).toBe(blogHost);
   });
 
-  it("links back home", () => {
+  it("links to live help and back home", () => {
     render(<NotFound />);
 
-    expect(screen.getByRole("link", { name: "Return Home" })).toHaveAttribute(
+    expect(
+      screen.getByRole("main").querySelector('a[href="/webchat"]'),
+    ).toHaveTextContent("Get Help Now");
+    expect(screen.getByRole("link", { name: "Return home" })).toHaveAttribute(
       "href",
       "/",
     );
+  });
+
+  it("keeps the site's header and footer", () => {
+    render(<NotFound />);
+
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Page not found" }),
+    ).toBeVisible();
+    expect(screen.getByRole("navigation", { name: "Main" })).toBeVisible();
+    expect(screen.getByRole("contentinfo")).toBeVisible();
   });
 });

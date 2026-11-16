@@ -1,7 +1,6 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import type { ReactNode } from "react";
 import Document from "@/pages/_document";
-import RootLayout, { metadata } from "@/app/layout";
 import BlogSuggestion from "../BlogSuggestion";
 import Github from "../Github";
 import Patreon from "../Patreon";
@@ -32,17 +31,6 @@ test("renders the document shell, favicons and browser scripts", () => {
   expect(html).toContain("Page content");
   expect(html).toContain("/next-runtime.js");
   expect(html).toContain("bootstrap.bundle.min.js");
-});
-
-test("renders the app layout with metadata and page content", () => {
-  const html = renderToStaticMarkup(
-    <RootLayout>
-      <main>Hello</main>
-    </RootLayout>,
-  );
-  expect(html).toContain('lang="en"');
-  expect(html).toContain("<main>Hello</main>");
-  expect(metadata.title).toBe("TripSit");
 });
 
 test("uses the blog root during server rendering", () => {

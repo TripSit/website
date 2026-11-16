@@ -11,6 +11,8 @@ const PAGES = [
   "/dxm",
   "/volume",
   "/levels",
+  "/rules",
+  "/terms",
   "/webchat",
   "/reflect",
   "/reflect/privacy",

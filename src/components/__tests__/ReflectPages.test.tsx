@@ -3,12 +3,11 @@ import ReflectPage from "@/pages/reflect";
 import ReflectPrivacyPage from "@/pages/reflect/privacy";
 import ReflectTermsPage from "@/pages/reflect/terms";
 
-test("introduces the app with store and community links, its features and its legal pages", () => {
+test("introduces the app with its community link, its features and its legal pages", () => {
   render(<ReflectPage />);
   expect(
     screen.getByRole("heading", { level: 1, name: "Reflect" }),
   ).toBeVisible();
-  expect(screen.getByRole("link", { name: /Google Play/ })).toBeVisible();
   expect(
     screen.getByRole("link", { name: "Join the Reflect Discord" }),
   ).toHaveAttribute("href", "https://discord.gg/3sT6w9aKV3");

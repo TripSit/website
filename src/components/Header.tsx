@@ -40,6 +40,7 @@ const menus: { label: string; groups: NavGroup[] }[] = [
           { label: "DXM Dosage", href: "/dxm" },
           { label: "Volumetric", href: "/volume" },
           { label: "Benzo Conversion", href: "/benzos" },
+          { label: "Discord Levels", href: "/levels" },
         ],
       },
       {

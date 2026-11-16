@@ -1,10 +1,25 @@
 import { useState, useEffect } from "react";
+import { usePrefersReducedMotion } from "../utils/usePrefersReducedMotion";
 
 export default function Ghost() {
   const [lastActivity, setLastActivity] = useState(() => Date.now());
   const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
+  const reducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
+    if (reducedMotion) {
+      // Never fade the hero for someone who asked for reduced motion. If it already faded
+      // before they changed the setting, show it again straight away.
+      for (const id of ["hero", "animationButton"]) {
+        const element = document.getElementById(id);
+        if (element) {
+          element.style.transition = "";
+          element.style.opacity = "";
+        }
+      }
+      return;
+    }
+
     const handleUserActivity = () => {
       setLastActivity(Date.now());
 
@@ -55,7 +70,7 @@ export default function Ghost() {
         clearTimeout(timeoutId);
       }
     };
-  }, [lastActivity, timeoutId]);
+  }, [lastActivity, timeoutId, reducedMotion]);
 
   return <div>{/* Your component content here */}</div>;
 }

@@ -126,3 +126,92 @@ test("fades the hero after inactivity and restores it on interaction", () => {
     jest.useRealTimers();
   }
 });
+
+// Simulates the visitor's reduced-motion setting, which they can change while the page is open.
+function mockReducedMotion(initial: boolean) {
+  let matches = initial;
+  const listeners = new Set<() => void>();
+  const original = window.matchMedia;
+  window.matchMedia = ((query: string) => ({
+    get matches() {
+      return query === "(prefers-reduced-motion: reduce)" && matches;
+    },
+    media: query,
+    addEventListener: (_: string, listener: () => void) =>
+      listeners.add(listener),
+    removeEventListener: (_: string, listener: () => void) =>
+      listeners.delete(listener),
+  })) as unknown as typeof window.matchMedia;
+  return {
+    set(value: boolean) {
+      matches = value;
+      listeners.forEach((listener) => listener());
+    },
+    restore() {
+      window.matchMedia = original;
+    },
+  };
+}
+
+test("never fades the hero for someone who prefers reduced motion", () => {
+  const media = mockReducedMotion(true);
+  jest.useFakeTimers();
+  try {
+    render(
+      <>
+        <Ghost />
+        <section id="hero" aria-label="Hero" />
+        <button id="animationButton">Animations</button>
+      </>,
+    );
+    act(() => jest.advanceTimersByTime(10));
+    fireEvent.mouseMove(document);
+    act(() => jest.advanceTimersByTime(30000));
+    expect(screen.getByRole("region", { name: "Hero" }).style.opacity).toBe("");
+    expect(
+      screen.getByRole("button", { name: "Animations" }).style.opacity,
+    ).toBe("");
+  } finally {
+    jest.useRealTimers();
+    media.restore();
+  }
+});
+
+test("shows a faded hero again when reduced motion is turned on", () => {
+  const media = mockReducedMotion(false);
+  jest.useFakeTimers();
+  try {
+    render(
+      <>
+        <Ghost />
+        <section id="hero" aria-label="Hero" />
+        <button id="animationButton">Animations</button>
+      </>,
+    );
+    const hero = screen.getByRole("region", { name: "Hero" });
+    act(() => jest.advanceTimersByTime(10));
+    fireEvent.mouseMove(document);
+    act(() => jest.advanceTimersByTime(10000));
+    expect(hero).toHaveStyle({ opacity: "0" });
+
+    act(() => media.set(true));
+    expect(hero.style.opacity).toBe("");
+    expect(hero.style.transition).toBe("");
+    fireEvent.mouseMove(document);
+    act(() => jest.advanceTimersByTime(30000));
+    expect(hero.style.opacity).toBe("");
+  } finally {
+    jest.useRealTimers();
+    media.restore();
+  }
+});
+
+test("shows nothing to restore when reduced motion starts without a hero", () => {
+  const media = mockReducedMotion(true);
+  try {
+    render(<Ghost />);
+    expect(document.getElementById("hero")).toBeNull();
+  } finally {
+    media.restore();
+  }
+});

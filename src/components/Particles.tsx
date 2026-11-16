@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { TypeProp } from "particles-bg";
 import dynamic from "next/dynamic";
 import { Dropdown } from "@heroui/react";
+import { usePrefersReducedMotion } from "../utils/usePrefersReducedMotion";
 
 const ParticlesBg = dynamic(() => import("particles-bg"), {
   ssr: false,
@@ -89,6 +90,13 @@ export default function Particles() {
   }) => {
     setEffect(selection);
   };
+
+  const reducedMotion = usePrefersReducedMotion();
+
+  // No moving background, and so no picker for it, for someone who asked for reduced motion.
+  if (reducedMotion) {
+    return null;
+  }
 
   return (
     <div>

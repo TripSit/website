@@ -200,6 +200,36 @@ test("avoids overlapping ban checks when the token refreshes during a slow reque
     await screen.findByRole("heading", { name: "Not Banned" }),
   ).toBeVisible();
 });
+
+test("checks the ban again with the new token after a background refresh", async () => {
+  jest.useFakeTimers();
+  sessionStorage.setItem("kc_token", token(Date.now() / 1000 + 75));
+  sessionStorage.setItem("kc_refresh_token", "refresh");
+  const refreshed = validToken();
+  fetchMock.mockImplementation(async (url: string) => {
+    if (url === "/api/v2/users/banned") return reply({ banned: false });
+    if (url === "/api/v2/keycloak/refresh")
+      return reply({ access_token: refreshed });
+    return reply({});
+  });
+  render(<AppealPage />);
+  expect(
+    await screen.findByRole("heading", { name: "Not Banned" }),
+  ).toBeVisible();
+  // The token expires within a minute at the 30-second refresh, so it's replaced
+  await act(() => jest.advanceTimersByTimeAsync(30000));
+  const banChecks = fetchMock.mock.calls.filter(
+    ([url]) => url === "/api/v2/users/banned",
+  );
+  expect(banChecks).toHaveLength(2);
+  expect(banChecks[1][1]).toEqual(
+    expect.objectContaining({
+      headers: expect.objectContaining({
+        Authorization: `Bearer ${refreshed}`,
+      }),
+    }),
+  );
+});
 const token = (exp: number) =>
   `header.${btoa(JSON.stringify({ exp }))}.signature`;
 const validToken = () => token(Date.now() / 1000 + 3600);

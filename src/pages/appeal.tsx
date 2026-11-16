@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useEffectEvent, useState, useRef } from "react";
 import Head from "../components/Head";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -171,6 +171,7 @@ const AppealPage: React.FC = () => {
 
         // Dispatch event for ProfileButton
         window.dispatchEvent(new Event("tokensUpdated"));
+        void checkBan();
       } else {
         setLoginFailed(true);
       }
@@ -385,6 +386,15 @@ const AppealPage: React.FC = () => {
     }
   };
 
+  // Effect events: the effects below call these when a token arrives, but shouldn't re-run
+  // just because the functions are new on each render.
+  const checkBanForNewToken = useEffectEvent(() => {
+    void checkBan();
+  });
+  const logInWithCode = useEffectEvent((code: string) => {
+    void exchangeCodeForToken(code);
+  });
+
   // Check if we already have a token in session storage, also handle refreshing tokens.
   useEffect(() => {
     const checkToken = async () => {
@@ -392,6 +402,7 @@ const AppealPage: React.FC = () => {
       if (validToken) {
         // Ensure token state is set BEFORE any other operations
         setToken(validToken);
+        checkBanForNewToken();
         // Clean up any lingering auth query params from URL
         if (window.location.search) {
           document.title = "Ban Appeal - TripSit";
@@ -403,7 +414,7 @@ const AppealPage: React.FC = () => {
         const code = params.get("code");
         if (code) {
           // exchangeCodeForToken handles both setToken and setLoading
-          exchangeCodeForToken(code);
+          logInWithCode(code);
         } else {
           // Only set loading to false if there's truly no token and no code
           setLoading(false);
@@ -425,6 +436,7 @@ const AppealPage: React.FC = () => {
         // Only update token state if it actually changed to prevent unnecessary re-renders
         if (refreshedToken && refreshedToken !== token) {
           setToken(refreshedToken);
+          checkBanForNewToken();
         } else if (!refreshedToken) {
           // Token is now invalid, clear it
           setToken(null);
@@ -434,14 +446,6 @@ const AppealPage: React.FC = () => {
       });
     }, 30000); // 30 seconds
     return () => clearInterval(refreshInterval);
-  }, [token]);
-
-  // Fetch ban status when we have a token
-  useEffect(() => {
-    if (token) {
-      checkBan();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   if (loading) {

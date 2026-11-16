@@ -26,10 +26,9 @@ const config = [
       "arrow-parens": "off",
       // The following will show up as errors, just want to get this pushed for now
       "sonarjs/cognitive-complexity": ["warn", 50],
-      // New with react-hooks v7 (React Compiler rules). Several existing effects
-      // call setState synchronously and need a real refactor to satisfy this;
-      // tracked as debt for now instead of blocking the build.
-      "react-hooks/set-state-in-effect": "warn",
+      // New with react-hooks v7 (React Compiler rules): setting state synchronously in an
+      // effect causes an extra render. Derive the value or set it from an event handler.
+      "react-hooks/set-state-in-effect": "error",
     },
   },
   {

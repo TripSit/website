@@ -1,5 +1,13 @@
 import { parseDoseRangeMg } from "../parseDoseRangeMg";
 
+test("inherits an omitted upper unit from the lower endpoint", () => {
+  expect(parseDoseRangeMg("1 mg - 2")).toEqual([1, 2]);
+});
+
+test("rejects a range whose upper endpoint overflows during conversion", () => {
+  expect(parseDoseRangeMg(`1-${"9".repeat(308)} g`)).toBeUndefined();
+});
+
 describe("parseDoseRangeMg", () => {
   it.each([
     ["800-1500ug", [0.8, 1.5]],

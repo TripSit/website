@@ -29,7 +29,7 @@
   min-height: 100vh;
   background: #ffffff;
   color: #444444;
-  font-family: "Poppins", system-ui, -apple-system, sans-serif;
+  font-family: var(--font-poppins), system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -43,7 +43,7 @@
 }
 
 .disp {
-  font-family: "Futura Std", "Poppins", sans-serif;
+  font-family: "Futura Std", var(--font-poppins), sans-serif;
   font-weight: 700;
 }
 .mono {
@@ -185,7 +185,7 @@
   border: 1px solid #cde5f6;
   border-radius: 5px;
   color: #16507b;
-  font-family: "Poppins", sans-serif;
+  font-family: var(--font-poppins), sans-serif;
   font-size: 15px;
   outline: none;
   transition:
@@ -205,7 +205,7 @@
   gap: 8px;
   padding: 13px 22px;
   border-radius: 5px;
-  font-family: "Poppins", sans-serif;
+  font-family: var(--font-poppins), sans-serif;
   font-size: 14px;
   font-weight: 600;
   color: #ffffff;
@@ -244,7 +244,7 @@
   gap: 7px;
   border-radius: 5px;
   cursor: pointer;
-  font-family: "Poppins", sans-serif;
+  font-family: var(--font-poppins), sans-serif;
   font-size: 14px;
   font-weight: 600;
   transition:
@@ -342,6 +342,35 @@
 }
 
 /* ---- Disclaimer ---- */
+.nicknames {
+  margin-top: 32px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: #444444;
+}
+.nicknamesTitle {
+  margin: 0 0 8px;
+  font-size: 15px;
+  color: #16507b;
+}
+.nicknamesList {
+  margin: 0;
+}
+.nicknamesList > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 8px;
+}
+.nicknamesList dt {
+  font-weight: 600;
+}
+.nicknamesList dt::after {
+  content: ":";
+}
+.nicknamesList dd {
+  margin: 0;
+}
+
 .disclaimer {
   margin-top: 48px;
   padding: 22px 24px;

@@ -2,6 +2,7 @@ import { useState, type CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import logo from "../../../public/assets/img/logo.png";
+import { poppinsVariable } from "../fonts";
 import { envOrDefault } from "../../utils/envOrDefault";
 import { SUBSTANCES } from "./comboData";
 import Legend from "./Legend";
@@ -16,12 +17,15 @@ interface ComboCheckerProps {
   showExplanations?: boolean;
   /** Sort result cards by severity (most dangerous first). */
   sortBySeverity?: boolean;
+  /** Other names for each substance, listed under the results for the selected ones. */
+  nicknames?: Record<string, string[]>;
 }
 
 function ComboChecker({
   accent = "#2487ce",
   showExplanations = true,
   sortBySeverity = true,
+  nicknames = {},
 }: Readonly<ComboCheckerProps>) {
   const domain = envOrDefault(process.env.NEXT_PUBLIC_DNS_DOMAIN, "tripsit.me");
   const [selected, setSelected] = useState<string[]>([]);
@@ -34,7 +38,7 @@ function ComboChecker({
 
   return (
     <div
-      className={styles.root}
+      className={`${styles.root} ${poppinsVariable}`}
       style={{ "--cc-accent": accent } as CSSProperties}
     >
       <nav className={styles.nav}>
@@ -99,6 +103,24 @@ function ComboChecker({
           showExplanations={showExplanations}
           sortBySeverity={sortBySeverity}
         />
+
+        {selected.some((name) => nicknames[name]) && (
+          <section className={styles.nicknames} aria-label="Also known as">
+            <p className={`${styles.nicknamesTitle} ${styles.disp}`}>
+              Also known as
+            </p>
+            <dl className={styles.nicknamesList}>
+              {selected
+                .filter((name) => nicknames[name])
+                .map((name) => (
+                  <div key={name}>
+                    <dt>{name}</dt>
+                    <dd>{nicknames[name].join(", ")}</dd>
+                  </div>
+                ))}
+            </dl>
+          </section>
+        )}
 
         <div className={styles.disclaimer}>
           This tool, like the combo chart, is a quick-reference guide.{" "}

@@ -27,6 +27,20 @@ const nextConfig = {
   // without needing the full node_modules tree (or a second `npm ci`) copied in.
   output: "standalone",
   turbopack: { root: __dirname },
+  // Don't advertise the framework in an x-powered-by header.
+  poweredByHeader: false,
+  async headers() {
+    return [
+      {
+        // Only this site may show its pages in a frame (clickjacking protection). The server's
+        // proxy adds an X-Frame-Options value that browsers ignore; frame-ancestors overrides it.
+        source: "/:path*",
+        headers: [
+          { key: "Content-Security-Policy", value: "frame-ancestors 'self'" },
+        ],
+      },
+    ];
+  },
   async redirects() {
     return [
       ...blogPaths.map((path) => toBlog(path)),

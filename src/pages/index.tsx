@@ -114,8 +114,8 @@ function Section({
 
 const quickLinks = [
   {
-    href: "https://combo.tripsit.me/",
-    external: true,
+    href: "/combo",
+    external: false,
     icon: <JoinInnerOutlinedIcon fontSize="inherit" />,
     title: "Compare drug combos",
     text: "Explore our interactive chart detailing the effects of combining popular drugs for informed decisions.",
@@ -145,7 +145,7 @@ const quickLinks = [
 
 const resources = [
   {
-    href: "https://combo.tripsit.me/",
+    href: "/combo",
     icon: <JoinInnerOutlinedIcon fontSize="inherit" />,
     title: "Combo App",
     text: "Explore our innovative Combo Chart, a must-see resource for informed substance combinations. Dive in now!",
@@ -261,9 +261,15 @@ const getTsAge = () =>
 
 export async function getStaticProps() {
   const discord = await getDiscordStats();
+  // Counted from the drug database package this site is built with. Imported here, so the
+  // 1.6 MB file stays on the server and out of the browser bundle.
+  const { default: drugs } = await import("tripsit_drug_db/drugs.json");
   // Regenerate at most every 5 minutes; retry sooner if the counts couldn't be
   // fetched (for example, no token at build time).
-  return { props: { discord }, revalidate: discord ? 300 : 30 };
+  return {
+    props: { discord, drugCount: Object.keys(drugs).length },
+    revalidate: discord ? 300 : 30,
+  };
 }
 
 /* ------------------------------------------------------------------ */
@@ -272,8 +278,10 @@ export async function getStaticProps() {
 
 export default function Home({
   discord,
+  drugCount,
 }: {
   readonly discord: DiscordStats | null;
+  readonly drugCount: number;
 }) {
   const onlineNow = discord?.presenceCount ?? 0;
 
@@ -283,8 +291,7 @@ export default function Home({
       label: "Discord Members",
       data: count(discord?.memberCount ?? 0),
     },
-    { label: "Drugs in our Database", data: count(780) },
-    { label: "Subreddit Subscribers", data: count(57468) },
+    { label: "Drugs in our Database", data: count(drugCount) },
   ];
 
   return (
@@ -340,14 +347,12 @@ export default function Home({
             >
               I want to talk to a Trip Sitter
             </Link>
-            <a
-              href="https://combo.tripsit.me/"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/combo"
               className={`${solidButton} bg-cyan px-8 py-3.5 font-display text-base shadow-lg shadow-cyan/25`}
             >
               Check drug combinations
-            </a>
+            </Link>
           </div>
 
           <div className="mt-16 grid w-full grid-cols-1 gap-4 text-left sm:grid-cols-2 lg:grid-cols-4">
@@ -383,7 +388,7 @@ export default function Home({
       <main id="main" className="relative">
         {/* Stats */}
         <section id="counts" className="border-y border-line/60 bg-night px-5">
-          <div className="mx-auto grid max-w-6xl grid-cols-2 gap-x-4 gap-y-10 py-12 md:py-16 lg:grid-cols-4">
+          <div className="mx-auto grid max-w-6xl grid-cols-1 gap-x-4 gap-y-10 py-12 sm:grid-cols-3 md:py-16">
             {stats.map((stat) => (
               <div key={stat.label} className="count-box text-center">
                 <span className="font-display text-4xl font-semibold tracking-tight text-ink md:text-5xl [&_div]:inline">
@@ -520,10 +525,8 @@ export default function Home({
         {/* Combo chart */}
         <Section id="about-video" tint>
           <div className="grid items-center gap-10 lg:grid-cols-2">
-            <a
-              href="https://combo.tripsit.me/"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/combo"
               className="block overflow-hidden rounded-2xl border-[1px] border-solid border-line transition hover:border-violet/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan"
               data-aos="fade-right"
             >
@@ -532,7 +535,7 @@ export default function Home({
                 alt="The TripSit drug combination chart"
                 className="h-auto w-full"
               />
-            </a>
+            </Link>
             <div data-aos="fade-left">
               <h2 className="font-display text-2xl font-semibold tracking-tight text-ink md:text-3xl">
                 Our Combo Chart is a cornerstone of the HR scene.

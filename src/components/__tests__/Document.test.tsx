@@ -1,7 +1,6 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import type { ReactNode } from "react";
 import Document from "@/pages/_document";
-import RootLayout, { metadata } from "@/app/layout";
 import BlogSuggestion from "../BlogSuggestion";
 import Github from "../Github";
 import Patreon from "../Patreon";
@@ -28,21 +27,25 @@ jest.mock(
 test("renders the document shell, favicons and browser scripts", () => {
   const html = renderToStaticMarkup(Document.prototype.render());
   expect(html).toContain('<html lang="en">');
-  expect(html).toContain('rel="icon"');
+  expect(html).toContain('<link href="/assets/img/favicon.png" rel="icon"/>');
   expect(html).toContain("Page content");
   expect(html).toContain("/next-runtime.js");
-  expect(html).toContain("bootstrap.bundle.min.js");
+  expect(html).toContain(
+    'data-script-src="/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"',
+  );
 });
 
-test("renders the app layout with metadata and page content", () => {
-  const html = renderToStaticMarkup(
-    <RootLayout>
-      <main>Hello</main>
-    </RootLayout>,
+test("loads nothing from third-party hosts and no relative asset paths", () => {
+  const html = renderToStaticMarkup(Document.prototype.render());
+  const urls = [...html.matchAll(/(?:href|data-script-src)="([^"]*)"/g)].map(
+    ([, url]) => url,
   );
-  expect(html).toContain('lang="en"');
-  expect(html).toContain("<main>Hello</main>");
-  expect(metadata.title).toBe("TripSit");
+  expect(urls).not.toHaveLength(0);
+  // Relative paths 404 under /factsheets/<drug>; CDN scripts had no integrity hashes.
+  for (const url of urls) {
+    expect(url).toMatch(/^\/(?!\/)/);
+  }
+  expect(html).not.toContain("apple-touch-icon");
 });
 
 test("uses the blog root during server rendering", () => {

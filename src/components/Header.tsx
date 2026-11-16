@@ -222,6 +222,8 @@ function Header() {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Whether the open menu was opened by hovering rather than by a click.
+  const openedByHover = useRef(false);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -248,7 +250,20 @@ function Header() {
   // the menu snapping shut the moment it leaves the trigger box
   const openNow = (label: string) => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
+    if (openMenu !== label) openedByHover.current = true;
     setOpenMenu(label);
+  };
+  // Hovering opens a menu, and people then usually click the trigger too; a tablet tap can
+  // also send both at once. So a click keeps a menu that hover opened, and only a click on a
+  // menu that a click opened closes it.
+  const toggleMenu = (label: string) => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    if (openMenu === label && !openedByHover.current) {
+      setOpenMenu(null);
+    } else {
+      openedByHover.current = false;
+      setOpenMenu(label);
+    }
   };
   const closeSoon = () => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
@@ -296,9 +311,7 @@ function Header() {
                   type="button"
                   className={`${buttonReset} ${topLinkClass} inline-flex cursor-pointer items-center gap-1.5`}
                   aria-expanded={openMenu === menu.label}
-                  onClick={() =>
-                    setOpenMenu(openMenu === menu.label ? null : menu.label)
-                  }
+                  onClick={() => toggleMenu(menu.label)}
                 >
                   {menu.label}
                   <i

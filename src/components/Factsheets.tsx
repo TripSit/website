@@ -18,11 +18,17 @@ Pull requests are welcome! If you have any questions, feel free to ask in #dev o
 import React, { Fragment, useMemo } from "react";
 import {
   MaterialReactTable,
+  MRT_ShowHideColumnsButton,
+  MRT_ToggleDensePaddingButton,
+  MRT_ToggleFiltersButton,
+  MRT_ToggleFullScreenButton,
+  MRT_ToggleGlobalFilterButton,
   useMaterialReactTable,
   type MRT_Cell,
   type MRT_ColumnDef,
 } from "material-react-table";
 import {
+  Box,
   IconButton,
   Tooltip,
   Typography,
@@ -352,7 +358,14 @@ const Factsheets = () => {
       // },
     },
     muiTablePaperProps: { sx: { height: "100vh" } }, // Takes up 100% of the viewport available
-    muiTableContainerProps: { sx: { height: "78vh" } }, // This value seems to work the best
+    muiTableContainerProps: {
+      sx: {
+        height: "78vh", // This value seems to work the best
+        // Lets the detail panel size itself to the visible part of the table (100cqw)
+        // rather than to the full width of all the columns.
+        containerType: "inline-size",
+      },
+    },
     muiToolbarAlertBannerProps: isError
       ? {
           color: "error",
@@ -369,11 +382,38 @@ const Factsheets = () => {
         {InfoBar}
       </>
     ),
+    // The same buttons MRT shows by default, but allowed to wrap on phones: MRT's own row of
+    // them never wraps, which pushed the density and full-screen buttons off a phone's screen.
+    renderToolbarInternalActions: ({ table }) => (
+      <Box
+        sx={{
+          display: "flex",
+          flexWrap: { xs: "wrap", sm: "nowrap" },
+          justifyContent: "flex-end",
+        }}
+      >
+        <MRT_ToggleGlobalFilterButton table={table} />
+        <MRT_ToggleFiltersButton table={table} />
+        <MRT_ShowHideColumnsButton table={table} />
+        <MRT_ToggleDensePaddingButton table={table} />
+        <MRT_ToggleFullScreenButton table={table} />
+      </Box>
+    ),
     // MRT calls this for every row on the page on every render, expanded or not, and only
     // mounts the result once the row is expanded. Return an element rather than calling
     // DrugInfoCard directly, so the card (its charts, combos and dictionary tooltips) is only
     // built for expanded rows.
-    renderDetailPanel: ({ row }) => <DrugInfoCard drugData={row.original} />,
+    // The detail panel spans every column, so on a narrow screen most of the card was off to
+    // the right. Size it to the visible width of the table and keep it in view while the
+    // columns scroll sideways.
+    renderDetailPanel: ({ row }) => (
+      <Box
+        data-testid="factsheet-detail"
+        sx={{ position: "sticky", left: "1rem", width: "calc(100cqw - 2rem)" }}
+      >
+        <DrugInfoCard drugData={row.original} />
+      </Box>
+    ),
   });
 
   return <MaterialReactTable table={table} data-bs-theme="dark" />;

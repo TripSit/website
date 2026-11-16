@@ -6,6 +6,7 @@ import {
   RANK,
   RISK,
   SUBSTANCES,
+  substanceNicknames,
 } from "../comboData";
 
 describe("getCombo", () => {
@@ -90,5 +91,24 @@ describe("static data shape", () => {
     expect(RANK.unknown).toBeGreaterThan(RANK.decrease);
     expect(RANK.decrease).toBeGreaterThan(RANK.nosynergy);
     expect(RANK.nosynergy).toBeGreaterThan(RANK.synergy);
+  });
+});
+
+describe("substanceNicknames", () => {
+  it("lists each chart substance's other names from the drug database", () => {
+    expect(
+      substanceNicknames({
+        lsd: { aliases: ["LSD", "lsd-25", "acid", "Acid", "lucy"] },
+        dextromethorphan: { aliases: ["dxm", "robo"] },
+        cannabis: { aliases: [] },
+        mushrooms: {},
+        unrelated: { aliases: ["not in the chart"] },
+      }),
+    ).toEqual({
+      // The chart's own name and repeats differing only in case are left out.
+      LSD: ["lsd-25", "acid", "lucy"],
+      // "DXM" is stored under its full name, which counts as another name.
+      DXM: ["robo"],
+    });
   });
 });

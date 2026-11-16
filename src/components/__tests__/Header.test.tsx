@@ -29,6 +29,70 @@ test("opens the desktop menu and dismisses it on outside interaction or Escape",
   expect(nav.queryByRole("link", { name: "Factsheets" })).toBeNull();
 });
 
+test("keeps a menu open when it's clicked after hovering opened it", () => {
+  render(<Header />);
+  const nav = within(screen.getByRole("navigation", { name: "Main" }));
+  const resources = nav.getByRole("button", { name: "Resources" });
+
+  fireEvent.mouseEnter(resources);
+  expect(resources).toHaveAttribute("aria-expanded", "true");
+  fireEvent.click(resources);
+  expect(resources).toHaveAttribute("aria-expanded", "true");
+  // Once clicked, the next click closes it.
+  fireEvent.click(resources);
+  expect(resources).toHaveAttribute("aria-expanded", "false");
+
+  // Hovering back over a menu that a click opened doesn't change what a click does.
+  fireEvent.click(resources);
+  fireEvent.mouseEnter(resources);
+  fireEvent.click(resources);
+  expect(resources).toHaveAttribute("aria-expanded", "false");
+});
+
+test("a click while the pointer is leaving keeps the menu open", () => {
+  jest.useFakeTimers();
+  try {
+    render(<Header />);
+    const resources = within(
+      screen.getByRole("navigation", { name: "Main" }),
+    ).getByRole("button", { name: "Resources" });
+
+    fireEvent.mouseEnter(resources);
+    fireEvent.mouseLeave(resources);
+    fireEvent.click(resources);
+    act(() => jest.advanceTimersByTime(300));
+    expect(resources).toHaveAttribute("aria-expanded", "true");
+  } finally {
+    jest.useRealTimers();
+  }
+});
+
+test("opens the menu on a tablet tap that sends hover and click together", () => {
+  render(<Header />);
+  const nav = within(screen.getByRole("navigation", { name: "Main" }));
+  const resources = nav.getByRole("button", { name: "Resources" });
+
+  act(() => {
+    fireEvent.mouseEnter(resources);
+    fireEvent.click(resources);
+  });
+  expect(resources).toHaveAttribute("aria-expanded", "true");
+});
+
+test("moving from one hovered menu to another still lets a click keep it open", () => {
+  render(<Header />);
+  const nav = within(screen.getByRole("navigation", { name: "Main" }));
+  const [first, second] = nav
+    .getAllByRole("button")
+    .filter((button) => button.hasAttribute("aria-expanded"));
+
+  fireEvent.click(first);
+  fireEvent.mouseEnter(second);
+  expect(second).toHaveAttribute("aria-expanded", "true");
+  fireEvent.click(second);
+  expect(second).toHaveAttribute("aria-expanded", "true");
+});
+
 test("clears a pending hover timer when navigation is unmounted", () => {
   jest.useFakeTimers();
   try {

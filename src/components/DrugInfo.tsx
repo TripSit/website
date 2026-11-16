@@ -10,6 +10,7 @@ import {
 } from "tripsit_drug_db";
 import type { ApexAxisChartSeries } from "apexcharts";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import comboDefinitions from "../assets/comboDefinitions.json";
 import addDictionaryDefs from "./addDictionaryDefs";
 import { parseDoseRangeMg } from "../utils/parseDoseRangeMg";
@@ -294,7 +295,7 @@ const addDurations = (drugData: Drug) => {
                 options={option}
                 series={durationSeries}
                 height={200}
-                width={500}
+                width="100%"
               />
             </Grid>
 
@@ -544,7 +545,7 @@ const addDosages = (drugData: Drug) => {
                     options={option}
                     series={doseSeries}
                     height={200}
-                    width={500}
+                    width="100%"
                   />
                 </>
               )}
@@ -887,13 +888,7 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
                 wiki
               </a>
               . The nice combo chart can be found on{" "}
-              <a
-                href="https://combo.tripsit.me/"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                combo.tripsit.me
-              </a>
+              <Link href="/combo">tripsit.me/combo</Link>
               {"."}
             </Typography>
             {Object.keys(comboObject).map((status) => {
@@ -1000,7 +995,7 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
             </Typography>
             <Grid container spacing={1}>
               {Object.keys(drugData.pweffects).map((property) => (
-                <Grid size={{ xs: 3 }} key={property}>
+                <Grid size={{ xs: 6, sm: 4, md: 3 }} key={property}>
                   <Typography>
                     <a
                       href={`https://psychonautwiki.org/wiki/${property}`}

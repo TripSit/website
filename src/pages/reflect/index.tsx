@@ -12,8 +12,6 @@ import BackupOutlinedIcon from "@mui/icons-material/BackupOutlined";
 import PageShell from "../../components/PageShell";
 import { solidButton } from "../../components/buttonClasses";
 
-// Placeholder until the Google Play listing is live
-const PLAY_STORE_URL = "#";
 const DISCORD_URL = "https://discord.gg/3sT6w9aKV3";
 
 // Everything below is drawn from the app's own terms and privacy policy
@@ -63,7 +61,7 @@ const privacyPoints: Point[] = [
   {
     icon: <PlaceOutlinedIcon fontSize="inherit" />,
     title: "Location is optional",
-    text: "Read only when you ask, never in the background, and rounded to about 1 km unless you choose exact location. Android's place-name lookup, usually run by Google, receives the coordinates.",
+    text: "Read only while you're using the app, never in the background. Locations added automatically are rounded to about 1 km unless you choose exact location. Android's place-name lookup, usually run by Google Play services or your phone's maker, receives the coordinates or what you type into the search.",
   },
   {
     icon: <BackupOutlinedIcon fontSize="inherit" />,
@@ -215,7 +213,7 @@ export default function ReflectPage() {
   return (
     <PageShell
       title="Reflect - TripSit"
-      description="Reflect is TripSit's harm-reduction journal for Android: log what you took and how it went, and see an estimated effect timeline. Free, and everything stays on your phone."
+      description="Reflect is TripSit's harm-reduction journal for Android and iPhone: log what you took and how it went, and see an estimated effect timeline. Free, and everything stays on your phone."
     >
       {/* Hero */}
       <section className="relative overflow-hidden px-5 pb-16 pt-12 md:pb-24 md:pt-20">
@@ -226,8 +224,7 @@ export default function ReflectPage() {
         <div className="relative mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-2">
           <div data-aos="fade-up">
             <p className="mb-5 inline-flex items-center gap-2 rounded-full border-[1px] border-solid border-line bg-surface/70 px-3 py-1 text-xs uppercase tracking-widest text-mute">
-              <i className="bi bi-android2" aria-hidden />
-              {"TripSit for Android"}
+              {"A TripSit project"}
             </p>
             <h1 className="m-0 font-display text-5xl font-semibold tracking-tight text-ink md:text-6xl">
               Reflect
@@ -243,30 +240,17 @@ export default function ReflectPage() {
             </p>
             <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center">
               <a
-                href={PLAY_STORE_URL}
-                className={`${solidButton} inline-flex items-center justify-center gap-3 bg-ink px-6 py-3`}
+                href={DISCORD_URL}
+                className={`${solidButton} inline-flex items-center justify-center gap-2 bg-violet px-6 py-3`}
               >
-                <i
-                  className="bi bi-google-play text-2xl leading-none"
-                  aria-hidden
-                />
-                <span className="text-left leading-tight">
-                  <span className="block text-[11px] font-normal">
-                    Get it on
-                  </span>
-                  <span className="block font-display text-lg">
-                    Google Play
-                  </span>
-                </span>
-              </a>
-              <a href={DISCORD_URL} className={outlineButton}>
                 <i className="bi bi-discord" aria-hidden />
                 {"Join the Reflect Discord"}
               </a>
             </div>
             <p className="mb-0 mt-4 text-sm text-mute">
-              Free, with no ads, in-app purchases or subscriptions. For adults
-              18 and over.
+              Coming soon to Google Play and the App Store. Until then, join the
+              beta on the Reflect Discord. Free, with no ads, in-app purchases
+              or subscriptions. For adults 18 and over.
             </p>
           </div>
           <div data-aos="fade-up" data-aos-delay="150">
@@ -295,7 +279,7 @@ export default function ReflectPage() {
         <div className="mx-auto max-w-6xl" data-aos="fade-up">
           <SectionHeading
             title="Where your data goes"
-            lead="Reflect records sensitive things, so here is exactly what happens to them."
+            lead="Reflect records sensitive things, so here is exactly what happens to them on Android."
           />
           <div className="grid gap-5 md:grid-cols-3">
             {privacyPoints.map((point) => (

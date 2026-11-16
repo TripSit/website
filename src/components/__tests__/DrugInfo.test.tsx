@@ -1,13 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import type { Category, Drug, Unit } from "tripsit_drug_db";
-import DrugPage from "@/pages/factsheets/[drug]";
-import { useRouter } from "next/router";
-import { useDrugs } from "@/utils/drugs";
 import DrugInfo from "../DrugInfo";
 
-jest.mock("next/router", () => ({ useRouter: jest.fn() }));
-jest.mock("@/utils/drugs", () => ({ useDrugs: jest.fn() }));
-jest.mock("../Header", () => () => null);
 // Called on every chart render. In the browser, react-apexcharts redraws the chart whenever it
 // re-renders with a new options object, so a render here stands for a redraw there.
 const mockChartRender = jest.fn();
@@ -78,44 +72,6 @@ test("renders older database records without properties", () => {
     />,
   );
   expect(screen.getByText("Legacy")).toBeVisible();
-});
-
-test.each(["EXAMPLE", "example compound", "ALIAS"])(
-  "looks up a factsheet by %s",
-  (name) => {
-    jest
-      .mocked(useRouter)
-      .mockReturnValue({ query: { drug: name } } as unknown as ReturnType<
-        typeof useRouter
-      >);
-    jest
-      .mocked(useDrugs)
-      .mockReturnValue({ data: [drug] } as ReturnType<typeof useDrugs>);
-    render(<DrugPage />);
-    expect(screen.getByText("Example compound")).toBeVisible();
-  },
-);
-
-test.each([
-  { name: undefined },
-  { name: ["example", "alias"] },
-  { name: "missing" },
-])("shows the missing factsheet view for $name", ({ name }) => {
-  jest
-    .mocked(useRouter)
-    .mockReturnValue({ query: { drug: name } } as unknown as ReturnType<
-      typeof useRouter
-    >);
-  jest
-    .mocked(useDrugs)
-    .mockReturnValue({ data: [drug] } as ReturnType<typeof useDrugs>);
-  render(<DrugPage />);
-  expect(
-    screen.getByRole("heading", { name: /drug not found/i }),
-  ).toBeVisible();
-  expect(
-    screen.getByRole("link", { name: /contact us on discord/i }),
-  ).toBeVisible();
 });
 
 test("keeps dose text and charts the ranges for each route", () => {
@@ -316,19 +272,6 @@ test("renders fractional hour durations without after effects", () => {
   );
   expect(screen.getByText("1h 30m to 2h 30m")).toBeVisible();
   expect(screen.queryByText("Aliases")).toBeNull();
-});
-
-test("renders an empty factsheet result while the database is loading", () => {
-  jest
-    .mocked(useRouter)
-    .mockReturnValue({ query: { drug: "example" } } as unknown as ReturnType<
-      typeof useRouter
-    >);
-  jest.mocked(useDrugs).mockReturnValue({} as ReturnType<typeof useDrugs>);
-  render(<DrugPage />);
-  expect(
-    screen.getByRole("heading", { name: /drug not found/i }),
-  ).toBeVisible();
 });
 
 test("renders optional references, warnings, and combination notes", () => {

@@ -22,7 +22,7 @@ export default function CalculatorPage({
       description={description}
       path={path}
     >
-      <article className="px-5 py-16 md:py-24">
+      <article className="px-6 py-16 md:py-24">
         <div className="mx-auto max-w-5xl">
           <p className="mb-0 text-xs font-semibold uppercase tracking-widest text-violet">
             Calculators
@@ -30,7 +30,7 @@ export default function CalculatorPage({
           <h1 className="mb-0 mt-2 font-display text-4xl font-semibold tracking-tight text-ink md:text-5xl">
             {title}
           </h1>
-          <div className="mt-6 max-w-3xl space-y-4 text-base leading-relaxed text-mute md:text-lg [&_a]:text-cyan [&_a]:underline [&_a]:underline-offset-2 [&_p]:mb-0">
+          <div className="mt-6 max-w-3xl text-base leading-relaxed text-mute md:text-lg [&_a]:text-cyan [&_a]:underline [&_a]:underline-offset-2 [&_p]:mb-0 [&_p+p]:mt-4">
             {intro}
           </div>
           <div className="mt-12">{children}</div>
@@ -45,6 +45,12 @@ export default function CalculatorPage({
     </PageShell>
   );
 }
+
+// Global Bootstrap and the legacy style.css also style these pages. Bootstrap's
+// spacing utilities share Tailwind's names but are !important, and its *-5 is
+// 3rem (Tailwind: 1.25rem); *-3 and *-4 are slightly bigger too. style.css pads
+// every <section> by 80px unless a padding class overrides it. So use steps
+// Bootstrap lacks (6+) where size matters, and <div> for inner blocks.
 
 // Text inputs and read-only results share one look across the calculators.
 export const fieldClass =

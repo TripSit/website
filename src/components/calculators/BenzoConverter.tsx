@@ -74,12 +74,12 @@ function InfoSection({
   children,
 }: Readonly<{ title: string; children: ReactNode }>) {
   return (
-    <section className="mt-5">
+    <div className="mt-6">
       <h3 className="mb-1 mt-0 font-display text-base font-semibold text-ink">
         {title}
       </h3>
       <div className="text-sm leading-relaxed text-mute">{children}</div>
-    </section>
+    </div>
   );
 }
 
@@ -158,7 +158,7 @@ export default function BenzoConverter({
 
   return (
     <>
-      <div className={`${cardClass} space-y-4 text-lg text-ink`}>
+      <div className={`${cardClass} flex flex-col gap-4 text-lg text-ink`}>
         <p className="m-0 flex flex-wrap items-center gap-x-2 gap-y-3">
           <span>I have</span>
           <input
@@ -196,7 +196,7 @@ export default function BenzoConverter({
         </p>
       </div>
 
-      <div className="mt-6 rounded-2xl border-[1px] border-solid border-amber/50 bg-amber/10 p-5 text-sm leading-relaxed text-ink">
+      <div className="mt-6 rounded-2xl border-[1px] border-solid border-amber/50 bg-amber/10 p-6 text-sm leading-relaxed text-ink">
         <strong>Important:</strong> equivalent doses may be inaccurate for
         larger amounts, or for benzos with different effect profiles. Compare
         the dose ranges below, and start lower than the converter shows:

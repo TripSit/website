@@ -38,8 +38,8 @@ const menus: { label: string; groups: NavGroup[] }[] = [
         label: "Calculators",
         links: [
           { label: "DXM Dosage", href: `https://dxm.${domain}` },
-          { label: "Volumetric", href: `https://volume.${domain}` },
-          { label: "Benzo Conversion", href: `https://benzos.${domain}` },
+          { label: "Volumetric", href: "/volume" },
+          { label: "Benzo Conversion", href: "/benzos" },
         ],
       },
       {

@@ -163,7 +163,7 @@ const resources = [
     text: "Immerse yourself in our extensive Substance Wiki, brimming with detailed insights on drugs and herbal remedies. We invite you to register and contribute informed edits. Eager to collaborate? Connect with our team in the Discord #content room!",
   },
   {
-    href: "https://benzos.tripsit.me/",
+    href: "/benzos",
     icon: <TransformOutlinedIcon fontSize="inherit" />,
     title: "Benzo Converter",
     text: "Utilize our Benzo Converter for approximate conversions between different types of benzodiazepines.",
@@ -175,7 +175,7 @@ const resources = [
     text: "Determine the optimal safe DXM dosage tailored to your body weight with our intuitive calculator.",
   },
   {
-    href: "https://volume.tripsit.me/",
+    href: "/volume",
     icon: <ScienceOutlinedIcon fontSize="inherit" />,
     title: "Volumetric Converter",
     text: "For powders with microgram-level potency, ensuring safe dosage can be challenging. Our Volumetric Converter aids in creating a uniform solution, ensuring precise and safer dosing of these potent substances.",
@@ -806,7 +806,7 @@ export default function Home({
                   </a>
                 </li>
                 <li>
-                  <a href="https://github.com/TripSit/Benzo-Calculator">
+                  <a href="https://github.com/TripSit/website/tree/main/src/components/calculators">
                     Benzo Converter
                   </a>
                 </li>
@@ -822,7 +822,9 @@ export default function Home({
                   <a href="https://github.com/TripSit/drugs/">Factsheets</a>
                 </li>
                 <li>
-                  <a href="https://volume.tripsit.me/">Volumetric Converter</a>
+                  <a href="https://github.com/TripSit/website/tree/main/src/components/calculators">
+                    Volumetric Converter
+                  </a>
                 </li>
                 <li>
                   <a href="https://github.com/TripSit/webchat/">Webchat</a>

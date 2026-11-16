@@ -294,7 +294,7 @@ const addDurations = (drugData: Drug) => {
                 options={option}
                 series={durationSeries}
                 height={200}
-                width={500}
+                width="100%"
               />
             </Grid>
 
@@ -544,7 +544,7 @@ const addDosages = (drugData: Drug) => {
                     options={option}
                     series={doseSeries}
                     height={200}
-                    width={500}
+                    width="100%"
                   />
                 </>
               )}
@@ -1000,7 +1000,7 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
             </Typography>
             <Grid container spacing={1}>
               {Object.keys(drugData.pweffects).map((property) => (
-                <Grid size={{ xs: 3 }} key={property}>
+                <Grid size={{ xs: 6, sm: 4, md: 3 }} key={property}>
                   <Typography>
                     <a
                       href={`https://psychonautwiki.org/wiki/${property}`}

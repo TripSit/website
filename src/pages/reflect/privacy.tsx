@@ -1,4 +1,4 @@
-import LegalPage from "../../components/reflect/LegalPage";
+import LegalPage from "../../components/LegalPage";
 
 export default function ReflectPrivacyPage() {
   return (
@@ -6,6 +6,7 @@ export default function ReflectPrivacyPage() {
       title="Privacy Policy"
       updated="15 November 2026"
       path="/reflect/privacy"
+      section={{ label: "Reflect", href: "/reflect" }}
       description="What Reflect - Experience Journal, TripSit's harm-reduction journal for Android, stores, where it goes, and how to remove it."
     >
       <p>

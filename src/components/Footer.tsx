@@ -8,10 +8,8 @@ const columns = [
     links: [
       { label: "Home", href: "/" },
       { label: "About us", href: "/#about" },
-      {
-        label: "Terms of service",
-        href: "https://wiki.tripsit.me/wiki/Terms_of_Service",
-      },
+      { label: "Rules", href: "/rules" },
+      { label: "Terms of service", href: "/terms" },
       {
         label: "Privacy policy",
         href: "https://wiki.tripsit.me/wiki/Privacy_Policy",

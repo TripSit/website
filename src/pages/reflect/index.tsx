@@ -213,6 +213,7 @@ export default function ReflectPage() {
   return (
     <PageShell
       title="Reflect - TripSit"
+      path="/reflect"
       description="Reflect is TripSit's harm-reduction journal for Android and iPhone: log what you took and how it went, and see an estimated effect timeline. Free, and everything stays on your phone."
     >
       {/* Hero */}

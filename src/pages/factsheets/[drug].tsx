@@ -63,7 +63,15 @@ export default function DrugInfo({ drugData }: Readonly<Props>) {
   return (
     <>
       <Header />
-      <Head />
+      <Head
+        title={`${drugData.pretty_name} - TripSit Factsheets`}
+        description={
+          drugData.properties?.summary ??
+          `Dose ranges, durations, effects and interactions for ${drugData.pretty_name}, from TripSit's drug database.`
+        }
+        // The sitemap lists drugs under their database name, so the canonical link does too
+        path={`/factsheets/${encodeURIComponent(drugData.name)}`}
+      />
       <section id="drugInfo">
         <DrugInfoCard drugData={drugData} />
       </section>

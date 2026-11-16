@@ -8,7 +8,6 @@ const config = [
   {
     ignores: [
       "public/**",
-      "static/**",
       "build/**",
       ".next/**",
       "next-env.d.ts",

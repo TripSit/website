@@ -1,8 +1,6 @@
 import type { GetServerSideProps } from "next";
 import { fetchDrugs } from "../utils/drugs";
-import { envOrDefault } from "../utils/envOrDefault";
-
-const origin = `https://${envOrDefault(process.env.NEXT_PUBLIC_DNS_DOMAIN, "tripsit.me")}`;
+import { siteOrigin } from "../utils/siteOrigin";
 
 // Pages for search engines. /appeal is left out because it only works after a login.
 const PAGES = [
@@ -43,7 +41,7 @@ async function sitemapPaths(): Promise<string[]> {
 // Served at /sitemap.xml. Paths are URL-encoded, so they need no XML escaping.
 export const getServerSideProps: GetServerSideProps = async ({ res }) => {
   const urls = (await sitemapPaths())
-    .map((path) => `  <url><loc>${origin}${path}</loc></url>`)
+    .map((path) => `  <url><loc>${siteOrigin}${path}</loc></url>`)
     .join("\n");
   res.setHeader("Content-Type", "application/xml; charset=utf-8");
   res.setHeader("Cache-Control", "public, max-age=3600");

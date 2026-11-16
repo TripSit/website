@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import Head from "next/head";
+import Head from "../components/Head";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import AppealForm from "../components/AppealForm";
@@ -37,6 +37,14 @@ function statusForBannedUser(
   // Still pending (RECEIVED), or denied and still inside the waiting period
   return "has_appeal";
 }
+
+const AppealHead = () => (
+  <Head
+    title="Ban Appeal - TripSit"
+    description="Banned from TripSit? Log in with Discord to check your ban status and send an appeal to our team."
+    path="/appeal"
+  />
+);
 
 const AppealPage: React.FC = () => {
   const [token, setToken] = useState<string | null>(null);
@@ -439,9 +447,7 @@ const AppealPage: React.FC = () => {
   if (loading) {
     return (
       <>
-        <Head>
-          <title>Ban Appeal - TripSit</title>
-        </Head>
+        <AppealHead />
         <Header />
         <main>
           <section
@@ -472,9 +478,7 @@ const AppealPage: React.FC = () => {
 
   return (
     <>
-      <Head>
-        <title>Ban Appeal - TripSit</title>
-      </Head>
+      <AppealHead />
       <Header />
       <main>
         {!token && (

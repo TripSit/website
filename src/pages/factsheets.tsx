@@ -7,7 +7,11 @@ export default function Home() {
   return (
     <>
       <Header />
-      <Head />
+      <Head
+        title="Drug Factsheets - TripSit"
+        description="Dose ranges, durations, effects, interactions and reagent test results for hundreds of substances, from TripSit's open drug database."
+        path="/factsheets"
+      />
       <section id="factsheets">
         <Factsheets />
       </section>

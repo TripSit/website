@@ -66,3 +66,29 @@ test("links to trip sitting and shows online counts when available", () => {
   rerender(<Home discord={null} />);
   expect(screen.queryByText(/people are here right now/i)).toBeNull();
 });
+
+test("sends every combo link to /combo, not the old combo.tripsit.me page", () => {
+  const { container } = render(<Home discord={discord} />);
+  const hrefs = [...container.querySelectorAll("a")].map((a) =>
+    a.getAttribute("href"),
+  );
+  expect(hrefs.filter((href) => href?.includes("combo.tripsit.me"))).toEqual(
+    [],
+  );
+  for (const name of [
+    /compare drug combos/i,
+    /check drug combinations/i,
+    /drug combination chart/i,
+  ]) {
+    expect(screen.getByRole("link", { name })).toHaveAttribute(
+      "href",
+      "/combo",
+    );
+  }
+  // The footer's "Combo App" link and the Resources card both point there too.
+  expect(
+    screen
+      .getAllByRole("link", { name: /combo app/i })
+      .map((link) => link.getAttribute("href")),
+  ).toEqual(["/combo", "/combo"]);
+});

@@ -22,7 +22,7 @@ const columns = [
   {
     title: "Our Services",
     links: [
-      { label: "Combo App", href: "https://combo.tripsit.me/" },
+      { label: "Combo App", href: "/combo" },
       { label: "Factsheets", href: "https://drugs.tripsit.me/" },
       { label: "Live Chat", href: "https://chat.tripsit.me" },
       { label: "Reflect App", href: "/reflect" },

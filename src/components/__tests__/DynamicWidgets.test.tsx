@@ -18,6 +18,7 @@ test.each([
   "@/components/Particles",
   "@/components/DrugInfo",
   "@/components/Webchat",
+  "@/components/calculators/LevelCalculator",
 ])("loads the browser-only dependency in %s", async (moduleName) => {
   jest.mocked(dynamic).mockClear();
   jest.isolateModules(() => {

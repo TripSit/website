@@ -66,6 +66,28 @@ test("keeps the session when checking ban status fails", async () => {
   expect(sessionStorage.getItem("kc_token")).toBe(access);
 });
 
+test("explains a failed ban check and lets the user retry or log in again", async () => {
+  sessionStorage.setItem("kc_token", validToken());
+  fetchMock.mockResolvedValueOnce(reply({}, false));
+  render(<AppealPage />);
+  expect(await screen.findByRole("alert")).toHaveTextContent(
+    "We couldn't check your ban status.",
+  );
+  expect(screen.getByRole("link", { name: "Log in again" })).toHaveAttribute(
+    "href",
+    "https://auth.example.test/login",
+  );
+
+  fetchMock
+    .mockResolvedValueOnce(reply({ banned: false }))
+    .mockResolvedValueOnce(reply({}));
+  fireEvent.click(screen.getByRole("button", { name: "Try again" }));
+  expect(
+    await screen.findByRole("heading", { name: "Not Banned" }),
+  ).toBeVisible();
+  expect(screen.queryByText(/couldn't check your ban status/)).toBeNull();
+});
+
 test.each(["DENIED", "RECEIVED"])(
   "applies the shorter development waiting period to %s",
   async (status) => {
@@ -297,6 +319,9 @@ test("handles credentials removed between initialization and the ban check", asy
   render(<AppealPage />);
   await waitFor(() => expect(tokenReads).toBeGreaterThan(1));
   expect(fetchMock).not.toHaveBeenCalled();
+  expect(
+    await screen.findByRole("link", { name: "Log in again" }),
+  ).toBeVisible();
 });
 
 test.each(["missing token", "network error"])(
@@ -310,10 +335,23 @@ test.each(["missing token", "network error"])(
     expect(
       await screen.findByRole("link", { name: "Login with Discord" }),
     ).toBeVisible();
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "We couldn't log you in. Please try logging in again.",
+    );
+    // The code works only once, so it isn't left in the URL.
+    expect(window.location.search).toBe("");
     expect(sessionStorage.getItem("kc_token")).toBeNull();
     expect(fetchMock).toHaveBeenCalledTimes(1);
   },
 );
+
+test("doesn't show a login error to a visitor who hasn't tried to log in", async () => {
+  render(<AppealPage />);
+  expect(
+    await screen.findByRole("link", { name: "Login with Discord" }),
+  ).toBeVisible();
+  expect(screen.queryByRole("alert")).toBeNull();
+});
 
 test("refreshes the session in the background, then returns to login if refresh fails", async () => {
   jest.useFakeTimers();
@@ -557,6 +595,42 @@ test("disables reminders for a newly submitted appeal", async () => {
     await screen.findByRole("button", { name: "Come back in 48 hours" }),
   ).toBeDisabled();
   expect(screen.getByText(/you can send a reminder 48 hours/i)).toBeVisible();
+});
+
+test.each([
+  [
+    "a success worded without 'submitted'",
+    true,
+    "Thanks, we have it.",
+    "alert-success",
+  ],
+  [
+    "an error that mentions 'success'",
+    false,
+    "Not successful: try again.",
+    "alert-danger",
+  ],
+])("colours %s by its outcome", async (_, ok, text, alertClass) => {
+  sessionStorage.setItem("kc_token", validToken());
+  fetchMock
+    .mockResolvedValueOnce(reply({ banned: true }))
+    .mockResolvedValueOnce(reply({}, false))
+    .mockResolvedValueOnce(reply(ok ? { message: text } : { error: text }, ok))
+    .mockResolvedValue(reply({ banned: true }));
+  render(<AppealPage />);
+  const submit = await screen.findByRole("button", { name: "Submit Appeal" });
+  for (const label of [
+    /why you were banned/i,
+    /make amends/i,
+    /avoid repeating/i,
+  ]) {
+    fireEvent.change(screen.getByRole("textbox", { name: label }), {
+      target: { value: "Answer" },
+    });
+  }
+  fireEvent.click(submit);
+  const alert = (await screen.findByText(text)).closest(".alert");
+  expect(alert).toHaveClass(alertClass);
 });
 
 test("submits an appeal and refreshes its status", async () => {

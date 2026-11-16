@@ -1,5 +1,5 @@
 import Link from "next/link";
-import LegalPage from "../../components/reflect/LegalPage";
+import LegalPage from "../../components/LegalPage";
 
 export default function ReflectTermsPage() {
   return (
@@ -7,6 +7,7 @@ export default function ReflectTermsPage() {
       title="Terms of Service"
       updated="15 November 2026"
       path="/reflect/terms"
+      section={{ label: "Reflect", href: "/reflect" }}
       description="The terms that apply when you use Reflect - Experience Journal, TripSit's harm-reduction journal for Android."
     >
       <p>

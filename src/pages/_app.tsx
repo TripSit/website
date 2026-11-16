@@ -2,12 +2,10 @@ import { AppProps } from "next/app";
 import React, { useEffect, useState } from "react";
 import AOS from "aos";
 // Vendor CSS Files
-import "../../public/assets/vendor/aos/aos.css";
+import "aos/dist/aos.css";
 import "../../public/assets/vendor/bootstrap/css/bootstrap.min.css";
 import "../../public/assets/vendor/bootstrap-icons/bootstrap-icons.css";
 import "../../public/assets/vendor/boxicons/css/boxicons.min.css";
-import "../../public/assets/vendor/glightbox/css/glightbox.min.css";
-import "../../public/assets/vendor/swiper/swiper-bundle.min.css";
 import "../../public/assets/vendor/remixicon/remixicon.css";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";

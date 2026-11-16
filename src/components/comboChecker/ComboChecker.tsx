@@ -2,6 +2,7 @@ import { useState, type CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import logo from "../../../public/assets/img/logo.png";
+import { poppinsVariable } from "../fonts";
 import { envOrDefault } from "../../utils/envOrDefault";
 import { SUBSTANCES } from "./comboData";
 import Legend from "./Legend";
@@ -34,7 +35,7 @@ function ComboChecker({
 
   return (
     <div
-      className={styles.root}
+      className={`${styles.root} ${poppinsVariable}`}
       style={{ "--cc-accent": accent } as CSSProperties}
     >
       <nav className={styles.nav}>

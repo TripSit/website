@@ -10,7 +10,7 @@ export default function ComboPage() {
           name="description"
           content="Check how two or more substances interact before you mix. A quick-reference harm-reduction guide from TripSit."
         />
-        {/* Poppins is loaded globally in _document.tsx; Futura/Letter Gothic are self-hosted via the CSS module. */}
+        {/* ComboChecker loads Poppins with next/font; Futura/Letter Gothic are self-hosted via the CSS module. */}
       </Head>
       <ComboChecker />
     </>

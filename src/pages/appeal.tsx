@@ -43,7 +43,14 @@ const AppealPage: React.FC = () => {
   const [banStatus, setBanStatus] = useState<BanStatus>("unknown");
   const [latestAppeal, setLatestAppeal] = useState<Appeal | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
+  const [message, setMessage] = useState<{
+    text: string;
+    kind: "success" | "error";
+  } | null>(null);
+  // Set when logging in or checking the ban fails, so the page can say so instead of
+  // falling back to the login screen or an empty page.
+  const [loginFailed, setLoginFailed] = useState(false);
+  const [banCheckFailed, setBanCheckFailed] = useState(false);
   const [reminding, setReminding] = useState(false);
   const [remindMessage, setRemindMessage] = useState<string | null>(null);
 
@@ -141,7 +148,7 @@ const AppealPage: React.FC = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code }),
       });
-      const data = await res.json();
+      const data = res.ok ? await res.json() : {};
       if (data.access_token) {
         // Store both tokens
         sessionStorage.setItem("kc_token", data.access_token);
@@ -156,14 +163,15 @@ const AppealPage: React.FC = () => {
 
         // Dispatch event for ProfileButton
         window.dispatchEvent(new Event("tokensUpdated"));
-
-        // Clean up the URL by removing the query parameters
-        document.title = "Ban Appeal - TripSit";
-        window.history.replaceState({}, "", window.location.pathname);
+      } else {
+        setLoginFailed(true);
       }
     } catch {
-      // Token exchange failed - loading will still be set to false
+      setLoginFailed(true);
     } finally {
+      // A code works only once, so remove it from the URL whether or not the login worked.
+      document.title = "Ban Appeal - TripSit";
+      window.history.replaceState({}, "", window.location.pathname);
       setLoading(false);
     }
   }
@@ -209,6 +217,7 @@ const AppealPage: React.FC = () => {
     }
 
     isCheckingBanRef.current = true;
+    setBanCheckFailed(false);
 
     try {
       // Reset appeal state at start to prevent stale data
@@ -218,6 +227,7 @@ const AppealPage: React.FC = () => {
       const savedToken = sessionStorage.getItem("kc_token");
       if (!savedToken) {
         setBanStatus("unknown");
+        setBanCheckFailed(true);
         setLoading(false);
         return;
       }
@@ -261,6 +271,7 @@ const AppealPage: React.FC = () => {
       setBanStatus(statusForBannedUser(appeal, canReappeal));
     } catch {
       setBanStatus("unknown");
+      setBanCheckFailed(true);
     } finally {
       setLoading(false);
       isCheckingBanRef.current = false;
@@ -285,7 +296,10 @@ const AppealPage: React.FC = () => {
 
       if (res.ok) {
         const successData = await res.json();
-        setMessage(successData.message ?? "Your appeal has been submitted.");
+        setMessage({
+          text: successData.message ?? "Your appeal has been submitted.",
+          kind: "success",
+        });
         setBanStatus("has_appeal");
         // Refresh to get the new appeal
         checkBan();
@@ -305,15 +319,16 @@ const AppealPage: React.FC = () => {
             "An error occurred while submitting your appeal. Please try again later.";
         }
 
-        setMessage(userMessage);
+        setMessage({ text: userMessage, kind: "error" });
       }
     } catch (e) {
       if (e instanceof Error && e.message === "No valid token available") {
-        setMessage(
-          "Session expired. Please refresh the page and log in again.",
-        );
+        setMessage({
+          text: "Session expired. Please refresh the page and log in again.",
+          kind: "error",
+        });
       } else {
-        setMessage("Error submitting appeal.");
+        setMessage({ text: "Error submitting appeal.", kind: "error" });
       }
     } finally {
       setSubmitting(false);
@@ -504,6 +519,16 @@ const AppealPage: React.FC = () => {
                   </div>
                 </div>
               </div>
+              {loginFailed && (
+                <div className="row justify-content-center mt-4">
+                  <div className="col-xl-7 col-lg-9">
+                    <div className="alert alert-danger mb-0" role="alert">
+                      <i className="bi bi-exclamation-triangle-fill me-2"></i>
+                      We couldn&apos;t log you in. Please try logging in again.
+                    </div>
+                  </div>
+                </div>
+              )}
               <div className="text-center mt-4">
                 <a
                   href={getLoginUrl()}
@@ -520,6 +545,36 @@ const AppealPage: React.FC = () => {
                 >
                   Login with Discord
                 </a>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {token && banCheckFailed && (
+          <section className="py-5" style={{ marginTop: "80px" }}>
+            <div className="container">
+              <div className="row justify-content-center">
+                <div className="col-lg-8 text-center">
+                  <h1>Ban Appeal</h1>
+                  <div className="alert alert-danger mt-4" role="alert">
+                    <i className="bi bi-exclamation-triangle-fill me-2"></i>
+                    We couldn&apos;t check your ban status. This is usually
+                    temporary, so please try again. If it keeps failing, log in
+                    again.
+                  </div>
+                  <div className="d-flex justify-content-center gap-3">
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      onClick={() => void checkBan()}
+                    >
+                      Try again
+                    </button>
+                    <a href={getLoginUrl()} className="btn btn-outline-light">
+                      Log in again
+                    </a>
+                  </div>
+                </div>
               </div>
             </div>
           </section>
@@ -982,16 +1037,13 @@ const AppealPage: React.FC = () => {
             <div className="row justify-content-center">
               <div className="col-lg-8">
                 <div
-                  className={`alert ${message.includes("submitted") || message.includes("success") ? "alert-success" : "alert-danger"} alert-dismissible fade show`}
+                  className={`alert ${message.kind === "success" ? "alert-success" : "alert-danger"} alert-dismissible fade show`}
                   role="alert"
                 >
-                  {message.includes("submitted") && (
-                    <i className="bi bi-check-circle-fill me-2"></i>
-                  )}
-                  {message.includes("Failed") && (
-                    <i className="bi bi-exclamation-triangle-fill me-2"></i>
-                  )}
-                  {message}
+                  <i
+                    className={`bi ${message.kind === "success" ? "bi-check-circle-fill" : "bi-exclamation-triangle-fill"} me-2`}
+                  ></i>
+                  {message.text}
                   <button
                     type="button"
                     className="btn-close"

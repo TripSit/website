@@ -129,6 +129,28 @@ test("keeps a still-valid token without repeating the ban check on each interval
   expect(fetchMock).toHaveBeenCalledTimes(2);
 });
 
+test("keeps users logged in when their token's payload uses base64url characters", async () => {
+  // Keycloak encodes {"exp":4102444800,"name":"Ana 🌸"} as base64url with a "-", which
+  // atob rejects. The user's own name decides whether that happens.
+  const access =
+    "header.eyJleHAiOjQxMDI0NDQ4MDAsIm5hbWUiOiJBbmEg8J-MuCJ9.signature";
+  sessionStorage.setItem("kc_token", access);
+  fetchMock
+    .mockResolvedValueOnce(reply({ banned: false }))
+    .mockResolvedValueOnce(reply({}));
+  render(<AppealPage />);
+  expect(
+    await screen.findByRole("heading", { name: "Not Banned" }),
+  ).toBeVisible();
+  expect(sessionStorage.getItem("kc_token")).toBe(access);
+  expect(fetchMock).toHaveBeenCalledWith(
+    expect.any(String),
+    expect.objectContaining({
+      headers: expect.objectContaining({ Authorization: `Bearer ${access}` }),
+    }),
+  );
+});
+
 test("avoids overlapping ban checks when the token refreshes during a slow request", async () => {
   jest.useFakeTimers();
   sessionStorage.setItem("kc_token", token(Date.now() / 1000 + 75));

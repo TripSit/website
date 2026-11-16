@@ -4,6 +4,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import AppealForm from "../components/AppealForm";
 import { getLoginUrl } from "../utils/keycloak";
+import { decodeJwtPayload } from "../utils/jwt";
 
 interface Appeal {
   status: string;
@@ -64,8 +65,7 @@ const AppealPage: React.FC = () => {
     if (!savedToken) return null;
 
     try {
-      const tokenData = JSON.parse(atob(savedToken.split(".")[1]));
-      const expiresAt = tokenData.exp * 1000;
+      const expiresAt = Number(decodeJwtPayload(savedToken).exp) * 1000;
       const now = Date.now();
 
       // If token expires within 60 seconds, refresh it

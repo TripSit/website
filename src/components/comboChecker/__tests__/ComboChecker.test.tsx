@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import ComboPage from "@/pages/combo";
+import ComboPage, { getStaticProps } from "@/pages/combo";
+import ComboChecker from "../ComboChecker";
 import ComboResults from "../ComboResults";
 import { getCombo, RANK } from "../comboData";
 
@@ -67,4 +68,30 @@ test("renders every pair in selection order or severity order", () => {
       .map(({ title }) => title),
   );
   expect(screen.getByText(note)).toBeVisible();
+});
+
+test("lists the selected substances' other names from the drug database", async () => {
+  const { props } = await getStaticProps();
+  expect(props.nicknames.LSD).toEqual(expect.arrayContaining(["acid"]));
+  // Classes have no database entry, so no nicknames.
+  expect(props.nicknames.Benzodiazepines).toBeUndefined();
+
+  render(<ComboPage nicknames={props.nicknames} />);
+  const button = (name: string) => screen.getByRole("button", { name });
+  expect(screen.queryByRole("region", { name: "Also known as" })).toBeNull();
+
+  fireEvent.click(button("Benzodiazepines"));
+  expect(screen.queryByRole("region", { name: "Also known as" })).toBeNull();
+
+  fireEvent.click(button("LSD"));
+  const footnote = screen.getByRole("region", { name: "Also known as" });
+  expect(footnote).toHaveTextContent("LSD");
+  expect(footnote).toHaveTextContent("acid");
+  expect(footnote).not.toHaveTextContent("Benzodiazepines");
+});
+
+test("shows no nickname footnote when none are supplied", () => {
+  render(<ComboChecker />);
+  fireEvent.click(screen.getByRole("button", { name: "LSD" }));
+  expect(screen.queryByRole("region", { name: "Also known as" })).toBeNull();
 });

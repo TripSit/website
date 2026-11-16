@@ -157,6 +157,27 @@ function comboKey(substance: string): string {
   return key === "dxm" ? "dextromethorphan" : key;
 }
 
+// Other names for each substance in the chart, from its entry in the drug database
+// (drugs.json). Classes such as "Benzodiazepines" have no entry, so they get none.
+export function substanceNicknames(
+  drugs: Record<string, { aliases?: string[] }>,
+): Record<string, string[]> {
+  const nicknames: Record<string, string[]> = {};
+  for (const substance of SUBSTANCES) {
+    const key = comboKey(substance);
+    // Leave out the names the chart already shows, and repeats that differ only in case.
+    const seen = new Set([substance.toLowerCase(), key]);
+    const names = (drugs[key]?.aliases ?? []).filter((alias) => {
+      const lower = alias.toLowerCase();
+      if (seen.has(lower)) return false;
+      seen.add(lower);
+      return true;
+    });
+    if (names.length > 0) nicknames[substance] = names;
+  }
+  return nicknames;
+}
+
 export function getCombo(
   a: string,
   b: string,

@@ -1,0 +1,45 @@
+{
+  "title": "Guide des Combinaisons de Drogues",
+  "app": "www.TripSit.Me",
+  "support": "Soutenez nous",
+  "drugs": {
+    "lsd": "LSD",
+    "mushrooms": "Champignons",
+    "dmt": "DMT",
+    "mescaline": "Mescaline",
+    "dox": "DOx",
+    "nbomes": "NBOMes",
+    "2c-x": "2C-x",
+    "2c-t-x": "2C-T-x",
+    "5-meo-xxt": "5-MeO-xxT",
+    "cannabis": "Cannabis",
+    "ketamine": "Kétamine",
+    "mxe": "MXE",
+    "dxm": "DXM",
+    "nitrous": "Gaz hilarant",
+    "amphetamines": "Amphétamines",
+    "mdma": "MDMA",
+    "cocaine": "Cocaïne",
+    "caffeine": "Cafféine",
+    "alcohol": "Alcool",
+    "ghb/gbl": "GHB/GBL",
+    "opioids": "Opiacés",
+    "tramadol": "Tramadol",
+    "benzodiazepines": "Benzodiazépines",
+    "maois": "IMAOs",
+    "ssris": "ISRSs"
+  },
+  "interactions": {
+    "low risk & synergy": "Peu Risqué & Synergie",
+    "low risk & no synergy": "Peu Risqué & Sans Synergie",
+    "low risk & decrease": "Peu Risqué & Atténuation",
+    "caution": "Attention",
+    "unsafe": "Risqué",
+    "dangerous": "Danger",
+    "fallback": "Fallback"
+  },
+  "disclaimer": [
+    "Pour plus d'informations et une aide en direct, visitez www.TripSit.me",
+    "Ce tableau a été compilé par TripSit en utilisant les meilleures informations disponibles, mais l'exactitude n'est pas garantie. Les indications ici ne sont valables que si vous avez les substances que vous pensez avoir. Utilisez d'abord un kit de test. Si vous prenez des médicaments (ISRS, IMAO), passez en revue tous les avertissements maintenant pour éviter des problèmes plus tard. Soyez en sécurité là-bas."
+  ]
+}

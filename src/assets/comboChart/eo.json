@@ -1,0 +1,45 @@
+{
+  "title": "Gvidisto de Drogoj Kombinoj",
+  "app": "www.TripSit.Me",
+  "support": "Subtenu Nin",
+  "drugs": {
+    "lsd": "LSD",
+    "mushrooms": "Mushrooms",
+    "dmt": "DMT",
+    "mescaline": "Mescaline",
+    "dox": "DOx",
+    "nbomes": "NBOMes",
+    "2c-x": "2C-x",
+    "2c-t-x": "2C-T-x",
+    "5-meo-xxt": "5-MeO-xxT",
+    "cannabis": "Cannabis",
+    "ketamine": "Ketamine",
+    "mxe": "MXE",
+    "dxm": "DXM",
+    "nitrous": "Nitrous",
+    "amphetamines": "Amphetamines",
+    "mdma": "MDMA",
+    "cocaine": "Cocaine",
+    "caffeine": "Caffeine",
+    "alcohol": "Alcohol",
+    "ghb/gbl": "GHB/GBL",
+    "opioids": "Opioids",
+    "tramadol": "Tramadol",
+    "benzodiazepines": "Benzodiazepines",
+    "maois": "MAOIs",
+    "ssris": "SSRIs"
+  },
+  "interactions": {
+    "low risk & synergy": "Malalta Risko & Sinergio",
+    "low risk & no synergy": "Malalta Risko & Ne Sinergio",
+    "low risk & decrease": "Malalta Risko & Malpliigi",
+    "caution": "Averta",
+    "unsafe": "Riska",
+    "dangerous": "Dangxera",
+    "fallback": "Fallback"
+  },
+  "disclaimer": [
+    "Por pliaj informoj kaj viva helpo, vizitu www.TripSit.me",
+    "Ĉi tiu tabelo estis kompilita de TripSit uzante la plej bonajn disponeblajn informojn, sed precizeco ne estas garantiita. La indikoj ĉi tie validas nur se vi havas la substancojn, kiujn vi pensas, ke vi havas. Uzu unue testkompleton. Se vi estas sur iuj medikamentoj (SSRIoj, MAOIoj), reviziu ĉiujn avertojn nun por eviti problemojn poste. Estu sekura tie ekstere."
+  ]
+}

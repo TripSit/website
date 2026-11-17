@@ -190,8 +190,10 @@ export default function DxmCalculator() {
         </p>
         {mode === "product" ? (
           <p className={`m-0 ${noteClass}`}>
-            All the products listed here have DXM HBr as their only active
-            ingredient. Product not listed? Send us a link to it{" "}
+            All the products listed here have DXM as their only active
+            ingredient, as DXM HBr unless the name says freebase. Freebase is
+            stronger per mg (30 mg is about 41 mg of HBr), and the calculator
+            allows for it. Product not listed? Send us a link to it{" "}
             <a href="https://discord.gg/tripsit">on Discord</a>, or enter its
             strength yourself.
           </p>
@@ -202,7 +204,10 @@ export default function DxmCalculator() {
               acetaminophen (paracetamol), guaifenesin, antihistamines or
               pseudoephedrine
             </a>
-            . This calculator is still only for products with DXM HBr.
+            . This calculator is still only for products with DXM HBr (the label
+            says “dextromethorphan HBr” or “hydrobromide”). Plain
+            “dextromethorphan” is freebase, which is stronger per mg: pick a
+            freebase option from the list instead.
           </p>
         )}
       </div>

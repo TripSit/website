@@ -44,17 +44,23 @@ test("works out the amount for each plateau from weight and strength", () => {
   expect(toKg(70, "kg")).toBe(70);
 });
 
-test("keeps the products and strengths of the old calculator", () => {
+test("lists the products with their DXM HBr per unit, converting freebase", () => {
   expect(
-    DXM_PRODUCTS.map((product) => [product.name, product.mgPerUnit]),
+    DXM_PRODUCTS.map((product) => [
+      product.name,
+      Number(product.mgPerUnit.toFixed(4)),
+    ]),
   ).toEqual([
     ["RoboCough (ml)", 10],
     ["Robitussin DX (oz)", 88.5],
     ["Robitussin DX (ml)", 3],
     ["Robitussin Gelcaps (15 mg caps)", 15],
-    ["Pure (mg)", 1],
     ["30mg Gelcaps (30 mg caps)", 30],
-    ["RoboTablets (30 mg tablets)", 40.9322],
+    ["RoboHBr (30 mg tablets)", 30],
+    // 30 mg of freebase × 370.33 / 271.40 (HBr monohydrate / freebase)
+    ["RoboTablets (30 mg freebase tablets)", 40.9355],
+    ["Pure DXM HBr powder (mg)", 1],
+    ["Pure DXM freebase powder (mg)", 1.3645],
   ]);
 });
 
@@ -91,7 +97,7 @@ test("asks for a weight before showing doses", () => {
   expect(summary()).toHaveTextContent("Enter your weight to see the doses.");
   expect(table()).toEqual(Array(4).fill(["?", "?"]));
   expect(
-    screen.getByText(/have DXM HBr as their only active ingredient/),
+    screen.getByText(/as DXM HBr unless the name says freebase/),
   ).toBeVisible();
   expect(screen.getByRole("link", { name: "on Discord" })).toHaveAttribute(
     "href",
@@ -114,19 +120,38 @@ test("shows the doses of a listed product, in its own unit", () => {
     ["105 ml", "140 ml"],
   ]);
 
-  // 150 lbs is 68.04 kg; each tablet counts as 40.9322 mg
+  // 150 lbs is 68.04 kg; each freebase tablet counts as 40.94 mg of HBr
   type("Your weight", "150");
   choose("Weight unit", "lbs");
   choose("Product", "6");
   expect(summary()).toHaveTextContent(
-    "How much RoboTablets (30 mg tablets) to take if you weigh 150 lbs.",
+    "How much RoboTablets (30 mg freebase tablets) to take if you weigh 150 lbs.",
   );
   expect(table()).toEqual([
     ["2.49 tablets", "4.16 tablets"],
     ["4.16 tablets", "12.47 tablets"],
     ["12.47 tablets", "24.93 tablets"],
-    ["24.93 tablets", "33.25 tablets"],
+    ["24.93 tablets", "33.24 tablets"],
   ]);
+});
+
+test("needs fewer freebase tablets than HBr tablets of the same strength", () => {
+  render(<DxmPage />);
+  type("Your weight", "70");
+
+  // RoboHBr: 70 × 1.5 / 30 = 3.5 tablets
+  choose("Product", "5");
+  expect(table()[0]).toEqual(["3.5 tablets", "5.83 tablets"]);
+
+  // RoboTablets: 70 × 1.5 / 40.94 = 2.57 tablets
+  choose("Product", "6");
+  expect(table()[0]).toEqual(["2.57 tablets", "4.28 tablets"]);
+
+  // Pure powder: 105 mg of HBr is 76.95 mg of freebase
+  choose("Product", "7");
+  expect(table()[0]).toEqual(["105 mg", "175 mg"]);
+  choose("Product", "8");
+  expect(table()[0]).toEqual(["76.95 mg", "128.25 mg"]);
 });
 
 test("reads a comma as a decimal point and keeps small amounts readable", () => {
@@ -146,6 +171,9 @@ test("works from a strength typed off the label", () => {
     "Enter your weight and your product's strength to see the doses.",
   );
   expect(screen.getByText(/doesn't contain/)).toBeVisible();
+  expect(
+    screen.getByText(/is freebase, which is stronger per mg/),
+  ).toBeVisible();
   expect(
     screen.getByRole("link", {
       name: "acetaminophen (paracetamol), guaifenesin, antihistamines or pseudoephedrine",

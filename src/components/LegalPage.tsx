@@ -5,9 +5,10 @@ import PageShell from "./PageShell";
 // Typography for the legal text itself. No Tailwind preflight here, so the
 // child margins are set explicitly to beat Bootstrap's heading, paragraph and
 // list rules. Nested ordered lists count 1, a, i, so rules read as "4b".
-// Headings clear the fixed header when a #section link jumps to them.
+// Headings clear the fixed header when a #section link jumps to them. Long
+// URLs used as link text wrap, so they can't widen the page on a phone.
 const proseClass =
-  "mt-10 leading-relaxed text-mute [&>*]:mb-0 [&>*+*]:mt-4 [&>h2]:mt-10 [&>h2]:font-display [&>h2]:text-2xl [&>h2]:font-semibold [&>h2]:text-ink [&>h3]:mt-8 [&>h3]:font-display [&>h3]:text-lg [&>h3]:font-semibold [&>h3]:text-ink [&_h2]:scroll-mt-24 [&_h3]:scroll-mt-24 [&_a]:text-cyan [&_a]:underline [&_a]:underline-offset-2 [&_a:hover]:text-cyan [&_strong]:text-ink [&_code]:break-all [&_code]:text-ink [&_ol]:list-decimal [&_ol]:pl-6 [&_ol_ol]:list-[lower-alpha] [&_ol_ol_ol]:list-[lower-roman] [&_ul]:list-disc [&_ul]:pl-6 [&_ul_ul]:list-[circle] [&_li+li]:mt-1 [&_li>*]:mb-0 [&_li>*+*]:mt-1";
+  "mt-10 leading-relaxed text-mute [&>*]:mb-0 [&>*+*]:mt-4 [&>h2]:mt-10 [&>h2]:font-display [&>h2]:text-2xl [&>h2]:font-semibold [&>h2]:text-ink [&>h3]:mt-8 [&>h3]:font-display [&>h3]:text-lg [&>h3]:font-semibold [&>h3]:text-ink [&_h2]:scroll-mt-24 [&_h3]:scroll-mt-24 [&_a]:text-cyan [&_a]:underline [&_a]:underline-offset-2 [&_a]:wrap-break-word [&_a:hover]:text-cyan [&_strong]:text-ink [&_code]:break-all [&_code]:text-ink [&_ol]:list-decimal [&_ol]:pl-6 [&_ol_ol]:list-[lower-alpha] [&_ol_ol_ol]:list-[lower-roman] [&_ul]:list-disc [&_ul]:pl-6 [&_ul_ul]:list-[circle] [&_li+li]:mt-1 [&_li>*]:mb-0 [&_li>*+*]:mt-1";
 
 // A page of legal or policy text: a title, the date it last changed and the
 // text. Pass the text as children (JSX) or as html (rendered from markdown at

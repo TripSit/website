@@ -288,7 +288,10 @@ test("renders optional references, warnings, and combination notes", () => {
           },
           combos: {
             absent: undefined,
-            mdma: { status: "Caution", note: "(Sample combination note)" },
+            mdma: {
+              status: "Caution",
+              note: "Sample combination note (with an aside)",
+            },
             alcohol: { status: "Dangerous" },
           } as Drug["combos"],
           formatted_effects: ["Sample effect"],
@@ -305,7 +308,10 @@ test("renders optional references, warnings, and combination notes", () => {
   expect(screen.getByText(/sample warning/i)).toBeVisible();
   expect(screen.getByText("Sample summary")).toBeVisible();
   expect(screen.getByText("MDMA")).toBeVisible();
-  expect(screen.getByText("Sample combination note")).toBeVisible();
+  // Notes are shown as written, parentheses included.
+  expect(
+    screen.getByText("Sample combination note (with an aside)"),
+  ).toBeVisible();
   expect(
     screen.getByRole("link", { name: "tripsit.me/combo" }),
   ).toHaveAttribute("href", "/combo");
@@ -386,4 +392,36 @@ test("shows each safety note once, under its own heading, before the other cards
   expect(headings).not.toContain("Risks");
   expect(screen.getAllByText("Thyroid conditions")).toHaveLength(1);
   expect(screen.getByText("Very long lasting").tagName).toBe("P");
+});
+
+test("groups combinations by risk, hides empty groups and uses the checker's names", () => {
+  render(
+    <DrugInfo
+      drugData={
+        {
+          ...drug,
+          combos: {
+            maois: { status: "Dangerous", note: "Serotonin  syndrome." },
+            "5-meo-xxt": { status: "Caution" },
+            pcp: { status: "Unsafe" },
+            "nitrous oxide": { status: "Low Risk & Synergy" },
+          } as Drug["combos"],
+        } as Drug
+      }
+    />,
+  );
+  const groups = screen
+    .getAllByRole("heading", { level: 6 })
+    .map((heading) => heading.textContent?.replace(/^\S+\s/, ""));
+  expect(groups).toEqual([
+    "Dangerous (1)",
+    "Unsafe (1)",
+    "Caution (1)",
+    "Low Risk & Synergy (1)",
+  ]);
+  expect(screen.getByText("MAOIs")).toBeVisible();
+  expect(screen.getByText("5-MeO-xxT")).toBeVisible();
+  expect(screen.getByText("PCP")).toBeVisible();
+  expect(screen.getByText("Nitrous Oxide")).toBeVisible();
+  expect(screen.getByText("Serotonin syndrome.")).toBeVisible();
 });

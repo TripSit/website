@@ -1,18 +1,19 @@
 import React, { memo, ReactNode } from "react";
-import { Card, CardContent, Container, Grid, Typography } from "@mui/material";
-import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import {
-  Dosage,
-  Dose,
-  Drug,
-  Duration,
-  Interactions,
-  Status,
-} from "tripsit_drug_db";
+  Box,
+  Card,
+  CardContent,
+  Container,
+  Grid,
+  Typography,
+} from "@mui/material";
+import WarningAmberIcon from "@mui/icons-material/WarningAmber";
+import { Dosage, Dose, Drug, Duration, Interactions } from "tripsit_drug_db";
 import type { ApexAxisChartSeries } from "apexcharts";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import comboDefinitions from "../assets/comboDefinitions.json";
+import { SUBSTANCES } from "./comboChecker/comboData";
 import addDictionaryDefs from "./addDictionaryDefs";
 import ReagentResults from "./ReagentResults";
 import { parseDoseRangeMg } from "../utils/parseDoseRangeMg";
@@ -653,74 +654,120 @@ function WarningCard({
   );
 }
 
-// The "Known Combinations" card: every combination grouped by risk, with the risk's
-// colours and definition.
+// Most to least risky. A drug's combination with itself ("Self") is never shown.
+const comboOrder = [
+  "Dangerous",
+  "Unsafe",
+  "Caution",
+  "Low Risk & Synergy",
+  "Low Risk & No Synergy",
+  "Low Risk & Decrease",
+];
+
+const comboColors: Record<string, { background: string; border: string }> = {
+  Dangerous: { background: "#fdc9cc", border: "#7f0006" },
+  Unsafe: { background: "#ffe6cb", border: "#873100" },
+  Caution: { background: "#fffacb", border: "#827700" },
+  "Low Risk & Synergy": { background: "#cbf0d1", border: "#077c1b" },
+  "Low Risk & No Synergy": { background: "#dfd3ec", border: "#3d166c" },
+  "Low Risk & Decrease": { background: "#d8effe", border: "#00426c" },
+};
+
+// Spell substances the way the combination checker and chart do (MAOIs, 5-MeO-xxT, DOx);
+// anything they don't list is title-cased.
+const checkerNames = new Map(
+  SUBSTANCES.map((name) => [name.toLowerCase(), name]),
+);
+const acronyms = new Set(["amt", "pcp"]);
+
+function comboLabel(key: string): string {
+  const known = checkerNames.get(key.toLowerCase());
+  if (known) return known;
+  if (acronyms.has(key.toLowerCase())) return key.toUpperCase();
+  return key
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
+type ComboEntry = { name: string; note: string };
+
+function ComboGroup({
+  status,
+  combos,
+}: Readonly<{ status: string; combos: ComboEntry[] }>) {
+  const colors = comboColors[status];
+  const definition = comboDefinitions.find((combo) => combo.status === status);
+  return (
+    <Box
+      component="section"
+      sx={{
+        mt: 2,
+        p: 1.5,
+        borderRadius: 1,
+        borderLeft: `6px solid ${colors.border}`,
+        backgroundColor: colors.background,
+        color: "black",
+      }}
+    >
+      <Typography variant="h6" sx={{ color: "black", fontWeight: 700 }}>
+        <span aria-hidden="true">{definition?.emoji}</span> {status} (
+        {combos.length})
+      </Typography>
+      <Typography variant="body2" sx={{ mb: 1 }}>
+        {definition?.definition}
+      </Typography>
+      <Box
+        component="dl"
+        sx={{
+          m: 0,
+          display: "grid",
+          gridTemplateColumns: {
+            xs: "1fr",
+            // The same name column in every group, wide enough for "Dextromethorphan".
+            sm: "11rem 1fr",
+          },
+          columnGap: 3,
+          rowGap: { xs: 0.25, sm: 1 },
+        }}
+      >
+        {combos.map(({ name, note }) => (
+          <React.Fragment key={name}>
+            <Box component="dt" sx={{ fontWeight: 700, mt: { xs: 1, sm: 0 } }}>
+              {name}
+            </Box>
+            <Box component="dd" sx={{ m: 0 }}>
+              {note}
+            </Box>
+          </React.Fragment>
+        ))}
+      </Box>
+    </Box>
+  );
+}
+
+// The "Known Combinations" card: every combination grouped by risk, most risky first, each
+// group with its colour and definition. Empty groups are left out.
 function comboCard(comboData: Interactions): React.JSX.Element {
-  const comboColors = {
-    Dangerous: {
-      "background-color": "#fdc9cc",
-      "border-color": "#7f0006",
-    },
-    Unsafe: {
-      "background-color": "#ffe6cb",
-      "border-color": "#873100",
-    },
-    Caution: {
-      "background-color": "#fffacb",
-      "border-color": "#827700",
-    },
-    "Low Risk & Synergy": {
-      "background-color": "#cbf0d1",
-      "border-color": "#077c1b",
-    },
-    "Low Risk & No Synergy": {
-      "background-color": "#dfd3ec",
-      "border-color": "#3d166c",
-    },
-    "Low Risk & Decrease": {
-      "background-color": "#d8effe",
-      "border-color": "#00426c",
-    },
-  };
-
-  // Status.Self is deliberately excluded: a drug's combo with itself is never
-  // rendered (comboColors has no entry for it either).
-  const comboObject: {
-    [key in Exclude<Status, Status.Self>]: {
-      name: string;
-      note: string;
-    }[];
-  } = {
-    Dangerous: [],
-    Unsafe: [],
-    Caution: [],
-    "Low Risk & Synergy": [],
-    "Low Risk & No Synergy": [],
-    "Low Risk & Decrease": [],
-  };
-
-  const drugBList = Object.keys(comboData);
-  for (const drugB of drugBList) {
-    const combo = comboData[drugB as keyof Interactions];
+  const groups = new Map<string, ComboEntry[]>(
+    comboOrder.map((status) => [status, []]),
+  );
+  for (const [drugB, combo] of Object.entries(comboData)) {
     if (!combo) continue;
-    const { status, note } = combo;
-
-    const drugBNote = note ? ` (${note})` : "";
-
-    comboObject[status as Exclude<Status, Status.Self>].push({
-      name: drugB,
-      note: drugBNote,
+    groups.get(combo.status)?.push({
+      name: comboLabel(drugB),
+      // Notes are shown as written; only stray double spaces are tidied.
+      note: (combo.note ?? "").replaceAll(/ {2,}/g, " ").trim(),
     });
   }
 
   return (
-    <Grid size={{ xs: 12, sm: 12, md: 12 }} key="combos">
+    <Grid size={{ xs: 12 }} key="combos">
       <Card>
         <CardContent>
           <Typography variant="h5" style={{ color: "black" }}>
             Known Combinations
           </Typography>
-
           <Typography>
             Combination information is sourced from our{" "}
             <a
@@ -742,93 +789,11 @@ function comboCard(comboData: Interactions): React.JSX.Element {
             <Link href="/combo">tripsit.me/combo</Link>
             {"."}
           </Typography>
-          {Object.keys(comboObject).map((status) => {
-            const colorDef = comboColors[status as keyof typeof comboColors];
-            const statusDef = comboDefinitions.find(
-              (combo) => combo.status === status,
-            ) as {
-              status: Status;
-              definition: string;
-              emoji: string;
-              thumbnail: string;
-            };
-
-            return (
-              <React.Fragment key={status}>
-                <Card>
-                  <CardContent>
-                    <Grid
-                      size={{ xs: 12 }}
-                      style={{
-                        background: colorDef["background-color"],
-                        border: `2px solid ${colorDef["border-color"]}`,
-                      }}
-                    >
-                      <Typography>
-                        <b>
-                          {statusDef.emoji} {status} {statusDef.emoji}
-                        </b>
-                        <br></br>
-                        {statusDef.definition}
-                      </Typography>
-                    </Grid>
-                    {comboObject[status as keyof typeof comboObject].map(
-                      (combo) => {
-                        const capitalDrugs = [
-                          "2c-t-x",
-                          "2c-x",
-                          "5-meo-xxt",
-                          "amt",
-                          "dmt",
-                          "dox",
-                          "dxm",
-                          "ghb/gbl",
-                          "lsd",
-                          "mdma",
-                          "mxe",
-                          "maois",
-                          "nbomes",
-                          "pcp",
-                          "ssris",
-                        ];
-
-                        let drugBName = combo.name
-                          .split(" ")
-                          .map(
-                            (word) =>
-                              word.charAt(0).toUpperCase() + word.slice(1),
-                          )
-                          .join(" ");
-
-                        if (capitalDrugs.includes(combo.name)) {
-                          drugBName = combo.name.toUpperCase();
-                        }
-
-                        const cleanNote = combo.note
-                          .replaceAll(/[()]/g, "")
-                          .replaceAll(/ {2}/g, " ");
-
-                        return (
-                          <Grid size={{ xs: 12 }} key={combo.name}>
-                            <Typography>
-                              <b>{drugBName}</b>
-                              {combo.note ? (
-                                <>
-                                  <br />
-                                  {cleanNote}
-                                </>
-                              ) : (
-                                ""
-                              )}
-                            </Typography>
-                          </Grid>
-                        );
-                      },
-                    )}
-                  </CardContent>
-                </Card>
-              </React.Fragment>
-            );
+          {comboOrder.map((status) => {
+            const combos = groups.get(status) ?? [];
+            return combos.length > 0 ? (
+              <ComboGroup key={status} status={status} combos={combos} />
+            ) : null;
           })}
         </CardContent>
       </Card>

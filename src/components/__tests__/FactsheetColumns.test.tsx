@@ -86,7 +86,7 @@ test("formats all optional factsheet columns and tolerates missing values", () =
         pretty_name: "Full",
         aliases: ["Alias"],
         properties: {
-          "test-kits": "Reagent result",
+          "test-kits": "Marquis: Slow Purple.",
           categories: ["tentative"],
           summary: "Summary",
         },
@@ -98,7 +98,8 @@ test("formats all optional factsheet columns and tolerates missing values", () =
     refetch,
   } as unknown as ReturnType<typeof useDrugs>);
   render(<Factsheets />);
-  expect(screen.getByText("Reagent result")).toBeVisible();
+  expect(screen.getByText("Slow Purple")).toBeVisible();
+  expect(document.querySelector('[data-colour="purple"]')).not.toBeNull();
   expect(screen.getByText("Example effect")).toBeVisible();
   expect(screen.getByText("Nausea")).toBeVisible();
   expect(screen.getByText("Minimal")).toBeVisible();

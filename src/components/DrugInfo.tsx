@@ -13,6 +13,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import comboDefinitions from "../assets/comboDefinitions.json";
 import addDictionaryDefs from "./addDictionaryDefs";
+import ReagentResults from "./ReagentResults";
 import { parseDoseRangeMg } from "../utils/parseDoseRangeMg";
 
 // We need to dynamically load this module
@@ -738,7 +739,22 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
     }
     const propertyName = property.replace(/_/g, " ");
     const propertyValue = properties[property as keyof typeof properties];
-    if (propertyName === "experiences") {
+    if (propertyName === "test-kits") {
+      elements.push(
+        <Grid size={{ xs: 12, sm: 6, md: 4 }} key={propertyName}>
+          <Card>
+            <CardContent>
+              <Typography variant="h5" style={{ color: "black" }}>
+                Reagent test results
+              </Typography>
+              <Typography component="div">
+                <ReagentResults text={propertyValue as string} />
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>,
+      );
+    } else if (propertyName === "experiences") {
       elements.push(
         <Grid size={{ xs: 12, sm: 6, md: 4 }} key={propertyName}>
           <Card>

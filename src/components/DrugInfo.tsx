@@ -1,5 +1,6 @@
 import React, { memo, ReactNode } from "react";
 import { Card, CardContent, Container, Grid, Typography } from "@mui/material";
+import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import {
   Dosage,
   Dose,
@@ -609,6 +610,49 @@ const addDosages = (drugData: Drug) => {
   );
 };
 
+// Shown above the other cards, in this order, with these headings.
+const importantProperties = [
+  "warning",
+  "avoid",
+  "contraindications",
+  "risks",
+  "adverseEffects",
+] as const;
+const warningLabels: Record<(typeof importantProperties)[number], string> = {
+  warning: "Warning",
+  avoid: "Avoid",
+  contraindications: "Contraindications",
+  risks: "Risks",
+  adverseEffects: "Adverse effects",
+};
+
+function WarningCard({
+  label,
+  text,
+}: Readonly<{ label: string; text: string }>) {
+  return (
+    <Card sx={{ backgroundColor: "#fdecea", borderLeft: "6px solid #b3261e" }}>
+      <CardContent>
+        <Typography
+          variant="h5"
+          sx={{
+            color: "#8c1d18",
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+          }}
+        >
+          <WarningAmberIcon aria-hidden="true" />
+          {label}
+        </Typography>
+        <Typography sx={{ color: "black", whiteSpace: "pre-line" }}>
+          {text}
+        </Typography>
+      </CardContent>
+    </Card>
+  );
+}
+
 function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
   // This function goes through all the optional data in the drug and creates a nice and fancy expandable row
 
@@ -616,35 +660,17 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
   const elements = [] as React.JSX.Element[];
   const properties = drugData.properties ?? {};
 
-  // If there's a warning, display it first
-  Object.keys(properties).forEach((property) => {
-    const importantProperties = [
-      "avoid",
-      "warning",
-      "risks",
-      "adverseEffects",
-      "contraindications",
-    ];
-    if (importantProperties.includes(property)) {
-      const propertyName = property.replace(/_/g, " ");
-      const propertyValue = properties[property as keyof typeof properties];
+  // Safety notes come first, each in its own warning card.
+  for (const property of importantProperties) {
+    const text = properties[property as keyof typeof properties];
+    if (typeof text === "string" && text.trim()) {
       elements.push(
-        <Grid
-          size={{ xs: 12, sm: 12, md: 12 }}
-          key={`${drugData.name}-${propertyName}`}
-        >
-          <Card>
-            <CardContent sx={{ backgroundColor: "pink" }}>
-              <Typography variant="h5" style={{ color: "black" }}>
-                {propertyName.charAt(0).toUpperCase() + propertyName.slice(1)}{" "}
-                {propertyValue}
-              </Typography>
-            </CardContent>
-          </Card>
+        <Grid size={{ xs: 12 }} key={`${drugData.name}-${property}`}>
+          <WarningCard label={warningLabels[property]} text={text} />
         </Grid>,
       );
     }
-  });
+  }
 
   // Always push the drug name since it's the one required field
   elements.push(
@@ -716,8 +742,8 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
   }
 
   Object.keys(properties).forEach((property) => {
-    const duplicatedProperties = [
-      "avoid",
+    const duplicatedProperties: string[] = [
+      ...importantProperties,
       "name",
       "summary",
       "categories",
@@ -732,7 +758,6 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
       "combos",
       "sources",
       "links",
-      "warning",
     ];
     if (duplicatedProperties.includes(property)) {
       return;

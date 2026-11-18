@@ -126,6 +126,18 @@ function ComboChecker({
           This tool, like the combo chart, is a quick-reference guide.{" "}
           <strong>Additional research MUST always be done</strong>. When in
           doubt, don&apos;t mix; start low and go slow.
+          <p>
+            <a href="https://wiki.tripsit.me/wiki/Drug_combinations#Use_&_Attribution">
+              Re-use and attribution information
+            </a>
+          </p>
+          <p>
+            Notice incorrect combo data?{" "}
+            <a href="https://github.com/TripSit/website/issues/new?template=bug_report.md">
+              Report a problem
+            </a>
+            .
+          </p>
         </div>
       </main>
 

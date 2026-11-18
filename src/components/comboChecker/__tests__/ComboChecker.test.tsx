@@ -5,6 +5,23 @@ import ComboChecker from "../ComboChecker";
 import ComboResults from "../ComboResults";
 import { getCombo, RANK } from "../comboData";
 
+test("links to chart attribution and a current way to report incorrect data", () => {
+  render(<ComboPage />);
+
+  expect(
+    screen.getByRole("link", { name: "Re-use and attribution information" }),
+  ).toHaveAttribute(
+    "href",
+    "https://wiki.tripsit.me/wiki/Drug_combinations#Use_&_Attribution",
+  );
+  expect(
+    screen.getByRole("link", { name: "Report a problem" }),
+  ).toHaveAttribute(
+    "href",
+    "https://github.com/TripSit/website/issues/new?template=bug_report.md",
+  );
+});
+
 test("searches, compares, removes and clears selected substances", () => {
   render(<ComboPage />);
   const search = screen.getByRole("textbox", { name: "Search substances" });

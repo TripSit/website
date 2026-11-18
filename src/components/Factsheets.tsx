@@ -51,6 +51,7 @@ import { splitWords } from "../utils/splitWords";
 import dictionary from "../assets/dictionary.json";
 import GithubButton from "./Github";
 import DrugInfoCard from "./DrugInfo";
+import ReagentResults from "./ReagentResults";
 
 // This appears at the top and can contain any information you want
 // We can use this for announcements or updates
@@ -243,6 +244,10 @@ const DictionaryCell = ({ cell }: DrugCellProps) => (
   <span>{addDictionaryDefs(cell.getValue<string | undefined>())}</span>
 );
 
+const ReagentCell = ({ cell }: DrugCellProps) => (
+  <ReagentResults text={cell.getValue<string | undefined>()} />
+);
+
 const Factsheets = () => {
   const { data = [], isError, isRefetching, isLoading, refetch } = useDrugs();
 
@@ -288,6 +293,7 @@ const Factsheets = () => {
         header: "Reagents Results",
         filterVariant: "text",
         size: 200,
+        Cell: ReagentCell,
       },
       {
         accessorFn: (row) => row.formatted_effects?.join(", "),

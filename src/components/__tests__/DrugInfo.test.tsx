@@ -333,3 +333,26 @@ test("keeps open-ended dose text without plotting an invented upper bound", () =
   expect(screen.queryByLabelText("Tooltip for common")).not.toBeInTheDocument();
   expect(screen.queryByLabelText("Chart series")).not.toBeInTheDocument();
 });
+
+test("shows reagent test results with a colour guide", () => {
+  render(
+    <DrugInfo
+      drugData={
+        {
+          ...drug,
+          properties: {
+            "test-kits": "Marquis: Yellow > Green. | Mecke: Brown.",
+          },
+        } as Drug
+      }
+    />,
+  );
+  expect(
+    screen.getByRole("heading", { name: "Reagent test results" }),
+  ).toBeVisible();
+  expect(screen.queryByText("Test-kits")).toBeNull();
+  const results = screen.getAllByRole("listitem");
+  expect(results).toHaveLength(2);
+  expect(results[0]).toHaveTextContent("Marquis: Yellow > Green");
+  expect(results[1]).toHaveTextContent("Mecke: Brown");
+});

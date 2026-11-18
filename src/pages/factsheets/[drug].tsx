@@ -2,9 +2,8 @@ import type { GetStaticPaths, GetStaticProps } from "next";
 import type { Drug } from "tripsit_drug_db";
 import { fetchDrugs } from "../../utils/drugs";
 
-import Header from "../../components/Header";
-import Head from "../../components/Head";
-
+import Link from "next/link";
+import PageShell from "../../components/PageShell";
 import DrugInfoCard from "../../components/DrugInfo";
 
 type Props = { drugData: Drug };
@@ -60,21 +59,38 @@ export const getStaticProps: GetStaticProps<Props, { drug: string }> = async ({
 };
 
 export default function DrugInfo({ drugData }: Readonly<Props>) {
+  const aliases = drugData.aliases ?? [];
   return (
-    <>
-      <Header />
-      <Head
-        title={`${drugData.pretty_name} - TripSit Factsheets`}
-        description={
-          drugData.properties?.summary ??
-          `Dose ranges, durations, effects and interactions for ${drugData.pretty_name}, from TripSit's drug database.`
-        }
-        // The sitemap lists drugs under their database name, so the canonical link does too
-        path={`/factsheets/${encodeURIComponent(drugData.name)}`}
-      />
-      <section id="drugInfo">
+    <PageShell
+      title={`${drugData.pretty_name} - TripSit Factsheets`}
+      description={
+        drugData.properties?.summary ??
+        `Dose ranges, durations, effects and interactions for ${drugData.pretty_name}, from TripSit's drug database.`
+      }
+      // The sitemap lists drugs under their database name, so the canonical link does too
+      path={`/factsheets/${encodeURIComponent(drugData.name)}`}
+    >
+      <header className="px-5 pb-6 pt-10 md:pt-14">
+        <div className="mx-auto max-w-6xl">
+          <Link
+            href="/factsheets"
+            className="text-sm text-cyan underline underline-offset-2"
+          >
+            ← All factsheets
+          </Link>
+          <h1 className="mb-0 mt-3 font-display text-4xl font-semibold tracking-tight text-ink md:text-5xl">
+            {drugData.pretty_name}
+          </h1>
+          {aliases.length > 0 && (
+            <p className="mb-0 mt-2 text-mute">
+              Also known as {aliases.join(", ")}
+            </p>
+          )}
+        </div>
+      </header>
+      <section id="drugInfo" className="pb-12">
         <DrugInfoCard drugData={drugData} />
       </section>
-    </>
+    </PageShell>
   );
 }

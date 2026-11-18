@@ -1,0 +1,46 @@
+{
+  "title": "Guide to Drug Combinations",
+  "app": "www.TripSit.Me",
+  "support": "Support Us",
+  "drugs": {
+    "lsd": "LSD",
+    "mushrooms": "Mushrooms",
+    "dmt": "DMT",
+    "mescaline": "Mescaline",
+    "dox": "DOx",
+    "nbomes": "NBOMes",
+    "2c-x": "2C-x",
+    "2c-t-x": "2C-T-x",
+    "5-meo-xxt": "5-MeO-xxT",
+    "cannabis": "Cannabis",
+    "ketamine": "Ketamine",
+    "mxe": "MXE",
+    "dxm": "DXM",
+    "nitrous": "Nitrous",
+    "amphetamines": "Amphetamines",
+    "mdma": "MDMA",
+    "cocaine": "Cocaine",
+    "caffeine": "Caffeine",
+    "alcohol": "Alcohol",
+    "ghb/gbl": "GHB/GBL",
+    "opioids": "Opioids",
+    "tramadol": "Tramadol",
+    "benzodiazepines": "Benzos",
+    "maois": "MAOIs",
+    "ssris": "SSRIs"
+  },
+  "interactions": {
+    "low risk & synergy": "Low Risk & Synergy",
+    "low risk & no synergy": "Low Risk & No Synergy",
+    "low risk & decrease": "Low Risk & Decrease",
+    "caution": "Caution",
+    "unsafe": "Unsafe",
+    "dangerous": "Dangerous",
+    "fallback": "Fallback"
+  },
+  "disclaimer": [
+    "For further information and live help, visit www.TripSit.Me",
+    "This table was compiled by TripSit using the best information available. Accuracy is not guaranteed. This table is only as valid as the labels on your drugs: Always use a test kit. Absence of a warning does not imply an absence of danger. Further research is necessary.",
+    "Do not rely solely on this chart. While taking certain medications, your risk is higher. Do your homework now to avoid problems later. Be safe out there. No one is invincible."
+  ]
+}

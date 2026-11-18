@@ -79,6 +79,11 @@ function ComboChecker({
             substances below. This is a quick-reference guide, not medical
             advice.
           </p>
+          <p>
+            <Link href="/combo/chart">
+              View the full chart and PNG/PDF downloads →
+            </Link>
+          </p>
         </header>
 
         <Legend />

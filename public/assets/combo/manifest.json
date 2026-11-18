@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "languages": {
+    "cs": {
+      "digest": "117195cd74777b21f948afc7f175df865baafc978095fd79e9550f66f304309d",
+      "width": 3898,
+      "height": 1988
+    },
+    "de": {
+      "digest": "117195cd74777b21f948afc7f175df865baafc978095fd79e9550f66f304309d",
+      "width": 3898,
+      "height": 1962
+    },
+    "en": {
+      "digest": "117195cd74777b21f948afc7f175df865baafc978095fd79e9550f66f304309d",
+      "width": 3898,
+      "height": 1924
+    },
+    "eo": {
+      "digest": "117195cd74777b21f948afc7f175df865baafc978095fd79e9550f66f304309d",
+      "width": 3898,
+      "height": 1878
+    },
+    "es": {
+      "digest": "117195cd74777b21f948afc7f175df865baafc978095fd79e9550f66f304309d",
+      "width": 3898,
+      "height": 1910
+    },
+    "fr": {
+      "digest": "117195cd74777b21f948afc7f175df865baafc978095fd79e9550f66f304309d",
+      "width": 3898,
+      "height": 1910
+    },
+    "it": {
+      "digest": "117195cd74777b21f948afc7f175df865baafc978095fd79e9550f66f304309d",
+      "width": 3898,
+      "height": 1878
+    },
+    "pl": {
+      "digest": "117195cd74777b21f948afc7f175df865baafc978095fd79e9550f66f304309d",
+      "width": 3898,
+      "height": 1915
+    },
+    "ru": {
+      "digest": "117195cd74777b21f948afc7f175df865baafc978095fd79e9550f66f304309d",
+      "width": 3898,
+      "height": 1979
+    }
+  }
+}

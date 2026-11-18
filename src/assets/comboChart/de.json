@@ -1,0 +1,46 @@
+{
+  "title": "Leitfaden für die Kombination von Drogen",
+  "app": "www.TripSit.Me",
+  "support": "Unterstütze uns",
+  "drugs": {
+    "lsd": "LSD",
+    "mushrooms": "Zauberpilze",
+    "dmt": "DMT",
+    "mescaline": "Meskalin",
+    "dox": "DOx",
+    "nbomes": "NBOMe",
+    "2c-x": "2C-x",
+    "2c-t-x": "2C-T-x",
+    "5-meo-xxt": "5-MeO-xxT",
+    "cannabis": "Cannabis",
+    "ketamine": "Ketamin",
+    "mxe": "MXE",
+    "dxm": "DXM",
+    "nitrous": "Lachgas",
+    "amphetamines": "Amphetamine",
+    "mdma": "MDMA",
+    "cocaine": "Kokain",
+    "caffeine": "Coffein",
+    "alcohol": "Alkohol",
+    "ghb/gbl": "GHB/GBL",
+    "opioids": "Opioide",
+    "tramadol": "Tramadol",
+    "benzodiazepines": "Benzodiazepine",
+    "maois": "MAOI",
+    "ssris": "SSRI"
+  },
+  "interactions": {
+    "low risk & synergy": "Geringes Risiko & Synergie",
+    "low risk & no synergy": "Geringes Risiko & Keine Synergie",
+    "low risk & decrease": "Geringes Risiko & Abschwächung",
+    "caution": "Vorsicht",
+    "unsafe": "Unsicher",
+    "dangerous": "Gefährlich",
+    "fallback": "Fallback"
+  },
+  "disclaimer": [
+    "Für weitere Informationen und Live-Hilfe besuche TripSit.me",
+    "Diese Tabelle wurde von TripSit unter Verwendung der besten verfügbaren Informationen zusammengestellt. Die Richtigkeit wird nicht garantiert. Auch wenn hier geringes Risiko steht, risikofreien Konsum gibt es nicht. Diese Tafel gibt dir nur einen ersten Überblick. Mach dich auch woanders schlau.",
+    "Damit du nur gewünschte Substanzen nimmst, nutze Testkits und Drug Checking. Wenn du Medikamente (v.a. SSRIs, MAOIs, Psychopharmaka) einnimmst, sei bitte besonders gründlich bei deiner Recherche. Pass gut auf dich auf."
+  ]
+}

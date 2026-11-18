@@ -68,5 +68,8 @@ It has worked on an Ubuntu VPS, and on Windows as of 2/1/2025. If it fails on Wi
 
 ## Contributing
 
+The full combination chart, translations, and PNG/PDF generation are documented in
+[docs/combo-chart.md](docs/combo-chart.md).
+
 See [CONTRIBUTING.md](CONTRIBUTING.md) for branching conventions (feature branches target `uat`, not `main`) and
 the checks that run in CI.

@@ -1,8 +1,9 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import ProfileButton from "../ProfileButton";
+import { getLoginUrl } from "@/utils/keycloak";
 
 jest.mock("@/utils/keycloak", () => ({
-  getLoginUrl: () => "#login",
+  getLoginUrl: jest.fn(async () => "#login"),
   // Records the ID token that was still stored when the logout URL was built.
   getPostLogoutUrl: () =>
     `#logout-hint-${sessionStorage.getItem("kc_id_token") ?? "missing"}`,
@@ -13,6 +14,7 @@ const fetchMock = jest.fn();
 
 beforeEach(() => {
   fetchMock.mockReset();
+  jest.mocked(getLoginUrl).mockReset().mockResolvedValue("#login");
   global.fetch = fetchMock;
 });
 
@@ -24,10 +26,20 @@ afterEach(() => {
   window.history.replaceState({}, "", "/");
 });
 
-test("starts login when a guest clicks the profile button", () => {
+test("starts login when a guest clicks the profile button", async () => {
   render(<ProfileButton />);
   fireEvent.click(screen.getByRole("button", { name: "Login" }));
-  expect(window.location.hash).toBe("#login");
+  await waitFor(() => expect(window.location.hash).toBe("#login"));
+});
+
+test("explains a failed login preparation without redirecting", async () => {
+  jest.mocked(getLoginUrl).mockRejectedValue(new Error("Crypto unavailable"));
+  render(<ProfileButton />);
+  fireEvent.click(screen.getByRole("button", { name: "Login" }));
+  expect(await screen.findByRole("alert")).toHaveTextContent(
+    "Login is unavailable.",
+  );
+  expect(window.location.hash).toBe("");
 });
 
 test("falls back to the guest avatar when credentials disappear before the avatar fetch", () => {

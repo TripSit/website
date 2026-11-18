@@ -27,16 +27,13 @@ function getKeycloakConfig() {
 // Keycloak binds an auth code to the client that asked for it, and TripBot's
 // /api/v2/keycloak/token redeems it as the ban-appeals client. Any other client
 // ID here makes every login fail after the user signs in, so there is no
-// default. Outside production a missing ID throws; in production it is logged,
-// and Keycloak rejects the login request straight away.
+// default. Login starts from an event handler, so a missing ID can fail locally
+// with a retryable error instead of sending the user to an invalid login URL.
 function getClientId(): string {
   const clientId = process.env.NEXT_PUBLIC_KEYCLOAK_CLIENT_ID;
   if (!clientId) {
-    if (process.env.NODE_ENV !== "production") {
-      throw new Error(CLIENT_ID_MISSING);
-    }
-    console.error(CLIENT_ID_MISSING);
-    return "";
+    if (process.env.NODE_ENV === "production") console.error(CLIENT_ID_MISSING);
+    throw new Error(CLIENT_ID_MISSING);
   }
   return clientId;
 }
@@ -44,7 +41,13 @@ function getClientId(): string {
 const LOGIN_STATE_KEY = "kc_login_state";
 const LOGIN_STATE_TTL = 10 * 60 * 1000;
 
-function readLoginState(): { value: string; expiresAt: number } | null {
+interface PendingLogin {
+  value: string;
+  codeVerifier: string;
+  expiresAt: number;
+}
+
+function readLoginState(): PendingLogin | null {
   try {
     const stored: unknown = JSON.parse(
       sessionStorage.getItem(LOGIN_STATE_KEY) ?? "null",
@@ -54,12 +57,21 @@ function readLoginState(): { value: string; expiresAt: number } | null {
       typeof stored === "object" &&
       "value" in stored &&
       typeof stored.value === "string" &&
+      stored.value.length === 64 &&
       /^[a-f0-9]{64}$/.test(stored.value) &&
+      "codeVerifier" in stored &&
+      typeof stored.codeVerifier === "string" &&
+      stored.codeVerifier.length === 43 &&
+      /^[A-Za-z0-9_-]{43}$/.test(stored.codeVerifier) &&
       "expiresAt" in stored &&
       typeof stored.expiresAt === "number" &&
       stored.expiresAt > Date.now()
     ) {
-      return { value: stored.value, expiresAt: stored.expiresAt };
+      return {
+        value: stored.value,
+        codeVerifier: stored.codeVerifier,
+        expiresAt: stored.expiresAt,
+      };
     }
   } catch {
     // Missing or malformed pending login data never authorizes a callback.
@@ -67,37 +79,55 @@ function readLoginState(): { value: string; expiresAt: number } | null {
   return null;
 }
 
-function pendingLoginState(): string {
+function base64Url(bytes: Uint8Array): string {
+  return btoa(String.fromCharCode(...bytes))
+    .replaceAll("+", "-")
+    .replaceAll("/", "_")
+    .replaceAll("=", "");
+}
+
+function pendingLoginState(): PendingLogin {
   const existing = readLoginState();
-  if (existing) return existing.value;
+  if (existing) return existing;
   const value = Array.from(crypto.getRandomValues(new Uint8Array(32)), (byte) =>
     byte.toString(16).padStart(2, "0"),
   ).join("");
-  sessionStorage.setItem(
-    LOGIN_STATE_KEY,
-    JSON.stringify({ value, expiresAt: Date.now() + LOGIN_STATE_TTL }),
-  );
-  return value;
+  const pending = {
+    value,
+    codeVerifier: base64Url(crypto.getRandomValues(new Uint8Array(32))),
+    expiresAt: Date.now() + LOGIN_STATE_TTL,
+  };
+  sessionStorage.setItem(LOGIN_STATE_KEY, JSON.stringify(pending));
+  return pending;
 }
 
-export function consumeLoginState(returnedState: string | null): boolean {
+export function consumeLoginState(returnedState: string | null): string | null {
   const pending = readLoginState();
   sessionStorage.removeItem(LOGIN_STATE_KEY);
-  return !!pending && returnedState === pending.value;
+  return pending && returnedState === pending.value
+    ? pending.codeVerifier
+    : null;
 }
 
-export function getLoginUrl(): string {
+export async function getLoginUrl(): Promise<string> {
+  if (typeof window === "undefined") {
+    throw new Error("Login must start in a browser.");
+  }
   const config = getKeycloakConfig();
   const params = new URLSearchParams({
     client_id: getClientId(),
-    redirect_uri:
-      typeof window !== "undefined" ? `${window.location.origin}/appeal` : "",
+    redirect_uri: `${window.location.origin}/appeal`,
     response_type: "code",
     scope: "openid profile email",
   });
-  if (typeof window !== "undefined") {
-    params.set("state", pendingLoginState());
-  }
+  const pending = pendingLoginState();
+  const digest = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(pending.codeVerifier),
+  );
+  params.set("state", pending.value);
+  params.set("code_challenge", base64Url(new Uint8Array(digest)));
+  params.set("code_challenge_method", "S256");
   return `${config.url}/realms/${config.realm}/protocol/openid-connect/auth?${params.toString()}`;
 }
 

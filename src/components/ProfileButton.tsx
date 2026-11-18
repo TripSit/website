@@ -29,6 +29,7 @@ const ProfileButton: React.FC = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
   const [avatarUrl, setAvatarUrl] = useState<string>(GUEST_AVATAR_PATH);
   const [isLoadingAvatar, setIsLoadingAvatar] = useState<boolean>(false);
+  const [loginFailed, setLoginFailed] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Check if user is logged in by checking for tokens
@@ -108,8 +109,13 @@ const ProfileButton: React.FC = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleLogin = () => {
-    window.location.href = getLoginUrl();
+  const handleLogin = async () => {
+    setLoginFailed(false);
+    try {
+      window.location.href = await getLoginUrl();
+    } catch {
+      setLoginFailed(true);
+    }
   };
 
   const handleLogout = () => {
@@ -137,7 +143,7 @@ const ProfileButton: React.FC = () => {
 
   const toggleDropdown = () => {
     if (!isLoggedIn) {
-      handleLogin();
+      void handleLogin();
     } else {
       setIsDropdownOpen(!isDropdownOpen);
     }
@@ -169,6 +175,15 @@ const ProfileButton: React.FC = () => {
           )}
         </button>
       </Tooltip>
+
+      {loginFailed && (
+        <p
+          className="absolute right-0 mt-2 w-56 rounded-lg bg-surface p-3 text-sm text-ink"
+          role="alert"
+        >
+          Login is unavailable. Please try again.
+        </p>
+      )}
 
       {isLoggedIn && isDropdownOpen && (
         <div

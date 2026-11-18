@@ -6,7 +6,7 @@
   - [Development - Getting Started](#development---getting-started)
     - [Codespace](#codespace)
     - [Local development](#local-development)
-      - [Docker Deployment](#docker-deployment)
+      - [Docker](#docker)
       - [Local Deployment](#local-deployment)
   - [Contributing](#contributing)
 
@@ -43,12 +43,11 @@ The preferred way to have full control (and perhaps more resources) is local dev
 
 Then you have two choices:
 
-#### Docker Deployment
+#### Docker
 
-The preferred way to deploy is with Docker.
-This ensures that we're running on the same system with no conflicts.
+The preferred way to run the site locally is in Docker, which matches the servers' environment.
 
-1) Run `npm run website` to build the Docker image.
+1) Run `npm run website` to build and start the development container (`docker-compose.website.yml`).
 2) Run `npm run logs` to see the logs from the container.
 3) Open [http://localhost:3000](http://localhost:3000) in your browser to see the result.
 

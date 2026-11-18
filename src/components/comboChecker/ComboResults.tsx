@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { accentTone, getCombo, RANK, type RiskKey } from "./comboData";
+import { accentTone, getCombo, RANK, RISK, type RiskKey } from "./comboData";
 import ComboCard from "./ComboCard";
 import styles from "./comboChecker.module.css";
 
@@ -43,13 +43,24 @@ function ComboResults({
     return out;
   }, [selected, sortBySeverity]);
 
+  const highestRisk = cards.reduce<Card | undefined>(
+    (highest, card) =>
+      !highest || RANK[card.risk] > RANK[highest.risk] ? card : highest,
+    undefined,
+  );
+  const pairCount = `${cards.length} ${cards.length === 1 ? "pair" : "pairs"}`;
+  const summary = highestRisk
+    ? `${pairCount} displayed. Highest risk: ${RISK[highestRisk.risk].label}.`
+    : "No combinations to display.";
+
+  let content;
   if (selected.length < 2) {
     const tone = accentTone(accent);
     const emptyText =
       selected.length === 0
         ? "Select two or more substances above to see how they interact."
         : `Select at least one more substance to compare with ${selected[0]}.`;
-    return (
+    content = (
       <div className={styles.empty}>
         <div
           className={styles.emptyIcon}
@@ -69,21 +80,30 @@ function ComboResults({
         <p className={styles.emptyText}>{emptyText}</p>
       </div>
     );
+  } else {
+    content = (
+      <div className={styles.grid}>
+        {cards.map((c, i) => (
+          <ComboCard
+            key={c.key}
+            title={c.title}
+            risk={c.risk}
+            note={c.note}
+            showNote={showExplanations}
+            delay={`${Math.min(i, 8) * 0.035}s`}
+          />
+        ))}
+      </div>
+    );
   }
 
   return (
-    <div className={styles.grid}>
-      {cards.map((c, i) => (
-        <ComboCard
-          key={c.key}
-          title={c.title}
-          risk={c.risk}
-          note={c.note}
-          showNote={showExplanations}
-          delay={`${Math.min(i, 8) * 0.035}s`}
-        />
-      ))}
-    </div>
+    <>
+      <output className="sr-only" aria-live="polite" aria-atomic="true">
+        {summary}
+      </output>
+      {content}
+    </>
   );
 }
 

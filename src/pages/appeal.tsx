@@ -538,7 +538,7 @@ const AppealPage: React.FC = () => {
                 <div className="row justify-content-center mt-4">
                   <div className="col-xl-7 col-lg-9">
                     <div className="alert alert-danger mb-0" role="alert">
-                      <i className="bi bi-exclamation-triangle-fill me-2"></i>
+                      <i className="bi bi-exclamation-triangle-fill me-2"></i>{" "}
                       We couldn&apos;t log you in. Please try logging in again.
                     </div>
                   </div>
@@ -572,8 +572,8 @@ const AppealPage: React.FC = () => {
                 <div className="col-lg-8 text-center">
                   <h1>Ban Appeal</h1>
                   <div className="alert alert-danger mt-4" role="alert">
-                    <i className="bi bi-exclamation-triangle-fill me-2"></i>
-                    We couldn&apos;t check your ban status. This is usually
+                    <i className="bi bi-exclamation-triangle-fill me-2"></i> We
+                    couldn&apos;t check your ban status. This is usually
                     temporary, so please try again. If it keeps failing, log in
                     again.
                   </div>

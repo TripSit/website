@@ -613,11 +613,83 @@ test("sends a reminder for an older pending appeal and reloads its status", asyn
   render(<AppealPage />);
   fireEvent.click(await screen.findByRole("button", { name: "Send Reminder" }));
   expect(await screen.findByText(/last reminder:/i)).toBeVisible();
+  expect(
+    screen.getByRole("button", { name: "Come back in 48 hours" }),
+  ).toBeDisabled();
   expect(fetchMock).toHaveBeenNthCalledWith(
     3,
     "/api/v2/appeals/remind",
     expect.objectContaining({ method: "POST" }),
   );
+});
+
+test.each([
+  ["production", false, -1],
+  ["production", false, 0],
+  ["production", true, -1],
+  ["production", true, 0],
+  ["development", false, -1],
+  ["development", false, 0],
+  ["development", true, -1],
+  ["development", true, 0],
+])(
+  "checks the %s reminder boundary (already reminded: %s, offset: %s)",
+  async (mode, reminded, offset) => {
+    jest.spyOn(Date, "now").mockReturnValue(Date.parse("2026-11-17T12:00:00Z"));
+    const environment = process.env as Record<string, string | undefined>;
+    const original = environment.NODE_ENV;
+    environment.NODE_ENV = mode as string;
+    try {
+      const cooldown = mode === "development" ? 30_000 : 172_800_000;
+      const baseTime = new Date(
+        Date.now() - cooldown - Number(offset),
+      ).toISOString();
+      sessionStorage.setItem("kc_token", validToken());
+      fetchMock
+        .mockResolvedValueOnce(reply({ banned: true }))
+        .mockResolvedValueOnce(
+          reply({
+            ...appeal("RECEIVED", 5),
+            created_at: reminded ? daysAgo(5) : baseTime,
+            reminded_at: reminded ? baseTime : null,
+          }),
+        );
+      render(<AppealPage />);
+      const button = await screen.findByRole("button", {
+        name: offset === 0 ? "Send Reminder" : "Come back in 48 hours",
+      });
+      if (offset === 0) expect(button).toBeEnabled();
+      else expect(button).toBeDisabled();
+      expect(
+        screen.getByText(/Reminder available:/).parentElement,
+      ).toHaveTextContent(
+        new Date(Date.parse(baseTime) + cooldown).toLocaleString(),
+      );
+    } finally {
+      environment.NODE_ENV = original;
+    }
+  },
+);
+
+test("enables the reminder when its cooldown expires with the page open", async () => {
+  jest.useFakeTimers();
+  const availableAt = Date.now() + 1000;
+  sessionStorage.setItem("kc_token", validToken());
+  fetchMock
+    .mockResolvedValueOnce(reply({ banned: true }))
+    .mockResolvedValueOnce(
+      reply({
+        ...appeal("RECEIVED", 5),
+        reminded_at: new Date(availableAt - 172_800_000).toISOString(),
+      }),
+    );
+  render(<AppealPage />);
+  expect(
+    await screen.findByRole("button", { name: "Come back in 48 hours" }),
+  ).toBeDisabled();
+  await act(() => jest.advanceTimersByTimeAsync(1000));
+  expect(screen.getByRole("button", { name: "Send Reminder" })).toBeEnabled();
+  expect(fetchMock).toHaveBeenCalledTimes(2);
 });
 
 test("shows a submission error and allows retrying", async () => {

@@ -18,7 +18,7 @@ export default function DxmPage() {
             <a href="https://wiki.tripsit.me/wiki/DXM#Plateaus">
               the plateau model and the effects of each plateau
             </a>
-            .
+            {"."}
           </p>
           <p>
             DXM products may also contain other ingredients that can be
@@ -27,7 +27,7 @@ export default function DxmPage() {
             <a href="https://wiki.tripsit.me/wiki/DXM#Adulteration">
               DXM adulterants
             </a>
-            .
+            {"."}
           </p>
           <p>
             Before combining DXM with other drugs, check our{" "}

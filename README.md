@@ -73,3 +73,9 @@ The full combination chart, translations, and PNG/PDF generation are documented 
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for branching conventions (feature branches target `uat`, not `main`) and
 the checks that run in CI.
+
+## Staff appeal review
+
+The staff appeal queue is available at `/dashboard/appeals`. See
+[staff appeal review setup](docs/staff-appeal-review.md) for the separate staff
+Keycloak client, runtime settings, TripBot API contract, and rollout checks.

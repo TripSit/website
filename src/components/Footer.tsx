@@ -56,11 +56,6 @@ const columns = [
         icon: "bxl-reddit",
       },
       {
-        label: "Matrix",
-        href: "https://element.tripsit.me",
-        icon: "bx-message-square-dots",
-      },
-      {
         label: "LinkedIn",
         href: "https://www.linkedin.com/company/tripsit",
         icon: "bxl-linkedin",

@@ -187,7 +187,7 @@ const resources = [
     text: "Elevate your knowledge with our Learning Platform, a dedicated space for community members to undertake courses and demonstrate expertise. Embracing an open-source ethos, we invite enthusiasts to contribute by crafting their own courses.",
   },
   {
-    href: "https://tripbot.info/",
+    href: "https://github.com/TripSit/TripBot",
     icon: <SmartToyOutlinedIcon fontSize="inherit" />,
     title: "TripSit Discord Bot",
     text: "Introducing our multifunctional Discord Bot, designed to seamlessly blend moderation capabilities with TripSit-session management. Perfect not just for TripSit, but adaptable for any Discord guild. Interested in launching your own TripSit-inspired initiative? Our tools are at your disposal.",
@@ -827,15 +827,12 @@ export default function Home({
                   </a>
                 </li>
                 <li>
-                  <a href="https://github.com/TripSit/webchat/">Webchat</a>
+                  <a href="https://github.com/TripSit/website/blob/main/src/components/Webchat.tsx">
+                    Webchat
+                  </a>
                 </li>
                 <li>
                   <a href="https://github.com/TripSit/TripBot">TripBot</a>
-                </li>
-                <li>
-                  <a href="https://github.com/TripSit/tripbot-website">
-                    Tripbot&apos;s Website
-                  </a>
                 </li>
               </ul>
               <p>
@@ -865,16 +862,11 @@ export default function Home({
               <p>
                 <b>We&apos;re also open to new project ideas!</b>
               </p>
-              <h3>Android App</h3>
+              <h3>Phone App</h3>
               <p>
-                Our Android app is functional, but we believe there&apos;s room
-                for enhancement. If you have the skills and vision to elevate
-                its performance and design, we&apos;d love to see your touch.
-                Dive into the codebase and contribute:{" "}
-                <a href="https://github.com/TripSit/tripsit-mobile">
-                  https://github.com/TripSit/tripsit-mobile
-                </a>
-                {"."}
+                Our phone app is <Link href="/reflect">Reflect</Link>, a private
+                harm-reduction journal. The Reflect page explains what it does
+                and how it keeps your entries on your phone.
               </p>
               <h3>Main Website</h3>
               <p>

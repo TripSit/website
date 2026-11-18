@@ -16,6 +16,7 @@ Pull requests are welcome! If you have any questions, feel free to ask in #dev o
 */
 
 import React, { Fragment, useMemo } from "react";
+import Link from "next/link";
 import {
   MaterialReactTable,
   MRT_ShowHideColumnsButton as ShowHideColumnsButton,
@@ -236,6 +237,13 @@ const addCategoryStyle = (text: string | undefined): React.JSX.Element[] => {
 // React sees the same component type on every render instead of remounting the cells.
 type DrugCellProps = Readonly<{ cell: MRT_Cell<Drug> }>;
 
+// Each drug's own page, so a factsheet can be linked to and shared.
+const NameCell = ({ cell }: DrugCellProps) => (
+  <Link href={`/factsheets/${encodeURIComponent(cell.row.original.name)}`}>
+    {cell.getValue<string>()}
+  </Link>
+);
+
 const CategoryCell = ({ cell }: DrugCellProps) => (
   <span>{addCategoryStyle(cell.getValue<string | undefined>())}</span>
 );
@@ -260,6 +268,7 @@ const Factsheets = () => {
         header: "Name",
         filterVariant: "text",
         size: 180, // This is the default value, but it stops the column from changing when the table is resized
+        Cell: NameCell,
       },
       {
         accessorFn: (row) => {

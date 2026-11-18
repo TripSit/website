@@ -128,7 +128,7 @@ function SentenceCalc({ calc }: Readonly<{ calc: Calc }>) {
           type="button"
           className={`${solidButton} bg-violet px-6 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-40`}
           disabled={shown === undefined}
-          onClick={copy}
+          onClick={() => void copy()}
         >
           Copy as text
         </button>

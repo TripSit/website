@@ -104,11 +104,12 @@ function pendingLoginState(): PendingLogin {
 export function consumeLoginState(returnedState: string | null): string | null {
   const pending = readLoginState();
   sessionStorage.removeItem(LOGIN_STATE_KEY);
-  return returnedState === pending?.value ? pending.codeVerifier : null;
+  if (!pending) return null;
+  return returnedState === pending.value ? pending.codeVerifier : null;
 }
 
 export async function getLoginUrl(): Promise<string> {
-  if (globalThis.window === undefined) {
+  if (!("window" in globalThis)) {
     throw new TypeError("Login must start in a browser.");
   }
   const config = getKeycloakConfig();
@@ -133,7 +134,7 @@ export function getPostLogoutUrl(): string {
   const config = getKeycloakConfig();
   const params = new URLSearchParams({
     post_logout_redirect_uri:
-      globalThis.window === undefined ? "" : globalThis.location.origin,
+      "window" in globalThis ? globalThis.location.origin : "",
     id_token_hint: sessionStorage.getItem("kc_id_token") ?? "",
   });
   return `${config.url}/realms/${config.realm}/protocol/openid-connect/logout?${params.toString()}`;

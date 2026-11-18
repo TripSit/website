@@ -5,7 +5,7 @@ export function parseDoseRangeMg(text: string): [number, number] | undefined {
   // Require two explicit endpoints and at least one mass unit.
   const endpoints = text
     .toLowerCase()
-    .replace(/[\u00b5\u03bc]/gu, "u")
+    .replaceAll(/[\u00b5\u03bc]/gu, "u")
     .split(/[-\u2013\u2014]/u);
   if (endpoints.length !== 2) return;
 

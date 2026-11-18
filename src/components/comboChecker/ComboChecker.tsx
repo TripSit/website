@@ -136,7 +136,7 @@ function ComboChecker({
             <a href="https://github.com/TripSit/website/issues/new?template=bug_report.md">
               Report a problem
             </a>
-            .
+            {"."}
           </p>
         </div>
       </main>

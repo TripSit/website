@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import FactsheetsPage from "@/pages/factsheets";
+import { giveTableRoom } from "../../../test-utils/tableRoom";
 
 jest.mock("@heroui/react", () => ({ Accordion: () => null }));
 // "unlisted" is not in the database: pins for drugs that aren't loaded must be ignored,
@@ -14,11 +15,13 @@ const drugs = {
 const originalFetch = global.fetch;
 
 beforeEach(() => {
+  giveTableRoom();
   global.fetch = jest
     .fn()
     .mockResolvedValue({ ok: true, json: async () => drugs });
 });
 afterEach(() => {
+  jest.restoreAllMocks();
   global.fetch = originalFetch;
 });
 

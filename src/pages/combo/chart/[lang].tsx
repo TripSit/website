@@ -1,5 +1,4 @@
 import type { GetStaticPropsContext } from "next";
-import ComboChart from "../../../components/comboChart/ComboChart";
 import {
   LANGUAGES,
   isChartLanguage,
@@ -22,4 +21,4 @@ export function getStaticProps({ params }: GetStaticPropsContext) {
   return { props: chartProps(language) };
 }
 
-export default ComboChart;
+export { default } from "../../../components/comboChart/ComboChart";

@@ -112,7 +112,7 @@ const ProfileButton: React.FC = () => {
   const handleLogin = async () => {
     setLoginFailed(false);
     try {
-      window.location.href = await getLoginUrl();
+      globalThis.location.href = await getLoginUrl();
     } catch {
       setLoginFailed(true);
     }

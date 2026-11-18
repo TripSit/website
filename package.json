@@ -16,6 +16,7 @@
     "## LOCAL/CODESPACE ##": "",
     "dev": "next dev --inspect",
     "build": "next build",
+    "combo:generate": "node scripts/generate-combo-chart.mjs",
     "start": "next start",
     "prepare": "husky",
     "lint-staged": "npx lint-staged"
@@ -50,6 +51,7 @@
     "material-react-table": "^3.2.1",
     "next": "^16.4.5",
     "particles-bg": "^2.5.5",
+    "pdf-lib": "^1.17.1",
     "react": "^19.3.1",
     "react-apexcharts": "^2.2.0",
     "react-countup": "^6.5.3",
@@ -79,6 +81,7 @@
     "jest-environment-jsdom": "^30.5.2",
     "lint-staged": "^17.6.0",
     "prettier": "^3.9.10",
+    "puppeteer": "^25.17.0",
     "ts-node": "^10.9.2",
     "typescript-eslint": "^8.72.1"
   }

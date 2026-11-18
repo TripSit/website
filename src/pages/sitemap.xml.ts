@@ -1,6 +1,11 @@
 import type { GetServerSideProps } from "next";
 import { fetchDrugs } from "../utils/drugs";
 import { siteOrigin } from "../utils/siteOrigin";
+import {
+  LANGUAGES,
+  chartPath,
+  isChartLanguage,
+} from "../components/comboChart/translations";
 
 // Pages for search engines. /appeal is left out because it only works after a login.
 const PAGES = [
@@ -13,6 +18,7 @@ const PAGES = [
   "/levels",
   "/rules",
   "/terms",
+  ...Object.keys(LANGUAGES).filter(isChartLanguage).map(chartPath),
   "/webchat",
   "/reflect",
   "/reflect/privacy",

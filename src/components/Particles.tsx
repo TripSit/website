@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { TypeProp } from "particles-bg";
+import Proton from "proton-engine";
 import dynamic from "next/dynamic";
 import { Dropdown } from "@heroui/react";
 import { usePrefersReducedMotion } from "../utils/usePrefersReducedMotion";
@@ -60,16 +61,32 @@ const particleEffects = [
   { type: "cobweb", color: "#FFFFFF" }, // Must set color to white
   { type: "tadpole" },
   { type: "circle" },
-  { type: "color" }, // Needs to be slowed down before we can use
-  { type: "ball" }, // Slow down
-  { type: "polygon" }, // Slow down
-  { type: "square" }, // Slow down
-  { type: "fountain" }, // Slow down
+  { type: "color" },
+  { type: "ball" },
+  { type: "polygon" },
+  { type: "square" },
+  { type: "fountain" },
 ] as {
   type: TypeProp;
   color?: string;
   num?: number;
 }[];
+
+// particles-bg's engine (Proton) moves everything on by a fixed 1/60 s each animation frame.
+// These effects are hectic at that pace (#7), so they run at half speed: the same effect in
+// slow motion, since movement, how often particles appear and how long they last all scale.
+const FRAME_STEP = 0.0167;
+const SLOWED = new Set<TypeProp>([
+  "color",
+  "ball",
+  "polygon",
+  "square",
+  "fountain",
+]);
+
+export function frameStep(type: TypeProp): number {
+  return SLOWED.has(type) ? FRAME_STEP / 2 : FRAME_STEP;
+}
 
 export default function Particles() {
   // Initial effect is 'thick'
@@ -92,6 +109,14 @@ export default function Particles() {
   };
 
   const reducedMotion = usePrefersReducedMotion();
+
+  // The step is read on every frame, so the current effect changes speed straight away.
+  useEffect(() => {
+    Proton.DEFAULT_INTERVAL = frameStep(effect.type);
+    return () => {
+      Proton.DEFAULT_INTERVAL = FRAME_STEP;
+    };
+  }, [effect.type]);
 
   // No moving background, and so no picker for it, for someone who asked for reduced motion.
   if (reducedMotion) {

@@ -1,7 +1,8 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import AccordionSection from "../AccordionSection";
-import Particles from "../Particles";
+import Proton from "proton-engine";
+import Particles, { frameStep } from "../Particles";
 
 jest.mock("@heroui/react", () => {
   const React = jest.requireActual<typeof import("react")>("react");
@@ -134,3 +135,30 @@ test("shows no background animation or picker to someone who prefers reduced mot
     window.matchMedia = original;
   }
 });
+
+test("runs the hectic effects at half speed and restores full speed afterwards (#7)", () => {
+  const { unmount } = render(<Particles />);
+  expect(Proton.DEFAULT_INTERVAL).toBeCloseTo(0.0167);
+  fireEvent.click(screen.getByRole("button", { name: "Balls" }));
+  expect(Proton.DEFAULT_INTERVAL).toBeCloseTo(0.0167 / 2);
+  fireEvent.click(screen.getByRole("button", { name: "Tadpoles" }));
+  expect(Proton.DEFAULT_INTERVAL).toBeCloseTo(0.0167);
+  fireEvent.click(screen.getByRole("button", { name: "Fountain" }));
+  unmount();
+  // Leaving the page must not leave the engine slowed for the next visit.
+  expect(Proton.DEFAULT_INTERVAL).toBeCloseTo(0.0167);
+});
+
+test.each(["color", "ball", "polygon", "square", "fountain"] as const)(
+  "slows %s",
+  (type) => {
+    expect(frameStep(type)).toBeCloseTo(0.0167 / 2);
+  },
+);
+
+test.each(["lines", "thick", "cobweb", "tadpole", "circle"] as const)(
+  "leaves %s at full speed",
+  (type) => {
+    expect(frameStep(type)).toBeCloseTo(0.0167);
+  },
+);

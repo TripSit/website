@@ -256,7 +256,7 @@ const addDurations = (drugData: Drug) => {
           yEnd = `${minutes}m`;
           // if the hours is above 0, display it
           if (Math.floor(yEndValue) > 0) {
-            yEnd = `${Math.floor(s.y[1])}h ${minutes}m`;
+            yEnd = `${Math.floor(yEndValue)}h ${minutes}m`;
           }
         }
 

@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import ComboPage, { getStaticProps } from "@/pages/combo";
 import ComboChecker from "../ComboChecker";
 import ComboResults from "../ComboResults";
@@ -41,6 +42,51 @@ test("searches, compares, removes and clears selected substances", () => {
   fireEvent.click(button("Clear (1)"));
   expect(button("Ketamine")).toHaveAttribute("aria-pressed", "false");
   expect(screen.getByText(/select two or more substances/i)).toBeVisible();
+});
+
+test("announces pair counts and highest risk while keyboard focus stays on the selector", async () => {
+  const user = userEvent.setup();
+  render(<ComboChecker />);
+  const status = screen.getByRole("status");
+  expect(status).toHaveAttribute("aria-live", "polite");
+  expect(status).toHaveAttribute("aria-atomic", "true");
+  expect(status).toHaveTextContent("No combinations to display.");
+
+  for (const name of ["Alcohol", "Opioids", "Cannabis"]) {
+    const button = screen.getByRole("button", { name });
+    button.focus();
+    await user.keyboard(" ");
+    expect(button).toHaveFocus();
+    expect(screen.getByRole("status")).toBe(status);
+  }
+  expect(status).toHaveTextContent(
+    "3 pairs displayed. Highest risk: Dangerous.",
+  );
+  const cannabis = screen.getByRole("button", { name: "Cannabis" });
+  await user.keyboard(" ");
+  expect(cannabis).toHaveFocus();
+  expect(status).toHaveTextContent(
+    "1 pair displayed. Highest risk: Dangerous.",
+  );
+  expect(status).not.toHaveTextContent("Alcohol + Opioids");
+
+  await user.click(screen.getByRole("button", { name: "Clear (2)" }));
+  expect(screen.getByRole("status")).toBe(status);
+  expect(status).toHaveTextContent("No combinations to display.");
+});
+
+test("announces the highest displayed risk regardless of card order", () => {
+  render(
+    <ComboResults
+      selected={["Cannabis", "LSD", "Alcohol", "Opioids"]}
+      accent="#2487ce"
+      showExplanations={false}
+      sortBySeverity={false}
+    />,
+  );
+  expect(screen.getByRole("status")).toHaveTextContent(
+    "6 pairs displayed. Highest risk: Dangerous.",
+  );
 });
 
 test("renders every pair in selection order or severity order", () => {

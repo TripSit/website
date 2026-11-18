@@ -132,10 +132,10 @@ function SentenceCalc({ calc }: Readonly<{ calc: Calc }>) {
         >
           Copy as text
         </button>
-        <span role="status" className="text-sm text-mute">
+        <output className="text-sm text-mute">
           {copyStatus === "copied" && "Copied"}
           {copyStatus === "failed" && "Couldn't copy. Select the text instead."}
-        </span>
+        </output>
       </div>
     </section>
   );

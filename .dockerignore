@@ -5,5 +5,9 @@ node_modules/
 .husky/
 .vscode/
 .devcontainer/
+.worktrees/
+.env
+.env.*
+!.env.example
 *.md
 tsconfig.copy.json

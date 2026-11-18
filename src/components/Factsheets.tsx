@@ -15,7 +15,7 @@ It creates charts using ApexCharts: https://apexcharts.com/
 Pull requests are welcome! If you have any questions, feel free to ask in #dev on the TripSit Discord: https://discord.gg/tripsit
 */
 
-import React, { Fragment, useMemo } from "react";
+import React, { Fragment, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   MaterialReactTable,
@@ -50,6 +50,7 @@ import addDictionaryDefs from "./addDictionaryDefs";
 import { splitWords } from "../utils/splitWords";
 
 import dictionary from "../assets/dictionary.json";
+import pinnedDrugs from "../assets/pinnedDrugs.json";
 import GithubButton from "./Github";
 import DrugInfoCard from "./DrugInfo";
 import ReagentResults from "./ReagentResults";
@@ -256,8 +257,28 @@ const ReagentCell = ({ cell }: DrugCellProps) => (
   <ReagentResults text={cell.getValue<string | undefined>()} />
 );
 
+type RowPinning = { top?: string[]; bottom?: string[] };
+
+// Only pinned drugs that are loaded reach the table: it throws on an ID it can't find, which
+// is every ID until drugs.json arrives.
+function loadedPins(pinning: RowPinning, loaded: ReadonlySet<string>) {
+  const keep = (names: string[] = []) =>
+    names.filter((name) => loaded.has(name));
+  return { top: keep(pinning.top), bottom: keep(pinning.bottom) };
+}
+
 const Factsheets = () => {
   const { data = [], isError, isRefetching, isLoading, refetch } = useDrugs();
+  // Drugs named in src/assets/pinnedDrugs.json (such as ones just added) start pinned to the
+  // top. Visitors can pin and unpin rows too.
+  const [rowPinning, setRowPinning] = useState<RowPinning>({
+    top: pinnedDrugs,
+    bottom: [],
+  });
+  const tableRowPinning = useMemo(
+    () => loadedPins(rowPinning, new Set(data.map((drug) => drug.name))),
+    [rowPinning, data],
+  );
 
   // Define the columns
   const columns = useMemo<MRT_ColumnDef<Drug>[]>(
@@ -353,7 +374,9 @@ const Factsheets = () => {
       isLoading,
       showAlertBanner: isError,
       showProgressBars: isRefetching,
+      rowPinning: tableRowPinning,
     },
+    onRowPinningChange: setRowPinning,
     getRowId: (row) => row.name,
     initialState: {
       showColumnFilters: true,
@@ -362,9 +385,6 @@ const Factsheets = () => {
         effects: false,
         reagent_results: false,
       },
-      // rowPinning: {
-      //   top: ["0"],
-      // },
       // rowSelection: {
       //   cocaine: true,
       // },

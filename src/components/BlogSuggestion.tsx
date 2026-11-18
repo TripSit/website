@@ -8,7 +8,7 @@ import { useSyncExternalStore } from "react";
 // Blog URLs end in "/", and the blog's own redirect to add it is broken (it points at an
 // internal port), so add the slash here.
 const noSubscribe = () => () => {};
-const getPathname = () => window.location.pathname;
+const getPathname = () => globalThis.location.pathname;
 const getServerPathname = () => "/";
 
 export default function BlogSuggestion({

@@ -202,7 +202,7 @@ const addCategoryStyle = (text: string | undefined): React.JSX.Element[] => {
   // Split the input text into individual words
   return splitWords(text).map(({ word, key }) => {
     // Remove the comma, we need to keep hyphens though:
-    const cleanWord = word.replace(/,/g, "").toLowerCase();
+    const cleanWord = word.replaceAll(",", "").toLowerCase();
 
     // Check if the word is included in the categoryColors, and if so, add the styles
     if (Object.keys(categoryColors).includes(cleanWord)) {
@@ -381,7 +381,7 @@ const Factsheets = () => {
     renderTopToolbarCustomActions: () => (
       <>
         <Tooltip arrow title="Refresh Data">
-          <IconButton onClick={() => refetch()}>
+          <IconButton onClick={() => void refetch()}>
             <RefreshIcon />
           </IconButton>
         </Tooltip>

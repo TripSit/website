@@ -228,7 +228,7 @@ const testimonials = [
   },
   {
     name: "Squonk",
-    text: "I admire everyone's commitment to #TriPSiT throughout the years. And i am immensely proud and glad for the assistance\\social ground\\venting possibility~.., throughout the many many years. The educative vigor\\interests\\additions, in regards to advancement of both the www-site, Discord, and especially the IRC, in assisting and informing, is amazing. And i know a lot of people have had real life-altering\\life-saving, experiences throughout the many years. I thank you kindly, warmly, and genuinely lovingly, for being.",
+    text: String.raw`I admire everyone's commitment to #TriPSiT throughout the years. And i am immensely proud and glad for the assistance\social ground\venting possibility~.., throughout the many many years. The educative vigor\interests\additions, in regards to advancement of both the www-site, Discord, and especially the IRC, in assisting and informing, is amazing. And i know a lot of people have had real life-altering\life-saving, experiences throughout the many years. I thank you kindly, warmly, and genuinely lovingly, for being.`,
   },
   {
     name: "Bloopiness",

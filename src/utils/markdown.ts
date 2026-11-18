@@ -16,9 +16,9 @@ function slug(text: string): string {
 // (/terms#ban-appeals). A repeated heading gets -2, -3 and so on.
 markdown.core.ruler.push("heading_ids", (state) => {
   const used = new Set<string>();
-  state.tokens.forEach((token, index) => {
+  for (const [index, token] of state.tokens.entries()) {
     if (token.type !== "heading_open") {
-      return;
+      continue;
     }
     const base = slug(state.tokens[index + 1].content);
     let id = base;
@@ -29,7 +29,7 @@ markdown.core.ruler.push("heading_ids", (state) => {
     }
     used.add(id);
     token.attrSet("id", id);
-  });
+  }
 });
 
 export function renderMarkdown(source: string): string {

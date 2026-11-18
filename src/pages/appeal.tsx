@@ -115,11 +115,11 @@ const AppealPage: React.FC = () => {
     if (!latestAppeal) return;
     const availableAt = reminderAvailableAt(latestAppeal).getTime();
     if (!Number.isFinite(availableAt)) return;
-    const timer = window.setTimeout(
+    const timer = globalThis.setTimeout(
       () => setReminderNow(Date.now()),
       Math.max(0, availableAt - Date.now()),
     );
-    return () => window.clearTimeout(timer);
+    return () => globalThis.clearTimeout(timer);
   }, [latestAppeal]);
 
   // Share a pending refresh so concurrent requests use the same tokens.
@@ -170,7 +170,7 @@ const AppealPage: React.FC = () => {
                   sessionStorage.setItem("kc_id_token", newTokens.id_token);
                 }
 
-                window.dispatchEvent(new Event("tokensUpdated"));
+                globalThis.dispatchEvent(new Event("tokensUpdated"));
                 return newTokens.access_token;
               }
               sessionStorage.removeItem("kc_token");
@@ -210,7 +210,7 @@ const AppealPage: React.FC = () => {
 
   async function exchangeCodeForToken(code: string) {
     try {
-      const params = new URLSearchParams(window.location.search);
+      const params = new URLSearchParams(globalThis.location.search);
       const codeVerifier = consumeLoginState(params.get("state"));
       if (!codeVerifier) {
         setLoginFailed(true);
@@ -235,7 +235,7 @@ const AppealPage: React.FC = () => {
         }
 
         // Dispatch event for ProfileButton
-        window.dispatchEvent(new Event("tokensUpdated"));
+        globalThis.dispatchEvent(new Event("tokensUpdated"));
         void checkBan();
       } else {
         setLoginFailed(true);
@@ -245,7 +245,7 @@ const AppealPage: React.FC = () => {
     } finally {
       // A code works only once, so remove it from the URL whether or not the login worked.
       document.title = "Ban Appeal - TripSit";
-      window.history.replaceState({}, "", window.location.pathname);
+      globalThis.history.replaceState({}, "", globalThis.location.pathname);
       setLoading(false);
     }
   }
@@ -373,7 +373,7 @@ const AppealPage: React.FC = () => {
         });
         setBanStatus("has_appeal");
         // Refresh to get the new appeal
-        checkBan();
+        void checkBan();
         setTimeout(() => setMessage(null), 3000);
       } else {
         const errorData = await res.json();
@@ -421,7 +421,7 @@ const AppealPage: React.FC = () => {
       if (res.ok) {
         setRemindMessage(data.message);
         // Refresh the appeal data to get updated reminded_at
-        checkBan();
+        void checkBan();
       } else {
         setRemindMessage(data.error);
       }
@@ -432,9 +432,8 @@ const AppealPage: React.FC = () => {
     }
   }
 
-  const getStatusBadge = (status?: string) => {
-    const s = status ?? "Unknown";
-    switch (s) {
+  const getStatusBadge = (status = "Unknown") => {
+    switch (status) {
       case "ACCEPTED":
         return <span className="badge bg-success fs-6">Accepted</span>;
       case "DENIED":
@@ -444,7 +443,7 @@ const AppealPage: React.FC = () => {
           <span className="badge bg-warning text-dark fs-6">Under Review</span>
         );
       default:
-        return <span className="badge bg-secondary fs-6">{s}</span>;
+        return <span className="badge bg-secondary fs-6">{status}</span>;
     }
   };
 
@@ -466,13 +465,13 @@ const AppealPage: React.FC = () => {
         setToken(validToken);
         checkBanForNewToken();
         // Clean up any lingering auth query params from URL
-        if (window.location.search) {
+        if (globalThis.location.search) {
           document.title = "Ban Appeal - TripSit";
-          window.history.replaceState({}, "", window.location.pathname);
+          globalThis.history.replaceState({}, "", globalThis.location.pathname);
         }
       } else {
         // Look for auth code for fresh login
-        const params = new URLSearchParams(window.location.search);
+        const params = new URLSearchParams(globalThis.location.search);
         const code = params.get("code");
         if (code) {
           // exchangeCodeForToken handles both setToken and setLoading
@@ -484,7 +483,7 @@ const AppealPage: React.FC = () => {
       }
     };
 
-    checkToken();
+    void checkToken();
   }, []);
 
   // Set up background token refresh when we have a token
@@ -674,7 +673,10 @@ const AppealPage: React.FC = () => {
                       situation.
                     </p>
                   </div>
-                  <AppealForm onSubmit={submitAppeal} submitting={submitting} />
+                  <AppealForm
+                    onSubmit={(data) => void submitAppeal(data)}
+                    submitting={submitting}
+                  />
                 </div>
               </div>
             </div>
@@ -745,7 +747,10 @@ const AppealPage: React.FC = () => {
                     </div>
                   </div>
 
-                  <AppealForm onSubmit={submitAppeal} submitting={submitting} />
+                  <AppealForm
+                    onSubmit={(data) => void submitAppeal(data)}
+                    submitting={submitting}
+                  />
                 </div>
               </div>
             </div>
@@ -840,7 +845,7 @@ const AppealPage: React.FC = () => {
 
                               return (
                                 <button
-                                  onClick={sendReminder}
+                                  onClick={() => void sendReminder()}
                                   disabled={reminding || !canRemind}
                                   className={buttonClass}
                                 >
@@ -851,76 +856,79 @@ const AppealPage: React.FC = () => {
                         </div>
                       </div>
 
-                      {(latestAppeal?.reason ||
-                        latestAppeal?.solution ||
-                        latestAppeal?.future ||
-                        latestAppeal?.extra) && (
-                        <div className="mt-4">
-                          <div className="d-grid">
-                            <button
-                              className="btn btn-outline-info"
-                              type="button"
-                              data-bs-toggle="collapse"
-                              data-bs-target="#appealContent"
-                              aria-expanded="false"
-                              aria-controls="appealContent"
-                            >
-                              <i className="bi bi-eye me-2"></i>View Your Appeal
-                              Content
-                            </button>
-                          </div>
-                          <div className="collapse mt-3" id="appealContent">
-                            <div className="card card-body bg-light">
-                              <h6 className="mb-3">Your Submitted Appeal</h6>
+                      {latestAppeal !== null &&
+                        [
+                          latestAppeal.reason,
+                          latestAppeal.solution,
+                          latestAppeal.future,
+                          latestAppeal.extra,
+                        ].some(Boolean) && (
+                          <div className="mt-4">
+                            <div className="d-grid">
+                              <button
+                                className="btn btn-outline-info"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#appealContent"
+                                aria-expanded="false"
+                                aria-controls="appealContent"
+                              >
+                                <i className="bi bi-eye me-2"></i>View Your
+                                Appeal Content
+                              </button>
+                            </div>
+                            <div className="collapse mt-3" id="appealContent">
+                              <div className="card card-body bg-light">
+                                <h6 className="mb-3">Your Submitted Appeal</h6>
 
-                              {latestAppeal.reason && (
-                                <div className="mb-3">
-                                  <strong>
-                                    Do you know why you were banned?
-                                  </strong>
-                                  <div className="bg-white p-2 rounded mt-1 border">
-                                    {latestAppeal.reason}
+                                {latestAppeal.reason && (
+                                  <div className="mb-3">
+                                    <strong>
+                                      Do you know why you were banned?
+                                    </strong>
+                                    <div className="bg-white p-2 rounded mt-1 border">
+                                      {latestAppeal.reason}
+                                    </div>
                                   </div>
-                                </div>
-                              )}
+                                )}
 
-                              {latestAppeal.solution && (
-                                <div className="mb-3">
-                                  <strong>
-                                    Have you taken any steps to make amends?
-                                  </strong>
-                                  <div className="bg-white p-2 rounded mt-1 border">
-                                    {latestAppeal.solution}
+                                {latestAppeal.solution && (
+                                  <div className="mb-3">
+                                    <strong>
+                                      Have you taken any steps to make amends?
+                                    </strong>
+                                    <div className="bg-white p-2 rounded mt-1 border">
+                                      {latestAppeal.solution}
+                                    </div>
                                   </div>
-                                </div>
-                              )}
+                                )}
 
-                              {latestAppeal.future && (
-                                <div className="mb-3">
-                                  <strong>
-                                    What will you do to avoid repeating the
-                                    behavior?
-                                  </strong>
-                                  <div className="bg-white p-2 rounded mt-1 border">
-                                    {latestAppeal.future}
+                                {latestAppeal.future && (
+                                  <div className="mb-3">
+                                    <strong>
+                                      What will you do to avoid repeating the
+                                      behavior?
+                                    </strong>
+                                    <div className="bg-white p-2 rounded mt-1 border">
+                                      {latestAppeal.future}
+                                    </div>
                                   </div>
-                                </div>
-                              )}
+                                )}
 
-                              {latestAppeal.extra && (
-                                <div className="mb-0">
-                                  <strong>
-                                    Anything else you&apos;d like to add?
-                                  </strong>
-                                  <div className="bg-white p-2 rounded mt-1 border">
-                                    {latestAppeal.extra}
+                                {latestAppeal.extra && (
+                                  <div className="mb-0">
+                                    <strong>
+                                      Anything else you&apos;d like to add?
+                                    </strong>
+                                    <div className="bg-white p-2 rounded mt-1 border">
+                                      {latestAppeal.extra}
+                                    </div>
                                   </div>
-                                </div>
-                              )}
+                                )}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      )}
+                        )}
 
                       {latestAppeal?.status === "RECEIVED" &&
                         !canShowReminder(latestAppeal) &&

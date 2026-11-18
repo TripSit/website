@@ -12,7 +12,7 @@ export function decodeJwtPayload(token: string): Record<string, unknown> {
   // atob returns one character per byte; the claims are UTF-8.
   const utf8 = Array.from(
     binary,
-    (char) => `%${char.charCodeAt(0).toString(16).padStart(2, "0")}`,
+    (char) => `%${(char.codePointAt(0) ?? 0).toString(16).padStart(2, "0")}`,
   ).join("");
   return JSON.parse(decodeURIComponent(utf8));
 }

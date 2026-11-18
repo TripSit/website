@@ -18,11 +18,50 @@ interface Appeal {
   extra?: string;
 }
 
+const INVALID_APPEAL_HISTORY = "Invalid appeal history";
+
+function parseLatestAppeal(data: unknown): Appeal | null {
+  if (!data || typeof data !== "object" || Array.isArray(data)) {
+    throw new Error(INVALID_APPEAL_HISTORY);
+  }
+  if ("appeal" in data && data.appeal === null && !("id" in data)) {
+    return null;
+  }
+  const appeal = data as Record<string, unknown>;
+  if (
+    typeof appeal.id !== "string" ||
+    !appeal.id ||
+    typeof appeal.status !== "string" ||
+    !["RECEIVED", "ACCEPTED", "DENIED"].includes(appeal.status) ||
+    typeof appeal.created_at !== "string" ||
+    !Number.isFinite(Date.parse(appeal.created_at))
+  ) {
+    throw new Error(INVALID_APPEAL_HISTORY);
+  }
+  const optionalText = [
+    "decided_at",
+    "reminded_at",
+    "response_message",
+    "reason",
+    "solution",
+    "future",
+    "extra",
+  ];
+  if (
+    optionalText.some(
+      (key) => appeal[key] != null && typeof appeal[key] !== "string",
+    )
+  ) {
+    throw new Error(INVALID_APPEAL_HISTORY);
+  }
+  return appeal as unknown as Appeal;
+}
+
 type BanStatus =
   "unknown" | "can_appeal" | "has_appeal" | "not_banned" | "can_reappeal";
 
 function reminderAvailableAt(appeal: Appeal): Date {
-  const baseTime = new Date(appeal.reminded_at || appeal.created_at).getTime();
+  const baseTime = new Date(appeal.reminded_at ?? appeal.created_at).getTime();
   const cooldown =
     process.env.NODE_ENV === "development" ? 30_000 : 48 * 60 * 60 * 1000;
   return new Date(baseTime + cooldown);
@@ -68,6 +107,7 @@ const AppealPage: React.FC = () => {
   // falling back to the login screen or an empty page.
   const [loginFailed, setLoginFailed] = useState(false);
   const [banCheckFailed, setBanCheckFailed] = useState(false);
+  const [appealHistoryFailed, setAppealHistoryFailed] = useState(false);
   const [reminding, setReminding] = useState(false);
   const [remindMessage, setRemindMessage] = useState<string | null>(null);
 
@@ -234,7 +274,9 @@ const AppealPage: React.FC = () => {
 
     isCheckingBanRef.current = true;
     setBanCheckFailed(false);
+    setAppealHistoryFailed(false);
 
+    let checkingHistory = false;
     try {
       // Reset appeal state at start to prevent stale data
       setLatestAppeal(null);
@@ -263,19 +305,16 @@ const AppealPage: React.FC = () => {
       const currentBanStatus = await banRes.json();
 
       // Check for appeal history (works for both banned and not banned users)
+      checkingHistory = true;
       const appealsRes = await fetch("/api/v2/appeals/latest", {
         headers,
       });
 
-      let appeal: Appeal | null = null;
-
-      if (appealsRes.ok) {
-        const data = await appealsRes.json();
-        if (data.id) {
-          appeal = data;
-          setLatestAppeal(appeal);
-        }
+      if (!appealsRes.ok) {
+        throw new Error("Failed to check appeal history");
       }
+      const appeal = parseLatestAppeal(await appealsRes.json());
+      setLatestAppeal(appeal);
 
       if (!currentBanStatus.banned) {
         setBanStatus("not_banned");
@@ -288,6 +327,7 @@ const AppealPage: React.FC = () => {
     } catch {
       setBanStatus("unknown");
       setBanCheckFailed(true);
+      setAppealHistoryFailed(checkingHistory);
     } finally {
       setLoading(false);
       isCheckingBanRef.current = false;
@@ -572,8 +612,8 @@ const AppealPage: React.FC = () => {
                 <div className="col-lg-8 text-center">
                   <h1>Ban Appeal</h1>
                   <div className="alert alert-danger mt-4" role="alert">
-                    <i className="bi bi-exclamation-triangle-fill me-2"></i> We
-                    couldn&apos;t check your ban status. This is usually
+                    <i className="bi bi-exclamation-triangle-fill me-2"></i>{" "}
+                    {`We couldn't check your ${appealHistoryFailed ? "appeal history" : "ban status"}. This is usually`}
                     temporary, so please try again. If it keeps failing, log in
                     again.
                   </div>

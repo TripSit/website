@@ -126,6 +126,10 @@ jobs:
             jq -r '.issues[] | "\(.component | sub("^[^:]*:"; "")):\(.line // 0)\t\(.rule)\t\(.message)"'
           echo "::endgroup::"
           echo "::group::Security hotspots in new code to review"
-          api "hotspots/search?projectKey=$key&inNewCodePeriod=true&status=TO_REVIEW&ps=100" |
-            jq -r '.hotspots[] | "\(.component | sub("^[^:]*:"; "")):\(.line // 0)\t\(.ruleKey // .securityCategory)\t\(.message)"'
+          # The scan token may lack permission to browse hotspots (HTTP 403); say so and go on.
+          if hotspots=$(api "hotspots/search?projectKey=$key&inNewCodePeriod=true&status=TO_REVIEW&ps=100"); then
+            jq -r '.hotspots[] | "\(.component | sub("^[^:]*:"; "")):\(.line // 0)\t\(.ruleKey // .securityCategory)\t\(.message)"' <<<"$hotspots"
+          else
+            echo "(the scan token cannot list hotspots; check the dashboard)"
+          fi
           echo "::endgroup::"

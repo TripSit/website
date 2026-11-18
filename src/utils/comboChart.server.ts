@@ -28,12 +28,12 @@ export interface ChartProps {
 
 // Includes both directions: a conflicting database update must not produce a misleading chart.
 export function chartSnapshot() {
-  const pairs = SUBSTANCES.flatMap((a, index) =>
-    SUBSTANCES.slice(index + 1).map((b) => ({
-      a,
-      b,
-      forward: getCombo(a, b),
-      reverse: getCombo(b, a),
+  const pairs = SUBSTANCES.flatMap((first, index) =>
+    SUBSTANCES.slice(index + 1).map((second) => ({
+      a: first,
+      b: second,
+      forward: getCombo(first, second),
+      reverse: getCombo(second, first),
     })),
   );
   return {

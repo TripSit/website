@@ -42,7 +42,7 @@
     "aos": "^2.3.4",
     "apexcharts": "^8.8.1",
     "autoprefixer": "^10.6.2",
-    "axios": "^1.18.1",
+    "axios": "^1.21.1",
     "date-fns": "^4.4.0",
     "discord-api-types": "^0.38.58",
     "kofi-button": "^1.1.1",

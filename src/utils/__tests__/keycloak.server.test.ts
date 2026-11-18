@@ -3,7 +3,7 @@ import { getLoginUrl, getPostLogoutUrl } from "../keycloak";
 
 afterEach(() => jest.restoreAllMocks());
 
-test("omits browser redirect origins when building authentication URLs on the server", () => {
+test("rejects server-side login initiation and omits the server logout origin", async () => {
   jest.replaceProperty(process, "env", {
     ...process.env,
     NEXT_PUBLIC_KEYCLOAK_CLIENT_ID: "appeals",
@@ -13,7 +13,9 @@ test("omits browser redirect origins when building authentication URLs on the se
     value: { getItem: () => null },
   });
   try {
-    expect(new URL(getLoginUrl()).searchParams.get("redirect_uri")).toBe("");
+    await expect(getLoginUrl()).rejects.toThrow(
+      "Login must start in a browser.",
+    );
     expect(
       new URL(getPostLogoutUrl()).searchParams.get("post_logout_redirect_uri"),
     ).toBe("");

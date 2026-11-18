@@ -6,7 +6,7 @@ import {
   waitFor,
 } from "@testing-library/react";
 import AppealPage from "@/pages/appeal";
-import { consumeLoginState } from "@/utils/keycloak";
+import { consumeLoginState, getLoginUrl } from "@/utils/keycloak";
 
 test.each([
   ["server", "An error occurred while submitting your appeal"],
@@ -76,10 +76,7 @@ test("explains a failed ban check and lets the user retry or log in again", asyn
   expect(await screen.findByRole("alert")).toHaveTextContent(
     "We couldn't check your ban status.",
   );
-  expect(screen.getByRole("link", { name: "Log in again" })).toHaveAttribute(
-    "href",
-    "https://auth.example.test/login",
-  );
+  expect(screen.getByRole("button", { name: "Log in again" })).toBeEnabled();
 
   fetchMock
     .mockResolvedValueOnce(reply({ banned: false }))
@@ -132,8 +129,8 @@ test.each(["DENIED", "RECEIVED"])(
 jest.mock("@/components/Header", () => () => null);
 jest.mock("@/components/Footer", () => () => null);
 jest.mock("@/utils/keycloak", () => ({
-  getLoginUrl: () => "https://auth.example.test/login",
-  consumeLoginState: jest.fn(() => true),
+  getLoginUrl: jest.fn(async () => "#login"),
+  consumeLoginState: jest.fn(() => "v".repeat(43)),
 }));
 
 const fetchMock = jest.fn();
@@ -295,7 +292,8 @@ const appeal = (status: string, age: number) => ({
 
 beforeEach(() => {
   fetchMock.mockReset();
-  jest.mocked(consumeLoginState).mockClear().mockReturnValue(true);
+  jest.mocked(consumeLoginState).mockClear().mockReturnValue("v".repeat(43));
+  jest.mocked(getLoginUrl).mockReset().mockResolvedValue("#login");
   global.fetch = fetchMock;
 });
 
@@ -398,7 +396,7 @@ test("handles credentials removed between initialization and the ban check", asy
   await waitFor(() => expect(tokenReads).toBeGreaterThan(1));
   expect(fetchMock).not.toHaveBeenCalled();
   expect(
-    await screen.findByRole("link", { name: "Log in again" }),
+    await screen.findByRole("button", { name: "Log in again" }),
   ).toBeVisible();
 });
 
@@ -411,7 +409,7 @@ test.each(["missing token", "network error"])(
     else fetchMock.mockResolvedValueOnce(reply({}, false));
     render(<AppealPage />);
     expect(
-      await screen.findByRole("link", { name: "Login with Discord" }),
+      await screen.findByRole("button", { name: "Login with Discord" }),
     ).toBeVisible();
     expect(screen.getByRole("alert")).toHaveTextContent(
       "We couldn't log you in. Please try logging in again.",
@@ -426,7 +424,7 @@ test.each(["missing token", "network error"])(
 test("doesn't show a login error to a visitor who hasn't tried to log in", async () => {
   render(<AppealPage />);
   expect(
-    await screen.findByRole("link", { name: "Login with Discord" }),
+    await screen.findByRole("button", { name: "Login with Discord" }),
   ).toBeVisible();
   expect(screen.queryByRole("alert")).toBeNull();
 });
@@ -461,7 +459,7 @@ test("refreshes the session in the background, then returns to login if refresh 
   );
   await act(() => jest.advanceTimersByTimeAsync(30000));
   expect(
-    screen.getByRole("link", { name: "Login with Discord" }),
+    screen.getByRole("button", { name: "Login with Discord" }),
   ).toBeVisible();
   expect(sessionStorage.getItem("kc_refresh_token")).toBeNull();
 });
@@ -491,9 +489,26 @@ test.each(["HTTP error", "network error"])(
 
 test("offers Discord login to a visitor without credentials", async () => {
   render(<AppealPage />);
-  expect(
-    await screen.findByRole("link", { name: "Login with Discord" }),
-  ).toHaveAttribute("href", "https://auth.example.test/login");
+  const login = await screen.findByRole("button", {
+    name: "Login with Discord",
+  });
+  expect(getLoginUrl).not.toHaveBeenCalled();
+  fireEvent.click(login);
+  await waitFor(() => expect(window.location.hash).toBe("#login"));
+  expect(getLoginUrl).toHaveBeenCalledTimes(1);
+  expect(fetchMock).not.toHaveBeenCalled();
+});
+
+test("shows a retryable login error when challenge preparation fails", async () => {
+  jest.mocked(getLoginUrl).mockRejectedValue(new Error("Crypto unavailable"));
+  render(<AppealPage />);
+  fireEvent.click(
+    await screen.findByRole("button", { name: "Login with Discord" }),
+  );
+  expect(await screen.findByRole("alert")).toHaveTextContent(
+    "We couldn't log you in.",
+  );
+  expect(window.location.hash).toBe("");
   expect(fetchMock).not.toHaveBeenCalled();
 });
 
@@ -501,7 +516,7 @@ test.each(["", "&state=unrelated"])(
   "rejects an authorization code without a matching pending login (%s)",
   async (query) => {
     window.history.replaceState({}, "", `/appeal?code=unsolicited${query}`);
-    jest.mocked(consumeLoginState).mockReturnValue(false);
+    jest.mocked(consumeLoginState).mockReturnValue(null);
     render(<AppealPage />);
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "We couldn't log you in.",
@@ -531,7 +546,7 @@ test("exchanges an authorization code and uses the resulting session", async () 
     "/api/v2/keycloak/token",
     expect.objectContaining({
       method: "POST",
-      body: JSON.stringify({ code: "example" }),
+      body: JSON.stringify({ code: "example", code_verifier: "v".repeat(43) }),
     }),
   );
   expect(fetchMock).toHaveBeenNthCalledWith(
@@ -587,7 +602,7 @@ test.each([
     fetchMock.mockResolvedValue(reply({}, false));
     render(<AppealPage />);
     expect(
-      await screen.findByRole("link", { name: "Login with Discord" }),
+      await screen.findByRole("button", { name: "Login with Discord" }),
     ).toBeVisible();
     expect(sessionStorage.getItem("kc_token")).toBeNull();
     expect(fetchMock).toHaveBeenCalledTimes(refresh ? 1 : 0);

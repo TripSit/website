@@ -211,14 +211,15 @@ const AppealPage: React.FC = () => {
   async function exchangeCodeForToken(code: string) {
     try {
       const params = new URLSearchParams(window.location.search);
-      if (!consumeLoginState(params.get("state"))) {
+      const codeVerifier = consumeLoginState(params.get("state"));
+      if (!codeVerifier) {
         setLoginFailed(true);
         return;
       }
       const res = await fetch("/api/v2/keycloak/token", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code }),
+        body: JSON.stringify({ code, code_verifier: codeVerifier }),
       });
       const data = res.ok ? await res.json() : {};
       if (data.access_token) {
@@ -246,6 +247,15 @@ const AppealPage: React.FC = () => {
       document.title = "Ban Appeal - TripSit";
       window.history.replaceState({}, "", window.location.pathname);
       setLoading(false);
+    }
+  }
+
+  async function startLogin() {
+    setLoginFailed(false);
+    try {
+      window.location.href = await getLoginUrl();
+    } catch {
+      setLoginFailed(true);
     }
   }
 
@@ -590,8 +600,9 @@ const AppealPage: React.FC = () => {
                 </div>
               )}
               <div className="text-center mt-4">
-                <a
-                  href={getLoginUrl()}
+                <button
+                  type="button"
+                  onClick={() => void startLogin()}
                   className="btn-get-started scrollto"
                   style={{
                     borderRadius: "50px",
@@ -601,10 +612,11 @@ const AppealPage: React.FC = () => {
                     textTransform: "none",
                     backgroundColor: "#2487ce",
                     color: "#fff",
+                    border: "none",
                   }}
                 >
                   Login with Discord
-                </a>
+                </button>
               </div>
             </div>
           </section>
@@ -630,10 +642,19 @@ const AppealPage: React.FC = () => {
                     >
                       Try again
                     </button>
-                    <a href={getLoginUrl()} className="btn btn-outline-light">
+                    <button
+                      type="button"
+                      onClick={() => void startLogin()}
+                      className="btn btn-outline-light"
+                    >
                       Log in again
-                    </a>
+                    </button>
                   </div>
+                  {loginFailed && (
+                    <p className="text-danger mt-3" role="alert">
+                      We couldn&apos;t start login. Please try again.
+                    </p>
+                  )}
                 </div>
               </div>
             </div>

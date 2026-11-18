@@ -3,7 +3,7 @@ import Head from "../components/Head";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import AppealForm from "../components/AppealForm";
-import { getLoginUrl } from "../utils/keycloak";
+import { consumeLoginState, getLoginUrl } from "../utils/keycloak";
 import { decodeJwtPayload } from "../utils/jwt";
 
 interface Appeal {
@@ -210,6 +210,11 @@ const AppealPage: React.FC = () => {
 
   async function exchangeCodeForToken(code: string) {
     try {
+      const params = new URLSearchParams(window.location.search);
+      if (!consumeLoginState(params.get("state"))) {
+        setLoginFailed(true);
+        return;
+      }
       const res = await fetch("/api/v2/keycloak/token", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

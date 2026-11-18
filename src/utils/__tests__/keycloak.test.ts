@@ -1,4 +1,4 @@
-import { getLoginUrl, getPostLogoutUrl } from "../keycloak";
+import { consumeLoginState, getLoginUrl, getPostLogoutUrl } from "../keycloak";
 
 // NODE_ENV is typed read-only; tests need to switch it.
 const env = process.env as Record<string, string | undefined>;
@@ -40,6 +40,47 @@ test.each(["", "test-id-token"])(
 );
 
 describe("getLoginUrl", () => {
+  it("binds login to a random, single-use state for this tab", () => {
+    env.NEXT_PUBLIC_KEYCLOAK_CLIENT_ID = "ban-appeals";
+    const state = new URL(getLoginUrl()).searchParams.get("state");
+    expect(state).toMatch(/^[a-f0-9]{64}$/);
+    // Rendering another login link must not invalidate the first link.
+    expect(new URL(getLoginUrl()).searchParams.get("state")).toBe(state);
+    expect(consumeLoginState(state)).toBe(true);
+    expect(consumeLoginState(state)).toBe(false);
+    expect(new URL(getLoginUrl()).searchParams.get("state")).not.toBe(state);
+  });
+
+  it.each([null, "wrong-state"])(
+    "rejects an uncorrelated callback (%s)",
+    (state) => {
+      env.NEXT_PUBLIC_KEYCLOAK_CLIENT_ID = "ban-appeals";
+      getLoginUrl();
+      expect(consumeLoginState(state)).toBe(false);
+      expect(sessionStorage.getItem("kc_login_state")).toBeNull();
+    },
+  );
+
+  it("rejects a callback after the pending login expires", () => {
+    env.NEXT_PUBLIC_KEYCLOAK_CLIENT_ID = "ban-appeals";
+    const now = Date.now();
+    const clock = jest.spyOn(Date, "now").mockReturnValue(now);
+    const state = new URL(getLoginUrl()).searchParams.get("state");
+    clock.mockReturnValue(now + 10 * 60 * 1000);
+    expect(consumeLoginState(state)).toBe(false);
+  });
+
+  it.each([
+    "invalid JSON",
+    "null",
+    "{}",
+    '{"value":123}',
+    '{"value":"short","expiresAt":9999999999999}',
+  ])("rejects malformed pending state (%s)", (stored) => {
+    sessionStorage.setItem("kc_login_state", stored);
+    expect(consumeLoginState("anything")).toBe(false);
+  });
+
   it("asks Keycloak for a code as the configured client", () => {
     env.NEXT_PUBLIC_KEYCLOAK_CLIENT_ID = "ban-appeals";
     const url = new URL(getLoginUrl());

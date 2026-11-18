@@ -40,7 +40,7 @@ function printChart() {
   style.textContent = `@page { size: ${poster.offsetWidth}px ${poster.offsetHeight + 2}px; margin: 0; }`;
   document.head.append(style);
   try {
-    window.print();
+    globalThis.print();
   } finally {
     style.remove();
   }
@@ -121,7 +121,7 @@ export default function ComboChart({
       />
       <NextHead>
         {Object.keys(LANGUAGES)
-          .filter(isChartLanguage)
+          .filter((lang) => isChartLanguage(lang))
           .map((lang) => (
             <link
               key={lang}
@@ -252,9 +252,7 @@ export default function ComboChart({
           96 pixels per inch. Small images may need zooming to read.
         </p>
         {validation && <p role="alert">{validation}</p>}
-        <p role="status" aria-live="polite">
-          {message}
-        </p>
+        <output aria-live="polite">{message}</output>
         <p>
           {LICENSE_NOTICE}{" "}
           <a href={LICENSE_URL}>{LICENSE_NAME} license terms</a>
@@ -265,7 +263,8 @@ export default function ComboChart({
         lang={language}
         className={styles.scroll}
         aria-label={translation.title}
-        tabIndex={0}
+        // The poster is wider than most screens: focus lets keyboard users scroll it.
+        tabIndex={0} // NOSONAR: a scrollable region must be focusable (WCAG 2.1.1)
       >
         <article
           className={styles.poster}
@@ -297,7 +296,7 @@ export default function ComboChart({
             <caption className={styles.srOnly}>{translation.title}</caption>
             <thead>
               <tr>
-                <td aria-hidden="true" />
+                <td />
                 {substances.map((substance) => (
                   <th
                     scope="col"

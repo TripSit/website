@@ -253,7 +253,7 @@ const AppealPage: React.FC = () => {
   async function startLogin() {
     setLoginFailed(false);
     try {
-      window.location.href = await getLoginUrl();
+      globalThis.location.href = await getLoginUrl();
     } catch {
       setLoginFailed(true);
     }

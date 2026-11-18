@@ -49,7 +49,7 @@ async function request(path: string, init?: RequestInit) {
   // Error responses such as 405 have no body, so a missing one falls back to a message.
   const body = await response.json().catch(() => ({}));
   if (!response.ok)
-    throw new Error(body.error || "Unable to load staff review.");
+    throw new Error(body.error ?? "Unable to load staff review.");
   return body;
 }
 
@@ -202,7 +202,7 @@ function AppealCard({
   busy,
   onDecide,
 }: Readonly<{ appeal: ReviewAppeal; busy: boolean; onDecide: DecideFn }>) {
-  const member = appeal.username || appeal.discord_id || "unknown member";
+  const member = appeal.username ?? appeal.discord_id ?? "unknown member";
   return (
     <article
       className="rounded-2xl border border-line bg-surface p-[20px]"
@@ -211,10 +211,10 @@ function AppealCard({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 className="text-xl text-ink">
-            {appeal.username || "Discord member"}
+            {appeal.username ?? "Discord member"}
           </h2>
           <p className="text-sm text-mute">
-            {appeal.discord_id || "No linked Discord account"} · Appeal{" "}
+            {appeal.discord_id ?? "No linked Discord account"} · Appeal{" "}
             {appeal.appeal_number ?? "—"}
             {" · "}
             <time dateTime={appeal.created_at}>
@@ -297,11 +297,8 @@ export default function AppealReview() {
   return (
     <section className={styles.queue} aria-label="Appeal review queue">
       <div className="mb-[20px] flex flex-wrap items-center justify-between gap-3">
-        <div
-          className="flex flex-wrap gap-2"
-          role="group"
-          aria-label="Filter appeals"
-        >
+        <fieldset className="m-0 flex flex-wrap gap-2 border-0 p-0">
+          <legend className="sr-only">Filter appeals</legend>
           {(Object.keys(labels) as Status[]).map((value) => (
             <button
               type="button"
@@ -318,7 +315,7 @@ export default function AppealReview() {
               {labels[value]}
             </button>
           ))}
-        </div>
+        </fieldset>
         <button
           type="button"
           className={button}
@@ -328,15 +325,15 @@ export default function AppealReview() {
           Refresh queue
         </button>
       </div>
-      {notice && (
-        <p
-          role={notice.error ? "alert" : "status"}
-          className={notice.error ? "text-amber" : "text-cyan"}
-        >
+      {notice?.error && (
+        <p role="alert" className="text-amber">
           {notice.text}
         </p>
       )}
-      {queue.isPending && <p role="status">Loading appeals…</p>}
+      {notice && !notice.error && (
+        <output className="block text-cyan">{notice.text}</output>
+      )}
+      {queue.isPending && <output className="block">Loading appeals…</output>}
       {queue.isError && <QueueError message={queue.error.message} />}
       {queue.isSuccess && (
         <>

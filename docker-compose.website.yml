@@ -30,6 +30,12 @@ services:
       - 3000:3000
     environment:
       <<: *default-tz-puid-pgid
+      STAFF_SITE_ORIGIN: ${STAFF_SITE_ORIGIN:-}
+      STAFF_KEYCLOAK_ISSUER: ${STAFF_KEYCLOAK_ISSUER:-}
+      STAFF_KEYCLOAK_CLIENT_ID: ${STAFF_KEYCLOAK_CLIENT_ID:-}
+      STAFF_KEYCLOAK_CLIENT_SECRET: ${STAFF_KEYCLOAK_CLIENT_SECRET:-}
+      STAFF_COOKIE_SECRET: ${STAFF_COOKIE_SECRET:-}
+      TRIPBOT_API_URL: ${TRIPBOT_API_URL:-}
     volumes:
       - ./src:/usr/src/app/src
       - ./public:/usr/src/app/public
@@ -46,6 +52,14 @@ services:
       - traefik.http.routers.website.tls.certresolver=letsencrypt
       - traefik.http.routers.website.middlewares=default@file,redirectFactsheets@file,redirectWebchat@file
       - traefik.http.routers.website.entrypoints=websecure
+
+      # Staff auth/proxy endpoints belong to Next.js; TripBot otherwise captures /api.
+      - traefik.http.routers.website-staff.rule=Host(`${DNS_DOMAIN}`) && (Path(`/api/staff`) || PathPrefix(`/api/staff/`))
+      - traefik.http.routers.website-staff.priority=1000
+      - traefik.http.routers.website-staff.service=website-svc
+      - traefik.http.routers.website-staff.entrypoints=websecure
+      - traefik.http.routers.website-staff.tls.certresolver=letsencrypt
+      - traefik.http.routers.website-staff.middlewares=default@file
 
 ########################### NETWORKS
 networks:

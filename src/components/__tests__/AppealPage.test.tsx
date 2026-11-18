@@ -6,6 +6,7 @@ import {
   waitFor,
 } from "@testing-library/react";
 import AppealPage from "@/pages/appeal";
+import { consumeLoginState } from "@/utils/keycloak";
 
 test.each([
   ["server", "An error occurred while submitting your appeal"],
@@ -132,6 +133,7 @@ jest.mock("@/components/Header", () => () => null);
 jest.mock("@/components/Footer", () => () => null);
 jest.mock("@/utils/keycloak", () => ({
   getLoginUrl: () => "https://auth.example.test/login",
+  consumeLoginState: jest.fn(() => true),
 }));
 
 const fetchMock = jest.fn();
@@ -293,6 +295,7 @@ const appeal = (status: string, age: number) => ({
 
 beforeEach(() => {
   fetchMock.mockReset();
+  jest.mocked(consumeLoginState).mockClear().mockReturnValue(true);
   global.fetch = fetchMock;
 });
 
@@ -493,6 +496,22 @@ test("offers Discord login to a visitor without credentials", async () => {
   ).toHaveAttribute("href", "https://auth.example.test/login");
   expect(fetchMock).not.toHaveBeenCalled();
 });
+
+test.each(["", "&state=unrelated"])(
+  "rejects an authorization code without a matching pending login (%s)",
+  async (query) => {
+    window.history.replaceState({}, "", `/appeal?code=unsolicited${query}`);
+    jest.mocked(consumeLoginState).mockReturnValue(false);
+    render(<AppealPage />);
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "We couldn't log you in.",
+    );
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(sessionStorage.getItem("kc_token")).toBeNull();
+    expect(window.location.search).toBe("");
+    expect(consumeLoginState).toHaveBeenCalledWith(query ? "unrelated" : null);
+  },
+);
 
 test("exchanges an authorization code and uses the resulting session", async () => {
   window.history.replaceState({}, "", "/appeal?code=example");

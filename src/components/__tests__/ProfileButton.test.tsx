@@ -76,6 +76,46 @@ test("closes the menu on a second click and clears session tokens on logout", as
   expect(window.location.hash).toBe("#logout-hint-id");
 });
 
+test.each([
+  [
+    "https://cdn.discordapp.com/avatars/123/avatar.png",
+    "https://cdn.discordapp.com/avatars/123/avatar.png",
+  ],
+  [
+    "https://media.discordapp.net/avatars/123/avatar.webp",
+    "https://media.discordapp.net/avatars/123/avatar.webp",
+  ],
+  ["javascript:alert(1)", "/assets/img/guest.png"],
+  ["data:image/svg+xml,<svg></svg>", "/assets/img/guest.png"],
+  // eslint-disable-next-line sonarjs/no-clear-text-protocols -- verifies insecure avatars are rejected
+  ["http://cdn.discordapp.com/avatar.png", "/assets/img/guest.png"],
+  [
+    "https://cdn.discordapp.com.attacker.test/avatar.png",
+    "/assets/img/guest.png",
+  ],
+  [
+    "https://user:password@cdn.discordapp.com/avatar.png",
+    "/assets/img/guest.png",
+  ],
+  ["https://[invalid", "/assets/img/guest.png"],
+  [null, "/assets/img/guest.png"],
+])(
+  "validates avatar URL %s before quoting it for CSS",
+  async (avatarUrl, expected) => {
+    sessionStorage.setItem("kc_token", "token");
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({ avatarUrl }),
+    });
+    render(<ProfileButton />);
+    const account = screen.getByRole("button", { name: "Account menu" });
+    await waitFor(() =>
+      expect(account.style.backgroundImage).toContain(expected),
+    );
+    expect(account.style.backgroundImage).toMatch(/^url\(".*"\)$/);
+  },
+);
+
 test("ignores a token in localStorage, which logout doesn't clear", () => {
   localStorage.setItem("kc_token", "stale-token");
   render(<ProfileButton />);

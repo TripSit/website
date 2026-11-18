@@ -108,3 +108,33 @@ test("sends every combo link to /combo, not the old combo.tripsit.me page", () =
       .map((link) => link.getAttribute("href")),
   ).toEqual(["/combo", "/combo"]);
 });
+
+test("links nowhere that is gone or private (#296)", () => {
+  const { container } = render(<Home discord={discord} drugCount={555} />);
+  const hrefs = [...container.querySelectorAll("a")].map(
+    (a) => a.getAttribute("href") ?? "",
+  );
+  // Checked 2026-11-08 and 2026-11-16: these return 404 or are private repositories.
+  const dead = [
+    "tripbot.info",
+    "element.tripsit.me",
+    "github.com/TripSit/tripbot-website",
+    "github.com/TripSit/webchat",
+    "github.com/TripSit/tripsit-mobile",
+  ];
+  expect(
+    hrefs.filter((href) => dead.some((url) => href.includes(url))),
+  ).toEqual([]);
+  expect(
+    screen.getByRole("link", { name: /TripSit Discord Bot/i }),
+  ).toHaveAttribute("href", "https://github.com/TripSit/TripBot");
+  expect(screen.getByRole("link", { name: "Webchat" })).toHaveAttribute(
+    "href",
+    "https://github.com/TripSit/website/blob/main/src/components/Webchat.tsx",
+  );
+  const phoneApp = screen.getByRole("heading", { name: "Phone App" });
+  expect(phoneApp.nextElementSibling?.querySelector("a")).toHaveAttribute(
+    "href",
+    "/reflect",
+  );
+});

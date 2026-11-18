@@ -356,3 +356,34 @@ test("shows reagent test results with a colour guide", () => {
   expect(results[0]).toHaveTextContent("Marquis: Yellow > Green");
   expect(results[1]).toHaveTextContent("Mecke: Brown");
 });
+
+test("shows each safety note once, under its own heading, before the other cards", () => {
+  render(
+    <DrugInfo
+      drugData={
+        {
+          ...drug,
+          properties: {
+            contraindications: "Thyroid conditions",
+            avoid: "Mixing with stimulants",
+            warning: "Very long lasting",
+            adverseEffects: "Vasoconstriction",
+            risks: "  ",
+          },
+        } as unknown as Drug
+      }
+    />,
+  );
+  const headings = screen
+    .getAllByRole("heading", { level: 5 })
+    .map((heading) => heading.textContent);
+  expect(headings.slice(0, 4)).toEqual([
+    "Warning",
+    "Avoid",
+    "Contraindications",
+    "Adverse effects",
+  ]);
+  expect(headings).not.toContain("Risks");
+  expect(screen.getAllByText("Thyroid conditions")).toHaveLength(1);
+  expect(screen.getByText("Very long lasting").tagName).toBe("P");
+});

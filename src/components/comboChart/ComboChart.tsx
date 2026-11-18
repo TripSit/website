@@ -134,7 +134,7 @@ export default function ComboChart({
       <nav className={styles.toolbar} aria-label="Chart controls">
         <Link href="/combo">← Combination checker</Link>
         <label>
-          Language / Sprache / Idioma
+          <span>Language / Sprache / Idioma</span>
           <select
             value={language}
             onChange={(event) => {
@@ -211,7 +211,7 @@ export default function ComboChart({
         </details>
         <div className={styles.exportControls}>
           <label>
-            Width (pixels)
+            <span>Width (pixels)</span>
             <input
               type="number"
               min="320"
@@ -222,7 +222,7 @@ export default function ComboChart({
             />
           </label>
           <label>
-            Height (pixels)
+            <span>Height (pixels)</span>
             <input
               type="number"
               min="320"

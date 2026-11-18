@@ -117,7 +117,9 @@ jobs:
         run: |
           key=$(sed -n 's/^sonar.projectKey=//p' sonar-project.properties)
           api() { curl -fsS -H "Authorization: Bearer $SONAR_TOKEN" "${SONAR_HOST_URL%/}/api/$1"; }
-          echo "::group::Quality gate conditions"
+          # If the scan itself failed (e.g. a plugin download), the server still holds the
+          # previous analysis, so check the scanner output above before reading these.
+          echo "::group::Quality gate conditions (latest analysis on the server)"
           api "qualitygates/project_status?projectKey=$key" |
             jq -r '.projectStatus.conditions[] | "\(.status)\t\(.metricKey)\t\(.actualValue // "-") (fails if \(.comparator) \(.errorThreshold))"'
           echo "::endgroup::"

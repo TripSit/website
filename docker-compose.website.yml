@@ -1,3 +1,11 @@
+# Local development in Docker. `npm run website` builds the Dockerfile's `development`
+# target, mounts src/ and public/ so edits reload, and serves http://localhost:3000.
+#
+# Neither deployment uses this file: UAT's Drone pipeline runs the UAT server's own
+# docker-compose.website-prod.yml, and production rebuilds through the signed deploy hook
+# (see .drone.yml). The Traefik and Watchtower labels below mirror the servers' routing for
+# reference and do nothing without that Traefik instance, so a routing change here (such as
+# the website-staff router) has to be made in the servers' compose files as well.
 version: '3.9'
 
 name: service

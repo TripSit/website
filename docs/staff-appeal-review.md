@@ -46,9 +46,11 @@ reviewer ID is used.
 ## Reverse proxy routing
 
 TripBot's existing Traefik router captures `/api` on the website hostname.
-The website Compose file adds a higher-priority `website-staff` router for
-exactly `/api/staff` and `/api/staff/*`, pointing to `website-svc`. Carry this
-rule into the production deployment too. Leave `/api/v2/*` routed to TripBot.
+The repository's `docker-compose.website.yml` shows a higher-priority
+`website-staff` router for exactly `/api/staff` and `/api/staff/*`, pointing to
+`website-svc`. That file is only used for local development, so add the same
+router to the UAT server's `docker-compose.website-prod.yml` and to the
+production deployment. Leave `/api/v2/*` routed to TripBot.
 Without this exception, staff login callbacks and browser review requests reach
 the wrong service. `TRIPBOT_API_URL` should point directly at the TripBot/API
 hostname; server-side requests use `/api/v2/appeals/staff`.

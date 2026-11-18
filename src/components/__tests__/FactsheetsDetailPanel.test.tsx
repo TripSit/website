@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { Drug } from "tripsit_drug_db";
 import FactsheetsPage from "@/pages/factsheets";
+import { giveTableRoom } from "../../../test-utils/tableRoom";
 
 jest.mock("@heroui/react", () => ({ Accordion: () => null }));
 const mockDrugInfoCard = jest.fn(({ drugData }: { drugData: Drug }) => (
@@ -14,7 +15,12 @@ jest.mock("../DrugInfo", () => ({
 
 const originalFetch = global.fetch;
 
+beforeEach(() => {
+  giveTableRoom();
+});
+
 afterEach(() => {
+  jest.restoreAllMocks();
   global.fetch = originalFetch;
 });
 

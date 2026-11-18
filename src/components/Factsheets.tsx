@@ -370,6 +370,17 @@ const Factsheets = () => {
     enableTopToolbar: true,
     enableTableHead: true,
     enableHiding: true,
+    // One continuous list instead of pages of 10 (#83). Only the rows in view (plus a few
+    // either side) are in the page at once, so scrolling all ~550 drugs stays quick.
+    enablePagination: false,
+    enableRowVirtualization: true,
+    rowVirtualizerOptions: { overscan: 8 },
+    // Pagination used to say how many drugs matched; keep that count.
+    renderBottomToolbarCustomActions: ({ table }) => (
+      <Typography variant="body2" sx={{ px: 1 }} aria-live="polite">
+        {table.getFilteredRowModel().rows.length} of {data.length} substances
+      </Typography>
+    ),
     state: {
       isLoading,
       showAlertBanner: isError,

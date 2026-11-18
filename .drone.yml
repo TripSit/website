@@ -105,7 +105,9 @@ steps:
     image: docker
     commands:
       - apk add --no-cache git
-      - docker compose -f docker-compose.website-prod.yml --project-name website up -d --force-recreate --build
+      # Public settings must be build arguments now that .env files stay out of image layers.
+      - docker compose -f docker-compose.website-prod.yml --project-name website build --build-arg NEXT_PUBLIC_DNS_DOMAIN --build-arg NEXT_PUBLIC_KEYCLOAK_URL --build-arg NEXT_PUBLIC_KEYCLOAK_CLIENT_ID
+      - docker compose -f docker-compose.website-prod.yml --project-name website up -d --force-recreate --no-build
       # - tail -f /dev/null
     environment:
       NODE_ENV:

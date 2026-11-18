@@ -7,14 +7,16 @@ on:
 
 permissions:
   contents: read
-  pull-requests: write
 
 jobs:
   open-pr:
+    permissions:
+      contents: read
+      pull-requests: write
     name: Open PR to main
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Create PR from uat to main if none is open
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

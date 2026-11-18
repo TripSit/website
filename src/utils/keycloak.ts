@@ -41,6 +41,51 @@ function getClientId(): string {
   return clientId;
 }
 
+const LOGIN_STATE_KEY = "kc_login_state";
+const LOGIN_STATE_TTL = 10 * 60 * 1000;
+
+function readLoginState(): { value: string; expiresAt: number } | null {
+  try {
+    const stored: unknown = JSON.parse(
+      sessionStorage.getItem(LOGIN_STATE_KEY) ?? "null",
+    );
+    if (
+      stored &&
+      typeof stored === "object" &&
+      "value" in stored &&
+      typeof stored.value === "string" &&
+      /^[a-f0-9]{64}$/.test(stored.value) &&
+      "expiresAt" in stored &&
+      typeof stored.expiresAt === "number" &&
+      stored.expiresAt > Date.now()
+    ) {
+      return { value: stored.value, expiresAt: stored.expiresAt };
+    }
+  } catch {
+    // Missing or malformed pending login data never authorizes a callback.
+  }
+  return null;
+}
+
+function pendingLoginState(): string {
+  const existing = readLoginState();
+  if (existing) return existing.value;
+  const value = Array.from(crypto.getRandomValues(new Uint8Array(32)), (byte) =>
+    byte.toString(16).padStart(2, "0"),
+  ).join("");
+  sessionStorage.setItem(
+    LOGIN_STATE_KEY,
+    JSON.stringify({ value, expiresAt: Date.now() + LOGIN_STATE_TTL }),
+  );
+  return value;
+}
+
+export function consumeLoginState(returnedState: string | null): boolean {
+  const pending = readLoginState();
+  sessionStorage.removeItem(LOGIN_STATE_KEY);
+  return !!pending && returnedState === pending.value;
+}
+
 export function getLoginUrl(): string {
   const config = getKeycloakConfig();
   const params = new URLSearchParams({
@@ -50,6 +95,9 @@ export function getLoginUrl(): string {
     response_type: "code",
     scope: "openid profile email",
   });
+  if (typeof window !== "undefined") {
+    params.set("state", pendingLoginState());
+  }
   return `${config.url}/realms/${config.realm}/protocol/openid-connect/auth?${params.toString()}`;
 }
 

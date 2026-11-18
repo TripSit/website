@@ -4,6 +4,26 @@ import { getLoginUrl, getPostLogoutUrl } from "@/utils/keycloak";
 
 const GUEST_AVATAR_PATH = "/assets/img/guest.png";
 
+function safeAvatarUrl(value: unknown): string {
+  if (typeof value !== "string") return GUEST_AVATAR_PATH;
+  try {
+    const url = new URL(value, window.location.origin);
+    const discordCdn =
+      url.protocol === "https:" &&
+      ["cdn.discordapp.com", "media.discordapp.net"].includes(url.hostname);
+    if (
+      !url.username &&
+      !url.password &&
+      (discordCdn || url.origin === window.location.origin)
+    ) {
+      return url.href;
+    }
+  } catch {
+    // Invalid avatar data falls back to the local guest image.
+  }
+  return GUEST_AVATAR_PATH;
+}
+
 const ProfileButton: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
@@ -57,7 +77,7 @@ const ProfileButton: React.FC = () => {
 
         if (response.ok) {
           const data = await response.json();
-          setAvatarUrl(data.avatarUrl);
+          setAvatarUrl(safeAvatarUrl(data.avatarUrl));
         } else {
           // Error fetching avatar, use default
           setAvatarUrl(GUEST_AVATAR_PATH);
@@ -137,7 +157,9 @@ const ProfileButton: React.FC = () => {
           style={{
             border: "1px solid var(--color-line)",
             backgroundColor: "var(--color-surface)",
-            ...(showAvatar && { backgroundImage: `url(${avatarUrl})` }),
+            ...(showAvatar && {
+              backgroundImage: `url(${JSON.stringify(avatarUrl)})`,
+            }),
           }}
         >
           {isLoadingAvatar ? (

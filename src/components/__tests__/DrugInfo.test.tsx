@@ -191,7 +191,7 @@ test("converts onset to hours and offsets duration and after effects", () => {
     /30m after dosing/,
   );
   expect(screen.getAllByLabelText("Tooltip for Duration")[0]).toHaveTextContent(
-    /after Onset ends/,
+    /Lasts 1h 30m\s*-\s*2h 30m after Onset ends/,
   );
   const series = JSON.parse(
     screen.getByLabelText("Chart series").textContent ?? "",

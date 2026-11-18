@@ -3,7 +3,7 @@ import Head from "../components/Head";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import AppealForm from "../components/AppealForm";
-import { getLoginUrl } from "../utils/keycloak";
+import { consumeLoginState, getLoginUrl } from "../utils/keycloak";
 import { decodeJwtPayload } from "../utils/jwt";
 
 interface Appeal {
@@ -18,8 +18,54 @@ interface Appeal {
   extra?: string;
 }
 
+const INVALID_APPEAL_HISTORY = "Invalid appeal history";
+
+function parseLatestAppeal(data: unknown): Appeal | null {
+  if (!data || typeof data !== "object" || Array.isArray(data)) {
+    throw new Error(INVALID_APPEAL_HISTORY);
+  }
+  if ("appeal" in data && data.appeal === null && !("id" in data)) {
+    return null;
+  }
+  const appeal = data as Record<string, unknown>;
+  if (
+    typeof appeal.id !== "string" ||
+    !appeal.id ||
+    typeof appeal.status !== "string" ||
+    !["RECEIVED", "ACCEPTED", "DENIED"].includes(appeal.status) ||
+    typeof appeal.created_at !== "string" ||
+    !Number.isFinite(Date.parse(appeal.created_at))
+  ) {
+    throw new Error(INVALID_APPEAL_HISTORY);
+  }
+  const optionalText = [
+    "decided_at",
+    "reminded_at",
+    "response_message",
+    "reason",
+    "solution",
+    "future",
+    "extra",
+  ];
+  if (
+    optionalText.some(
+      (key) => appeal[key] != null && typeof appeal[key] !== "string",
+    )
+  ) {
+    throw new Error(INVALID_APPEAL_HISTORY);
+  }
+  return appeal as unknown as Appeal;
+}
+
 type BanStatus =
   "unknown" | "can_appeal" | "has_appeal" | "not_banned" | "can_reappeal";
+
+function reminderAvailableAt(appeal: Appeal): Date {
+  const baseTime = new Date(appeal.reminded_at ?? appeal.created_at).getTime();
+  const cooldown =
+    process.env.NODE_ENV === "development" ? 30_000 : 48 * 60 * 60 * 1000;
+  return new Date(baseTime + cooldown);
+}
 
 // What a banned user can do next, based on their latest appeal (if any)
 function statusForBannedUser(
@@ -51,6 +97,7 @@ const AppealPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [banStatus, setBanStatus] = useState<BanStatus>("unknown");
   const [latestAppeal, setLatestAppeal] = useState<Appeal | null>(null);
+  const [reminderNow, setReminderNow] = useState(() => Date.now());
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<{
     text: string;
@@ -60,8 +107,20 @@ const AppealPage: React.FC = () => {
   // falling back to the login screen or an empty page.
   const [loginFailed, setLoginFailed] = useState(false);
   const [banCheckFailed, setBanCheckFailed] = useState(false);
+  const [appealHistoryFailed, setAppealHistoryFailed] = useState(false);
   const [reminding, setReminding] = useState(false);
   const [remindMessage, setRemindMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!latestAppeal) return;
+    const availableAt = reminderAvailableAt(latestAppeal).getTime();
+    if (!Number.isFinite(availableAt)) return;
+    const timer = window.setTimeout(
+      () => setReminderNow(Date.now()),
+      Math.max(0, availableAt - Date.now()),
+    );
+    return () => window.clearTimeout(timer);
+  }, [latestAppeal]);
 
   // Share a pending refresh so concurrent requests use the same tokens.
   const refreshPromiseRef = useRef<Promise<string | null> | null>(null);
@@ -151,6 +210,11 @@ const AppealPage: React.FC = () => {
 
   async function exchangeCodeForToken(code: string) {
     try {
+      const params = new URLSearchParams(window.location.search);
+      if (!consumeLoginState(params.get("state"))) {
+        setLoginFailed(true);
+        return;
+      }
       const res = await fetch("/api/v2/keycloak/token", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -204,19 +268,7 @@ const AppealPage: React.FC = () => {
   }
 
   function canShowReminder(appeal: Appeal): boolean {
-    const createdAt = new Date(appeal.created_at);
-
-    // 30 seconds for development
-    if (process.env.NODE_ENV === "development") {
-      const thirtySecondsAgo = new Date();
-      thirtySecondsAgo.setSeconds(thirtySecondsAgo.getSeconds() - 30);
-      return createdAt <= thirtySecondsAgo;
-    }
-
-    // 48 hours for production
-    const fortyEightHoursAgo = new Date();
-    fortyEightHoursAgo.setHours(fortyEightHoursAgo.getHours() - 48);
-    return createdAt <= fortyEightHoursAgo;
+    return reminderNow >= reminderAvailableAt(appeal).getTime();
   }
 
   async function checkBan() {
@@ -227,7 +279,9 @@ const AppealPage: React.FC = () => {
 
     isCheckingBanRef.current = true;
     setBanCheckFailed(false);
+    setAppealHistoryFailed(false);
 
+    let checkingHistory = false;
     try {
       // Reset appeal state at start to prevent stale data
       setLatestAppeal(null);
@@ -256,19 +310,16 @@ const AppealPage: React.FC = () => {
       const currentBanStatus = await banRes.json();
 
       // Check for appeal history (works for both banned and not banned users)
+      checkingHistory = true;
       const appealsRes = await fetch("/api/v2/appeals/latest", {
         headers,
       });
 
-      let appeal: Appeal | null = null;
-
-      if (appealsRes.ok) {
-        const data = await appealsRes.json();
-        if (data.id) {
-          appeal = data;
-          setLatestAppeal(appeal);
-        }
+      if (!appealsRes.ok) {
+        throw new Error("Failed to check appeal history");
       }
+      const appeal = parseLatestAppeal(await appealsRes.json());
+      setLatestAppeal(appeal);
 
       if (!currentBanStatus.banned) {
         setBanStatus("not_banned");
@@ -281,6 +332,7 @@ const AppealPage: React.FC = () => {
     } catch {
       setBanStatus("unknown");
       setBanCheckFailed(true);
+      setAppealHistoryFailed(checkingHistory);
     } finally {
       setLoading(false);
       isCheckingBanRef.current = false;
@@ -531,7 +583,7 @@ const AppealPage: React.FC = () => {
                 <div className="row justify-content-center mt-4">
                   <div className="col-xl-7 col-lg-9">
                     <div className="alert alert-danger mb-0" role="alert">
-                      <i className="bi bi-exclamation-triangle-fill me-2"></i>
+                      <i className="bi bi-exclamation-triangle-fill me-2"></i>{" "}
                       We couldn&apos;t log you in. Please try logging in again.
                     </div>
                   </div>
@@ -565,8 +617,8 @@ const AppealPage: React.FC = () => {
                 <div className="col-lg-8 text-center">
                   <h1>Ban Appeal</h1>
                   <div className="alert alert-danger mt-4" role="alert">
-                    <i className="bi bi-exclamation-triangle-fill me-2"></i>
-                    We couldn&apos;t check your ban status. This is usually
+                    <i className="bi bi-exclamation-triangle-fill me-2"></i>{" "}
+                    {`We couldn't check your ${appealHistoryFailed ? "appeal history" : "ban status"}. This is usually`}
                     temporary, so please try again. If it keeps failing, log in
                     again.
                   </div>
@@ -714,26 +766,9 @@ const AppealPage: React.FC = () => {
                             <p className="text-muted mb-1">
                               <small>
                                 <strong>Reminder available:</strong>{" "}
-                                {(() => {
-                                  const baseTime = latestAppeal.reminded_at
-                                    ? new Date(latestAppeal.reminded_at)
-                                    : new Date(latestAppeal.created_at);
-
-                                  const reminderTime = new Date(baseTime);
-                                  reminderTime.setHours(
-                                    reminderTime.getHours() +
-                                      (process.env.NODE_ENV === "development"
-                                        ? 0
-                                        : 48),
-                                  );
-                                  reminderTime.setSeconds(
-                                    reminderTime.getSeconds() +
-                                      (process.env.NODE_ENV === "development"
-                                        ? 30
-                                        : 0),
-                                  );
-                                  return reminderTime.toLocaleString();
-                                })()}
+                                {reminderAvailableAt(
+                                  latestAppeal,
+                                ).toLocaleString()}
                               </small>
                             </p>
                           )}

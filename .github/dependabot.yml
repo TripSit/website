@@ -26,3 +26,9 @@ updates:
       # supports 7.
       - dependency-name: "typescript"
         versions: [">=7.0.0"]
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "uat"
+    schedule:
+      interval: "weekly"

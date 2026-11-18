@@ -18,11 +18,11 @@ Pull requests are welcome! If you have any questions, feel free to ask in #dev o
 import React, { Fragment, useMemo } from "react";
 import {
   MaterialReactTable,
-  MRT_ShowHideColumnsButton,
-  MRT_ToggleDensePaddingButton,
-  MRT_ToggleFiltersButton,
-  MRT_ToggleFullScreenButton,
-  MRT_ToggleGlobalFilterButton,
+  MRT_ShowHideColumnsButton as ShowHideColumnsButton,
+  MRT_ToggleDensePaddingButton as ToggleDensePaddingButton,
+  MRT_ToggleFiltersButton as ToggleFiltersButton,
+  MRT_ToggleFullScreenButton as ToggleFullScreenButton,
+  MRT_ToggleGlobalFilterButton as ToggleGlobalFilterButton,
   useMaterialReactTable,
   type MRT_Cell,
   type MRT_ColumnDef,
@@ -392,11 +392,11 @@ const Factsheets = () => {
           justifyContent: "flex-end",
         }}
       >
-        <MRT_ToggleGlobalFilterButton table={table} />
-        <MRT_ToggleFiltersButton table={table} />
-        <MRT_ShowHideColumnsButton table={table} />
-        <MRT_ToggleDensePaddingButton table={table} />
-        <MRT_ToggleFullScreenButton table={table} />
+        <ToggleGlobalFilterButton table={table} />
+        <ToggleFiltersButton table={table} />
+        <ShowHideColumnsButton table={table} />
+        <ToggleDensePaddingButton table={table} />
+        <ToggleFullScreenButton table={table} />
       </Box>
     ),
     // MRT calls this for every row on the page on every render, expanded or not, and only

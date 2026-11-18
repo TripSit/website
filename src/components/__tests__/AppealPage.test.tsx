@@ -16,7 +16,7 @@ test.each([
   sessionStorage.setItem("kc_token", validToken());
   fetchMock
     .mockResolvedValueOnce(reply({ banned: true }))
-    .mockResolvedValueOnce(reply({}, false));
+    .mockResolvedValueOnce(reply({ appeal: null }));
   render(<AppealPage />);
   const submit = await screen.findByRole("button", { name: "Submit Appeal" });
   for (const label of [
@@ -46,10 +46,12 @@ test("renders appeal status when optional details are absent", async () => {
   sessionStorage.setItem("kc_token", validToken());
   fetchMock
     .mockResolvedValueOnce(reply({ banned: true }))
-    .mockResolvedValueOnce(reply({ id: "pending" }));
+    .mockResolvedValueOnce(
+      reply({ id: "pending", status: "RECEIVED", created_at: daysAgo(0) }),
+    );
   render(<AppealPage />);
   expect(await screen.findByText("Under Review")).toBeVisible();
-  expect(screen.getByText(/unknown/i)).toBeVisible();
+  expect(screen.getByText(/Submitted:/)).toBeVisible();
   expect(
     screen.queryByRole("button", { name: "View Your Appeal Content" }),
   ).toBeNull();
@@ -80,7 +82,7 @@ test("explains a failed ban check and lets the user retry or log in again", asyn
 
   fetchMock
     .mockResolvedValueOnce(reply({ banned: false }))
-    .mockResolvedValueOnce(reply({}));
+    .mockResolvedValueOnce(reply({ appeal: null }));
   fireEvent.click(screen.getByRole("button", { name: "Try again" }));
   expect(
     await screen.findByRole("heading", { name: "Not Banned" }),
@@ -106,7 +108,7 @@ test.each(["DENIED", "RECEIVED"])(
             created_at:
               status === "RECEIVED"
                 ? new Date(Date.now() - 60000).toISOString()
-                : undefined,
+                : daysAgo(1),
           }),
         );
       render(<AppealPage />);
@@ -114,7 +116,7 @@ test.each(["DENIED", "RECEIVED"])(
         expect(
           await screen.findByRole("heading", { name: "Submit New Ban Appeal" }),
         ).toBeVisible();
-        expect(screen.getByText("Unknown")).toBeVisible();
+        expect(screen.getByText(/Submitted:/)).toBeVisible();
       } else {
         expect(
           await screen.findByRole("button", { name: "Send Reminder" }),
@@ -135,13 +137,54 @@ jest.mock("@/utils/keycloak", () => ({
 const fetchMock = jest.fn();
 const originalFetch = global.fetch;
 
+test.each([
+  [500, { error: "History unavailable" }],
+  [404, { error: "Not found" }],
+  [200, null],
+  [200, []],
+  [200, {}],
+  [200, { id: "partial" }],
+  [200, { id: 123, status: "RECEIVED", created_at: "2026-11-17" }],
+  [200, { id: "appeal", status: "UNKNOWN", created_at: "2026-11-17" }],
+  [200, { id: "appeal", status: "RECEIVED", created_at: "invalid" }],
+  [
+    200,
+    { id: "appeal", status: "RECEIVED", created_at: "2026-11-17", reason: {} },
+  ],
+])(
+  "keeps the form hidden for an invalid history response (%s, %#)",
+  async (status, data) => {
+    sessionStorage.setItem("kc_token", validToken());
+    fetchMock
+      .mockResolvedValueOnce(reply({ banned: true }))
+      .mockResolvedValueOnce({ ok: status === 200, json: async () => data });
+    render(<AppealPage />);
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "We couldn't check your appeal history.",
+    );
+    expect(screen.queryByRole("button", { name: "Submit Appeal" })).toBeNull();
+    expect(sessionStorage.getItem("kc_token")).not.toBeNull();
+
+    fetchMock
+      .mockResolvedValueOnce(reply({ banned: true }))
+      .mockResolvedValueOnce(
+        reply({ appeal: null, message: "No appeals found" }),
+      );
+    fireEvent.click(screen.getByRole("button", { name: "Try again" }));
+    expect(
+      await screen.findByRole("button", { name: "Submit Appeal" }),
+    ).toBeEnabled();
+    expect(screen.queryByRole("alert")).toBeNull();
+  },
+);
+
 test("keeps a still-valid token without repeating the ban check on each interval", async () => {
   jest.useFakeTimers();
   const access = validToken();
   sessionStorage.setItem("kc_token", access);
   fetchMock
     .mockResolvedValueOnce(reply({ banned: false }))
-    .mockResolvedValueOnce(reply({}));
+    .mockResolvedValueOnce(reply({ appeal: null }));
   render(<AppealPage />);
   expect(
     await screen.findByRole("heading", { name: "Not Banned" }),
@@ -159,7 +202,7 @@ test("keeps users logged in when their token's payload uses base64url characters
   sessionStorage.setItem("kc_token", access);
   fetchMock
     .mockResolvedValueOnce(reply({ banned: false }))
-    .mockResolvedValueOnce(reply({}));
+    .mockResolvedValueOnce(reply({ appeal: null }));
   render(<AppealPage />);
   expect(
     await screen.findByRole("heading", { name: "Not Banned" }),
@@ -185,7 +228,7 @@ test("avoids overlapping ban checks when the token refreshes during a slow reque
     if (url === "/api/v2/users/banned") return pendingBanCheck;
     if (url === "/api/v2/keycloak/refresh")
       return reply({ access_token: validToken() });
-    return reply({});
+    return reply({ appeal: null });
   });
   render(<AppealPage />);
   await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
@@ -210,7 +253,7 @@ test("checks the ban again with the new token after a background refresh", async
     if (url === "/api/v2/users/banned") return reply({ banned: false });
     if (url === "/api/v2/keycloak/refresh")
       return reply({ access_token: refreshed });
-    return reply({});
+    return reply({ appeal: null });
   });
   render(<AppealPage />);
   expect(
@@ -266,12 +309,14 @@ test("exchanges a code when the server supplies only an access token", async () 
   fetchMock
     .mockResolvedValueOnce(reply({ access_token: validToken() }))
     .mockResolvedValueOnce(reply({ banned: false }))
-    .mockResolvedValueOnce(reply({ id: "history" }));
+    .mockResolvedValueOnce(
+      reply({ id: "history", status: "RECEIVED", created_at: daysAgo(0) }),
+    );
   render(<AppealPage />);
   expect(
     await screen.findByRole("heading", { name: "Appeal History" }),
   ).toBeVisible();
-  expect(screen.getByText("Unknown")).toBeVisible();
+  expect(screen.getByText("Under Review")).toBeVisible();
   expect(sessionStorage.getItem("kc_refresh_token")).toBeNull();
   expect(sessionStorage.getItem("kc_id_token")).toBeNull();
 });
@@ -303,7 +348,7 @@ test("shares a background token refresh with an appeal submission", async () => 
     if (url === "/api/v2/users/banned") return reply({ banned: true });
     if (url === "/api/v2/appeals/create")
       return reply({ message: "Submission success" });
-    return reply({});
+    return reply({ appeal: null });
   });
   render(<AppealPage />);
   const submit = await screen.findByRole("button", { name: "Submit Appeal" });
@@ -391,10 +436,10 @@ test("refreshes the session in the background, then returns to login if refresh 
   sessionStorage.setItem("kc_refresh_token", "refresh");
   fetchMock
     .mockResolvedValueOnce(reply({ banned: false }))
-    .mockResolvedValueOnce(reply({}, false))
+    .mockResolvedValueOnce(reply({ appeal: null }))
     .mockResolvedValueOnce(reply({ access_token: refreshed }))
     .mockResolvedValueOnce(reply({ banned: false }))
-    .mockResolvedValueOnce(reply({}, false))
+    .mockResolvedValueOnce(reply({ appeal: null }))
     .mockResolvedValueOnce(reply({}, false));
   render(<AppealPage />);
   expect(
@@ -457,7 +502,7 @@ test("exchanges an authorization code and uses the resulting session", async () 
       reply({ access_token: access, refresh_token: "refresh", id_token: "id" }),
     )
     .mockResolvedValueOnce(reply({ banned: false }))
-    .mockResolvedValueOnce(reply({}, false));
+    .mockResolvedValueOnce(reply({ appeal: null }));
   render(<AppealPage />);
   expect(
     await screen.findByRole("heading", { name: "Not Banned" }),
@@ -495,7 +540,7 @@ test("refreshes an expired token before requesting ban status", async () => {
       }),
     )
     .mockResolvedValueOnce(reply({ banned: true }))
-    .mockResolvedValueOnce(reply({}));
+    .mockResolvedValueOnce(reply({ appeal: null }));
   render(<AppealPage />);
   expect(
     await screen.findByRole("heading", { name: "Submit Ban Appeal" }),
@@ -579,7 +624,7 @@ test("shows a submission error and allows retrying", async () => {
   sessionStorage.setItem("kc_token", validToken());
   fetchMock
     .mockResolvedValueOnce(reply({ banned: true }))
-    .mockResolvedValueOnce(reply({}, false))
+    .mockResolvedValueOnce(reply({ appeal: null }))
     .mockResolvedValueOnce(
       reply({ error: "User not found in database" }, false),
     );
@@ -644,7 +689,7 @@ test.each([
   sessionStorage.setItem("kc_token", validToken());
   fetchMock
     .mockResolvedValueOnce(reply({ banned: true }))
-    .mockResolvedValueOnce(reply({}, false))
+    .mockResolvedValueOnce(reply({ appeal: null }))
     .mockResolvedValueOnce(reply(ok ? { message: text } : { error: text }, ok))
     .mockResolvedValue(reply({ banned: true }));
   render(<AppealPage />);
@@ -668,7 +713,7 @@ test("submits an appeal and refreshes its status", async () => {
   sessionStorage.setItem("kc_token", validToken());
   fetchMock
     .mockResolvedValueOnce(reply({ banned: true }))
-    .mockResolvedValueOnce(reply({}, false))
+    .mockResolvedValueOnce(reply({ appeal: null }))
     .mockResolvedValueOnce(reply({}))
     .mockResolvedValueOnce(reply({ banned: true }))
     .mockResolvedValueOnce(reply(appeal("RECEIVED", 0)));

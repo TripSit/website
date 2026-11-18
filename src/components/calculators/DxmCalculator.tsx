@@ -204,7 +204,8 @@ export default function DxmCalculator() {
               acetaminophen (paracetamol), guaifenesin, antihistamines or
               pseudoephedrine
             </a>
-            . This calculator is still only for products with DXM HBr (the label
+            {". "}
+            This calculator is still only for products with DXM HBr (the label
             says “dextromethorphan HBr” or “hydrobromide”). Plain
             “dextromethorphan” is freebase, which is stronger per mg: pick a
             freebase option from the list instead.

@@ -21,6 +21,13 @@ interface Appeal {
 type BanStatus =
   "unknown" | "can_appeal" | "has_appeal" | "not_banned" | "can_reappeal";
 
+function reminderAvailableAt(appeal: Appeal): Date {
+  const baseTime = new Date(appeal.reminded_at || appeal.created_at).getTime();
+  const cooldown =
+    process.env.NODE_ENV === "development" ? 30_000 : 48 * 60 * 60 * 1000;
+  return new Date(baseTime + cooldown);
+}
+
 // What a banned user can do next, based on their latest appeal (if any)
 function statusForBannedUser(
   appeal: Appeal | null,
@@ -51,6 +58,7 @@ const AppealPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [banStatus, setBanStatus] = useState<BanStatus>("unknown");
   const [latestAppeal, setLatestAppeal] = useState<Appeal | null>(null);
+  const [reminderNow, setReminderNow] = useState(() => Date.now());
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<{
     text: string;
@@ -62,6 +70,17 @@ const AppealPage: React.FC = () => {
   const [banCheckFailed, setBanCheckFailed] = useState(false);
   const [reminding, setReminding] = useState(false);
   const [remindMessage, setRemindMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!latestAppeal) return;
+    const availableAt = reminderAvailableAt(latestAppeal).getTime();
+    if (!Number.isFinite(availableAt)) return;
+    const timer = window.setTimeout(
+      () => setReminderNow(Date.now()),
+      Math.max(0, availableAt - Date.now()),
+    );
+    return () => window.clearTimeout(timer);
+  }, [latestAppeal]);
 
   // Share a pending refresh so concurrent requests use the same tokens.
   const refreshPromiseRef = useRef<Promise<string | null> | null>(null);
@@ -204,19 +223,7 @@ const AppealPage: React.FC = () => {
   }
 
   function canShowReminder(appeal: Appeal): boolean {
-    const createdAt = new Date(appeal.created_at);
-
-    // 30 seconds for development
-    if (process.env.NODE_ENV === "development") {
-      const thirtySecondsAgo = new Date();
-      thirtySecondsAgo.setSeconds(thirtySecondsAgo.getSeconds() - 30);
-      return createdAt <= thirtySecondsAgo;
-    }
-
-    // 48 hours for production
-    const fortyEightHoursAgo = new Date();
-    fortyEightHoursAgo.setHours(fortyEightHoursAgo.getHours() - 48);
-    return createdAt <= fortyEightHoursAgo;
+    return reminderNow >= reminderAvailableAt(appeal).getTime();
   }
 
   async function checkBan() {
@@ -531,7 +538,7 @@ const AppealPage: React.FC = () => {
                 <div className="row justify-content-center mt-4">
                   <div className="col-xl-7 col-lg-9">
                     <div className="alert alert-danger mb-0" role="alert">
-                      <i className="bi bi-exclamation-triangle-fill me-2"></i>
+                      <i className="bi bi-exclamation-triangle-fill me-2"></i>{" "}
                       We couldn&apos;t log you in. Please try logging in again.
                     </div>
                   </div>
@@ -565,8 +572,8 @@ const AppealPage: React.FC = () => {
                 <div className="col-lg-8 text-center">
                   <h1>Ban Appeal</h1>
                   <div className="alert alert-danger mt-4" role="alert">
-                    <i className="bi bi-exclamation-triangle-fill me-2"></i>
-                    We couldn&apos;t check your ban status. This is usually
+                    <i className="bi bi-exclamation-triangle-fill me-2"></i> We
+                    couldn&apos;t check your ban status. This is usually
                     temporary, so please try again. If it keeps failing, log in
                     again.
                   </div>
@@ -714,26 +721,9 @@ const AppealPage: React.FC = () => {
                             <p className="text-muted mb-1">
                               <small>
                                 <strong>Reminder available:</strong>{" "}
-                                {(() => {
-                                  const baseTime = latestAppeal.reminded_at
-                                    ? new Date(latestAppeal.reminded_at)
-                                    : new Date(latestAppeal.created_at);
-
-                                  const reminderTime = new Date(baseTime);
-                                  reminderTime.setHours(
-                                    reminderTime.getHours() +
-                                      (process.env.NODE_ENV === "development"
-                                        ? 0
-                                        : 48),
-                                  );
-                                  reminderTime.setSeconds(
-                                    reminderTime.getSeconds() +
-                                      (process.env.NODE_ENV === "development"
-                                        ? 30
-                                        : 0),
-                                  );
-                                  return reminderTime.toLocaleString();
-                                })()}
+                                {reminderAvailableAt(
+                                  latestAppeal,
+                                ).toLocaleString()}
                               </small>
                             </p>
                           )}

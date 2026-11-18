@@ -214,8 +214,7 @@ export default function LevelCalculator() {
   return (
     <div className="grid gap-6">
       <div className={`${cardClass} flex flex-col gap-6 text-lg text-ink`}>
-        <div
-          role="group"
+        <fieldset
           aria-label="Work out your XP from"
           className="flex flex-wrap items-center gap-2"
         >
@@ -238,7 +237,7 @@ export default function LevelCalculator() {
               </button>
             );
           })}
-        </div>
+        </fieldset>
 
         {startFrom === "level" ? (
           <div>

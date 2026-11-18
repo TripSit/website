@@ -20,7 +20,8 @@ export default function VolumePage() {
             <a href="https://wiki.tripsit.me/wiki/Quick_Guide_to_Volumetric_Dosing">
               quick guide to volumetric dosing
             </a>
-            . Always label your solutions with the substance and its
+            {". "}
+            Always label your solutions with the substance and its
             concentration.
           </p>
         </>

@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import type { Category, Drug, Unit } from "tripsit_drug_db";
+import type { Category, Dose, Drug, Unit } from "tripsit_drug_db";
 import DrugInfo from "../DrugInfo";
 
 // Called on every chart render. In the browser, react-apexcharts redraws the chart whenever it
@@ -15,6 +15,8 @@ jest.mock(
       series: unknown;
       options: {
         chart: unknown;
+        colors?: unknown;
+        xaxis?: { categories?: unknown };
         tooltip: {
           custom: (input: {
             seriesIndex: number;
@@ -28,6 +30,12 @@ jest.mock(
       return (
         <>
           <output aria-label="Chart series">{JSON.stringify(series)}</output>
+          <output aria-label="Chart colours">
+            {JSON.stringify(options.colors)}
+          </output>
+          <output aria-label="Chart rows">
+            {JSON.stringify(options.xaxis?.categories)}
+          </output>
           {Array.isArray(series) &&
             series.flatMap(
               (
@@ -409,6 +417,61 @@ test("renders optional references, warnings, and combination notes", () => {
     "href",
     "https://psychonautwiki.org/wiki/Nausea",
   );
+});
+
+// Shaped like DMT's: the first route has no Threshold, so it used to land after Strong.
+// The real data capitalises its levels, unlike the Dosage type.
+test("orders dose columns and chart series from weakest to strongest", () => {
+  render(
+    <DrugInfo
+      drugData={{
+        ...drug,
+        formatted_dose: {
+          insufflated: { Light: "10-25mg", Common: "25-50mg" },
+          vapourized: {
+            Common: "15-25mg",
+            Heavy: "35mg+",
+            Light: "10-15mg",
+            Threshold: "5-10mg",
+          },
+        } as unknown as Dose,
+      }}
+    />,
+  );
+  const levels = ["Threshold", "Light", "Common", "Heavy"];
+  const headings = levels.map((level) => screen.getByText(level));
+  for (let i = 1; i < headings.length; i += 1) {
+    expect(
+      headings[i - 1].compareDocumentPosition(headings[i]) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  }
+  // The insufflated row has a dash under Threshold, then its own doses in order.
+  const cells: string[] = [];
+  let cell = screen.getByText("insufflated").closest(".MuiGrid-root")
+    ?.nextElementSibling as Element | null;
+  for (let i = 0; i < levels.length && cell; i += 1) {
+    cells.push(cell.textContent ?? "");
+    cell = cell.nextElementSibling;
+  }
+  expect(cells).toEqual(["-", "10-25mg", "25-50mg", "-"]);
+
+  // 35mg+ has no upper bound, so Heavy isn't charted.
+  const series = JSON.parse(
+    screen.getByLabelText("Chart series").textContent ?? "",
+  ) as { name: string }[];
+  expect(series.map(({ name }) => name)).toEqual([
+    "Threshold",
+    "Light",
+    "Common",
+  ]);
+  expect(
+    JSON.parse(screen.getByLabelText("Chart colours").textContent ?? ""),
+  ).toEqual(["#6DDF6D", "#A8E05F", "#FFD966"]);
+  // Threshold's series lists vapourized first, but the rows keep the table's order.
+  expect(
+    JSON.parse(screen.getByLabelText("Chart rows").textContent ?? ""),
+  ).toEqual(["insufflated (mg)", "vapourized (mg)"]);
 });
 
 test("keeps open-ended dose text without plotting an invented upper bound", () => {

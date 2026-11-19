@@ -361,6 +361,25 @@ const addDurations = (drugData: Drug) => {
   );
 };
 
+// Dose levels from weakest to strongest. The dosage table's columns and the chart's legend
+// follow this order, whichever route happens to list a level first.
+const DOSE_ORDER = [
+  "Threshold",
+  "Light",
+  "Common",
+  "Strong",
+  "Heavy",
+  "Dangerous",
+  "Fatal",
+];
+
+// Levels not in DOSE_ORDER go after the known ones, in the order they came.
+const doseRank = (strength: string) => {
+  const rank = DOSE_ORDER.indexOf(strength);
+  return rank === -1 ? DOSE_ORDER.length : rank;
+};
+const byDoseOrder = (a: string, b: string) => doseRank(a) - doseRank(b);
+
 // This takes the dosage data and makes a nice table out of it
 const addDosages = (drugData: Drug) => {
   const doseData = drugData.formatted_dose as Dose;
@@ -384,10 +403,6 @@ const addDosages = (drugData: Drug) => {
     Fatal: "#D63131",
   };
 
-  // This will store the colors for each does, since each drug has different dose levels
-  const doseColors = [] as string[];
-  // Like above, this stores the color the gradient will go to
-  const doseGradientToColors = [] as string[];
   // This will be used by apexcharts to create the chart
   const doseSeries = [] as ApexAxisChartSeries;
   // This is used to show the text on the side of the chart
@@ -401,21 +416,7 @@ const addDosages = (drugData: Drug) => {
   for (const roa of Object.keys(doseData)) {
     const roaData = doseData[roa as keyof typeof doseData] as Dosage;
 
-    // This is the order we want them to be in
-    const desiredOrder = [
-      "Threshold",
-      "Light",
-      "Common",
-      "Strong",
-      "Heavy",
-      "Dangerous",
-      "Fatal",
-    ];
-
-    // Sort the keys according to that order
-    const sortedKeys = Object.keys(roaData).sort(
-      (a, b) => desiredOrder.indexOf(a) - desiredOrder.indexOf(b),
-    );
+    const sortedKeys = Object.keys(roaData).sort(byDoseOrder);
 
     // For each strength in the ROA
     for (const strength of sortedKeys) {
@@ -439,13 +440,22 @@ const addDosages = (drugData: Drug) => {
         continue;
       }
 
-      doseColors.push(doseColorData[strength as keyof typeof doseColorData]);
-      doseGradientToColors.push(
-        doseGradientData[strength as keyof typeof doseGradientData],
-      );
       doseSeries.push({ name: strength, data: [point] });
     }
   }
+
+  // A series starts with the first route that has its level, so DMT's Threshold (only
+  // vaporized lists one) came after Strong. Put them back in dose order, and colour each
+  // series by its level.
+  doseSeries.sort((a, b) =>
+    byDoseOrder(String(a.name ?? ""), String(b.name ?? "")),
+  );
+  const doseColors = doseSeries.map(
+    ({ name }) => doseColorData[name as keyof typeof doseColorData],
+  );
+  const doseGradientToColors = doseSeries.map(
+    ({ name }) => doseGradientData[name as keyof typeof doseGradientData],
+  );
 
   const option = {
     chart: {
@@ -472,6 +482,15 @@ const addDosages = (drugData: Drug) => {
     },
     xaxis: {
       min: 0,
+      // Rows otherwise follow the first series, so the route with the lowest level would
+      // jump to the top. Keep the table's route order.
+      categories: Object.keys(doseText)
+        .map((roa) => `${roa} (mg)`)
+        .filter((row) =>
+          doseSeries.some((series) =>
+            (series.data as { x: string }[]).some(({ x }) => x === row),
+          ),
+        ),
     },
     tooltip: {
       custom: ({
@@ -507,7 +526,7 @@ const addDosages = (drugData: Drug) => {
     }
   }
 
-  const allStrengths = [...uniqueStrengths];
+  const allStrengths = [...uniqueStrengths].sort(byDoseOrder);
   const gridSpacing = Math.max(12 / (allStrengths.length + 1), 2); // Ensure a minimum size for the grid
 
   return (

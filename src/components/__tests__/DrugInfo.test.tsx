@@ -252,7 +252,8 @@ test("puts a route-less onset on every route the other phases name", () => {
     />,
   );
   expect(screen.getAllByText("0 to 30m")).toHaveLength(2);
-  // oral's after effects don't parse, so only insufflated has that bar.
+  // oral's after effects don't parse, so only insufflated has that bar. With no duration
+  // before it, it's timed from dosing.
   expect(
     JSON.parse(screen.getByLabelText("Chart series").textContent ?? ""),
   ).toEqual([
@@ -265,7 +266,7 @@ test("puts a route-less onset on every route the other phases name", () => {
     }),
     expect.objectContaining({
       name: "After Effects",
-      data: [expect.objectContaining({ x: "insufflated", y: [1, 2] })],
+      data: [expect.objectContaining({ x: "insufflated", y: [0, 2] })],
     }),
   ]);
 });
@@ -336,6 +337,18 @@ test("keeps every duration under its own heading when routes lack phases", () =>
     screen.getByLabelText("Tooltip for oral After Effects"),
   ).toHaveTextContent(/after dosing/);
   expect(screen.queryByLabelText("Tooltip for Oral (MAOI) Onset")).toBeNull();
+
+  // With no onset, Oral (MAOI)'s 3-7h duration runs from dosing with its marker at 3h,
+  // not from 3h with its marker at 6h.
+  const durations = (
+    JSON.parse(screen.getByLabelText("Chart series").textContent ?? "") as {
+      name: string;
+      data: { x: string; y: number[]; goals: { value: number }[] }[];
+    }[]
+  ).find(({ name }) => name === "Duration");
+  const maoi = durations?.data.find(({ x }) => x === "Oral (MAOI)");
+  expect(maoi?.y).toEqual([0, 7]);
+  expect(maoi?.goals[0].value).toBe(3);
 });
 
 test("displays after effects without onset or duration data", () => {
@@ -351,6 +364,22 @@ test("displays after effects without onset or duration data", () => {
   expect(
     screen.getByLabelText("Tooltip for oral After Effects"),
   ).toHaveTextContent(/3h after dosing/);
+  // From dosing to 3h, ending no sooner than 2h. It used to be drawn 2h-3h with its
+  // marker at 4h, past the end of its own bar.
+  expect(
+    JSON.parse(screen.getByLabelText("Chart series").textContent ?? ""),
+  ).toEqual([
+    expect.objectContaining({
+      name: "After Effects",
+      data: [
+        expect.objectContaining({
+          x: "oral",
+          y: [0, 3],
+          goals: [expect.objectContaining({ value: 2 })],
+        }),
+      ],
+    }),
+  ]);
 });
 
 test("renders fractional hour durations without after effects", () => {

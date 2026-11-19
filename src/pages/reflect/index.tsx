@@ -11,6 +11,7 @@ import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
 import BackupOutlinedIcon from "@mui/icons-material/BackupOutlined";
 import PageShell from "../../components/PageShell";
 import { solidButton } from "../../components/buttonClasses";
+import { BiDiscord, BiExclamationTriangle } from "../../components/icons";
 
 const DISCORD_URL = "https://discord.gg/3sT6w9aKV3";
 
@@ -244,7 +245,7 @@ export default function ReflectPage() {
                 href={DISCORD_URL}
                 className={`${solidButton} inline-flex items-center justify-center gap-2 bg-violet px-6 py-3`}
               >
-                <i className="bi bi-discord" aria-hidden />
+                <BiDiscord />
                 {"Join the Reflect Discord"}
               </a>
             </div>
@@ -302,10 +303,7 @@ export default function ReflectPage() {
       <section className="px-5 pb-16 md:pb-24">
         <div className="mx-auto max-w-6xl">
           <div className="flex gap-4 rounded-2xl border-[1px] border-solid border-amber/40 bg-amber/5 p-6">
-            <i
-              className="bi bi-exclamation-triangle mt-0.5 text-xl text-amber"
-              aria-hidden
-            />
+            <BiExclamationTriangle className="mt-0.5 text-xl text-amber" />
             <p className="m-0 text-sm leading-relaxed text-mute">
               <strong className="text-ink">
                 Reflect is a harm-reduction tool, not medical advice.

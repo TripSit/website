@@ -38,6 +38,7 @@ import { DiscordStats, getDiscordStats } from "../utils/discordStats";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
+import { BxCheckDouble } from "../components/icons";
 
 /* ------------------------------------------------------------------ */
 /* Shared bits                                                         */
@@ -422,10 +423,7 @@ export default function Home({
                   "Conviction that informed education is the cornerstone for harm mitigation.",
                 ].map((principle) => (
                   <li key={principle} className="flex gap-3 text-mute">
-                    <i
-                      className="bx bx-check-double mt-0.5 text-xl leading-none text-violet"
-                      aria-hidden
-                    />
+                    <BxCheckDouble className="mt-0.5 text-xl leading-none text-violet" />
                     <span>{principle}</span>
                   </li>
                 ))}
@@ -558,10 +556,7 @@ export default function Home({
                   "Do not change the data. We worked hard on this and can't verify adjustments.",
                 ].map((rule) => (
                   <li key={rule} className="flex gap-3 text-mute">
-                    <i
-                      className="bx bx-check-double mt-0.5 text-xl leading-none text-violet"
-                      aria-hidden
-                    />
+                    <BxCheckDouble className="mt-0.5 text-xl leading-none text-violet" />
                     <span>{rule}</span>
                   </li>
                 ))}

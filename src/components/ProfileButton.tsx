@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Tooltip } from "@mui/material";
 import { getLoginUrl, getPostLogoutUrl } from "@/utils/keycloak";
+import { BiBoxArrowRight, BiPersonFill } from "./icons";
 
 const GUEST_AVATAR_PATH = "/assets/img/guest.png";
 
@@ -171,7 +172,7 @@ const ProfileButton: React.FC = () => {
           {isLoadingAvatar ? (
             <span className="h-5 w-5 animate-spin rounded-full border-2 border-line border-t-cyan" />
           ) : (
-            !isLoggedIn && <i className="bi bi-person-fill" aria-hidden />
+            !isLoggedIn && <BiPersonFill />
           )}
         </button>
       </Tooltip>
@@ -195,7 +196,7 @@ const ProfileButton: React.FC = () => {
             onClick={handleLogout}
             style={{ border: "none", background: "none" }}
           >
-            <i className="bi bi-box-arrow-right" aria-hidden />
+            <BiBoxArrowRight />
             {"Logout"}
           </button>
         </div>

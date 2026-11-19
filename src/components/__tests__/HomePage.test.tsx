@@ -139,10 +139,12 @@ test("links nowhere that is gone or private (#296)", () => {
   );
 });
 
-test("uses only icon fonts the site loads (no Remix Icon, #285)", () => {
+test("draws its icons as inline SVG, with no icon font left (#285)", () => {
   const { container } = render(<Home discord={discord} drugCount={555} />);
-  expect(container.querySelector('[class*="ri-"]')).toBeNull();
   expect(
-    container.querySelectorAll("i.bx.bx-check-double").length,
+    container.querySelector('[class*="ri-"], i.bi, i.bx, [class*="bx-"]'),
+  ).toBeNull();
+  expect(
+    container.querySelectorAll('svg[data-icon="bx-check-double"]').length,
   ).toBeGreaterThan(3);
 });

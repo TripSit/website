@@ -4,8 +4,6 @@ import AOS from "aos";
 // Vendor CSS Files
 import "aos/dist/aos.css";
 import "../../public/assets/vendor/bootstrap/css/bootstrap.min.css";
-import "../../public/assets/vendor/bootstrap-icons/bootstrap-icons.css";
-import "../../public/assets/vendor/boxicons/css/boxicons.min.css";
 // Main CSS file
 import "../../public/assets/css/style.css";
 // Tailwind utilities (after style.css so utilities win the cascade)

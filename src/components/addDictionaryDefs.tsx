@@ -16,7 +16,9 @@ export default function addDictionaryDefs(
     if (dictionary[cleanWord as keyof typeof dictionary]) {
       const definition = dictionary[cleanWord as keyof typeof dictionary];
       return (
-        <Tooltip arrow key={key} title={definition}>
+        // describeChild: the definition describes the word (aria-describedby) instead of
+        // replacing its name with an aria-label, which isn't allowed on a plain span or p.
+        <Tooltip arrow describeChild key={key} title={definition}>
           <span>
             <Typography
               component="span"

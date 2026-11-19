@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import addDictionaryDefs from "../addDictionaryDefs";
 import dictionary from "../../assets/dictionary.json";
 
@@ -12,11 +12,18 @@ describe("addDictionaryDefs", () => {
     expect(container.innerHTML).toBe("hello world ");
   });
 
-  it("wraps a recognized word in a tooltip carrying its definition", () => {
+  it("wraps a recognized word in a tooltip that describes it", async () => {
     render(<>{addDictionaryDefs("please note agonist here")}</>);
-    expect(screen.getByText("agonist")).toBeInTheDocument();
-    const tooltipHost = screen.getByText("agonist").closest("[aria-label]");
-    expect(tooltipHost).toHaveAttribute("aria-label", dictionary.agonist);
+    const word = screen.getByText("agonist");
+    // The word keeps its own name: no aria-label replacing it with the definition.
+    expect(word.closest("[aria-label]")).toBeNull();
+    fireEvent.mouseOver(word);
+    const tooltip = await screen.findByRole("tooltip");
+    expect(tooltip).toHaveTextContent(dictionary.agonist);
+    expect(word.closest("[aria-describedby]")).toHaveAttribute(
+      "aria-describedby",
+      tooltip.id,
+    );
   });
 
   it("strips commas before matching, but keeps the comma out of the rendered word", () => {

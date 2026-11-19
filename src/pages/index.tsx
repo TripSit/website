@@ -321,6 +321,7 @@ export default function Home({
                 alt="TripSit"
                 priority
                 className="mx-auto h-auto w-60 max-w-full md:w-80"
+                sizes="(min-width: 768px) 320px, 240px"
               />
             </h1>
             <p className="font-display text-2xl font-medium tracking-tight text-ink md:text-3xl">
@@ -531,10 +532,13 @@ export default function Home({
               className="block overflow-hidden rounded-2xl border-[1px] border-solid border-line transition hover:border-violet/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan"
               data-aos="fade-right"
             >
+              {/* Half of the 1152px section from lg up, else the section's full width.
+                  Without sizes this fetched the 3840px variant (285 KB). */}
               <Image
                 src={comboChart}
                 alt="The TripSit drug combination chart"
                 className="h-auto w-full"
+                sizes="(min-width: 1024px) 556px, calc(100vw - 40px)"
               />
             </Link>
             <div data-aos="fade-left">
@@ -589,10 +593,12 @@ export default function Home({
                   className="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan"
                 >
                   <Tooltip title={friend.title} placement="bottom">
+                    {/* At most 48px tall, so as wide as that at the logo's shape. */}
                     <Image
                       src={friend.img}
                       alt={friend.title}
                       className="h-10 w-auto opacity-60 grayscale transition hover:opacity-100 hover:grayscale-0 md:h-12"
+                      sizes={`${Math.ceil((48 * friend.img.width) / friend.img.height)}px`}
                     />
                   </Tooltip>
                 </a>

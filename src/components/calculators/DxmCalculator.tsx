@@ -1,6 +1,6 @@
 import { useId, useState, type ChangeEvent } from "react";
 import { cardClass, fieldClass, selectClass } from "./CalculatorPage";
-import { formatAmount, parseAmount } from "./amounts";
+import { ambiguousAmountHint, formatAmount, parseAmount } from "./amounts";
 import {
   DXM_PRODUCTS,
   KG_PER_UNIT,
@@ -188,6 +188,13 @@ export default function DxmCalculator() {
             </>
           )}
         </p>
+        {/* Says why an amount like "1,000" gives no answer, instead of a bare "?". */}
+        <output className="block text-sm text-amber empty:hidden">
+          {ambiguousAmountHint(
+            weight,
+            ...(mode === "product" ? [] : [strength]),
+          )}
+        </output>
         {mode === "product" ? (
           <p className={`m-0 ${noteClass}`}>
             All the products listed here have DXM as their only active

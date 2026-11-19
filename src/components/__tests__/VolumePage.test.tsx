@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import VolumePage from "@/pages/volume";
 import {
+  ambiguousAmountHint,
   divideAmounts,
   formatAmount,
   parseAmount,
@@ -27,6 +28,40 @@ test("reads commas as decimal points and rejects negative or junk input", () => 
   expect(parseAmount("")).toBeNaN();
   expect(parseAmount("-3")).toBeNaN();
   expect(parseAmount("abc")).toBeNaN();
+});
+
+// "1,000" is a thousand in the US and one in much of Europe; "1.000" the other way round.
+// Reading the wrong one is a thousandfold error, so neither is read.
+test("refuses amounts that could be a thousand or a decimal", () => {
+  for (const ambiguous of ["1,000", "1.000", "2,500", "12.345", "100,000"]) {
+    expect(parseAmount(ambiguous)).toBeNaN();
+  }
+  // A leading zero, other digit counts or no separator can only mean one thing.
+  expect(parseAmount("0,125")).toBe(0.125);
+  expect(parseAmount("1,25")).toBe(1.25);
+  expect(parseAmount("1000")).toBe(1000);
+  expect(parseAmount("1000.5")).toBe(1000.5);
+  expect(ambiguousAmountHint("1,000")).toBe(
+    "“1,000” could mean 1000 or 1. Type 1000 or 1 instead.",
+  );
+  expect(ambiguousAmountHint("10", " 2.500 ")).toBe(
+    "“2.500” could mean 2500 or 2.5. Type 2500 or 2.5 instead.",
+  );
+  expect(ambiguousAmountHint("2,5", "1000")).toBeUndefined();
+});
+
+test("says why 1,000 mg gets no answer instead of using a thousandth of the water", () => {
+  render(<VolumePage />);
+  type("Concentration you want (mg/ml)", "1");
+  type("Substance you have (mg)", "1,000");
+  // It used to read 1 mg and answer 1 ml, making the solution 1000 times too strong.
+  expect(result("Solvent needed (ml)")).toHaveTextContent("?");
+  expect(
+    screen.getByText("“1,000” could mean 1000 or 1. Type 1000 or 1 instead."),
+  ).toBeVisible();
+  type("Substance you have (mg)", "1000");
+  expect(result("Solvent needed (ml)")).toHaveTextContent("1000");
+  expect(screen.queryByText(/could mean/)).toBeNull();
 });
 
 test("only answers when the division makes sense", () => {

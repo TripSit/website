@@ -290,7 +290,11 @@ const addDurations = (drugData: Drug) => {
           <Grid container spacing={2}>
             {/* Duration Chart */}
             <Grid size={{ xs: 12, sm: 6, md: 6 }}>
-              <Typography variant="h5" style={{ color: "black" }}>
+              <Typography
+                variant="h5"
+                component="h2"
+                style={{ color: "black" }}
+              >
                 Durations
               </Typography>
               <ReactApexChart
@@ -534,7 +538,11 @@ const addDosages = (drugData: Drug) => {
           <Grid container spacing={2}>
             {/* Dosage Chart */}
             <Grid size={{ xs: 12, sm: 6, md: 6 }}>
-              <Typography variant="h5" style={{ color: "black" }}>
+              <Typography
+                variant="h5"
+                component="h2"
+                style={{ color: "black" }}
+              >
                 Dosages
               </Typography>
               {doseSeries.length > 0 && (
@@ -636,6 +644,7 @@ function WarningCard({
       <CardContent>
         <Typography
           variant="h5"
+          component="h2"
           sx={{
             color: "#8c1d18",
             display: "flex",
@@ -710,7 +719,11 @@ function ComboGroup({
         color: "black",
       }}
     >
-      <Typography variant="h6" sx={{ color: "black", fontWeight: 700 }}>
+      <Typography
+        variant="h6"
+        component="h3"
+        sx={{ color: "black", fontWeight: 700 }}
+      >
         <span aria-hidden="true">{definition?.emoji}</span> {status} (
         {combos.length})
       </Typography>
@@ -765,7 +778,7 @@ function comboCard(comboData: Interactions): React.JSX.Element {
     <Grid size={{ xs: 12 }} key="combos">
       <Card>
         <CardContent>
-          <Typography variant="h5" style={{ color: "black" }}>
+          <Typography variant="h5" component="h2" style={{ color: "black" }}>
             Known Combinations
           </Typography>
           <Typography>
@@ -832,7 +845,11 @@ function propertyCards(properties: Drug["properties"]): React.JSX.Element[] {
         <Grid size={{ xs: 12, sm: 6, md: 4 }} key={propertyName}>
           <Card>
             <CardContent>
-              <Typography variant="h5" style={{ color: "black" }}>
+              <Typography
+                variant="h5"
+                component="h2"
+                style={{ color: "black" }}
+              >
                 Reagent test results
               </Typography>
               <Typography component="div">
@@ -847,7 +864,11 @@ function propertyCards(properties: Drug["properties"]): React.JSX.Element[] {
         <Grid size={{ xs: 12, sm: 6, md: 4 }} key={propertyName}>
           <Card>
             <CardContent>
-              <Typography variant="h5" style={{ color: "black" }}>
+              <Typography
+                variant="h5"
+                component="h2"
+                style={{ color: "black" }}
+              >
                 {propertyName.charAt(0).toUpperCase() + propertyName.slice(1)}
               </Typography>
               <Typography>
@@ -868,7 +889,11 @@ function propertyCards(properties: Drug["properties"]): React.JSX.Element[] {
         <Grid size={{ xs: 12, sm: 6, md: 4 }} key={propertyName}>
           <Card>
             <CardContent>
-              <Typography variant="h5" style={{ color: "black" }}>
+              <Typography
+                variant="h5"
+                component="h2"
+                style={{ color: "black" }}
+              >
                 {propertyName.charAt(0).toUpperCase() + propertyName.slice(1)}
               </Typography>
               <Typography>{propertyValue}</Typography>
@@ -905,7 +930,7 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
     <Grid size={{ xs: 12, sm: 4, md: 4 }} key="pretty_name">
       <Card>
         <CardContent>
-          <Typography variant="h5" style={{ color: "black" }}>
+          <Typography variant="h5" component="h2" style={{ color: "black" }}>
             Chemical Name
           </Typography>
           <Typography>{drugData.pretty_name}</Typography>
@@ -919,7 +944,7 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
       <Grid size={{ xs: 12, sm: 4, md: 4 }} key="aliases">
         <Card>
           <CardContent>
-            <Typography variant="h5" style={{ color: "black" }}>
+            <Typography variant="h5" component="h2" style={{ color: "black" }}>
               Aliases
             </Typography>
             <Typography>{drugData.aliases.join(", ")}</Typography>
@@ -942,7 +967,7 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
       <Grid size={{ xs: 12, sm: 4, md: 4 }} key={`${drugData.name} categories`}>
         <Card>
           <CardContent>
-            <Typography variant="h5" style={{ color: "black" }}>
+            <Typography variant="h5" component="h2" style={{ color: "black" }}>
               Categories
             </Typography>
             <Typography>{addDictionaryDefs(capitalizedCategories)}</Typography>
@@ -959,7 +984,7 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
       <Grid size={{ xs: 12, sm: 12, md: 12 }} key="summary">
         <Card>
           <CardContent>
-            <Typography variant="h5" style={{ color: "black" }}>
+            <Typography variant="h5" component="h2" style={{ color: "black" }}>
               Summary
             </Typography>
             <Typography>{addDictionaryDefs(properties.summary)}</Typography>
@@ -977,7 +1002,7 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
       <Grid size={{ xs: 12, sm: 12, md: 12 }} key="dose_note">
         <Card>
           <CardContent sx={{ backgroundColor: "yellow" }}>
-            <Typography variant="h5" style={{ color: "black" }}>
+            <Typography variant="h5" component="h2" style={{ color: "black" }}>
               Dosage Note
             </Typography>
             <Typography>{drugData.dose_note}</Typography>
@@ -1008,7 +1033,7 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
       <Grid size={{ xs: 12, sm: 12, md: 12 }} key="pweffects">
         <Card>
           <CardContent>
-            <Typography variant="h5" style={{ color: "black" }}>
+            <Typography variant="h5" component="h2" style={{ color: "black" }}>
               Psychonaut Wiki Effects
             </Typography>
             <Grid container spacing={1}>
@@ -1037,7 +1062,7 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
       <Grid size={{ xs: 12, sm: 6, md: 6 }} key="effects">
         <Card>
           <CardContent>
-            <Typography variant="h5" style={{ color: "black" }}>
+            <Typography variant="h5" component="h2" style={{ color: "black" }}>
               Effects
             </Typography>
             <Typography>{drugData.formatted_effects.join(", ")}</Typography>
@@ -1055,7 +1080,7 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
       <Grid size={{ xs: 12, sm: 6, md: 6 }} key="links">
         <Card>
           <CardContent>
-            <Typography variant="h5" style={{ color: "black" }}>
+            <Typography variant="h5" component="h2" style={{ color: "black" }}>
               Links
             </Typography>
             {linkKeys.map((property) => (
@@ -1082,7 +1107,7 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
       <Grid size={{ xs: 12, sm: 6, md: 6 }} key="sources">
         <Card>
           <CardContent>
-            <Typography variant="h5" style={{ color: "black" }}>
+            <Typography variant="h5" component="h2" style={{ color: "black" }}>
               Sources
             </Typography>
             <Typography>{links}</Typography>
@@ -1093,7 +1118,11 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
   }
 
   return (
-    <Container maxWidth="lg">
+    <Container
+      maxWidth="lg"
+      // The site-wide link blue (#2487ce) is 3.9:1 on these white cards; this is 4.9:1.
+      sx={{ "& a:not([class])": { color: "#1f75b3" } }}
+    >
       <Grid container spacing={2}>
         {elements}
       </Grid>

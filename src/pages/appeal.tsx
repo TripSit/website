@@ -610,7 +610,7 @@ const AppealPage: React.FC = () => {
                     fontSize: "16px",
                     fontWeight: "600",
                     textTransform: "none",
-                    backgroundColor: "#2487ce",
+                    backgroundColor: "#1f75b3", // white on #2487ce was 3.9:1
                     color: "#fff",
                     border: "none",
                   }}

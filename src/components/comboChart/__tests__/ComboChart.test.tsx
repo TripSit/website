@@ -193,9 +193,12 @@ it("fits the poster to the space the page gives it", () => {
     disconnect = disconnect;
   } as unknown as typeof ResizeObserver;
   const { container, unmount } = render(<ComboChart {...props} />);
-  act(() => report([{ contentRect: { width: 1955 } }]));
   const poster = container.querySelector<HTMLElement>("[data-combo-chart]");
+  // Hidden by CSS until it's measured, so it doesn't show at full size and then shrink.
+  expect(poster).toHaveAttribute("data-unmeasured");
+  act(() => report([{ contentRect: { width: 1955 } }]));
   expect(Number(poster?.style.zoom)).toBeCloseTo(0.5, 1);
+  expect(poster).not.toHaveAttribute("data-unmeasured");
   unmount();
   expect(disconnect).toHaveBeenCalled();
   delete (globalThis as { ResizeObserver?: unknown }).ResizeObserver;

@@ -67,8 +67,13 @@ const InfoBar = (
       classNames={{
         base: "factsheetsAccBase",
         heading: "factsheetsAccHeading",
-        trigger: "factsheetsAccTrigger",
-        titleWrapper: "factsheetsAccWrapper",
+        // Keyboard focus showed nothing: HeroUI replaces the trigger's outline with a box-shadow
+        // ring, which this toolbar's overflow clips, and the trigger is an invisible full-width
+        // strip anyway. Outline the visible pill instead while the trigger has keyboard focus,
+        // in a blue that is 4.9:1 on white (the site's cyan would be 1.6:1).
+        trigger: "factsheetsAccTrigger group",
+        titleWrapper:
+          "factsheetsAccWrapper group-focus-visible:outline-2 group-focus-visible:outline-offset-2 group-focus-visible:outline-solid group-focus-visible:outline-[#1f75b3]",
         title: "factsheetsAccTitle",
         subtitle: "factsheetsAccSubtitle",
         startContent: "factsheetsAccContent",

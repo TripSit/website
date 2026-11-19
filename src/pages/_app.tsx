@@ -3,6 +3,11 @@ import React, { useEffect, useState } from "react";
 import AOS from "aos";
 // Vendor CSS Files
 import "aos/dist/aos.css";
+// Bootstrap's theme (Bootswatch Cyborg) and MUI both use Roboto. The theme used to @import it
+// from Google Fonts, which sent every visitor's address to Google on every page. It's served
+// from this site now, in the two weights the theme loaded.
+import "@fontsource/roboto/400.css";
+import "@fontsource/roboto/700.css";
 import "../../public/assets/vendor/bootstrap/css/bootstrap.min.css";
 // Main CSS file
 import "../../public/assets/css/style.css";

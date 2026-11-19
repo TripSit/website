@@ -503,6 +503,50 @@ test("orders dose columns and chart series from weakest to strongest", () => {
   ).toEqual(["insufflated (mg)", "vapourized (mg)"]);
 });
 
+// Shaped like LSA's: doses in seeds, which the mg chart can't show.
+test("gives a chartless dosage table the whole card and readable route names", () => {
+  render(
+    <DrugInfo
+      drugData={{
+        ...drug,
+        formatted_dose: {
+          hbwr: { Light: "1-2seeds" },
+          Morning_Glory: { Light: "50-100seeds" },
+        } as unknown as Dose,
+      }}
+    />,
+  );
+  expect(screen.getByText("Morning Glory")).toBeVisible();
+  expect(screen.queryByText("Morning_Glory")).toBeNull();
+  expect(screen.queryByLabelText("Chart series")).not.toBeInTheDocument();
+  const tableColumn = screen
+    .getByText("Morning Glory")
+    .closest(".MuiGrid-container")?.parentElement;
+  expect(tableColumn).toHaveClass("MuiGrid-grid-xs-12");
+  expect(tableColumn).not.toHaveClass("MuiGrid-grid-sm-6");
+});
+
+test("charts a dose range that ends with a full stop", () => {
+  render(
+    <DrugInfo
+      drugData={{
+        ...drug,
+        formatted_dose: {
+          oral: { Common: "50-100mg", Strong: "100-135mg." },
+        } as unknown as Dose,
+      }}
+    />,
+  );
+  expect(screen.getByText("100-135mg.")).toBeVisible();
+  expect(
+    (
+      JSON.parse(screen.getByLabelText("Chart series").textContent ?? "") as {
+        name: string;
+      }[]
+    ).map(({ name }) => name),
+  ).toEqual(["Common", "Strong"]);
+});
+
 test("keeps open-ended dose text without plotting an invented upper bound", () => {
   render(
     <DrugInfo

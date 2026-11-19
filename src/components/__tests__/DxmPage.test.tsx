@@ -216,3 +216,13 @@ test("gives no answer for a zero strength", () => {
   type("DXM in your product (mg)", "0");
   expect(table()).toEqual(Array(4).fill(["?", "?"]));
 });
+
+test("asks what a weight like 1.000 means instead of guessing", () => {
+  render(<DxmPage />);
+  type("Your weight", "1.000");
+  expect(
+    screen.getByText("“1.000” could mean 1000 or 1. Type 1000 or 1 instead."),
+  ).toBeVisible();
+  type("Your weight", "70");
+  expect(screen.queryByText(/could mean/)).toBeNull();
+});

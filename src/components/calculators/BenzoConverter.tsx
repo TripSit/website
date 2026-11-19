@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { useState, type ReactNode } from "react";
 import { cardClass, fieldClass, selectClass } from "./CalculatorPage";
-import { formatAmount, parseAmount } from "./amounts";
+import { ambiguousAmountHint, formatAmount, parseAmount } from "./amounts";
 import { convertDose, type Benzo } from "./benzoData";
 
 // Option values are "<name>" for a benzo and "<name>/<alias>" for one of its
@@ -190,7 +190,7 @@ export default function BenzoConverter({
         <p className="m-0 rounded-xl bg-cyan/15 px-4 py-3 font-semibold text-cyan">
           <output aria-label="Converted dose">
             {result === undefined
-              ? "Enter a dose to convert."
+              ? (ambiguousAmountHint(dose) ?? "Enter a dose to convert.")
               : `${dose.trim()} mg of ${from.prettyName} is roughly ${result} mg of ${to.prettyName}.`}
           </output>
         </p>

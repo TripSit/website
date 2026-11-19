@@ -31,6 +31,8 @@ type TimingWindow = {
   max: number;
   startTime: number;
   endTime: number;
+  // The source text, when it gives more than one range (see parseRangeHours).
+  detail?: string;
 };
 
 // Keyed by ROA, eg "Oral"
@@ -50,18 +52,27 @@ const round2 = (value: number) => Number.parseFloat(value.toFixed(2));
 
 // Pulls the min and max hours out of a string like "1-2", "30" or "1.5-3hours".
 // If there is no dash, the single number is the max and the min is 0.
+// Some strings give a range per dose, like buprenorphine's "Low Dose: 8-12 hours High
+// Dose: 24-72 hours". Only the first range used to count, which showed 8-12h and hid the
+// high dose's 72h. The result spans every range instead, and says there were several.
 function parseRangeHours(
   text: string,
   unit: string | undefined,
-): { min: number; max: number } | undefined {
-  const match = /(\d+(?:\.\d+)?)(?:-(\d+(?:\.\d+)?))?([a-zA-Z]+)?/.exec(text);
-  if (!match) {
+): { min: number; max: number; several: boolean } | undefined {
+  const ranges = [...text.matchAll(/(\d+(?:\.\d+)?)(?:-(\d+(?:\.\d+)?))?/g)];
+  if (ranges.length === 0) {
     return undefined;
   }
   const divisor = unit === "minutes" ? 60 : 1;
-  const max = Number.parseFloat(match[2] ?? match[1]) / divisor;
-  const min = match[2] ? Number.parseFloat(match[1]) / divisor : 0;
-  return { min, max };
+  const mins = ranges.map(([, low, high]) =>
+    high ? Number.parseFloat(low) : 0,
+  );
+  const maxes = ranges.map(([, low, high]) => Number.parseFloat(high ?? low));
+  return {
+    min: Math.min(...mins) / divisor,
+    max: Math.max(...maxes) / divisor,
+    several: ranges.length > 1,
+  };
 }
 
 // Places a phase on the timeline. A bar runs from the earliest the phase can start to the
@@ -155,6 +166,7 @@ function addDurationData(
         min: round2(range.min),
         max: round2(range.max),
         ...placeWindow(range, previous),
+        ...(range.several ? { detail: roaString.trim() } : {}),
       },
     };
   }
@@ -348,6 +360,11 @@ const addDurations = (drugData: Drug) => {
                             <Typography>
                               {formatHours(timing.min)} to{" "}
                               {formatHours(timing.max)}
+                            </Typography>
+                          )}
+                          {timing?.detail && (
+                            <Typography variant="body2">
+                              {timing.detail}
                             </Typography>
                           )}
                         </Grid>

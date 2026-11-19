@@ -382,6 +382,33 @@ test("displays after effects without onset or duration data", () => {
   ]);
 });
 
+// Shaped like buprenorphine's: one string with a range per dose.
+test("spans every range in a timing value and shows its text", () => {
+  render(
+    <DrugInfo
+      drugData={{
+        ...drug,
+        formatted_duration: {
+          oral: "Low Dose: 8-12 hours High Dose: 24-72 hours",
+          _unit: "hours" as Unit,
+        },
+      }}
+    />,
+  );
+  // Not just the first range, which hid the high dose's 72h.
+  expect(screen.getByText("8h to 72h")).toBeVisible();
+  expect(screen.queryByText("8h to 12h")).toBeNull();
+  expect(
+    screen.getByText("Low Dose: 8-12 hours High Dose: 24-72 hours"),
+  ).toBeVisible();
+  // The bar reaches the high dose's 72h.
+  const [duration] = JSON.parse(
+    screen.getByLabelText("Chart series").textContent ?? "",
+  ) as { name: string; data: { x: string; y: number[] }[] }[];
+  expect(duration.name).toBe("Duration");
+  expect(duration.data[0].y[1]).toBe(72);
+});
+
 test("renders fractional hour durations without after effects", () => {
   render(
     <DrugInfo

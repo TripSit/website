@@ -421,7 +421,7 @@ export default function Home({
                 ].map((principle) => (
                   <li key={principle} className="flex gap-3 text-mute">
                     <i
-                      className="ri-check-double-line mt-0.5 text-xl leading-none text-violet"
+                      className="bx bx-check-double mt-0.5 text-xl leading-none text-violet"
                       aria-hidden
                     />
                     <span>{principle}</span>

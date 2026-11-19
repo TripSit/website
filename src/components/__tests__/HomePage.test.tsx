@@ -138,3 +138,11 @@ test("links nowhere that is gone or private (#296)", () => {
     "/reflect",
   );
 });
+
+test("uses only icon fonts the site loads (no Remix Icon, #285)", () => {
+  const { container } = render(<Home discord={discord} drugCount={555} />);
+  expect(container.querySelector('[class*="ri-"]')).toBeNull();
+  expect(
+    container.querySelectorAll("i.bx.bx-check-double").length,
+  ).toBeGreaterThan(3);
+});

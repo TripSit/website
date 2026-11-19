@@ -99,6 +99,40 @@ function placeWindow(
 
 const PHASES: TimingKey[] = ["Onset", "Duration", "After Effects"];
 
+// Dose keys that are ways of taking a drug, as opposed to forms of it (LSA's "HBWR", peyote's
+// "Dried" and "Fresh").
+const ADMINISTRATION_ROUTES = new Set([
+  "oral",
+  "insufflated",
+  "sublingual",
+  "buccal",
+  "vapourized",
+  "vaporized",
+  "smoked",
+  "intravenous",
+  "intramuscular",
+  "rectal",
+  "transdermal",
+]);
+
+// The row for timing that names no route. It used to be "Oral" for every drug, which was
+// wrong for drugs nobody takes orally: cocaine (insufflated), the NBOMes (sublingual) or
+// 5-Br-DMT (vaporized). When every dose route is a real route and none is oral, use those.
+// Drugs dosed in forms rather than routes are eaten, so they stay "Oral".
+function routeForUnnamedTiming(drug: Drug): string {
+  const doseRoutes = Object.keys(drug.formatted_dose ?? {});
+  const allRoutes =
+    doseRoutes.length > 0 &&
+    doseRoutes.every((route) => ADMINISTRATION_ROUTES.has(route.toLowerCase()));
+  if (
+    !allRoutes ||
+    doseRoutes.some((route) => route.toLowerCase() === "oral")
+  ) {
+    return "Oral";
+  }
+  return doseRoutes.join(" / ");
+}
+
 // Route keys like "Oral_MAOI" read as "Oral (MAOI)".
 function routeLabel(route: string): string {
   const [base, ...detail] = route.split("_");
@@ -182,13 +216,14 @@ const addDurations = (drugData: Drug) => {
   ];
 
   // Every route any phase names, in the order they first appear. When no phase names one,
-  // the values are filed under "Oral".
+  // see routeForUnnamedTiming.
   const named = [
     ...new Set(
       phaseData.flatMap(([, data]) => (data ? (namedRoutes(data) ?? []) : [])),
     ),
   ];
-  const allRoutes = named.length > 0 ? named : ["Oral"];
+  const allRoutes =
+    named.length > 0 ? named : [routeForUnnamedTiming(drugData)];
 
   // Build each route's timeline phase by phase, so each phase can start after the one
   // before it on the same route.

@@ -288,6 +288,79 @@ test("files timing under Oral when no phase names a route", () => {
   );
 });
 
+describe("timing that names no route", () => {
+  const timing = {
+    formatted_onset: { value: "1-5", _unit: "minutes" as Unit },
+    formatted_duration: { value: "1-1.5", _unit: "hours" as Unit },
+  };
+  // Doses are open-ended ("+") so they draw no chart of their own.
+  const durationRows = () =>
+    (
+      JSON.parse(screen.getByLabelText("Chart series").textContent ?? "") as {
+        name: string;
+        data: { x: string }[];
+      }[]
+    )
+      .find(({ name }) => name === "Duration")
+      ?.data.map(({ x }) => x);
+
+  // Shaped like cocaine's: only insufflated doses.
+  it("goes under the dose routes when none is oral", () => {
+    render(
+      <DrugInfo
+        drugData={{
+          ...drug,
+          ...timing,
+          formatted_dose: {
+            insufflated: { Common: "30mg+" },
+          } as unknown as Dose,
+        }}
+      />,
+    );
+    expect(durationRows()).toEqual(["insufflated"]);
+    expect(screen.queryByText("Oral")).toBeNull();
+  });
+
+  it("joins several non-oral dose routes into one row", () => {
+    render(
+      <DrugInfo
+        drugData={{
+          ...drug,
+          ...timing,
+          formatted_dose: {
+            buccal: { Common: "0.5mg+" },
+            sublingual: { Common: "0.5mg+" },
+          } as unknown as Dose,
+        }}
+      />,
+    );
+    expect(durationRows()).toEqual(["buccal / sublingual"]);
+  });
+
+  it.each([
+    // Taken orally among other ways
+    [{ oral: { Common: "1mg+" }, insufflated: { Common: "1mg+" } }],
+    // LSA's dose keys are forms of seed, which are eaten
+    [
+      {
+        hbwr: { Common: "2-6seeds" },
+        Morning_Glory: { Common: "100-250seeds" },
+      },
+    ],
+  ])("stays under Oral for %j", (formatted_dose) => {
+    render(
+      <DrugInfo
+        drugData={{
+          ...drug,
+          ...timing,
+          formatted_dose: formatted_dose as unknown as Dose,
+        }}
+      />,
+    );
+    expect(durationRows()).toEqual(["Oral"]);
+  });
+});
+
 // Shaped like DMT's data: routes that only some phases name, a route-less after effects
 // value, and route keys with an underscore.
 test("keeps every duration under its own heading when routes lack phases", () => {

@@ -80,7 +80,7 @@ function readLoginState(): PendingLogin | null {
 }
 
 function base64Url(bytes: Uint8Array): string {
-  return btoa(String.fromCharCode(...bytes))
+  return btoa(String.fromCodePoint(...bytes))
     .replaceAll("+", "-")
     .replaceAll("/", "_")
     .replaceAll("=", "");
@@ -104,19 +104,18 @@ function pendingLoginState(): PendingLogin {
 export function consumeLoginState(returnedState: string | null): string | null {
   const pending = readLoginState();
   sessionStorage.removeItem(LOGIN_STATE_KEY);
-  return pending && returnedState === pending.value
-    ? pending.codeVerifier
-    : null;
+  if (!pending) return null;
+  return returnedState === pending.value ? pending.codeVerifier : null;
 }
 
 export async function getLoginUrl(): Promise<string> {
-  if (typeof window === "undefined") {
-    throw new Error("Login must start in a browser.");
+  if (!("window" in globalThis)) {
+    throw new TypeError("Login must start in a browser.");
   }
   const config = getKeycloakConfig();
   const params = new URLSearchParams({
     client_id: getClientId(),
-    redirect_uri: `${window.location.origin}/appeal`,
+    redirect_uri: `${globalThis.location.origin}/appeal`,
     response_type: "code",
     scope: "openid profile email",
   });
@@ -135,7 +134,7 @@ export function getPostLogoutUrl(): string {
   const config = getKeycloakConfig();
   const params = new URLSearchParams({
     post_logout_redirect_uri:
-      typeof window !== "undefined" ? window.location.origin : "",
+      "window" in globalThis ? globalThis.location.origin : "",
     id_token_hint: sessionStorage.getItem("kc_id_token") ?? "",
   });
   return `${config.url}/realms/${config.realm}/protocol/openid-connect/logout?${params.toString()}`;

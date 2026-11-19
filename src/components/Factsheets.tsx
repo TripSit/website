@@ -15,7 +15,8 @@ It creates charts using ApexCharts: https://apexcharts.com/
 Pull requests are welcome! If you have any questions, feel free to ask in #dev on the TripSit Discord: https://discord.gg/tripsit
 */
 
-import React, { Fragment, useMemo } from "react";
+import React, { Fragment, useMemo, useState } from "react";
+import Link from "next/link";
 import {
   MaterialReactTable,
   MRT_ShowHideColumnsButton as ShowHideColumnsButton,
@@ -49,8 +50,10 @@ import addDictionaryDefs from "./addDictionaryDefs";
 import { splitWords } from "../utils/splitWords";
 
 import dictionary from "../assets/dictionary.json";
+import pinnedDrugs from "../assets/pinnedDrugs.json";
 import GithubButton from "./Github";
 import DrugInfoCard from "./DrugInfo";
+import ReagentResults from "./ReagentResults";
 
 // This appears at the top and can contain any information you want
 // We can use this for announcements or updates
@@ -201,7 +204,7 @@ const addCategoryStyle = (text: string | undefined): React.JSX.Element[] => {
   // Split the input text into individual words
   return splitWords(text).map(({ word, key }) => {
     // Remove the comma, we need to keep hyphens though:
-    const cleanWord = word.replace(/,/g, "").toLowerCase();
+    const cleanWord = word.replaceAll(",", "").toLowerCase();
 
     // Check if the word is included in the categoryColors, and if so, add the styles
     if (Object.keys(categoryColors).includes(cleanWord)) {
@@ -235,6 +238,13 @@ const addCategoryStyle = (text: string | undefined): React.JSX.Element[] => {
 // React sees the same component type on every render instead of remounting the cells.
 type DrugCellProps = Readonly<{ cell: MRT_Cell<Drug> }>;
 
+// Each drug's own page, so a factsheet can be linked to and shared.
+const NameCell = ({ cell }: DrugCellProps) => (
+  <Link href={`/factsheets/${encodeURIComponent(cell.row.original.name)}`}>
+    {cell.getValue<string>()}
+  </Link>
+);
+
 const CategoryCell = ({ cell }: DrugCellProps) => (
   <span>{addCategoryStyle(cell.getValue<string | undefined>())}</span>
 );
@@ -243,8 +253,32 @@ const DictionaryCell = ({ cell }: DrugCellProps) => (
   <span>{addDictionaryDefs(cell.getValue<string | undefined>())}</span>
 );
 
+const ReagentCell = ({ cell }: DrugCellProps) => (
+  <ReagentResults text={cell.getValue<string | undefined>()} />
+);
+
+type RowPinning = { top?: string[]; bottom?: string[] };
+
+// Only pinned drugs that are loaded reach the table: it throws on an ID it can't find, which
+// is every ID until drugs.json arrives.
+function loadedPins(pinning: RowPinning, loaded: ReadonlySet<string>) {
+  const keep = (names: string[] = []) =>
+    names.filter((name) => loaded.has(name));
+  return { top: keep(pinning.top), bottom: keep(pinning.bottom) };
+}
+
 const Factsheets = () => {
   const { data = [], isError, isRefetching, isLoading, refetch } = useDrugs();
+  // Drugs named in src/assets/pinnedDrugs.json (such as ones just added) start pinned to the
+  // top. Visitors can pin and unpin rows too.
+  const [rowPinning, setRowPinning] = useState<RowPinning>({
+    top: pinnedDrugs,
+    bottom: [],
+  });
+  const tableRowPinning = useMemo(
+    () => loadedPins(rowPinning, new Set(data.map((drug) => drug.name))),
+    [rowPinning, data],
+  );
 
   // Define the columns
   const columns = useMemo<MRT_ColumnDef<Drug>[]>(
@@ -255,6 +289,7 @@ const Factsheets = () => {
         header: "Name",
         filterVariant: "text",
         size: 180, // This is the default value, but it stops the column from changing when the table is resized
+        Cell: NameCell,
       },
       {
         accessorFn: (row) => {
@@ -288,6 +323,7 @@ const Factsheets = () => {
         header: "Reagents Results",
         filterVariant: "text",
         size: 200,
+        Cell: ReagentCell,
       },
       {
         accessorFn: (row) => row.formatted_effects?.join(", "),
@@ -334,11 +370,24 @@ const Factsheets = () => {
     enableTopToolbar: true,
     enableTableHead: true,
     enableHiding: true,
+    // One continuous list instead of pages of 10 (#83). Only the rows in view (plus a few
+    // either side) are in the page at once, so scrolling all ~550 drugs stays quick.
+    enablePagination: false,
+    enableRowVirtualization: true,
+    rowVirtualizerOptions: { overscan: 8 },
+    // Pagination used to say how many drugs matched; keep that count.
+    renderBottomToolbarCustomActions: ({ table }) => (
+      <Typography variant="body2" sx={{ px: 1 }} aria-live="polite">
+        {table.getFilteredRowModel().rows.length} of {data.length} substances
+      </Typography>
+    ),
     state: {
       isLoading,
       showAlertBanner: isError,
       showProgressBars: isRefetching,
+      rowPinning: tableRowPinning,
     },
+    onRowPinningChange: setRowPinning,
     getRowId: (row) => row.name,
     initialState: {
       showColumnFilters: true,
@@ -347,9 +396,6 @@ const Factsheets = () => {
         effects: false,
         reagent_results: false,
       },
-      // rowPinning: {
-      //   top: ["0"],
-      // },
       // rowSelection: {
       //   cocaine: true,
       // },
@@ -375,7 +421,7 @@ const Factsheets = () => {
     renderTopToolbarCustomActions: () => (
       <>
         <Tooltip arrow title="Refresh Data">
-          <IconButton onClick={() => refetch()}>
+          <IconButton onClick={() => void refetch()}>
             <RefreshIcon />
           </IconButton>
         </Tooltip>

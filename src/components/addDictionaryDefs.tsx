@@ -11,7 +11,7 @@ export default function addDictionaryDefs(
   }
   return splitWords(text).map(({ word, key }) => {
     // Remove the comma, we need to keep hyphens though:
-    const cleanWord = word.replace(/,/g, "").toLowerCase();
+    const cleanWord = word.replaceAll(",", "").toLowerCase();
 
     if (dictionary[cleanWord as keyof typeof dictionary]) {
       const definition = dictionary[cleanWord as keyof typeof dictionary];

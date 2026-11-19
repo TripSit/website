@@ -7,14 +7,14 @@ const GUEST_AVATAR_PATH = "/assets/img/guest.png";
 function safeAvatarUrl(value: unknown): string {
   if (typeof value !== "string") return GUEST_AVATAR_PATH;
   try {
-    const url = new URL(value, window.location.origin);
+    const url = new URL(value, globalThis.location.origin);
     const discordCdn =
       url.protocol === "https:" &&
       ["cdn.discordapp.com", "media.discordapp.net"].includes(url.hostname);
     if (
       !url.username &&
       !url.password &&
-      (discordCdn || url.origin === window.location.origin)
+      (discordCdn || url.origin === globalThis.location.origin)
     ) {
       return url.href;
     }
@@ -43,18 +43,18 @@ const ProfileButton: React.FC = () => {
     checkLoginStatus();
 
     // Listen for storage changes (localStorage only)
-    window.addEventListener("storage", checkLoginStatus);
+    globalThis.addEventListener("storage", checkLoginStatus);
 
     // Listen for focus events (when user returns from login)
     window.addEventListener("focus", checkLoginStatus);
 
     // Custom event listener for when tokens are set programmatically
-    window.addEventListener("tokensUpdated", checkLoginStatus);
+    globalThis.addEventListener("tokensUpdated", checkLoginStatus);
 
     return () => {
-      window.removeEventListener("storage", checkLoginStatus);
+      globalThis.removeEventListener("storage", checkLoginStatus);
       window.removeEventListener("focus", checkLoginStatus);
-      window.removeEventListener("tokensUpdated", checkLoginStatus);
+      globalThis.removeEventListener("tokensUpdated", checkLoginStatus);
     };
   }, []);
 
@@ -91,7 +91,7 @@ const ProfileButton: React.FC = () => {
       }
     };
 
-    if (isLoggedIn) fetchAvatar();
+    if (isLoggedIn) void fetchAvatar();
   }, [isLoggedIn]);
 
   // Close dropdown when clicking outside
@@ -112,7 +112,7 @@ const ProfileButton: React.FC = () => {
   const handleLogin = async () => {
     setLoginFailed(false);
     try {
-      window.location.href = await getLoginUrl();
+      globalThis.location.href = await getLoginUrl();
     } catch {
       setLoginFailed(true);
     }
@@ -136,16 +136,16 @@ const ProfileButton: React.FC = () => {
     setIsDropdownOpen(false);
 
     // Notify other components about token changes
-    window.dispatchEvent(new Event("tokensUpdated"));
+    globalThis.dispatchEvent(new Event("tokensUpdated"));
 
-    window.location.href = logoutUrl;
+    globalThis.location.href = logoutUrl;
   };
 
   const toggleDropdown = () => {
-    if (!isLoggedIn) {
-      void handleLogin();
-    } else {
+    if (isLoggedIn) {
       setIsDropdownOpen(!isDropdownOpen);
+    } else {
+      void handleLogin();
     }
   };
 

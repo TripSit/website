@@ -33,7 +33,7 @@ function ComboChecker({
 
   const toggle = (name: string) =>
     setSelected((prev) =>
-      prev.includes(name) ? prev.filter((n) => n !== name) : prev.concat(name),
+      prev.includes(name) ? prev.filter((n) => n !== name) : [...prev, name],
     );
 
   return (

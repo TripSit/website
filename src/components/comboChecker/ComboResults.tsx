@@ -43,11 +43,12 @@ function ComboResults({
     return out;
   }, [selected, sortBySeverity]);
 
-  const highestRisk = cards.reduce<Card | undefined>(
-    (highest, card) =>
-      !highest || RANK[card.risk] > RANK[highest.risk] ? card : highest,
-    undefined,
-  );
+  let highestRisk: Card | undefined;
+  for (const card of cards) {
+    if (!highestRisk || RANK[card.risk] > RANK[highestRisk.risk]) {
+      highestRisk = card;
+    }
+  }
   const pairCount = `${cards.length} ${cards.length === 1 ? "pair" : "pairs"}`;
   const summary = highestRisk
     ? `${pairCount} displayed. Highest risk: ${RISK[highestRisk.risk].label}.`

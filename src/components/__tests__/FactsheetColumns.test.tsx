@@ -36,7 +36,7 @@ jest.mock("material-react-table", () => {
     accessorKey?: keyof Drug;
     accessorFn?: (row: Drug) => string | undefined;
     Cell?: (props: {
-      cell: { getValue: () => string | undefined };
+      cell: { getValue: () => string | undefined; row: { original: Drug } };
     }) => ReactNode;
   };
 
@@ -46,7 +46,7 @@ jest.mock("material-react-table", () => {
       ? column.accessorFn(row)
       : (row[column.accessorKey as keyof Drug] as string | undefined);
     return column.Cell
-      ? column.Cell({ cell: { getValue: () => value } })
+      ? column.Cell({ cell: { getValue: () => value, row: { original: row } } })
       : (value ?? "");
   }
 
@@ -86,7 +86,7 @@ test("formats all optional factsheet columns and tolerates missing values", () =
         pretty_name: "Full",
         aliases: ["Alias"],
         properties: {
-          "test-kits": "Reagent result",
+          "test-kits": "Marquis: Slow Purple.",
           categories: ["tentative"],
           summary: "Summary",
         },
@@ -98,10 +98,30 @@ test("formats all optional factsheet columns and tolerates missing values", () =
     refetch,
   } as unknown as ReturnType<typeof useDrugs>);
   render(<Factsheets />);
-  expect(screen.getByText("Reagent result")).toBeVisible();
+  expect(screen.getByText("Slow Purple")).toBeVisible();
+  expect(document.querySelector('[data-colour="purple"]')).not.toBeNull();
   expect(screen.getByText("Example effect")).toBeVisible();
   expect(screen.getByText("Nausea")).toBeVisible();
   expect(screen.getByText("Minimal")).toBeVisible();
   fireEvent.click(screen.getByRole("button", { name: "Refresh Data" }));
   expect(refetch).toHaveBeenCalledTimes(1);
+});
+
+test("links each drug name to its own factsheet page", () => {
+  jest.mocked(useDrugs).mockReturnValue({
+    data: [
+      { name: "lsd", pretty_name: "LSD", properties: {} },
+      { name: "ghb/gbl", pretty_name: "GHB/GBL", properties: {} },
+    ],
+    refetch: jest.fn(),
+  } as unknown as ReturnType<typeof useDrugs>);
+  render(<Factsheets />);
+  expect(screen.getByRole("link", { name: "LSD" })).toHaveAttribute(
+    "href",
+    "/factsheets/lsd",
+  );
+  expect(screen.getByRole("link", { name: "GHB/GBL" })).toHaveAttribute(
+    "href",
+    "/factsheets/ghb%2Fgbl",
+  );
 });

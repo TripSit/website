@@ -102,7 +102,10 @@ node:
 
 steps:
   - name: Rebuild Website UAT
-    image: docker
+    # Pinned like production's images: this step can reach the UAT Docker daemon, so it must
+    # not run whatever docker:latest is that day. docker:latest has been 29.10.0 for every UAT
+    # build since 2026-11-16, so this pin changes nothing that runs today.
+    image: docker:29.10.0@sha256:4bbc7223f81db790097c6dea42fb93e05b8fead4f0431fbe6ccaba6e8473201c
     commands:
       - apk add --no-cache git
       # Public settings must be build arguments now that .env files stay out of image layers.
@@ -122,14 +125,7 @@ steps:
         from_secret: NEXT_PUBLIC_KEYCLOAK_URL
       NEXT_PUBLIC_KEYCLOAK_CLIENT_ID:
         from_secret: NEXT_PUBLIC_KEYCLOAK_CLIENT_ID
-      REDDIT_BOT_TOKEN:
-        from_secret: REDDIT_BOT_TOKEN
-      REDDIT_BOT_SECRET:
-        from_secret: REDDIT_BOT_SECRET
-      REDDIT_BOT_ID:
-        from_secret: REDDIT_BOT_ID
-      DISCORD_CLIENT_ID:
-        from_secret: DISCORD_CLIENT_ID
+      # Read by the homepage Discord stats (src/utils/discordStats.ts).
       DISCORD_CLIENT_TOKEN:
         from_secret: DISCORD_CLIENT_TOKEN
       # The server the homepage Discord stats read; UAT's bot is only in the test server.
@@ -137,7 +133,7 @@ steps:
         from_secret: DISCORD_GUILD_ID
 
   - name: discord notification
-    image: appleboy/drone-discord
+    image: appleboy/drone-discord:1.5.2@sha256:c850372e85a4b86465e8fa89876fe86263f7b1979f1f0c8d51243b78b792155c
     settings:
       webhook_id:
         from_secret: WEBHOOK_ID

@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import FactsheetsPage from "@/pages/factsheets";
+import { giveTableRoom } from "../../../test-utils/tableRoom";
 
 jest.mock("@heroui/react", () => ({ Accordion: () => null }));
 
@@ -23,11 +24,13 @@ const drugs = {
 };
 
 beforeEach(() => {
+  giveTableRoom();
   fetchMock.mockReset();
   global.fetch = fetchMock;
 });
 
 afterEach(() => {
+  jest.restoreAllMocks();
   global.fetch = originalFetch;
 });
 
@@ -48,6 +51,9 @@ test("loads factsheet rows from the drug database and expands their details", as
   expect(await screen.findByText("Example compound")).toBeVisible();
   expect(screen.getByText("Test alias")).toBeVisible();
   expect(screen.getByText("Minimal compound")).toBeVisible();
+  // One scrolling list (#83): no pages, and the count of matching drugs instead.
+  expect(screen.getByText("2 of 2 substances")).toBeVisible();
+  expect(screen.queryByText(/rows per page/i)).toBeNull();
   expect(screen.getByText("Stimulant,")).toHaveStyle({
     color: "rgb(255, 255, 255)",
   });

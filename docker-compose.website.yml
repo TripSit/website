@@ -1,3 +1,11 @@
+# Local development in Docker. `npm run website` builds the Dockerfile's `development`
+# target, mounts src/ and public/ so edits reload, and serves http://localhost:3000.
+#
+# Neither deployment uses this file: UAT's Drone pipeline runs the UAT server's own
+# docker-compose.website-prod.yml, and production rebuilds through the signed deploy hook
+# (see .drone.yml). The Traefik and Watchtower labels below mirror the servers' routing for
+# reference and do nothing without that Traefik instance, so a routing change here (such as
+# the website-staff router) has to be made in the servers' compose files as well.
 version: '3.9'
 
 name: service
@@ -30,6 +38,12 @@ services:
       - 3000:3000
     environment:
       <<: *default-tz-puid-pgid
+      STAFF_SITE_ORIGIN: ${STAFF_SITE_ORIGIN:-}
+      STAFF_KEYCLOAK_ISSUER: ${STAFF_KEYCLOAK_ISSUER:-}
+      STAFF_KEYCLOAK_CLIENT_ID: ${STAFF_KEYCLOAK_CLIENT_ID:-}
+      STAFF_KEYCLOAK_CLIENT_SECRET: ${STAFF_KEYCLOAK_CLIENT_SECRET:-}
+      STAFF_COOKIE_SECRET: ${STAFF_COOKIE_SECRET:-}
+      TRIPBOT_API_URL: ${TRIPBOT_API_URL:-}
     volumes:
       - ./src:/usr/src/app/src
       - ./public:/usr/src/app/public
@@ -46,6 +60,14 @@ services:
       - traefik.http.routers.website.tls.certresolver=letsencrypt
       - traefik.http.routers.website.middlewares=default@file,redirectFactsheets@file,redirectWebchat@file
       - traefik.http.routers.website.entrypoints=websecure
+
+      # Staff auth/proxy endpoints belong to Next.js; TripBot otherwise captures /api.
+      - traefik.http.routers.website-staff.rule=Host(`${DNS_DOMAIN}`) && (Path(`/api/staff`) || PathPrefix(`/api/staff/`))
+      - traefik.http.routers.website-staff.priority=1000
+      - traefik.http.routers.website-staff.service=website-svc
+      - traefik.http.routers.website-staff.entrypoints=websecure
+      - traefik.http.routers.website-staff.tls.certresolver=letsencrypt
+      - traefik.http.routers.website-staff.middlewares=default@file
 
 ########################### NETWORKS
 networks:

@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import ComboChart from "../ComboChart";
 import {
   chartPath,
@@ -144,4 +144,70 @@ it("prerenders supported languages, rejects others, and canonicalizes English", 
     props: { language: "de" },
   });
   expect(englishProps()).toMatchObject({ props: { language: "en" } });
+});
+
+it("prints only the poster, sized to fit one page", () => {
+  let pageRule = "";
+  const print = jest.fn(() => {
+    pageRule = document.head.querySelector("style")?.textContent ?? "";
+  });
+  globalThis.print = print;
+  render(<ComboChart {...props} />);
+  fireEvent.click(screen.getByRole("button", { name: "Print" }));
+  expect(print).toHaveBeenCalledTimes(1);
+  expect(pageRule).toMatch(/^@page \{ size: \d+px \d+px; margin: 0; \}$/);
+  expect(document.head.querySelector("style")).toBeNull();
+});
+
+it("switches between fitting the screen and actual size", () => {
+  const { container } = render(<ComboChart {...props} />);
+  const poster = container.querySelector<HTMLElement>("[data-combo-chart]");
+  fireEvent.click(screen.getByRole("button", { name: "Actual size" }));
+  expect(poster?.style.zoom).toBe("1");
+  fireEvent.click(screen.getByRole("button", { name: "Fit to width" }));
+  expect(screen.getByRole("button", { name: "Actual size" })).toBeVisible();
+});
+
+it("narrows the chart to the substances left selected", () => {
+  render(<ComboChart {...props} />);
+  fireEvent.click(screen.getByText(/Substances \(/));
+  fireEvent.click(screen.getByRole("checkbox", { name: "LSD" }));
+  expect(screen.getByText(/Substances \(24 of 25/)).toBeVisible();
+  expect(document.querySelectorAll("[data-pair]")).toHaveLength(552);
+  fireEvent.click(screen.getByRole("button", { name: "Clear selection" }));
+  expect(screen.getByRole("button", { name: "Print" })).toBeDisabled();
+  fireEvent.click(screen.getByRole("button", { name: "Select all" }));
+  expect(document.querySelectorAll("[data-pair]")).toHaveLength(600);
+});
+
+it("fits the poster to the space the page gives it", () => {
+  const disconnect = jest.fn();
+  let report: (
+    entries: { contentRect: { width: number } }[],
+  ) => void = () => {};
+  globalThis.ResizeObserver = class {
+    constructor(callback: typeof report) {
+      report = callback;
+    }
+    observe() {}
+    disconnect = disconnect;
+  } as unknown as typeof ResizeObserver;
+  const { container, unmount } = render(<ComboChart {...props} />);
+  act(() => report([{ contentRect: { width: 1955 } }]));
+  const poster = container.querySelector<HTMLElement>("[data-combo-chart]");
+  expect(Number(poster?.style.zoom)).toBeCloseTo(0.5, 1);
+  unmount();
+  expect(disconnect).toHaveBeenCalled();
+  delete (globalThis as { ResizeObserver?: unknown }).ResizeObserver;
+});
+
+it("explains a failed export that threw something other than an Error", async () => {
+  mockDownloadChart.mockRejectedValueOnce("canvas lost");
+  render(<ComboChart {...props} />);
+  fireEvent.click(screen.getByRole("button", { name: "Generate PNG" }));
+  expect(
+    await screen.findByText(
+      "Could not generate the chart. Please try smaller dimensions.",
+    ),
+  ).toBeVisible();
 });

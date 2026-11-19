@@ -40,7 +40,7 @@ function printChart() {
   style.textContent = `@page { size: ${poster.offsetWidth}px ${poster.offsetHeight + 2}px; margin: 0; }`;
   document.head.append(style);
   try {
-    window.print();
+    globalThis.print();
   } finally {
     style.remove();
   }
@@ -121,7 +121,7 @@ export default function ComboChart({
       />
       <NextHead>
         {Object.keys(LANGUAGES)
-          .filter(isChartLanguage)
+          .filter((lang) => isChartLanguage(lang))
           .map((lang) => (
             <link
               key={lang}
@@ -134,7 +134,7 @@ export default function ComboChart({
       <nav className={styles.toolbar} aria-label="Chart controls">
         <Link href="/combo">← Combination checker</Link>
         <label>
-          Language / Sprache / Idioma{" "}
+          <span>Language / Sprache / Idioma</span>
           <select
             value={language}
             onChange={(event) => {
@@ -211,7 +211,7 @@ export default function ComboChart({
         </details>
         <div className={styles.exportControls}>
           <label>
-            Width (pixels){" "}
+            <span>Width (pixels)</span>
             <input
               type="number"
               min="320"
@@ -222,7 +222,7 @@ export default function ComboChart({
             />
           </label>
           <label>
-            Height (pixels){" "}
+            <span>Height (pixels)</span>
             <input
               type="number"
               min="320"
@@ -263,6 +263,8 @@ export default function ComboChart({
         lang={language}
         className={styles.scroll}
         aria-label={translation.title}
+        // The poster is wider than most screens: focus lets keyboard users scroll it.
+        tabIndex={0} // NOSONAR: a scrollable region must be focusable (WCAG 2.1.1)
       >
         <article
           className={styles.poster}

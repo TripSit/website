@@ -3,12 +3,12 @@ import { useSyncExternalStore } from "react";
 const QUERY = "(prefers-reduced-motion: reduce)";
 
 function subscribe(onChange: () => void) {
-  const media = window.matchMedia(QUERY);
+  const media = globalThis.matchMedia(QUERY);
   media.addEventListener("change", onChange);
   return () => media.removeEventListener("change", onChange);
 }
 
-const getSnapshot = () => window.matchMedia(QUERY).matches;
+const getSnapshot = () => globalThis.matchMedia(QUERY).matches;
 // The server can't know the setting, so assume reduced motion until the browser says
 // otherwise: nothing starts moving for someone who asked it not to.
 const getServerSnapshot = () => true;

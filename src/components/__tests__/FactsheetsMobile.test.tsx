@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { Drug, Unit } from "tripsit_drug_db";
 import FactsheetsPage from "@/pages/factsheets";
 import DrugInfo from "../DrugInfo";
+import { giveTableRoom } from "../../../test-utils/tableRoom";
 
 jest.mock("@heroui/react", () => ({ Accordion: () => null }));
 // Records the size each chart is drawn at.
@@ -24,7 +25,12 @@ jest.mock(
 
 const originalFetch = global.fetch;
 
+beforeEach(() => {
+  giveTableRoom();
+});
+
 afterEach(() => {
+  jest.restoreAllMocks();
   global.fetch = originalFetch;
 });
 

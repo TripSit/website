@@ -149,9 +149,9 @@ export async function renderChartCanvas(
     ctx.font = `${bold ? "bold " : ""}${item.size}px Arial, sans-serif`;
     ctx.fillStyle = color;
     ctx.textAlign = align;
-    item.lines.forEach((line, i) =>
-      ctx.fillText(line, x, y + i * item.size * 1.35),
-    );
+    for (const [i, line] of item.lines.entries()) {
+      ctx.fillText(line, x, y + i * item.size * 1.35);
+    }
   }
   const image = new Image();
   image.src = "/assets/img/logo.png";
@@ -179,7 +179,7 @@ export async function renderChartCanvas(
       GROUPS.findIndex((group) => group.substances.includes(name))
     ];
   }
-  substances.forEach((a, i) => {
+  for (const [i, a] of substances.entries()) {
     const x = margin + rowLabelWidth + i * cellWidth;
     const y = tableY + columnHeight + i * rowHeight;
     cell(x, tableY, cellWidth, columnHeight, groupColor(a));
@@ -198,7 +198,7 @@ export async function renderChartCanvas(
       true,
       "center",
     );
-    substances.forEach((b, j) => {
+    for (const [j, b] of substances.entries()) {
       const cellX = margin + rowLabelWidth + j * cellWidth;
       if (a === b) {
         cell(cellX, y, cellWidth, rowHeight, groupColor(a));
@@ -221,15 +221,15 @@ export async function renderChartCanvas(
           "#080c10",
         );
       }
-    });
-  });
+    }
+  }
   let paragraphY = footerY;
-  paragraphs.forEach((item, i) => {
+  for (const [i, item] of paragraphs.entries()) {
     text(item, margin, paragraphY, i === 0);
     paragraphY += item.height + 16;
-  });
+  }
   let legendY = footerY;
-  legend.forEach(({ risk, text: item }) => {
+  for (const { risk, text: item } of legend) {
     cell(margin + disclaimerWidth + 60, legendY, 44, 40, CHART_COLORS[risk]);
     text(
       { lines: [RISK[risk].glyph], size: 28, height: 38 },
@@ -241,7 +241,7 @@ export async function renderChartCanvas(
     );
     text(item, margin + disclaimerWidth + 118, legendY + 3);
     legendY += Math.max(40, item.height) + 12;
-  });
+  }
   text(notice, margin, noticeY, false, "left", "#c8d2dc");
   return canvas;
 }
@@ -312,5 +312,5 @@ export async function downloadChart(
   link.click();
   link.remove();
   // Allow browsers time to consume the download before releasing its backing storage.
-  window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  globalThis.setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }

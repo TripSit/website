@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Use Node.js
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: ".nvmrc"
           cache: "npm"
@@ -29,7 +29,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Use Node.js
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: ".nvmrc"
           cache: "npm"
@@ -88,7 +88,7 @@ jobs:
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - name: Use Node.js
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: ".nvmrc"
           cache: "npm"
@@ -106,3 +106,32 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      - name: Show why the quality gate failed
+        # The scanner only prints "QUALITY GATE STATUS: FAILED", and the dashboard sits behind a
+        # sign-in. List the failing conditions and the new-code issues and hotspots here instead.
+        # Read-only API calls; the token never reaches the output.
+        if: ${{ failure() && !cancelled() }}
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        run: |
+          key=$(sed -n 's/^sonar.projectKey=//p' sonar-project.properties)
+          api() { curl -fsS -H "Authorization: Bearer $SONAR_TOKEN" "${SONAR_HOST_URL%/}/api/$1"; }
+          # If the scan itself failed (e.g. a plugin download), the server still holds the
+          # previous analysis, so check the scanner output above before reading these.
+          echo "::group::Quality gate conditions (latest analysis on the server)"
+          api "qualitygates/project_status?projectKey=$key" |
+            jq -r '.projectStatus.conditions[] | "\(.status)\t\(.metricKey)\t\(.actualValue // "-") (fails if \(.comparator) \(.errorThreshold))"'
+          echo "::endgroup::"
+          echo "::group::Open issues in new code"
+          api "issues/search?components=$key&inNewCodePeriod=true&resolved=false&ps=100" |
+            jq -r '.issues[] | "\(.component | sub("^[^:]*:"; "")):\(.line // 0)\t\(.rule)\t\(.message)"'
+          echo "::endgroup::"
+          echo "::group::Security hotspots in new code to review"
+          # The scan token may lack permission to browse hotspots (HTTP 403); say so and go on.
+          if hotspots=$(api "hotspots/search?projectKey=$key&inNewCodePeriod=true&status=TO_REVIEW&ps=100"); then
+            jq -r '.hotspots[] | "\(.component | sub("^[^:]*:"; "")):\(.line // 0)\t\(.ruleKey // .securityCategory)\t\(.message)"' <<<"$hotspots"
+          else
+            echo "(the scan token cannot list hotspots; check the dashboard)"
+          fi
+          echo "::endgroup::"

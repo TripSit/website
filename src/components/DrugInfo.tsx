@@ -1,18 +1,21 @@
 import React, { memo, ReactNode } from "react";
-import { Card, CardContent, Container, Grid, Typography } from "@mui/material";
 import {
-  Dosage,
-  Dose,
-  Drug,
-  Duration,
-  Interactions,
-  Status,
-} from "tripsit_drug_db";
+  Box,
+  Card,
+  CardContent,
+  Container,
+  Grid,
+  Typography,
+} from "@mui/material";
+import WarningAmberIcon from "@mui/icons-material/WarningAmber";
+import { Dosage, Dose, Drug, Duration, Interactions } from "tripsit_drug_db";
 import type { ApexAxisChartSeries } from "apexcharts";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import comboDefinitions from "../assets/comboDefinitions.json";
+import { SUBSTANCES } from "./comboChecker/comboData";
 import addDictionaryDefs from "./addDictionaryDefs";
+import ReagentResults from "./ReagentResults";
 import { parseDoseRangeMg } from "../utils/parseDoseRangeMg";
 
 // We need to dynamically load this module
@@ -43,7 +46,7 @@ const PREVIOUS_PHASE: Record<TimingKey, TimingKey | undefined> = {
   "After Effects": "Duration",
 };
 
-const round2 = (value: number) => parseFloat(value.toFixed(2));
+const round2 = (value: number) => Number.parseFloat(value.toFixed(2));
 
 // Pulls the min and max hours out of a string like "1-2", "30" or "1.5-3hours".
 // If there is no dash, the single number is the max and the min is 0.
@@ -56,8 +59,8 @@ function parseRangeHours(
     return undefined;
   }
   const divisor = unit === "minutes" ? 60 : 1;
-  const max = parseFloat(match[2] ?? match[1]) / divisor;
-  const min = match[2] ? parseFloat(match[1]) / divisor : 0;
+  const max = Number.parseFloat(match[2] ?? match[1]) / divisor;
+  const min = match[2] ? Number.parseFloat(match[1]) / divisor : 0;
   return { min, max };
 }
 
@@ -96,10 +99,10 @@ function addDurationData(
   const durationTiming = timingObject;
   const previousPhase = PREVIOUS_PHASE[timingKey];
 
-  roaEntries.forEach(([roa, roaString]) => {
+  for (const [roa, roaString] of roaEntries) {
     const range = parseRangeHours(roaString, timingData._unit);
     if (!range) {
-      return;
+      continue;
     }
 
     const previous = previousPhase
@@ -114,7 +117,7 @@ function addDurationData(
         ...placeWindow(timingKey, range, previous),
       },
     };
-  });
+  }
 
   return durationTiming;
 }
@@ -152,9 +155,9 @@ const addDurations = (drugData: Drug) => {
 
   // Now we need to create the array that will be used by apexcharts
   const durationSeries = [] as ApexAxisChartSeries;
-  Object.keys(durationTiming).forEach((roa) => {
+  for (const roa of Object.keys(durationTiming)) {
     const roaData = durationTiming[roa as keyof typeof durationTiming];
-    Object.keys(roaData).forEach((timing) => {
+    for (const timing of Object.keys(roaData)) {
       const timingData = roaData[timing as keyof typeof roaData] as NonNullable<
         (typeof roaData)[keyof typeof roaData]
       >;
@@ -177,8 +180,8 @@ const addDurations = (drugData: Drug) => {
         ],
       } as ApexAxisChartSeries[number];
       durationSeries.push(data);
-    });
-  });
+    }
+  }
 
   // Create chart options
   const option = {
@@ -412,7 +415,7 @@ const addDosages = (drugData: Drug) => {
   };
 
   // Go through each ROA
-  Object.keys(doseData).forEach((roa) => {
+  for (const roa of Object.keys(doseData)) {
     const roaData = doseData[roa as keyof typeof doseData] as Dosage;
 
     // This is the order we want them to be in
@@ -432,7 +435,7 @@ const addDosages = (drugData: Drug) => {
     );
 
     // For each strength in the ROA
-    sortedKeys.forEach((strength) => {
+    for (const strength of sortedKeys) {
       const strengthData = roaData[strength as keyof typeof roaData] as string;
 
       // Add the text to the doseText object so we can print it out later
@@ -442,7 +445,7 @@ const addDosages = (drugData: Drug) => {
       };
 
       const range = parseDoseRangeMg(strengthData);
-      if (!range) return;
+      if (!range) continue;
 
       const point = { x: `${roa} (mg)`, y: range };
       const existingSeries = doseSeries.find(
@@ -450,7 +453,7 @@ const addDosages = (drugData: Drug) => {
       );
       if (existingSeries) {
         (existingSeries.data as (typeof point)[]).push(point);
-        return;
+        continue;
       }
 
       doseColors.push(doseColorData[strength as keyof typeof doseColorData]);
@@ -458,8 +461,8 @@ const addDosages = (drugData: Drug) => {
         doseGradientData[strength as keyof typeof doseGradientData],
       );
       doseSeries.push({ name: strength, data: [point] });
-    });
-  });
+    }
+  }
 
   const option = {
     chart: {
@@ -515,13 +518,13 @@ const addDosages = (drugData: Drug) => {
 
   const uniqueStrengths = new Set<string>();
 
-  Object.values(doseText).forEach((roa) => {
-    Object.keys(roa).forEach((strength) => {
+  for (const roa of Object.values(doseText)) {
+    for (const strength of Object.keys(roa)) {
       uniqueStrengths.add(strength);
-    });
-  });
+    }
+  }
 
-  const allStrengths = Array.from(uniqueStrengths);
+  const allStrengths = [...uniqueStrengths];
   const gridSpacing = Math.max(12 / (allStrengths.length + 1), 2); // Ensure a minimum size for the grid
 
   return (
@@ -608,6 +611,276 @@ const addDosages = (drugData: Drug) => {
   );
 };
 
+// Shown above the other cards, in this order, with these headings.
+const importantProperties = [
+  "warning",
+  "avoid",
+  "contraindications",
+  "risks",
+  "adverseEffects",
+] as const;
+const warningLabels: Record<(typeof importantProperties)[number], string> = {
+  warning: "Warning",
+  avoid: "Avoid",
+  contraindications: "Contraindications",
+  risks: "Risks",
+  adverseEffects: "Adverse effects",
+};
+
+function WarningCard({
+  label,
+  text,
+}: Readonly<{ label: string; text: string }>) {
+  return (
+    <Card sx={{ backgroundColor: "#fdecea", borderLeft: "6px solid #b3261e" }}>
+      <CardContent>
+        <Typography
+          variant="h5"
+          sx={{
+            color: "#8c1d18",
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+          }}
+        >
+          <WarningAmberIcon aria-hidden="true" />
+          {label}
+        </Typography>
+        <Typography sx={{ color: "black", whiteSpace: "pre-line" }}>
+          {text}
+        </Typography>
+      </CardContent>
+    </Card>
+  );
+}
+
+// Most to least risky. A drug's combination with itself ("Self") is never shown.
+const comboOrder = [
+  "Dangerous",
+  "Unsafe",
+  "Caution",
+  "Low Risk & Synergy",
+  "Low Risk & No Synergy",
+  "Low Risk & Decrease",
+];
+
+const comboColors: Record<string, { background: string; border: string }> = {
+  Dangerous: { background: "#fdc9cc", border: "#7f0006" },
+  Unsafe: { background: "#ffe6cb", border: "#873100" },
+  Caution: { background: "#fffacb", border: "#827700" },
+  "Low Risk & Synergy": { background: "#cbf0d1", border: "#077c1b" },
+  "Low Risk & No Synergy": { background: "#dfd3ec", border: "#3d166c" },
+  "Low Risk & Decrease": { background: "#d8effe", border: "#00426c" },
+};
+
+// Spell substances the way the combination checker and chart do (MAOIs, 5-MeO-xxT, DOx);
+// anything they don't list is title-cased.
+const checkerNames = new Map(
+  SUBSTANCES.map((name) => [name.toLowerCase(), name]),
+);
+const acronyms = new Set(["amt", "pcp"]);
+
+function comboLabel(key: string): string {
+  const known = checkerNames.get(key.toLowerCase());
+  if (known) return known;
+  if (acronyms.has(key.toLowerCase())) return key.toUpperCase();
+  return key
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
+type ComboEntry = { name: string; note: string };
+
+function ComboGroup({
+  status,
+  combos,
+}: Readonly<{ status: string; combos: ComboEntry[] }>) {
+  const colors = comboColors[status];
+  const definition = comboDefinitions.find((combo) => combo.status === status);
+  return (
+    <Box
+      component="section"
+      sx={{
+        mt: 2,
+        p: 1.5,
+        borderRadius: 1,
+        borderLeft: `6px solid ${colors.border}`,
+        backgroundColor: colors.background,
+        color: "black",
+      }}
+    >
+      <Typography variant="h6" sx={{ color: "black", fontWeight: 700 }}>
+        <span aria-hidden="true">{definition?.emoji}</span> {status} (
+        {combos.length})
+      </Typography>
+      <Typography variant="body2" sx={{ mb: 1 }}>
+        {definition?.definition}
+      </Typography>
+      <Box
+        component="dl"
+        sx={{
+          m: 0,
+          display: "grid",
+          gridTemplateColumns: {
+            xs: "1fr",
+            // The same name column in every group, wide enough for "Dextromethorphan".
+            sm: "11rem 1fr",
+          },
+          columnGap: 3,
+          rowGap: { xs: 0.25, sm: 1 },
+        }}
+      >
+        {combos.map(({ name, note }) => (
+          <React.Fragment key={name}>
+            <Box component="dt" sx={{ fontWeight: 700, mt: { xs: 1, sm: 0 } }}>
+              {name}
+            </Box>
+            <Box component="dd" sx={{ m: 0 }}>
+              {note}
+            </Box>
+          </React.Fragment>
+        ))}
+      </Box>
+    </Box>
+  );
+}
+
+// The "Known Combinations" card: every combination grouped by risk, most risky first, each
+// group with its colour and definition. Empty groups are left out.
+function comboCard(comboData: Interactions): React.JSX.Element {
+  const groups = new Map<string, ComboEntry[]>(
+    comboOrder.map((status) => [status, []]),
+  );
+  for (const [drugB, combo] of Object.entries(comboData)) {
+    if (!combo) continue;
+    groups.get(combo.status)?.push({
+      name: comboLabel(drugB),
+      // Notes are shown as written; only stray double spaces are tidied.
+      note: (combo.note ?? "").replaceAll(/ {2,}/g, " ").trim(),
+    });
+  }
+
+  return (
+    <Grid size={{ xs: 12 }} key="combos">
+      <Card>
+        <CardContent>
+          <Typography variant="h5" style={{ color: "black" }}>
+            Known Combinations
+          </Typography>
+          <Typography>
+            Combination information is sourced from our{" "}
+            <a
+              href="https://github.com/TripSit/drugs"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              drug database
+            </a>
+            . Sources can be found on our{" "}
+            <a
+              href="https://wiki.tripsit.me/wiki/Drug_combinations"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              wiki
+            </a>
+            . The nice combo chart can be found on{" "}
+            <Link href="/combo">tripsit.me/combo</Link>
+            {"."}
+          </Typography>
+          {comboOrder.map((status) => {
+            const combos = groups.get(status) ?? [];
+            return combos.length > 0 ? (
+              <ComboGroup key={status} status={status} combos={combos} />
+            ) : null;
+          })}
+        </CardContent>
+      </Card>
+    </Grid>
+  );
+}
+
+// One card for each remaining property; the ones shown elsewhere are skipped.
+function propertyCards(properties: Drug["properties"]): React.JSX.Element[] {
+  const elements = [] as React.JSX.Element[];
+  for (const property of Object.keys(properties)) {
+    const duplicatedProperties: string[] = [
+      ...importantProperties,
+      "name",
+      "summary",
+      "categories",
+      "aliases",
+      "afterEffects",
+      "dose",
+      "duration",
+      "onset",
+      "effects",
+      "after-effects",
+      "pweffects",
+      "combos",
+      "sources",
+      "links",
+    ];
+    if (duplicatedProperties.includes(property)) {
+      continue;
+    }
+    const propertyName = property.replaceAll("_", " ");
+    const propertyValue = properties[property as keyof typeof properties];
+    if (propertyName === "test-kits") {
+      elements.push(
+        <Grid size={{ xs: 12, sm: 6, md: 4 }} key={propertyName}>
+          <Card>
+            <CardContent>
+              <Typography variant="h5" style={{ color: "black" }}>
+                Reagent test results
+              </Typography>
+              <Typography component="div">
+                <ReagentResults text={propertyValue as string} />
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>,
+      );
+    } else if (propertyName === "experiences") {
+      elements.push(
+        <Grid size={{ xs: 12, sm: 6, md: 4 }} key={propertyName}>
+          <Card>
+            <CardContent>
+              <Typography variant="h5" style={{ color: "black" }}>
+                {propertyName.charAt(0).toUpperCase() + propertyName.slice(1)}
+              </Typography>
+              <Typography>
+                <a
+                  href={propertyValue as string}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Erowid Experience Vault
+                </a>
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>,
+      );
+    } else {
+      elements.push(
+        <Grid size={{ xs: 12, sm: 6, md: 4 }} key={propertyName}>
+          <Card>
+            <CardContent>
+              <Typography variant="h5" style={{ color: "black" }}>
+                {propertyName.charAt(0).toUpperCase() + propertyName.slice(1)}
+              </Typography>
+              <Typography>{propertyValue}</Typography>
+            </CardContent>
+          </Card>
+        </Grid>,
+      );
+    }
+  }
+  return elements;
+}
+
 function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
   // This function goes through all the optional data in the drug and creates a nice and fancy expandable row
 
@@ -615,35 +888,17 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
   const elements = [] as React.JSX.Element[];
   const properties = drugData.properties ?? {};
 
-  // If there's a warning, display it first
-  Object.keys(properties).forEach((property) => {
-    const importantProperties = [
-      "avoid",
-      "warning",
-      "risks",
-      "adverseEffects",
-      "contraindications",
-    ];
-    if (importantProperties.includes(property)) {
-      const propertyName = property.replace(/_/g, " ");
-      const propertyValue = properties[property as keyof typeof properties];
+  // Safety notes come first, each in its own warning card.
+  for (const property of importantProperties) {
+    const text = properties[property as keyof typeof properties];
+    if (typeof text === "string" && text.trim()) {
       elements.push(
-        <Grid
-          size={{ xs: 12, sm: 12, md: 12 }}
-          key={`${drugData.name}-${propertyName}`}
-        >
-          <Card>
-            <CardContent sx={{ backgroundColor: "pink" }}>
-              <Typography variant="h5" style={{ color: "black" }}>
-                {propertyName.charAt(0).toUpperCase() + propertyName.slice(1)}{" "}
-                {propertyValue}
-              </Typography>
-            </CardContent>
-          </Card>
+        <Grid size={{ xs: 12 }} key={`${drugData.name}-${property}`}>
+          <WarningCard label={warningLabels[property]} text={text} />
         </Grid>,
       );
     }
-  });
+  }
 
   // Always push the drug name since it's the one required field
   elements.push(
@@ -714,66 +969,7 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
     );
   }
 
-  Object.keys(properties).forEach((property) => {
-    const duplicatedProperties = [
-      "avoid",
-      "name",
-      "summary",
-      "categories",
-      "aliases",
-      "afterEffects",
-      "dose",
-      "duration",
-      "onset",
-      "effects",
-      "after-effects",
-      "pweffects",
-      "combos",
-      "sources",
-      "links",
-      "warning",
-    ];
-    if (duplicatedProperties.includes(property)) {
-      return;
-    }
-    const propertyName = property.replace(/_/g, " ");
-    const propertyValue = properties[property as keyof typeof properties];
-    if (propertyName === "experiences") {
-      elements.push(
-        <Grid size={{ xs: 12, sm: 6, md: 4 }} key={propertyName}>
-          <Card>
-            <CardContent>
-              <Typography variant="h5" style={{ color: "black" }}>
-                {propertyName.charAt(0).toUpperCase() + propertyName.slice(1)}
-              </Typography>
-              <Typography>
-                <a
-                  href={propertyValue as string}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Erowid Experience Vault
-                </a>
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>,
-      );
-    } else {
-      elements.push(
-        <Grid size={{ xs: 12, sm: 6, md: 4 }} key={propertyName}>
-          <Card>
-            <CardContent>
-              <Typography variant="h5" style={{ color: "black" }}>
-                {propertyName.charAt(0).toUpperCase() + propertyName.slice(1)}
-              </Typography>
-              <Typography>{propertyValue}</Typography>
-            </CardContent>
-          </Card>
-        </Grid>,
-      );
-    }
-  });
+  elements.push(...propertyCards(properties));
 
   // Dose note comes before dosage
   if (drugData.dose_note) {
@@ -804,185 +1000,7 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
   }
 
   if (drugData.combos) {
-    const comboData = drugData.combos;
-    const comboColors = {
-      Dangerous: {
-        "background-color": "#fdc9cc",
-        "border-color": "#7f0006",
-      },
-      Unsafe: {
-        "background-color": "#ffe6cb",
-        "border-color": "#873100",
-      },
-      Caution: {
-        "background-color": "#fffacb",
-        "border-color": "#827700",
-      },
-      "Low Risk & Synergy": {
-        "background-color": "#cbf0d1",
-        "border-color": "#077c1b",
-      },
-      "Low Risk & No Synergy": {
-        "background-color": "#dfd3ec",
-        "border-color": "#3d166c",
-      },
-      "Low Risk & Decrease": {
-        "background-color": "#d8effe",
-        "border-color": "#00426c",
-      },
-    };
-
-    // Status.Self is deliberately excluded: a drug's combo with itself is never
-    // rendered (comboColors has no entry for it either).
-    const comboObject: {
-      [key in Exclude<Status, Status.Self>]: {
-        name: string;
-        note: string;
-      }[];
-    } = {
-      Dangerous: [],
-      Unsafe: [],
-      Caution: [],
-      "Low Risk & Synergy": [],
-      "Low Risk & No Synergy": [],
-      "Low Risk & Decrease": [],
-    };
-
-    const drugBList = Object.keys(comboData);
-    drugBList.forEach((drugB) => {
-      const combo = comboData[drugB as keyof Interactions];
-      if (!combo) return;
-      const { status, note } = combo;
-
-      const drugBNote = note ? ` (${note})` : "";
-
-      comboObject[status as Exclude<Status, Status.Self>].push({
-        name: drugB,
-        note: drugBNote,
-      });
-    });
-
-    elements.push(
-      <Grid size={{ xs: 12, sm: 12, md: 12 }} key="combos">
-        <Card>
-          <CardContent>
-            <Typography variant="h5" style={{ color: "black" }}>
-              Known Combinations
-            </Typography>
-
-            <Typography>
-              Combination information is sourced from our{" "}
-              <a
-                href="https://github.com/TripSit/drugs"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                drug database
-              </a>
-              . Sources can be found on our{" "}
-              <a
-                href="https://wiki.tripsit.me/wiki/Drug_combinations"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                wiki
-              </a>
-              . The nice combo chart can be found on{" "}
-              <Link href="/combo">tripsit.me/combo</Link>
-              {"."}
-            </Typography>
-            {Object.keys(comboObject).map((status) => {
-              const colorDef = comboColors[status as keyof typeof comboColors];
-              const statusDef = comboDefinitions.find(
-                (combo) => combo.status === status,
-              ) as {
-                status: Status;
-                definition: string;
-                emoji: string;
-                thumbnail: string;
-              };
-
-              return (
-                <React.Fragment key={status}>
-                  <Card>
-                    <CardContent>
-                      <Grid
-                        size={{ xs: 12 }}
-                        style={{
-                          background: colorDef["background-color"],
-                          border: `2px solid ${colorDef["border-color"]}`,
-                        }}
-                      >
-                        <Typography>
-                          <b>
-                            {statusDef.emoji} {status} {statusDef.emoji}
-                          </b>
-                          <br></br>
-                          {statusDef.definition}
-                        </Typography>
-                      </Grid>
-                      {comboObject[status as keyof typeof comboObject].map(
-                        (combo) => {
-                          const capitalDrugs = [
-                            "2c-t-x",
-                            "2c-x",
-                            "5-meo-xxt",
-                            "amt",
-                            "dmt",
-                            "dox",
-                            "dxm",
-                            "ghb/gbl",
-                            "lsd",
-                            "mdma",
-                            "mxe",
-                            "maois",
-                            "nbomes",
-                            "pcp",
-                            "ssris",
-                          ];
-
-                          let drugBName = combo.name
-                            .split(" ")
-                            .map(
-                              (word) =>
-                                word.charAt(0).toUpperCase() + word.slice(1),
-                            )
-                            .join(" ");
-
-                          if (capitalDrugs.includes(combo.name)) {
-                            drugBName = combo.name.toUpperCase();
-                          }
-
-                          const cleanNote = combo.note
-                            .replace(/[()]/g, "")
-                            .replace(/ {2}/g, " ");
-
-                          return (
-                            <Grid size={{ xs: 12 }} key={combo.name}>
-                              <Typography>
-                                <b>{drugBName}</b>
-                                {combo.note ? (
-                                  <>
-                                    <br />
-                                    {cleanNote}
-                                  </>
-                                ) : (
-                                  ""
-                                )}
-                              </Typography>
-                            </Grid>
-                          );
-                        },
-                      )}
-                    </CardContent>
-                  </Card>
-                </React.Fragment>
-              );
-            })}
-          </CardContent>
-        </Card>
-      </Grid>,
-    );
+    elements.push(comboCard(drugData.combos));
   }
 
   if (drugData.pweffects !== undefined) {

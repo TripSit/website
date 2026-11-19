@@ -80,11 +80,14 @@ function InfoSection({
   );
 }
 
-function BenzoInfo({ role, benzo }: Readonly<{ role: string; benzo: Benzo }>) {
+function BenzoInfo({
+  label,
+  benzo,
+}: Readonly<{ label: string; benzo: Benzo }>) {
   return (
-    <section className={cardClass} aria-label={`${role}: ${benzo.prettyName}`}>
+    <section className={cardClass} aria-label={`${label}: ${benzo.prettyName}`}>
       <p className="mb-0 text-xs font-semibold uppercase tracking-widest text-violet">
-        {role}
+        {label}
       </p>
       <h2 className="mb-0 mt-1 font-display text-2xl font-semibold text-ink">
         <Link
@@ -201,8 +204,8 @@ export default function BenzoConverter({
       </div>
 
       <div className="mt-6 grid gap-6 md:grid-cols-2">
-        <BenzoInfo role="You have" benzo={from} />
-        <BenzoInfo role="Converting to" benzo={to} />
+        <BenzoInfo label="You have" benzo={from} />
+        <BenzoInfo label="Converting to" benzo={to} />
       </div>
     </>
   );

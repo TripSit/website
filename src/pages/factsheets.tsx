@@ -12,9 +12,12 @@ export default function Home() {
         description="Dose ranges, durations, effects, interactions and reagent test results for hundreds of substances, from TripSit's open drug database."
         path="/factsheets"
       />
-      <section id="factsheets">
-        <Factsheets />
-      </section>
+      <main id="main">
+        <h1 className="sr-only">Drug factsheets</h1>
+        <section id="factsheets">
+          <Factsheets />
+        </section>
+      </main>
     </>
   );
 }

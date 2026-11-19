@@ -127,7 +127,7 @@ export default function Footer() {
                 {c.href ? (
                   <a
                     href={c.href}
-                    className="text-ink transition hover:text-cyan"
+                    className="text-ink underline underline-offset-2 transition hover:text-cyan"
                   >
                     {c.name}
                   </a>

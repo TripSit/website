@@ -381,7 +381,7 @@ test("shows each safety note once, under its own heading, before the other cards
     />,
   );
   const headings = screen
-    .getAllByRole("heading", { level: 5 })
+    .getAllByRole("heading", { level: 2 })
     .map((heading) => heading.textContent);
   expect(headings.slice(0, 4)).toEqual([
     "Warning",
@@ -411,7 +411,7 @@ test("groups combinations by risk, hides empty groups and uses the checker's nam
     />,
   );
   const groups = screen
-    .getAllByRole("heading", { level: 6 })
+    .getAllByRole("heading", { level: 3 })
     .map((heading) => heading.textContent?.replace(/^\S+\s/, ""));
   expect(groups).toEqual([
     "Dangerous (1)",

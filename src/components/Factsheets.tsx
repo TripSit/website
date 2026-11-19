@@ -154,19 +154,22 @@ const addCategoryStyle = (text: string | undefined): React.JSX.Element[] => {
 
   // Define a mapping of category names to their respective color styles
   // Each category has a background color and a border color
-  // You can optionally also specify a text color, usually for light backgrounds
+  // Chips whose background fails 4.5:1 contrast with white text use dark text instead.
   const categoryColors = {
     psychedelic: {
       "background-color": "#00A388",
       "border-color": "#00A388",
+      color: "#001713",
     },
     opioid: {
       "background-color": "#C0D9AF",
       "border-color": "#C0D9AF",
+      color: "#001713",
     },
     stimulant: {
       "background-color": "#31B0D5",
       "border-color": "#31B0D5",
+      color: "#001713",
     },
     dissociative: {
       "background-color": "#9b59b6",
@@ -179,10 +182,12 @@ const addCategoryStyle = (text: string | undefined): React.JSX.Element[] => {
     "research-chemical": {
       "background-color": "#EC971F",
       "border-color": "#EC971F",
+      color: "#001713",
     },
     "habit-forming": {
       "background-color": "#e67e22",
       "border-color": "#e67e22",
+      color: "#001713",
     },
     depressant: {
       "background-color": "#C9302C",
@@ -403,7 +408,13 @@ const Factsheets = () => {
       //   0: process.env.NODE_ENV === "development",
       // },
     },
-    muiTablePaperProps: { sx: { height: "100vh" } }, // Takes up 100% of the viewport available
+    muiTablePaperProps: {
+      sx: {
+        height: "100vh", // Takes up 100% of the viewport available
+        // The site-wide link blue (#2487ce) is 3.9:1 on this white table; this is 4.9:1.
+        "& a:not([class])": { color: "#1f75b3" },
+      },
+    },
     muiTableContainerProps: {
       sx: {
         height: "78vh", // This value seems to work the best

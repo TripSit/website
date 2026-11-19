@@ -13,9 +13,12 @@ export default function Home() {
         description="Talk to TripSit's volunteers in our 24/7 live chat for on-the-spot harm reduction help. We're volunteers, not medical professionals."
         path="/webchat"
       />
-      <section id="webchat" className="d-flex align-items-center">
-        <Webchat />
-      </section>
+      <main id="main">
+        <h1 className="sr-only">TripSit live chat</h1>
+        <section id="webchat" className="d-flex align-items-center">
+          <Webchat />
+        </section>
+      </main>
       <Footer />
     </>
   );

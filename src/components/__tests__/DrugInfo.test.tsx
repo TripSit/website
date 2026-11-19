@@ -29,24 +29,30 @@ jest.mock(
         <>
           <output aria-label="Chart series">{JSON.stringify(series)}</output>
           {Array.isArray(series) &&
-            series.map(({ name, data }, seriesIndex) => {
-              const html = options.tooltip.custom({
+            series.flatMap(
+              (
+                { name, data }: { name: string; data: { x: string }[] },
                 seriesIndex,
-                dataPointIndex: 0,
-                w: { config: { series } },
-              });
-              return (
-                <output
-                  key={`${data[0].x}-${name}`}
-                  aria-label={`Tooltip for ${name}`}
-                >
-                  {
-                    new DOMParser().parseFromString(html, "text/html").body
-                      .textContent
-                  }
-                </output>
-              );
-            })}
+              ) =>
+                data.map(({ x }, dataPointIndex) => {
+                  const html = options.tooltip.custom({
+                    seriesIndex,
+                    dataPointIndex,
+                    w: { config: { series } },
+                  });
+                  return (
+                    <output
+                      key={`${x}-${name}`}
+                      aria-label={`Tooltip for ${x} ${name}`}
+                    >
+                      {
+                        new DOMParser().parseFromString(html, "text/html").body
+                          .textContent
+                      }
+                    </output>
+                  );
+                }),
+            )}
         </>
       );
     },
@@ -90,9 +96,12 @@ test("keeps dose text and charts the ranges for each route", () => {
   expect(screen.getByText("Example dose note")).toBeVisible();
   expect(screen.getByText("unknown")).toBeVisible();
   expect(screen.getByText("1-2mg")).toBeVisible();
-  expect(screen.getByLabelText("Tooltip for common")).toHaveTextContent(
-    "oral (mg): 1 - 2",
-  );
+  expect(
+    screen.getByLabelText("Tooltip for oral (mg) common"),
+  ).toHaveTextContent("oral (mg): 1 - 2");
+  expect(
+    screen.getByLabelText("Tooltip for insufflated (mg) common"),
+  ).toHaveTextContent("insufflated (mg): 3 - 4");
   expect(
     JSON.parse(screen.getByLabelText("Chart series").textContent ?? ""),
   ).toEqual([
@@ -187,15 +196,20 @@ test("converts onset to hours and offsets duration and after effects", () => {
   );
   expect(screen.getByText("15m to 30m")).toBeVisible();
   expect(screen.getByText("1h 30m to 2h 30m")).toBeVisible();
-  expect(screen.getByLabelText("Tooltip for Onset")).toHaveTextContent(
+  expect(screen.getByLabelText("Tooltip for oral Onset")).toHaveTextContent(
     /30m after dosing/,
   );
-  expect(screen.getAllByLabelText("Tooltip for Duration")[0]).toHaveTextContent(
+  expect(screen.getByLabelText("Tooltip for oral Duration")).toHaveTextContent(
     /Lasts 1h 30m\s*-\s*2h 30m after Onset ends/,
   );
+  // insufflated has no onset, so its duration counts from dosing.
+  expect(
+    screen.getByLabelText("Tooltip for insufflated Duration"),
+  ).toHaveTextContent(/Lasts 0\s*-\s*2h after dosing/);
   const series = JSON.parse(
     screen.getByLabelText("Chart series").textContent ?? "",
   );
+  // One series per phase, so the legend lists each phase once.
   expect(series).toEqual([
     expect.objectContaining({
       name: "Onset",
@@ -203,20 +217,19 @@ test("converts onset to hours and offsets duration and after effects", () => {
     }),
     expect.objectContaining({
       name: "Duration",
-      data: [expect.objectContaining({ x: "oral", y: [0.25, 3] })],
+      data: [
+        expect.objectContaining({ x: "oral", y: [0.25, 3] }),
+        expect.objectContaining({ x: "insufflated", y: [0, 2] }),
+      ],
     }),
     expect.objectContaining({
       name: "After Effects",
       data: [expect.objectContaining({ x: "oral", y: [1.75, 5.75] })],
     }),
-    expect.objectContaining({
-      name: "Duration",
-      data: [expect.objectContaining({ x: "insufflated", y: [0, 2] })],
-    }),
   ]);
 });
 
-test("supports legacy oral onset and routes with after effects only", () => {
+test("puts a route-less onset on every route the other phases name", () => {
   render(
     <DrugInfo
       drugData={{
@@ -230,19 +243,91 @@ test("supports legacy oral onset and routes with after effects only", () => {
       }}
     />,
   );
-  expect(screen.getByText("0 to 30m")).toBeVisible();
+  expect(screen.getAllByText("0 to 30m")).toHaveLength(2);
+  // oral's after effects don't parse, so only insufflated has that bar.
   expect(
     JSON.parse(screen.getByLabelText("Chart series").textContent ?? ""),
   ).toEqual([
     expect.objectContaining({
       name: "Onset",
-      data: [expect.objectContaining({ x: "Oral", y: [0, 0.5] })],
+      data: [
+        expect.objectContaining({ x: "oral", y: [0, 0.5] }),
+        expect.objectContaining({ x: "insufflated", y: [0, 0.5] }),
+      ],
     }),
     expect.objectContaining({
       name: "After Effects",
       data: [expect.objectContaining({ x: "insufflated", y: [1, 2] })],
     }),
   ]);
+});
+
+test("files timing under Oral when no phase names a route", () => {
+  render(
+    <DrugInfo
+      drugData={{
+        ...drug,
+        formatted_onset: { value: "30-60", _unit: "minutes" as Unit },
+        formatted_duration: { value: "4-6", _unit: "hours" as Unit },
+      }}
+    />,
+  );
+  expect(screen.getByText("Oral")).toBeVisible();
+  expect(screen.getByText("4h to 6h")).toBeVisible();
+  expect(screen.getByLabelText("Tooltip for Oral Duration")).toHaveTextContent(
+    /Lasts 4h\s*-\s*6h after Onset ends/,
+  );
+});
+
+// Shaped like DMT's data: routes that only some phases name, a route-less after effects
+// value, and route keys with an underscore.
+test("keeps every duration under its own heading when routes lack phases", () => {
+  render(
+    <DrugInfo
+      drugData={{
+        ...drug,
+        formatted_onset: {
+          insufflated: "3-5",
+          oral: "20-45",
+          _unit: "minutes" as Unit,
+        },
+        formatted_duration: {
+          insufflated: "45-60",
+          Oral_MAOI: "180-420",
+          _unit: "minutes" as Unit,
+        },
+        formatted_aftereffects: { value: "15-60", _unit: "minutes" as Unit },
+      }}
+    />,
+  );
+  // The cells after a route's name, in heading order: Onset, Duration, After Effects.
+  const rowCells = (route: string) => {
+    const cells: string[] = [];
+    let cell = screen.getByText(route).closest(".MuiGrid-root")
+      ?.nextElementSibling as Element | null;
+    for (let i = 0; i < 3 && cell; i += 1) {
+      cells.push(cell.textContent ?? "");
+      cell = cell.nextElementSibling;
+    }
+    return cells;
+  };
+  expect(rowCells("insufflated")).toEqual([
+    "3m to 5m",
+    "45m to 1h",
+    "15m to 1h",
+  ]);
+  expect(rowCells("oral")).toEqual(["20m to 45m", "", "15m to 1h"]);
+  expect(rowCells("Oral (MAOI)")).toEqual(["", "3h to 7h", "15m to 1h"]);
+  expect(screen.queryByText(/Oral_MAOI/)).toBeNull();
+
+  // Each route's after effects follow that route's own duration, or dosing without one.
+  expect(
+    screen.getByLabelText("Tooltip for insufflated After Effects"),
+  ).toHaveTextContent(/after Duration ends/);
+  expect(
+    screen.getByLabelText("Tooltip for oral After Effects"),
+  ).toHaveTextContent(/after dosing/);
+  expect(screen.queryByLabelText("Tooltip for Oral (MAOI) Onset")).toBeNull();
 });
 
 test("displays after effects without onset or duration data", () => {
@@ -254,10 +339,10 @@ test("displays after effects without onset or duration data", () => {
       }}
     />,
   );
-  expect(screen.getByText("2 to 3")).toBeVisible();
-  expect(screen.getByLabelText("Tooltip for After Effects")).toHaveTextContent(
-    /3h after dosing/,
-  );
+  expect(screen.getByText("2h to 3h")).toBeVisible();
+  expect(
+    screen.getByLabelText("Tooltip for oral After Effects"),
+  ).toHaveTextContent(/3h after dosing/);
 });
 
 test("renders fractional hour durations without after effects", () => {
@@ -336,7 +421,9 @@ test("keeps open-ended dose text without plotting an invented upper bound", () =
     />,
   );
   expect(screen.getByText("2+")).toBeVisible();
-  expect(screen.queryByLabelText("Tooltip for common")).not.toBeInTheDocument();
+  expect(
+    screen.queryByLabelText("Tooltip for oral (mg) common"),
+  ).not.toBeInTheDocument();
   expect(screen.queryByLabelText("Chart series")).not.toBeInTheDocument();
 });
 

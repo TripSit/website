@@ -383,6 +383,9 @@ const doseRank = (strength: string) => {
 };
 const byDoseOrder = (a: string, b: string) => doseRank(a) - doseRank(b);
 
+// Dose routes are mostly single words; LSA's "Morning_Glory" reads "Morning Glory".
+const doseRouteLabel = (route: string) => route.replaceAll("_", " ");
+
 // This takes the dosage data and makes a nice table out of it
 const addDosages = (drugData: Drug) => {
   const doseData = drugData.formatted_dose as Dose;
@@ -434,7 +437,7 @@ const addDosages = (drugData: Drug) => {
       const range = parseDoseRangeMg(strengthData);
       if (!range) continue;
 
-      const point = { x: `${roa} (mg)`, y: range };
+      const point = { x: `${doseRouteLabel(roa)} (mg)`, y: range };
       const existingSeries = doseSeries.find(
         (series) => series.name === strength,
       );
@@ -488,7 +491,7 @@ const addDosages = (drugData: Drug) => {
       // Rows otherwise follow the first series, so the route with the lowest level would
       // jump to the top. Keep the table's route order.
       categories: Object.keys(doseText)
-        .map((roa) => `${roa} (mg)`)
+        .map((roa) => `${doseRouteLabel(roa)} (mg)`)
         .filter((row) =>
           doseSeries.some((series) =>
             (series.data as { x: string }[]).some(({ x }) => x === row),
@@ -530,6 +533,7 @@ const addDosages = (drugData: Drug) => {
   }
 
   const allStrengths = [...uniqueStrengths].sort(byDoseOrder);
+  const hasChart = doseSeries.length > 0;
   const gridSpacing = Math.max(12 / (allStrengths.length + 1), 2); // Ensure a minimum size for the grid
 
   return (
@@ -537,8 +541,9 @@ const addDosages = (drugData: Drug) => {
       <Card>
         <CardContent>
           <Grid container spacing={2}>
-            {/* Dosage Chart */}
-            <Grid size={{ xs: 12, sm: 6, md: 6 }}>
+            {/* Dosage Chart. Without one (doses in seeds or ml, say), the table takes the
+                whole card instead of leaving half of it empty. */}
+            <Grid size={hasChart ? { xs: 12, sm: 6, md: 6 } : { xs: 12 }}>
               <Typography
                 variant="h5"
                 component="h2"
@@ -546,7 +551,7 @@ const addDosages = (drugData: Drug) => {
               >
                 Dosages
               </Typography>
-              {doseSeries.length > 0 && (
+              {hasChart && (
                 <>
                   <Typography variant="body2">
                     Chart shows bounded mass ranges in mg. See the table for all
@@ -564,8 +569,8 @@ const addDosages = (drugData: Drug) => {
             </Grid>
 
             {/* Dosage Text */}
-            <Grid size={{ xs: 12, sm: 6, md: 6 }}>
-              <div style={{ height: "48px" }}></div>
+            <Grid size={hasChart ? { xs: 12, sm: 6, md: 6 } : { xs: 12 }}>
+              {hasChart && <div style={{ height: "48px" }}></div>}
               <Grid container spacing={0}>
                 {/* Strength Headers */}
                 <Grid size={{ xs: gridSpacing }}>
@@ -589,7 +594,7 @@ const addDosages = (drugData: Drug) => {
                   <React.Fragment key={roa}>
                     <Grid size={{ xs: gridSpacing }}>
                       <Typography>
-                        <b>{roa}</b>
+                        <b>{doseRouteLabel(roa)}</b>
                       </Typography>
                     </Grid>
                     {allStrengths.map((strength) => (

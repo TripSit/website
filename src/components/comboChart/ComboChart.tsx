@@ -284,11 +284,13 @@ export default function ComboChart({
         >
           <header className={styles.heading}>
             <Link href="/" aria-label="TripSit home">
+              {/* .logo is 320px wide. */}
               <Image
                 src={logo}
                 alt="TripSit"
                 priority
                 className={styles.logo}
+                sizes="320px"
               />
             </Link>
             <h1>{translation.title}</h1>

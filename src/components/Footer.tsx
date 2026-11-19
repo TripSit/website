@@ -79,7 +79,13 @@ export default function Footer() {
       <div className="mx-auto grid max-w-6xl gap-10 py-14 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <Link href="/" className="inline-block">
-            <Image src={logo} alt="TripSit" className="h-10 w-auto" />
+            {/* 40px tall is about 113px wide; see the header's logo. */}
+            <Image
+              src={logo}
+              alt="TripSit"
+              className="h-10 w-auto"
+              sizes="113px"
+            />
           </Link>
           <p className="mt-4 max-w-xs text-sm leading-relaxed text-mute">
             Harm Reduction Through Education. A volunteer-run community since

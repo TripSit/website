@@ -5,6 +5,7 @@ import logo from "../../public/assets/img/logo.png";
 import ProfileButton from "./ProfileButton";
 import { solidButton } from "./buttonClasses";
 import { envOrDefault } from "../utils/envOrDefault";
+import { BiChevronDown, BiList, BiXLg } from "./icons";
 
 const domain = envOrDefault(process.env.NEXT_PUBLIC_DNS_DOMAIN, "tripsit.me");
 
@@ -324,11 +325,10 @@ function Header() {
                   onClick={() => toggleMenu(menu.label)}
                 >
                   {menu.label}
-                  <i
-                    className={`bi bi-chevron-down text-xs transition-transform ${
+                  <BiChevronDown
+                    className={`text-xs transition-transform ${
                       openMenu === menu.label ? "rotate-180" : ""
                     }`}
-                    aria-hidden
                   />
                 </button>
                 {openMenu === menu.label && (
@@ -389,10 +389,7 @@ function Header() {
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
               onClick={() => setMobileOpen(!mobileOpen)}
             >
-              <i
-                className={`bi ${mobileOpen ? "bi-x-lg" : "bi-list"}`}
-                aria-hidden
-              />
+              {mobileOpen ? <BiXLg /> : <BiList />}
             </button>
           </div>
         </div>

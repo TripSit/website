@@ -134,7 +134,7 @@ export default function ComboChart({
       <nav className={styles.toolbar} aria-label="Chart controls">
         <Link href="/combo">← Combination checker</Link>
         <label>
-          Language / Sprache / Idioma
+          Language / Sprache / Idioma{" "}
           <select
             value={language}
             onChange={(event) => {
@@ -211,7 +211,7 @@ export default function ComboChart({
         </details>
         <div className={styles.exportControls}>
           <label>
-            Width (pixels)
+            Width (pixels){" "}
             <input
               type="number"
               min="320"
@@ -222,7 +222,7 @@ export default function ComboChart({
             />
           </label>
           <label>
-            Height (pixels)
+            Height (pixels){" "}
             <input
               type="number"
               min="320"
@@ -252,9 +252,7 @@ export default function ComboChart({
           96 pixels per inch. Small images may need zooming to read.
         </p>
         {validation && <p role="alert">{validation}</p>}
-        <p role="status" aria-live="polite">
-          {message}
-        </p>
+        <output aria-live="polite">{message}</output>
         <p>
           {LICENSE_NOTICE}{" "}
           <a href={LICENSE_URL}>{LICENSE_NAME} license terms</a>
@@ -265,7 +263,6 @@ export default function ComboChart({
         lang={language}
         className={styles.scroll}
         aria-label={translation.title}
-        tabIndex={0}
       >
         <article
           className={styles.poster}
@@ -297,7 +294,7 @@ export default function ComboChart({
             <caption className={styles.srOnly}>{translation.title}</caption>
             <thead>
               <tr>
-                <td aria-hidden="true" />
+                <td />
                 {substances.map((substance) => (
                   <th
                     scope="col"

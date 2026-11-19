@@ -9,6 +9,10 @@ const createJestConfig = nextJest({
 
 const config: Config = {
   testEnvironment: "jsdom",
+  // The factsheet and combo chart tests render whole pages (the full table, the 25x25 chart).
+  // Alone they take about 2 s; with every suite running in parallel, 4-6 s, so the 5 s default
+  // failed them at random under load.
+  testTimeout: 15_000,
   collectCoverageFrom: [
     "src/**/*.{ts,tsx}",
     "!src/**/*.d.ts",

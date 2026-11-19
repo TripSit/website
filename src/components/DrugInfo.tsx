@@ -64,10 +64,13 @@ function parseRangeHours(
   return { min, max };
 }
 
-// Places a phase on the timeline: right after the previous phase when we know it,
-// otherwise on its own (Onset always starts at 0).
+// Places a phase on the timeline. A bar runs from the earliest the phase can start to the
+// latest it can end, and its marker (startTime + min) is the earliest it can end. After the
+// previous phase on the same route, it starts once that phase can have ended. Without one,
+// it is timed from dosing, like Onset: the tooltip says "after dosing" too. (It used to start
+// at its own min, which put DMT's oral-with-MAOI duration of 3-7h at 3h-7h with its marker
+// at 6h.)
 function placeWindow(
-  timingKey: TimingKey,
   range: { min: number; max: number },
   previous: TimingWindow | undefined,
 ): Pick<TimingWindow, "startTime" | "endTime"> {
@@ -78,7 +81,7 @@ function placeWindow(
     };
   }
   return {
-    startTime: timingKey === "Onset" ? 0 : round2(range.min),
+    startTime: 0,
     endTime: round2(range.max),
   };
 }
@@ -151,7 +154,7 @@ function addDurationData(
       [timingKey]: {
         min: round2(range.min),
         max: round2(range.max),
-        ...placeWindow(timingKey, range, previous),
+        ...placeWindow(range, previous),
       },
     };
   }

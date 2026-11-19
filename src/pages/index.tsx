@@ -320,7 +320,7 @@ export default function Home({
               <Image
                 src={logo}
                 alt="TripSit"
-                priority
+                preload
                 className="mx-auto h-auto w-60 max-w-full md:w-80"
                 sizes="(min-width: 768px) 320px, 240px"
               />

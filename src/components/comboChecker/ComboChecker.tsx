@@ -50,7 +50,7 @@ function ComboChecker({
             alt="TripSit"
             className={styles.brandLogo}
             sizes="74px"
-            priority
+            preload
           />
         </a>
         <div className={styles.navLinks}>

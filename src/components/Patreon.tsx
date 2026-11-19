@@ -1,6 +1,8 @@
 // components/PatreonButton.tsx
 
 import React from "react";
+import donateStyles from "./donateButtons.module.css";
+import { quicksandVariable } from "./fonts";
 import Image from "next/image";
 import patreonLogo from "../../public/assets/img/logos/patreon.png";
 
@@ -33,7 +35,7 @@ const PatreonButton = () => {
           target="_blank"
           rel="noopener noreferrer"
           style={styles.button}
-          className="kofi-button"
+          className={`${donateStyles.button} ${quicksandVariable}`}
         >
           <Image src={patreonLogo} alt="Patreon Logo" width={15} height={15} />
           <span style={styles.text}>TripSit Patreon</span>

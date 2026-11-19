@@ -1,4 +1,4 @@
-import { Inter, Poppins, Space_Grotesk } from "next/font/google";
+import { Inter, Poppins, Quicksand, Space_Grotesk } from "next/font/google";
 
 // tailwind.css maps font-body / font-display to these CSS variables, so any
 // page using those utilities needs fontVariables on an ancestor element
@@ -19,3 +19,13 @@ const poppins = Poppins({
 });
 
 export const poppinsVariable = poppins.variable;
+
+// The donate buttons' font. donateButtons.module.css reads it as var(--font-quicksand). It
+// used to come from Google Fonts, linked by the kofi-button package.
+const quicksand = Quicksand({
+  subsets: ["latin"],
+  weight: ["700"],
+  variable: "--font-quicksand",
+});
+
+export const quicksandVariable = quicksand.variable;

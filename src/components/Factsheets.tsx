@@ -42,7 +42,7 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import { Category, Drug } from "tripsit_drug_db";
 import { useDrugs } from "../utils/drugs";
 import Grid from "@mui/material/Grid";
-import KofiButton from "kofi-button";
+import KofiButton from "./Kofi";
 import UnfoldMoreDoubleIcon from "@mui/icons-material/UnfoldMoreDouble";
 import UnfoldLessDoubleIcon from "@mui/icons-material/UnfoldLessDouble";
 import PatreonButton from "./Patreon";

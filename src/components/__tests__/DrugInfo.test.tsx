@@ -496,6 +496,32 @@ test("renders fractional hour durations without after effects", () => {
   expect(screen.queryByText("Aliases")).toBeNull();
 });
 
+// Shaped like DMT's: "molecule" is a bare address, "half-life" is text.
+test("links a property whose value is a bare web address", () => {
+  render(
+    <DrugInfo
+      drugData={{
+        ...drug,
+        properties: {
+          molecule:
+            "https://www.erowid.org/chemicals/dmt/images/archive/dmt_3d_mid.jpg",
+          "half-life": "10-20 minutes",
+        } as Drug["properties"],
+      }}
+    />,
+  );
+  expect(
+    screen.getByRole("link", {
+      name: "erowid.org/chemicals/dmt/images/archive/dmt_3d_mid.jpg",
+    }),
+  ).toHaveAttribute(
+    "href",
+    "https://www.erowid.org/chemicals/dmt/images/archive/dmt_3d_mid.jpg",
+  );
+  expect(screen.getByText("10-20 minutes").tagName).toBe("P");
+  expect(screen.queryByRole("link", { name: /10-20/ })).toBeNull();
+});
+
 test("renders optional references, warnings, and combination notes", () => {
   render(
     <DrugInfo

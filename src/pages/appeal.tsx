@@ -528,9 +528,12 @@ const AppealPage: React.FC = () => {
         <AppealHead />
         <Header />
         <main>
+          {/* The same box as the logged-out view that usually replaces it: every view
+              clears the 80px fixed header with marginTop. Without it, swapping the spinner
+              for the page moved everything down 80px (a layout shift of 0.19). */}
           <section
             className="d-flex align-items-center"
-            style={{ minHeight: "60vh" }}
+            style={{ minHeight: "80vh", marginTop: "80px" }}
           >
             <div className="container">
               <div className="row justify-content-center">

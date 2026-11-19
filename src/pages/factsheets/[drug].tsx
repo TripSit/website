@@ -70,7 +70,9 @@ export default function DrugInfo({ drugData }: Readonly<Props>) {
       // The sitemap lists drugs under their database name, so the canonical link does too
       path={`/factsheets/${encodeURIComponent(drugData.name)}`}
     >
-      <header className="px-5 pb-6 pt-10 md:pt-14">
+      {/* Divs rather than header/section: the legacy stylesheet pads both. The side
+          padding matches the MUI Container below, so the heading lines up with the cards. */}
+      <div className="px-[16px] pb-6 pt-10 sm:px-[24px] md:pt-14">
         <div className="mx-auto max-w-6xl">
           <Link
             href="/factsheets"
@@ -87,10 +89,10 @@ export default function DrugInfo({ drugData }: Readonly<Props>) {
             </p>
           )}
         </div>
-      </header>
-      <section id="drugInfo" className="pb-12">
+      </div>
+      <div id="drugInfo" className="pb-12">
         <DrugInfoCard drugData={drugData} />
-      </section>
+      </div>
     </PageShell>
   );
 }

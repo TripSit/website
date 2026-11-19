@@ -130,6 +130,10 @@ test("renders the site header and the factsheet", () => {
 
   expect(screen.getByRole("navigation", { name: "Site header" })).toBeVisible();
   expect(
-    screen.getByRole("heading", { name: "Example Compound" }),
-  ).toBeVisible();
+    screen.getAllByRole("heading", { level: 1, name: "Example Compound" }),
+  ).not.toHaveLength(0);
+  expect(
+    screen.getByRole("link", { name: "← All factsheets" }),
+  ).toHaveAttribute("href", "/factsheets");
+  expect(screen.getByRole("contentinfo")).toBeVisible();
 });

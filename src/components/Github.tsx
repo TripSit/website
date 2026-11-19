@@ -1,6 +1,8 @@
 // components/PatreonButton.tsx
 
 import React from "react";
+import donateStyles from "./donateButtons.module.css";
+import { quicksandVariable } from "./fonts";
 import Image from "next/image";
 import githubLogo from "../../public/assets/img/logos/github.png";
 
@@ -33,7 +35,7 @@ const GithubButton = () => {
           target="_blank"
           rel="noopener noreferrer"
           style={styles.button}
-          className="kofi-button"
+          className={`${donateStyles.button} ${quicksandVariable}`}
         >
           <Image src={githubLogo} alt="Github" width={15} height={15} />
           <span style={styles.text}>TripSit GitHub</span>

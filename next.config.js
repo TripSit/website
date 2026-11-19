@@ -32,6 +32,10 @@ const nextConfig = {
   async headers() {
     return [
       {
+        source: "/appeal",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, follow" }],
+      },
+      {
         // Only this site may show its pages in a frame (clickjacking protection). The server's
         // proxy adds an X-Frame-Options value that browsers ignore; frame-ancestors overrides it.
         source: "/:path*",
@@ -43,6 +47,9 @@ const nextConfig = {
   },
   async redirects() {
     return [
+      // Legacy homepage addresses should consolidate on the homepage, not the blog.
+      { source: "/index.html", destination: "/", permanent: true },
+      { source: "/index.php", destination: "/", permanent: true },
       ...blogPaths.map((path) => toBlog(path)),
       // Not in the sitemap, but still linked from elsewhere: feed readers subscribed to the
       // old address, the blog's front-page pages, and images other sites embed from posts.

@@ -14,6 +14,7 @@ export default function NotFoundPage() {
   return (
     <PageShell
       title="Page not found - TripSit"
+      noindex
       description="The page you were looking for doesn't exist or has moved."
     >
       <section className="px-5 py-16 md:py-24">

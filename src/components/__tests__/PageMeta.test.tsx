@@ -148,4 +148,22 @@ test("keeps the 404 page out of canonical links", () => {
     title: "Page not found - TripSit",
     canonical: null,
   });
+  expect(document.head.querySelector('meta[name="robots"]')).toHaveAttribute(
+    "content",
+    "noindex,follow",
+  );
+});
+
+test("can exclude login-only pages without blocking public pages", () => {
+  const { unmount } = render(<Head path="/appeal" noindex />);
+  expect(document.head.querySelector('meta[name="robots"]')).toHaveAttribute(
+    "content",
+    "noindex,follow",
+  );
+  unmount();
+  render(<Head path="/factsheets" />);
+  expect(document.head.querySelector('meta[name="robots"]')).toHaveAttribute(
+    "content",
+    "all",
+  );
 });

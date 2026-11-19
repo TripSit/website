@@ -57,8 +57,8 @@ test("builds factsheets on first request instead of at build time", async () => 
   });
 });
 
-test.each(["example", "EXAMPLE", "example compound", "alias-1", "ALIAS-1"])(
-  "finds the factsheet for %s, ignoring case",
+test.each(["example"])(
+  "serves the canonical factsheet for %s",
   async (name) => {
     const page = loadPage();
     await expect(propsFor(page, name)).resolves.toEqual({
@@ -67,6 +67,35 @@ test.each(["example", "EXAMPLE", "example compound", "alias-1", "ALIAS-1"])(
     });
   },
 );
+
+test.each(["EXAMPLE", "example compound", "alias-1", "ALIAS-1"])(
+  "permanently redirects %s to the database name",
+  async (name) => {
+    const page = loadPage();
+    await expect(propsFor(page, name)).resolves.toEqual({
+      redirect: { destination: "/factsheets/example", permanent: true },
+      revalidate: page.REVALIDATE_SECONDS,
+    });
+  },
+);
+
+test("prefers database names over another drug's alias", async () => {
+  jest
+    .mocked(fetchDrugs)
+    .mockResolvedValue([{ ...other, aliases: ["example"] }, drug]);
+  await expect(propsFor(loadPage(), "example")).resolves.toHaveProperty(
+    "props.drugData.name",
+    "example",
+  );
+});
+
+test("URL-encodes the redirect destination", async () => {
+  jest.mocked(fetchDrugs).mockResolvedValue([{ ...drug, name: "α-pbp" }]);
+  await expect(propsFor(loadPage(), "Alias-1")).resolves.toHaveProperty(
+    "redirect.destination",
+    "/factsheets/%CE%B1-pbp",
+  );
+});
 
 test.each(["missing", undefined])(
   "returns a 404 for an unknown drug (%s)",

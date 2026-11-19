@@ -28,6 +28,7 @@ type Props = Readonly<{
   // An image under public/, shown in link previews
   image?: string;
   imageAlt?: string;
+  noindex?: boolean;
 }>;
 
 // The page's <head>: title, description, canonical address and the Open Graph and Twitter
@@ -38,6 +39,7 @@ export default function Head({
   path,
   image = "/assets/img/logo.png",
   imageAlt = "TripSit logo",
+  noindex = false,
 }: Props) {
   const url = path === undefined ? undefined : `${siteOrigin}${path}`;
   const summary = shortDescription(description);
@@ -47,7 +49,11 @@ export default function Head({
       <meta charSet="utf-8" />
       <meta content="width=device-width, initial-scale=1.0" name="viewport" />
       <meta name="description" content={summary} key="description" />
-      <meta name="robots" content="all" />
+      <meta
+        name="robots"
+        content={noindex ? "noindex,follow" : "all"}
+        key="robots"
+      />
       <link rel="icon" href="/favicon.ico" />
       {url && <link rel="canonical" href={url} key="canonical" />}
       <meta property="og:type" content="website" key="og:type" />

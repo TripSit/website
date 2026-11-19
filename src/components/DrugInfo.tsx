@@ -881,6 +881,22 @@ function comboCard(comboData: Interactions): React.JSX.Element {
 }
 
 // One card for each remaining property; the ones shown elsewhere are skipped.
+// A property whose whole value is one web address, like DMT's "molecule" (an image on
+// Erowid) or MDMA's "wiki". These used to print as plain text, clipped at the card's edge.
+const BARE_URL = /^https?:\/\/\S+$/;
+
+function propertyValueContent(value: unknown): ReactNode {
+  if (typeof value !== "string" || !BARE_URL.test(value.trim())) {
+    return value as ReactNode;
+  }
+  const url = value.trim();
+  return (
+    <a href={url} target="_blank" rel="noopener noreferrer">
+      {url.replace(/^https?:\/\/(www\.)?/, "")}
+    </a>
+  );
+}
+
 function propertyCards(properties: Drug["properties"]): React.JSX.Element[] {
   const elements = [] as React.JSX.Element[];
   for (const property of Object.keys(properties)) {
@@ -962,7 +978,10 @@ function propertyCards(properties: Drug["properties"]): React.JSX.Element[] {
               >
                 {propertyName.charAt(0).toUpperCase() + propertyName.slice(1)}
               </Typography>
-              <Typography>{propertyValue}</Typography>
+              {/* Long addresses and words wrap instead of running off the card. */}
+              <Typography sx={{ overflowWrap: "anywhere" }}>
+                {propertyValueContent(propertyValue)}
+              </Typography>
             </CardContent>
           </Card>
         </Grid>,

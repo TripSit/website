@@ -8,6 +8,11 @@ on:
 permissions:
   contents: read
 
+# Each run lists what uat holds when it runs, so the newest push should be the one that writes.
+concurrency:
+  group: open-uat-to-main-pr
+  cancel-in-progress: true
+
 jobs:
   open-pr:
     permissions:
@@ -17,26 +22,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Create PR from uat to main if none is open
+        with:
+          fetch-depth: 0  # The PR body walks uat's history back to main.
+      - name: Open the uat -> main PR, or refresh its list of changes
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
         run: |
-          existing=$(gh pr list --base main --head uat --state open --json number --jq '.[0].number // empty')
-          if [ -n "$existing" ]; then
-            echo "PR #$existing from uat to main is already open, nothing to do."
-            exit 0
-          fi
-
           # Right after a promotion uat has nothing main lacks, and gh pr create would refuse.
-          # Check that case first, so any other gh failure (auth, API) fails the job.
-          ahead=$(gh api "repos/${{ github.repository }}/compare/main...uat" --jq '.ahead_by')
+          ahead=$(git rev-list --count origin/main..origin/uat)
           if [ "$ahead" -eq 0 ]; then
             echo "uat has no commits that main lacks, nothing to promote."
             exit 0
           fi
 
-          gh pr create \
-            --base main \
-            --head uat \
-            --title "Promote uat to main" \
-            --body "Auto-opened by the OpenUatToMainPR workflow after a push to \`uat\`. Merge to release these changes to production."
+          body="$RUNNER_TEMP/promotion-pr-body.md"
+          bash .github/scripts/promotion-pr-body.sh > "$body"
+          cat "$body"
+
+          existing=$(gh pr list --base main --head uat --state open --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            gh api -X PATCH "repos/${GH_REPO}/pulls/${existing}" -F body=@"$body" --silent
+            echo "Refreshed the body of PR #${existing}."
+          else
+            gh pr create --base main --head uat --title "Promote uat to main" --body-file "$body"
+          fi

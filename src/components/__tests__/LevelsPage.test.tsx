@@ -159,6 +159,21 @@ test("estimates the starting XP from messages and voice hours", () => {
   expect(calculateLevels(fromActivity("10", ".", "")).estimate?.xp).toBe(200);
 });
 
+test("names the start-from choice by the label on screen", () => {
+  render(<LevelsPage />);
+  // Its accessible name used to be a different phrase from the visible label.
+  const group = screen.getByRole("group", { name: "Start from:" });
+  expect(
+    within(group).getByRole("button", { name: "My level" }),
+  ).toHaveAttribute("aria-pressed", "true");
+  fireEvent.click(
+    within(group).getByRole("button", { name: "My messages and voice time" }),
+  );
+  expect(
+    within(group).getByRole("button", { name: "My messages and voice time" }),
+  ).toHaveAttribute("aria-pressed", "true");
+});
+
 test("waits for a level to aim for before working anything out", () => {
   expect(calculateLevels(fromLevel("5", ""))).toEqual({
     estimate: undefined,

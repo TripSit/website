@@ -214,11 +214,26 @@ export default function LevelCalculator() {
   return (
     <div className="grid gap-6">
       <div className={`${cardClass} flex flex-col gap-6 text-lg text-ink`}>
-        <fieldset
-          aria-label="Work out your XP from"
-          className="flex flex-wrap items-center gap-2"
-        >
-          <span className="text-sm text-mute">Start from:</span>
+        {/* The visible "Start from:" names the group. It used to be a span beside an
+            aria-label that said something else ("Work out your XP from"), so a voice command
+            using the words on screen didn't match. Bootstrap's reboot styles every legend
+            (full width, large, floated), and it isn't in a CSS layer, so it beats Tailwind's
+            classes; the inline style keeps this one a small label on the buttons' line. A
+            floated legend lays out as an ordinary flex item. */}
+        <fieldset className="flex flex-wrap items-center gap-2">
+          <legend
+            className="text-mute"
+            style={{
+              float: "left",
+              width: "auto",
+              margin: 0,
+              padding: 0,
+              fontSize: "0.875rem",
+              lineHeight: "1.25rem",
+            }}
+          >
+            Start from:
+          </legend>
           {MODES.map((mode) => {
             const pressed = startFrom === mode.value;
             return (

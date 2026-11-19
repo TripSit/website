@@ -288,7 +288,7 @@ export default function ComboChart({
               <Image
                 src={logo}
                 alt="TripSit"
-                priority
+                preload
                 className={styles.logo}
                 sizes="320px"
               />

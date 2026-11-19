@@ -36,11 +36,14 @@ function loadDrugs(): Promise<Drug[]> {
 // Matches the name, pretty name or any alias, ignoring case.
 function findDrug(drugs: Drug[], name: string): Drug | undefined {
   const wanted = name.toLowerCase();
-  return drugs.find(
-    (drug) =>
-      drug.name.toLowerCase() === wanted ||
-      drug.pretty_name.toLowerCase() === wanted ||
-      drug.aliases?.some((alias) => alias.toLowerCase() === wanted),
+  // A canonical database name must win over another substance's alias.
+  return (
+    drugs.find((drug) => drug.name.toLowerCase() === wanted) ??
+    drugs.find(
+      (drug) =>
+        drug.pretty_name.toLowerCase() === wanted ||
+        drug.aliases?.some((alias) => alias.toLowerCase() === wanted),
+    )
   );
 }
 
@@ -55,6 +58,15 @@ export const getStaticProps: GetStaticProps<Props, { drug: string }> = async ({
   const drugData = findDrug(await loadDrugs(), params?.drug ?? "");
   if (!drugData) {
     return { notFound: true, revalidate: REVALIDATE_SECONDS };
+  }
+  if (params?.drug !== drugData.name) {
+    return {
+      redirect: {
+        destination: `/factsheets/${encodeURIComponent(drugData.name)}`,
+        permanent: true,
+      },
+      revalidate: REVALIDATE_SECONDS,
+    };
   }
   return { props: { drugData }, revalidate: REVALIDATE_SECONDS };
 };

@@ -101,6 +101,7 @@ const AppealHead = () => (
     title="Ban Appeal - TripSit"
     description="Banned from TripSit? Log in with Discord to check your ban status and send an appeal to our team."
     path="/appeal"
+    noindex
   />
 );
 

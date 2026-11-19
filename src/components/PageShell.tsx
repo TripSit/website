@@ -10,12 +10,14 @@ export default function PageShell({
   title,
   description,
   path,
+  noindex,
   children,
 }: Readonly<{
   title: string;
   description: string;
   // The page's path for its canonical link and link previews; see Head
   path?: string;
+  noindex?: boolean;
   children: ReactNode;
 }>) {
   return (
@@ -23,7 +25,12 @@ export default function PageShell({
       data-bs-theme="dark"
       className={`${fontVariables} font-body text-ink antialiased`}
     >
-      <Head title={title} description={description} path={path} />
+      <Head
+        title={title}
+        description={description}
+        path={path}
+        noindex={noindex}
+      />
       <Header />
       <main id="main" className="pt-20">
         {children}

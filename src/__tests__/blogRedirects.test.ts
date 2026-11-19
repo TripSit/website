@@ -31,6 +31,14 @@ async function redirects() {
 }
 
 describe("blog redirects", () => {
+  it("sends legacy homepage addresses to the canonical homepage", async () => {
+    expect(await redirects()).toEqual(
+      expect.arrayContaining([
+        { source: "/index.html", destination: "/", permanent: true },
+        { source: "/index.php", destination: "/", permanent: true },
+      ]),
+    );
+  });
   it("sends every blog path, and anything under it, to the same place on the blog", async () => {
     expect(await redirects()).toEqual(
       expect.arrayContaining(
@@ -68,7 +76,7 @@ describe("blog redirects", () => {
         },
       ]),
     );
-    expect(await redirects()).toHaveLength(blogPaths.length + 4);
+    expect(await redirects()).toHaveLength(blogPaths.length + 6);
   });
 
   it("lists each path once, as plain slugs with no pattern syntax", () => {

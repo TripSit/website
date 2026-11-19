@@ -1,9 +1,25 @@
 import React from "react";
+import Link from "next/link";
+import type { GetStaticProps } from "next";
+import { fetchDrugs } from "../utils/drugs";
 import Header from "../components/Header";
 import Head from "../components/Head";
 import Factsheets from "../components/Factsheets";
 
-export default function Home() {
+type Props = { directory?: { name: string; pretty_name: string }[] };
+
+// Keep crawlable links in the initial HTML, independently of the interactive table.
+export const getStaticProps: GetStaticProps<Props> = async () => ({
+  props: {
+    directory: (await fetchDrugs()).map(({ name, pretty_name }) => ({
+      name,
+      pretty_name,
+    })),
+  },
+  revalidate: 3600,
+});
+
+export default function Home({ directory = [] }: Readonly<Props>) {
   return (
     <>
       <Header />
@@ -13,9 +29,24 @@ export default function Home() {
         path="/factsheets"
       />
       <main id="main">
-        <h1 className="sr-only">Drug factsheets</h1>
         <section id="factsheets">
           <Factsheets />
+          <nav aria-label="Factsheet directory" className="container py-4">
+            <h1>Drug Factsheets</h1>
+            <p>
+              Browse individual factsheets for substance information, effects
+              and interactions.
+            </p>
+            <ul className="row list-unstyled">
+              {directory.map(({ name, pretty_name }) => (
+                <li key={name} className="col-6 col-md-4 col-lg-3">
+                  <Link href={`/factsheets/${encodeURIComponent(name)}`}>
+                    {pretty_name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
         </section>
       </main>
     </>

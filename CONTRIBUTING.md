@@ -76,6 +76,13 @@ npx next build
 Committing runs `lint-staged` automatically via Husky, which lints and fixes your staged files. `npm ci` runs
 Husky's `prepare` script, which sets `core.hooksPath`; use `npm ci --ignore-scripts` if you don't want that.
 
+### Dependency overrides
+
+`package.json` has `overrides` that force patched versions of `glob` (above 14.0.1) and `minimatch` (11.0.1 or
+later). Both only reach the project through dev tools (Jest's coverage, typescript-eslint, eslint-plugin-sonarjs),
+whose current releases still ask for vulnerable ranges. `npm audit --omit=dev` was already clean. Remove an
+override once `npm audit` stays clean without it (check with `npm ls glob minimatch`).
+
 ## Scope and safety
 
 - Keep pull requests scoped to the problem they solve — avoid unrelated refactors, formatting, or drive-by renames.

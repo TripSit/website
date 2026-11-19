@@ -619,6 +619,14 @@ const addDosages = (drugData: Drug) => {
   );
 };
 
+// PsychonautWiki page names use underscores for spaces, and a "#" in a name links to a
+// section ("Visual disconnection#Structures"), so encodeURI rather than encodeURIComponent.
+function psychonautWikiUrl(name: string): string {
+  return encodeURI(
+    `https://psychonautwiki.org/wiki/${name.replaceAll(" ", "_")}`,
+  );
+}
+
 // Shown above the other cards, in this order, with these headings.
 const importantProperties = [
   "warning",
@@ -1041,7 +1049,7 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
                 <Grid size={{ xs: 6, sm: 4, md: 3 }} key={property}>
                   <Typography>
                     <a
-                      href={`https://psychonautwiki.org/wiki/${property}`}
+                      href={psychonautWikiUrl(property)}
                       target="_blank"
                       rel="noopener noreferrer"
                     >

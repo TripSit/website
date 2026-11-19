@@ -110,6 +110,7 @@ const AppealPage: React.FC = () => {
   const [appealHistoryFailed, setAppealHistoryFailed] = useState(false);
   const [reminding, setReminding] = useState(false);
   const [remindMessage, setRemindMessage] = useState<string | null>(null);
+  const [showAppealContent, setShowAppealContent] = useState(false);
 
   useEffect(() => {
     if (!latestAppeal) return;
@@ -868,16 +869,21 @@ const AppealPage: React.FC = () => {
                               <button
                                 className="btn btn-outline-info"
                                 type="button"
-                                data-bs-toggle="collapse"
-                                data-bs-target="#appealContent"
-                                aria-expanded="false"
+                                aria-expanded={showAppealContent}
                                 aria-controls="appealContent"
+                                onClick={() =>
+                                  setShowAppealContent((shown) => !shown)
+                                }
                               >
                                 <i className="bi bi-eye me-2"></i>View Your
                                 Appeal Content
                               </button>
                             </div>
-                            <div className="collapse mt-3" id="appealContent">
+                            <div
+                              className="mt-3"
+                              id="appealContent"
+                              hidden={!showAppealContent}
+                            >
                               <div className="card card-body bg-light">
                                 <h6 className="mb-3">Your Submitted Appeal</h6>
 

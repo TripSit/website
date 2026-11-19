@@ -16,13 +16,6 @@ jest.mock("next/document", () => ({
   Main: () => <main>Page content</main>,
   NextScript: () => <output data-script-src="/next-runtime.js" />,
 }));
-jest.mock(
-  "next/script",
-  () =>
-    function Script({ src }: { src: string }) {
-      return <output data-script-src={src} />;
-    },
-);
 
 test("renders the document shell, favicons and browser scripts", () => {
   const html = renderToStaticMarkup(Document.prototype.render());
@@ -30,9 +23,8 @@ test("renders the document shell, favicons and browser scripts", () => {
   expect(html).toContain('<link href="/assets/img/favicon.png" rel="icon"/>');
   expect(html).toContain("Page content");
   expect(html).toContain("/next-runtime.js");
-  expect(html).toContain(
-    'data-script-src="/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"',
-  );
+  // Bootstrap's 80 KB script ran one collapse on the appeal page, which React now handles.
+  expect(html).not.toContain("bootstrap.bundle");
 });
 
 test("loads nothing from third-party hosts and no relative asset paths", () => {

@@ -216,7 +216,9 @@ const addCategoryStyle = (text: string | undefined): React.JSX.Element[] => {
       const colorDef = categoryColors[cleanWord as keyof typeof categoryColors];
       const definition = dictionary[cleanWord as keyof typeof dictionary];
       return (
-        <Tooltip arrow key={key} title={definition}>
+        // describeChild: the definition describes the word (aria-describedby) instead of
+        // replacing its name with an aria-label, which isn't allowed on a plain span or p.
+        <Tooltip arrow describeChild key={key} title={definition}>
           <Typography
             style={{
               display: "inline",

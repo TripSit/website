@@ -40,6 +40,7 @@ function SubstanceSelector({
             />
           </svg>
           <input
+            type="text"
             className={styles.search}
             value={query}
             onChange={(e) => onQuery(e.target.value)}

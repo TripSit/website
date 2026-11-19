@@ -215,6 +215,24 @@ describe("the converter page", () => {
     }
   });
 
+  test("asks what a dose like 1.500 means instead of guessing", () => {
+    render(
+      <BenzoConverter
+        benzos={[benzo("alprazolam", 0.5), benzo("diazepam", 10)]}
+      />,
+    );
+    const input = screen.getByRole("textbox", { name: "Dose you have (mg)" });
+    // 1.500 is 1.5 in the US and 1500 in Germany.
+    fireEvent.change(input, { target: { value: "1.500" } });
+    expect(converted()).toHaveTextContent(
+      "“1.500” could mean 1500 or 1.5. Type 1500 or 1.5 instead.",
+    );
+    fireEvent.change(input, { target: { value: "1.5" } });
+    expect(converted()).toHaveTextContent(
+      "1.5 mg of Alprazolam is roughly 30 mg of Diazepam.",
+    );
+  });
+
   test("falls back to the first benzos and skips missing details", () => {
     render(
       <BenzoConverter benzos={[benzo("azepam", 10), benzo("zolam", 2)]} />,

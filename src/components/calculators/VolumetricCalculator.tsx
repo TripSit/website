@@ -1,7 +1,7 @@
 import { useState, type ChangeEvent } from "react";
 import { solidButton } from "../buttonClasses";
 import { cardClass, fieldClass } from "./CalculatorPage";
-import { divideAmounts, formatAmount } from "./amounts";
+import { ambiguousAmountHint, divideAmounts, formatAmount } from "./amounts";
 
 // Each calculator reads as one sentence: text, input, text, input, text, result, text.
 type Calc = {
@@ -68,6 +68,7 @@ function SentenceCalc({ calc }: Readonly<{ calc: Calc }>) {
   const [copyStatus, setCopyStatus] = useState<CopyStatus>("idle");
   const result = calc.compute(first, second);
   const shown = result === undefined ? undefined : formatAmount(result);
+  const hint = ambiguousAmountHint(first, second);
   const [p0, p1, p2, p3] = calc.parts;
 
   async function copy() {
@@ -123,6 +124,10 @@ function SentenceCalc({ calc }: Readonly<{ calc: Calc }>) {
         </output>
         <span>{p3}</span>
       </p>
+      {/* Says why an amount like "1,000" gives no answer, instead of a bare "?". */}
+      <output className="mt-3 block text-sm text-amber empty:hidden">
+        {hint}
+      </output>
       <div className="mt-6 flex items-center gap-4">
         <button
           type="button"

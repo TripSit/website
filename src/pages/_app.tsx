@@ -6,8 +6,6 @@ import "aos/dist/aos.css";
 import "../../public/assets/vendor/bootstrap/css/bootstrap.min.css";
 import "../../public/assets/vendor/bootstrap-icons/bootstrap-icons.css";
 import "../../public/assets/vendor/boxicons/css/boxicons.min.css";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 // Main CSS file
 import "../../public/assets/css/style.css";
 // Tailwind utilities (after style.css so utilities win the cascade)
@@ -29,10 +27,8 @@ export default function App({ Component, pageProps }: AppProps) {
   }, []);
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns}>
-      <QueryClientProvider client={queryClient}>
-        <Component {...pageProps} />
-      </QueryClientProvider>
-    </LocalizationProvider>
+    <QueryClientProvider client={queryClient}>
+      <Component {...pageProps} />
+    </QueryClientProvider>
   );
 }

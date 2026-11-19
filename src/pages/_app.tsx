@@ -6,7 +6,6 @@ import "aos/dist/aos.css";
 import "../../public/assets/vendor/bootstrap/css/bootstrap.min.css";
 import "../../public/assets/vendor/bootstrap-icons/bootstrap-icons.css";
 import "../../public/assets/vendor/boxicons/css/boxicons.min.css";
-import "../../public/assets/vendor/remixicon/remixicon.css";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 // Main CSS file

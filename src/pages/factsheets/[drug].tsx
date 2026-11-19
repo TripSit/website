@@ -4,6 +4,7 @@ import { fetchDrugs } from "../../utils/drugs";
 
 import Link from "next/link";
 import PageShell from "../../components/PageShell";
+import { factsheetDescription } from "../../utils/factsheetDescription";
 import DrugInfoCard from "../../components/DrugInfo";
 
 type Props = { drugData: Drug };
@@ -63,10 +64,7 @@ export default function DrugInfo({ drugData }: Readonly<Props>) {
   return (
     <PageShell
       title={`${drugData.pretty_name} - TripSit Factsheets`}
-      description={
-        drugData.properties?.summary ??
-        `Dose ranges, durations, effects and interactions for ${drugData.pretty_name}, from TripSit's drug database.`
-      }
+      description={factsheetDescription(drugData)}
       // The sitemap lists drugs under their database name, so the canonical link does too
       path={`/factsheets/${encodeURIComponent(drugData.name)}`}
     >

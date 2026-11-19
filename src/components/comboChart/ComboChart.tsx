@@ -13,6 +13,7 @@ import {
   getCombo,
 } from "../comboChecker/comboData";
 import {
+  chartDescription,
   LANGUAGES,
   TRANSLATIONS,
   chartPath,
@@ -115,7 +116,7 @@ export default function ComboChart({
       <Head
         title={`${translation.title} - TripSit`}
         path={chartPath(language)}
-        description="TripSit's full drug combination chart, with translations and printable PNG/PDF downloads."
+        description={chartDescription(language)}
         image="/assets/img/comboChart.png"
         imageAlt="TripSit drug combination chart"
       />

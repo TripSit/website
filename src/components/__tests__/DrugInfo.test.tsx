@@ -425,3 +425,37 @@ test("groups combinations by risk, hides empty groups and uses the checker's nam
   expect(screen.getByText("Nitrous Oxide")).toBeVisible();
   expect(screen.getByText("Serotonin syndrome.")).toBeVisible();
 });
+
+test("links PsychonautWiki effects with valid, canonical URLs", () => {
+  render(
+    <DrugInfo
+      drugData={
+        {
+          ...drug,
+          pweffects: {
+            "Restless leg syndrome": "x",
+            "Visual disconnection#Structures": "x",
+            "Déjà vu": "x",
+          },
+        } as Drug
+      }
+    />,
+  );
+  expect(
+    screen.getByRole("link", { name: "Restless leg syndrome" }),
+  ).toHaveAttribute(
+    "href",
+    "https://psychonautwiki.org/wiki/Restless_leg_syndrome",
+  );
+  // "#" is a section link on the page, not part of the page name.
+  expect(
+    screen.getByRole("link", { name: "Visual disconnection#Structures" }),
+  ).toHaveAttribute(
+    "href",
+    "https://psychonautwiki.org/wiki/Visual_disconnection#Structures",
+  );
+  expect(screen.getByRole("link", { name: "Déjà vu" })).toHaveAttribute(
+    "href",
+    "https://psychonautwiki.org/wiki/D%C3%A9j%C3%A0_vu",
+  );
+});

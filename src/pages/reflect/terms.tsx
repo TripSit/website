@@ -59,7 +59,7 @@ export default function ReflectTermsPage() {
       <p>
         You may use Reflect for any lawful, non-commercial purpose. Its source
         code is published under the{" "}
-        <a href="https://polyformproject.org/licenses/noncommercial/1.0.0/">
+        <a href="https://polyformproject.org/licenses/noncommercial/1.0.0">
           PolyForm Noncommercial License 1.0.0
         </a>
         {","} which sets out what you may do with the code. The bundled

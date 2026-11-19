@@ -83,18 +83,54 @@ function placeWindow(
   };
 }
 
-// This function is called for each of the three types of duration data:
-// onset, duration, and after effects
+const PHASES: TimingKey[] = ["Onset", "Duration", "After Effects"];
+
+// Route keys like "Oral_MAOI" read as "Oral (MAOI)".
+function routeLabel(route: string): string {
+  const [base, ...detail] = route.split("_");
+  return detail.length > 0 ? `${base} (${detail.join(" ")})` : base;
+}
+
+// Hours as text: 0.25 is "15m", 3 is "3h", 1.5 is "1h 30m", and 0 stays "0".
+function formatHours(hours: number): string {
+  const totalMinutes = Math.round(hours * 60);
+  if (totalMinutes === 0) {
+    return "0";
+  }
+  const wholeHours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  if (wholeHours === 0) {
+    return `${minutes}m`;
+  }
+  return minutes ? `${wholeHours}h ${minutes}m` : `${wholeHours}h`;
+}
+
+// The ROA keys a phase names, or undefined when the phase is one "value" for every ROA.
+function namedRoutes(timingData: Duration): string[] | undefined {
+  if (timingData.value !== undefined) {
+    return undefined;
+  }
+  return Object.keys(timingData).filter((key) => key !== "_unit");
+}
+
+// Adds one phase (onset, duration or after effects) to each route's timeline.
+// A phase given as a single "value" names no route. The factsheet text gives those values
+// for the drug as a whole (eg 2C-B's after effects are "2-4 hours" whichever way it was
+// taken), so it goes on every route the other phases name.
 function addDurationData(
   timingData: Duration,
   timingKey: TimingKey,
   timingObject: DurationTiming,
+  allRoutes: string[],
 ): DurationTiming {
-  // If there is a "value" parameter, then assume the ROA is "Oral" and that it is the only ROA.
-  // Otherwise every key except "_unit" is a ROA holding that ROA's timing string.
-  const roaEntries: [string, string][] = timingData.value
-    ? [["Oral", timingData.value]]
-    : Object.entries(timingData).filter(([roa]) => roa !== "_unit");
+  const value = timingData.value;
+  const roaEntries: [string, string][] =
+    value === undefined
+      ? (namedRoutes(timingData) ?? []).map((roa) => [
+          roa,
+          timingData[roa as keyof Duration] as string,
+        ])
+      : allRoutes.map((roa) => [roa, value]);
 
   const durationTiming = timingObject;
   const previousPhase = PREVIOUS_PHASE[timingKey];
@@ -105,12 +141,13 @@ function addDurationData(
       continue;
     }
 
+    const route = routeLabel(roa);
     const previous = previousPhase
-      ? durationTiming[roa]?.[previousPhase]
+      ? durationTiming[route]?.[previousPhase]
       : undefined;
 
-    durationTiming[roa] = {
-      ...durationTiming[roa],
+    durationTiming[route] = {
+      ...durationTiming[route],
       [timingKey]: {
         min: round2(range.min),
         max: round2(range.max),
@@ -123,65 +160,66 @@ function addDurationData(
 }
 
 const addDurations = (drugData: Drug) => {
-  // We need to create a new object that has the duration data that we can use to create the chart
-  // We need to create this object first because we need to know the complete duration information
-  // before we can create the chart. The object will be structured like this:
+  const phaseData: [TimingKey, Duration | undefined][] = [
+    ["Onset", drugData.formatted_onset],
+    ["Duration", drugData.formatted_duration],
+    ["After Effects", drugData.formatted_aftereffects],
+  ];
+
+  // Every route any phase names, in the order they first appear. When no phase names one,
+  // the values are filed under "Oral".
+  const named = [
+    ...new Set(
+      phaseData.flatMap(([, data]) => (data ? (namedRoutes(data) ?? []) : [])),
+    ),
+  ];
+  const allRoutes = named.length > 0 ? named : ["Oral"];
+
+  // Build each route's timeline phase by phase, so each phase can start after the one
+  // before it on the same route.
   let durationTiming = {} as DurationTiming;
-
-  // In order, we go through the three properties and add them to the durationTiming object
-  if (drugData.formatted_onset) {
-    durationTiming = addDurationData(
-      drugData.formatted_onset,
-      "Onset",
-      durationTiming,
-    );
-  }
-
-  if (drugData.formatted_duration) {
-    durationTiming = addDurationData(
-      drugData.formatted_duration,
-      "Duration",
-      durationTiming,
-    );
-  }
-
-  if (drugData.formatted_aftereffects) {
-    durationTiming = addDurationData(
-      drugData.formatted_aftereffects,
-      "After Effects",
-      durationTiming,
-    );
-  }
-
-  // Now we need to create the array that will be used by apexcharts
-  const durationSeries = [] as ApexAxisChartSeries;
-  for (const roa of Object.keys(durationTiming)) {
-    const roaData = durationTiming[roa as keyof typeof durationTiming];
-    for (const timing of Object.keys(roaData)) {
-      const timingData = roaData[timing as keyof typeof roaData] as NonNullable<
-        (typeof roaData)[keyof typeof roaData]
-      >;
-      const data = {
-        name: timing,
-        data: [
-          {
-            x: roa,
-            y: [timingData.startTime, timingData.endTime],
-            goals: [
-              // The black line that signifies the minimum duration
-              {
-                name: "Minimum",
-                value: timingData.min + timingData.startTime,
-                strokeWidth: 2,
-                strokeColor: "#000000",
-              },
-            ] as Record<string, unknown>[],
-          },
-        ],
-      } as ApexAxisChartSeries[number];
-      durationSeries.push(data);
+  for (const [timingKey, data] of phaseData) {
+    if (data) {
+      durationTiming = addDurationData(
+        data,
+        timingKey,
+        durationTiming,
+        allRoutes,
+      );
     }
   }
+
+  const routes = Object.keys(durationTiming);
+  const phases = PHASES.filter((phase) =>
+    routes.some((route) => durationTiming[route][phase]),
+  );
+
+  // One series per phase, with a bar for each route that has it, so the legend lists each
+  // phase once and a phase is the same colour on every row.
+  const durationSeries = phases.map((phase) => ({
+    name: phase,
+    data: routes.flatMap((route) => {
+      const timing = durationTiming[route][phase];
+      if (!timing) {
+        return [];
+      }
+      return [
+        {
+          x: route,
+          y: [timing.startTime, timing.endTime],
+          goals: [
+            // The black line that signifies the minimum duration
+            {
+              name: "Minimum",
+              value: timing.min + timing.startTime,
+              strokeWidth: 2,
+              strokeColor: "#000000",
+            },
+          ] as Record<string, unknown>[],
+        },
+      ];
+    }),
+  })) as ApexAxisChartSeries;
 
   // Create chart options
   const option = {
@@ -226,62 +264,28 @@ const addDurations = (drugData: Drug) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         w: any;
       }) => {
-        const s = w.config.series[seriesIndex].data[dataPointIndex];
-        const roaTimingData =
-          durationTiming[s.x as keyof typeof durationTiming];
+        const series = w.config.series[seriesIndex];
+        const route = series.data[dataPointIndex].x as string;
+        const phase = series.name as TimingKey;
+        const routeTiming = durationTiming[route];
+        const periodData = routeTiming[phase] as TimingWindow;
 
-        const periodData = roaTimingData[
-          w.config.series[seriesIndex].name as keyof typeof roaTimingData
-        ] as NonNullable<(typeof roaTimingData)[keyof typeof roaTimingData]>;
-
-        const yStartValue = periodData.min;
-        const yEndValue = periodData.max;
-
-        let yStart = `${yStartValue}`;
-        let yEnd = `${yEndValue}h`;
-
-        // Check if the value is a decimal, if so, convert it to minutes
-        if (yStartValue % 1) {
-          const decimal = yStartValue % 1;
-          const minutes = Math.round(decimal * 60);
-          // If the hours is 0, don't display it
-          yStart = `${minutes}`;
-          // if the hours is above 0, display it
-          if (Math.floor(yStartValue) > 0) {
-            yStart = `${Math.floor(yStartValue)}h ${minutes}m`;
-          }
-        }
-
-        if (yEndValue % 1) {
-          const decimal = yEndValue % 1;
-          const minutes = Math.round(decimal * 60);
-          // If the hours is 0, don't display it
-          yEnd = `${minutes}m`;
-          // if the hours is above 0, display it
-          if (Math.floor(yEndValue) > 0) {
-            yEnd = `${Math.floor(yEndValue)}h ${minutes}m`;
-          }
-        }
-
-        const action = w.config.series[seriesIndex - 1]
-          ? `${w.config.series[seriesIndex - 1].name} ends`
-          : "dosing";
+        // Matches placeWindow: a phase follows the one before it on the same route.
+        const previous = PREVIOUS_PHASE[phase];
+        const action =
+          previous && routeTiming[previous] ? `${previous} ends` : "dosing";
 
         return `<div class="apexcharts-tooltip-rangebar"><div>
-          <span class="Type">${s.x} ${w.config.series[seriesIndex].name}</span><br>
-          <span class="value start-value">Lasts ${yStart}</span>
+          <span class="Type">${route} ${phase}</span><br>
+          <span class="value start-value">Lasts ${formatHours(periodData.min)}</span>
           <span class="separator">-</span>
-          <span class="value end-value">${yEnd} after ${action}.</span></div></div>`;
+          <span class="value end-value">${formatHours(periodData.max)} after ${action}.</span></div></div>`;
       },
     },
   };
 
-  // Get lists of all Roas and all duration types (onset, duration, after effects)
-  const allRoas = Object.keys(durationTiming);
-  const allTypes = Object.keys(durationTiming[allRoas[0]]);
-
   // Determine how many columns we need for the grid
-  const gridSpacing = Math.max(12 / (allTypes.length + 1), 2); // Ensure a minimum size for the grid
+  const gridSpacing = Math.max(12 / (phases.length + 1), 2); // Ensure a minimum size for the grid
 
   return (
     <Grid size={{ xs: 12 }} key="durations">
@@ -301,7 +305,8 @@ const addDurations = (drugData: Drug) => {
                 type="rangeBar" // This allows us to have floating bars
                 options={option}
                 series={durationSeries}
-                height={200}
+                // Room for every route's label once there are more than four rows.
+                height={Math.max(200, 72 + routes.length * 32)}
                 width="100%"
               />
             </Grid>
@@ -314,60 +319,34 @@ const addDurations = (drugData: Drug) => {
                 <Grid size={{ xs: gridSpacing }}>
                   <Typography></Typography>
                 </Grid>
-                {allTypes.map((type) => (
-                  <Grid size={{ xs: gridSpacing }} key={type}>
-                    <Typography>{type}</Typography>
+                {phases.map((phase) => (
+                  <Grid size={{ xs: gridSpacing }} key={phase}>
+                    <Typography>{phase}</Typography>
                   </Grid>
                 ))}
 
-                {/* Duration Rows */}
-                {Object.keys(durationTiming).map((roa) => (
-                  <React.Fragment key={roa}>
+                {/* Duration Rows. A phase a route lacks keeps an empty cell, so later
+                    values stay under their own heading. */}
+                {routes.map((route) => (
+                  <React.Fragment key={route}>
                     <Grid size={{ xs: gridSpacing }}>
                       <Typography>
-                        <b>{roa}</b>
+                        <b>{route}</b>
                       </Typography>
                     </Grid>
-                    {allTypes.map((type) => {
-                      const durationRoa =
-                        durationTiming[roa as keyof typeof durationTiming];
-                      const durationType =
-                        durationRoa[type as keyof typeof durationRoa];
-
-                      if (!durationType) return null;
-
-                      let durationMinText = durationType.min.toFixed(0);
-                      if (durationType.min % 1) {
-                        const decimal = durationType.min % 1;
-                        const minutes = Math.round(decimal * 60);
-                        // If the hours is 0, don't display it
-                        durationMinText = `${minutes}m`;
-                        // if the hours is above 0, display it
-                        if (Math.floor(durationType.min) > 0) {
-                          durationMinText = `${Math.floor(
-                            durationType.min,
-                          )}h ${minutes}m`;
-                        }
-                      }
-                      let durationMaxText = durationType.max.toFixed(0);
-                      if (durationType.max % 1) {
-                        const decimal = durationType.max % 1;
-                        const minutes = Math.round(decimal * 60);
-                        // If the hours is 0, don't display it
-                        durationMaxText = `${minutes}m`;
-                        // if the hours is above 0, display it
-                        if (Math.floor(durationType.max) > 0) {
-                          durationMaxText = `${Math.floor(
-                            durationType.max,
-                          )}h ${minutes}m`;
-                        }
-                      }
-
+                    {phases.map((phase) => {
+                      const timing = durationTiming[route][phase];
                       return (
-                        <Grid size={{ xs: gridSpacing }} key={`${roa}-${type}`}>
-                          <Typography>
-                            {durationMinText} to {durationMaxText}
-                          </Typography>
+                        <Grid
+                          size={{ xs: gridSpacing }}
+                          key={`${route}-${phase}`}
+                        >
+                          {timing && (
+                            <Typography>
+                              {formatHours(timing.min)} to{" "}
+                              {formatHours(timing.max)}
+                            </Typography>
+                          )}
                         </Grid>
                       );
                     })}

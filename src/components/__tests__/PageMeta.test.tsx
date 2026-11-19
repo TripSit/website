@@ -96,7 +96,9 @@ test("titles a drug page after the drug and describes it with its summary", () =
   );
   expect(meta()).toMatchObject({
     title: "LSD - TripSit Factsheets",
-    description: "A classic psychedelic.",
+    // A summary this short is followed by the general description (factsheetDescription).
+    description:
+      "A classic psychedelic. Dose ranges, durations, effects and interactions for LSD, from TripSit's drug database.",
     canonical: "https://tripsit.me/factsheets/lsd",
   });
 });

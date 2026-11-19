@@ -63,3 +63,13 @@ export function riskLabel(translation: ChartTranslation, risk: RiskKey) {
 export function chartPath(language: ChartLanguage) {
   return language === "en" ? "/combo/chart" : `/combo/chart/${language}`;
 }
+
+const ENGLISH_DESCRIPTION =
+  "TripSit's full drug combination chart, with translations and printable PNG/PDF downloads.";
+
+// Each translation gets its own description, so search results don't show nine identical ones.
+export function chartDescription(language: ChartLanguage): string {
+  if (language === "en") return ENGLISH_DESCRIPTION;
+  const title = TRANSLATIONS[language].title.trim();
+  return `${title}: TripSit's drug combination chart in ${LANGUAGES[language]}, with printable PNG/PDF downloads.`;
+}

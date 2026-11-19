@@ -13,6 +13,7 @@ import {
   getCombo,
 } from "../comboChecker/comboData";
 import {
+  chartDescription,
   LANGUAGES,
   TRANSLATIONS,
   chartPath,
@@ -56,6 +57,9 @@ export default function ComboChart({
   const viewport = useRef<HTMLElement>(null);
   const [fit, setFit] = useState(true);
   const [availableWidth, setAvailableWidth] = useState(3910);
+  // False until the first measurement. The server can't know the width, so it renders the
+  // poster at full size, and it would then visibly shrink; see .poster[data-unmeasured].
+  const [measured, setMeasured] = useState(false);
   const [selected, setSelected] = useState<string[]>(SUBSTANCES);
   const [width, setWidth] = useState("3910");
   const [height, setHeight] = useState("2000");
@@ -99,9 +103,10 @@ export default function ComboChart({
   }
   useEffect(() => {
     if (!viewport.current || typeof ResizeObserver === "undefined") return;
-    const observer = new ResizeObserver(([entry]) =>
-      setAvailableWidth(entry.contentRect.width),
-    );
+    const observer = new ResizeObserver(([entry]) => {
+      setAvailableWidth(entry.contentRect.width);
+      setMeasured(true);
+    });
     observer.observe(viewport.current);
     return () => observer.disconnect();
   }, []);
@@ -115,7 +120,7 @@ export default function ComboChart({
       <Head
         title={`${translation.title} - TripSit`}
         path={chartPath(language)}
-        description="TripSit's full drug combination chart, with translations and printable PNG/PDF downloads."
+        description={chartDescription(language)}
         image="/assets/img/comboChart.png"
         imageAlt="TripSit drug combination chart"
       />
@@ -274,6 +279,7 @@ export default function ComboChart({
             zoom: fit ? Math.min(1, availableWidth / naturalWidth) : 1,
           }}
           data-combo-chart
+          data-unmeasured={measured ? undefined : ""}
           data-language={language}
           data-digest={digest}
           data-pairs={audit.pairs}
@@ -283,11 +289,13 @@ export default function ComboChart({
         >
           <header className={styles.heading}>
             <Link href="/" aria-label="TripSit home">
+              {/* .logo is 320px wide. */}
               <Image
                 src={logo}
                 alt="TripSit"
-                priority
+                preload
                 className={styles.logo}
+                sizes="320px"
               />
             </Link>
             <h1>{translation.title}</h1>

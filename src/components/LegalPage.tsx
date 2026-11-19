@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import PageShell from "./PageShell";
+import { BiArrowLeft } from "./icons";
 
 // Typography for the legal text itself. No Tailwind preflight here, so the
 // child margins are set explicitly to beat Bootstrap's heading, paragraph and
@@ -47,7 +48,7 @@ export default function LegalPage({
                 href={section.href}
                 className="inline-flex items-center gap-1.5 text-sm text-mute transition hover:text-cyan focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan"
               >
-                <i className="bi bi-arrow-left" aria-hidden />
+                <BiArrowLeft />
                 {`Back to ${section.label}`}
               </Link>
               <p className="mb-0 mt-8 text-xs font-semibold uppercase tracking-widest text-violet">

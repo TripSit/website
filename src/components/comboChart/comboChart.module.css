@@ -251,6 +251,17 @@
   font-weight: 700;
   font-size: 32px;
 }
+/* Until the page has measured the space for it, the poster renders at its full 3910px and
+   then shrinks to fit, which moved everything on screen (a layout shift of 0.42 at 1366px
+   wide). Browsers running scripts keep it hidden for that moment and show it already
+   fitted; without scripts it shows at full size, as before. Every browser that supports
+   the scripting media query has ResizeObserver, so it is always measured. */
+@media (scripting: enabled) {
+  .poster[data-unmeasured] {
+    visibility: hidden;
+  }
+}
+
 .poster a {
   color: white;
   text-decoration: underline;

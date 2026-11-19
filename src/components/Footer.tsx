@@ -1,6 +1,15 @@
 import Image from "next/image";
 import Link from "next/link";
 import logo from "../../public/assets/img/logo.png";
+import {
+  BxLogoDiscord,
+  BxLogoFacebook,
+  BxLogoGithub,
+  BxLogoLinkedin,
+  BxLogoReddit,
+  BxLogoTwitter,
+  BxSolidHeart,
+} from "./icons";
 
 const columns = [
   {
@@ -33,32 +42,32 @@ const columns = [
       {
         label: "Discord",
         href: "https://discord.gg/tripsit",
-        icon: "bxl-discord",
+        icon: BxLogoDiscord,
       },
       {
         label: "GitHub",
         href: "https://github.com/TripSit",
-        icon: "bxl-github",
+        icon: BxLogoGithub,
       },
       {
         label: "Twitter",
         href: "https://twitter.com/teamtripsit",
-        icon: "bxl-twitter",
+        icon: BxLogoTwitter,
       },
       {
         label: "Facebook",
         href: "https://www.facebook.com/TripSitme",
-        icon: "bxl-facebook",
+        icon: BxLogoFacebook,
       },
       {
         label: "Reddit",
         href: "https://reddit.com/r/TripSit",
-        icon: "bxl-reddit",
+        icon: BxLogoReddit,
       },
       {
         label: "LinkedIn",
         href: "https://www.linkedin.com/company/tripsit",
-        icon: "bxl-linkedin",
+        icon: BxLogoLinkedin,
       },
     ],
   },
@@ -79,7 +88,13 @@ export default function Footer() {
       <div className="mx-auto grid max-w-6xl gap-10 py-14 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <Link href="/" className="inline-block">
-            <Image src={logo} alt="TripSit" className="h-10 w-auto" />
+            {/* 40px tall is about 113px wide; see the header's logo. */}
+            <Image
+              src={logo}
+              alt="TripSit"
+              className="h-10 w-auto"
+              sizes="113px"
+            />
           </Link>
           <p className="mt-4 max-w-xs text-sm leading-relaxed text-mute">
             Harm Reduction Through Education. A volunteer-run community since
@@ -99,10 +114,7 @@ export default function Footer() {
                   <li key={link.label}>
                     <Comp href={link.href} className={footerLinkClass}>
                       {"icon" in link && (
-                        <i
-                          className={`bx ${link.icon} mr-2 align-middle text-base text-violet`}
-                          aria-hidden
-                        />
+                        <link.icon className="mr-2 align-middle text-base text-violet" />
                       )}
                       {link.label}
                     </Comp>
@@ -118,8 +130,7 @@ export default function Footer() {
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-1.5 py-6 text-center text-xs text-mute sm:flex-row sm:justify-between sm:text-left">
           <p>&copy; {new Date().getFullYear()} TripSit. All Rights Reserved.</p>
           <p>
-            Made with{" "}
-            <i className="bx bxs-heart align-middle text-violet" aria-hidden />
+            Made with <BxSolidHeart className="align-middle text-violet" />
             <span className="sr-only">love</span> by{" "}
             {credits.map((c, i) => (
               <span key={c.name}>
@@ -127,7 +138,7 @@ export default function Footer() {
                 {c.href ? (
                   <a
                     href={c.href}
-                    className="text-ink transition hover:text-cyan"
+                    className="text-ink underline underline-offset-2 transition hover:text-cyan"
                   >
                     {c.name}
                   </a>

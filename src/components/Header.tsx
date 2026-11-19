@@ -5,6 +5,7 @@ import logo from "../../public/assets/img/logo.png";
 import ProfileButton from "./ProfileButton";
 import { solidButton } from "./buttonClasses";
 import { envOrDefault } from "../utils/envOrDefault";
+import { BiChevronDown, BiList, BiXLg } from "./icons";
 
 const domain = envOrDefault(process.env.NEXT_PUBLIC_DNS_DOMAIN, "tripsit.me");
 
@@ -281,7 +282,16 @@ function Header() {
       <header className="fixed inset-x-0 top-0 z-50 border-b border-line/60 bg-night/85 text-ink backdrop-blur">
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-4 px-5">
           <Link href="/" className="shrink-0" onClick={closeAll}>
-            <Image src={logo} alt="TripSit home" className="h-9 w-auto" />
+            {/* 36px tall is about 102px wide. Without sizes, Next serves its 3840px
+                variant (109 KB) for this; it's at the top of every page, so load it
+                eagerly too. */}
+            <Image
+              src={logo}
+              alt="TripSit home"
+              className="h-9 w-auto"
+              sizes="102px"
+              loading="eager"
+            />
           </Link>
 
           {/* Desktop nav */}
@@ -315,11 +325,10 @@ function Header() {
                   onClick={() => toggleMenu(menu.label)}
                 >
                   {menu.label}
-                  <i
-                    className={`bi bi-chevron-down text-xs transition-transform ${
+                  <BiChevronDown
+                    className={`text-xs transition-transform ${
                       openMenu === menu.label ? "rotate-180" : ""
                     }`}
-                    aria-hidden
                   />
                 </button>
                 {openMenu === menu.label && (
@@ -380,10 +389,7 @@ function Header() {
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
               onClick={() => setMobileOpen(!mobileOpen)}
             >
-              <i
-                className={`bi ${mobileOpen ? "bi-x-lg" : "bi-list"}`}
-                aria-hidden
-              />
+              {mobileOpen ? <BiXLg /> : <BiList />}
             </button>
           </div>
         </div>

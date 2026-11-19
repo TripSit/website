@@ -862,3 +862,30 @@ test("shows and hides the submitted answers without Bootstrap's script", async (
   fireEvent.click(toggle);
   expect(screen.getByText("My reason")).not.toBeVisible();
 });
+
+test("shows the loading spinner in the same box as the page that replaces it", async () => {
+  // Logged out, the page renders straight away.
+  const { unmount } = render(<AppealPage />);
+  const page = (
+    await screen.findByRole("heading", { name: "Ban Appeal" })
+  ).closest("section") as HTMLElement;
+  const loaded = {
+    marginTop: page.style.marginTop,
+    minHeight: page.style.minHeight,
+  };
+  unmount();
+
+  // With a token, it shows a spinner until the ban check answers; this one never does.
+  sessionStorage.setItem("kc_token", validToken());
+  fetchMock.mockReturnValueOnce(new Promise(() => {}));
+  render(<AppealPage />);
+  const spinner = screen
+    .getByText("Loading your appeal status...")
+    .closest("section") as HTMLElement;
+  // A different box moved the whole page down 80px when the spinner was swapped out.
+  expect({
+    marginTop: spinner.style.marginTop,
+    minHeight: spinner.style.minHeight,
+  }).toEqual(loaded);
+  expect(loaded).toEqual({ marginTop: "80px", minHeight: "80vh" });
+});

@@ -5,6 +5,18 @@ import Footer from "../components/Footer";
 import AppealForm from "../components/AppealForm";
 import { consumeLoginState, getLoginUrl } from "../utils/keycloak";
 import { decodeJwtPayload } from "../utils/jwt";
+import {
+  BiBell,
+  BiCheckCircle,
+  BiCheckCircleFill,
+  BiClock,
+  BiClockHistory,
+  BiDiscord,
+  BiExclamationTriangleFill,
+  BiEye,
+  BiInfoCircle,
+  BiXCircleFill,
+} from "../components/icons";
 
 interface Appeal {
   status: string;
@@ -516,9 +528,12 @@ const AppealPage: React.FC = () => {
         <AppealHead />
         <Header />
         <main>
+          {/* The same box as the logged-out view that usually replaces it: every view
+              clears the 80px fixed header with marginTop. Without it, swapping the spinner
+              for the page moved everything down 80px (a layout shift of 0.19). */}
           <section
             className="d-flex align-items-center"
-            style={{ minHeight: "60vh" }}
+            style={{ minHeight: "80vh", marginTop: "80px" }}
           >
             <div className="container">
               <div className="row justify-content-center">
@@ -593,8 +608,8 @@ const AppealPage: React.FC = () => {
                 <div className="row justify-content-center mt-4">
                   <div className="col-xl-7 col-lg-9">
                     <div className="alert alert-danger mb-0" role="alert">
-                      <i className="bi bi-exclamation-triangle-fill me-2"></i>{" "}
-                      We couldn&apos;t log you in. Please try logging in again.
+                      <BiExclamationTriangleFill className="me-2" /> We
+                      couldn&apos;t log you in. Please try logging in again.
                     </div>
                   </div>
                 </div>
@@ -610,7 +625,7 @@ const AppealPage: React.FC = () => {
                     fontSize: "16px",
                     fontWeight: "600",
                     textTransform: "none",
-                    backgroundColor: "#2487ce",
+                    backgroundColor: "#1f75b3", // white on #2487ce was 3.9:1
                     color: "#fff",
                     border: "none",
                   }}
@@ -629,7 +644,7 @@ const AppealPage: React.FC = () => {
                 <div className="col-lg-8 text-center">
                   <h1>Ban Appeal</h1>
                   <div className="alert alert-danger mt-4" role="alert">
-                    <i className="bi bi-exclamation-triangle-fill me-2"></i>{" "}
+                    <BiExclamationTriangleFill className="me-2" />{" "}
                     {`We couldn't check your ${appealHistoryFailed ? "appeal history" : "ban status"}. This is usually`}
                     temporary, so please try again. If it keeps failing, log in
                     again.
@@ -701,8 +716,8 @@ const AppealPage: React.FC = () => {
                   <div className="card mb-4 border-warning">
                     <div className="card-header bg-warning bg-opacity-10">
                       <h5 className="card-title mb-0">
-                        <i className="bi bi-clock-history me-2"></i>Previous
-                        Appeal
+                        <BiClockHistory className="me-2" />
+                        Previous Appeal
                       </h5>
                     </div>
                     <div className="card-body">
@@ -831,15 +846,15 @@ const AppealPage: React.FC = () => {
                               } else if (canRemind) {
                                 buttonContent = (
                                   <>
-                                    <i className="bi bi-bell me-2"></i>Send
-                                    Reminder
+                                    <BiBell className="me-2" />
+                                    Send Reminder
                                   </>
                                 );
                               } else {
                                 buttonContent = (
                                   <>
-                                    <i className="bi bi-clock me-2"></i>Come
-                                    back in 48 hours
+                                    <BiClock className="me-2" />
+                                    Come back in 48 hours
                                   </>
                                 );
                               }
@@ -875,8 +890,8 @@ const AppealPage: React.FC = () => {
                                   setShowAppealContent((shown) => !shown)
                                 }
                               >
-                                <i className="bi bi-eye me-2"></i>View Your
-                                Appeal Content
+                                <BiEye className="me-2" />
+                                View Your Appeal Content
                               </button>
                             </div>
                             <div
@@ -940,9 +955,9 @@ const AppealPage: React.FC = () => {
                         !canShowReminder(latestAppeal) &&
                         !latestAppeal?.reminded_at && (
                           <div className="alert alert-info mt-3" role="alert">
-                            <i className="bi bi-info-circle me-2"></i>You can
-                            send a reminder 48 hours after submitting your
-                            appeal.
+                            <BiInfoCircle className="me-2" />
+                            You can send a reminder 48 hours after submitting
+                            your appeal.
                           </div>
                         )}
 
@@ -961,8 +976,8 @@ const AppealPage: React.FC = () => {
                     <div className="card border-danger mt-4">
                       <div className="card-header bg-danger bg-opacity-10 border-danger">
                         <h5 className="card-title text-danger mb-0">
-                          <i className="bi bi-x-circle-fill me-2"></i>Appeal
-                          Denied
+                          <BiXCircleFill className="me-2" />
+                          Appeal Denied
                         </h5>
                       </div>
                       <div className="card-body">
@@ -1000,8 +1015,8 @@ const AppealPage: React.FC = () => {
                       <div className="text-center mb-5">
                         <h1 className="display-6">Appeal History</h1>
                         <p className="lead text-success">
-                          <i className="bi bi-check-circle me-2"></i>You are not
-                          currently banned from the server.
+                          <BiCheckCircle className="me-2" />
+                          You are not currently banned from the server.
                         </p>
                       </div>
 
@@ -1020,7 +1035,7 @@ const AppealPage: React.FC = () => {
                           {latestAppeal.status === "ACCEPTED" && (
                             <div className="alert alert-success" role="alert">
                               <h6 className="alert-heading">
-                                <i className="bi bi-check-circle-fill me-2"></i>
+                                <BiCheckCircleFill className="me-2" />
                                 {"Appeal Accepted!"}
                               </h6>
                               {latestAppeal.response_message && (
@@ -1037,8 +1052,8 @@ const AppealPage: React.FC = () => {
                                 rel="noopener noreferrer"
                                 className="btn btn-success btn-sm"
                               >
-                                <i className="bi bi-discord me-2"></i>Join
-                                Discord
+                                <BiDiscord className="me-2" />
+                                Join Discord
                               </a>
                             </div>
                           )}
@@ -1046,7 +1061,7 @@ const AppealPage: React.FC = () => {
                           {latestAppeal.status === "DENIED" && (
                             <div className="alert alert-warning" role="alert">
                               <h6 className="alert-heading">
-                                <i className="bi bi-exclamation-triangle-fill me-2"></i>
+                                <BiExclamationTriangleFill className="me-2" />
                                 {"Appeal was Denied"}
                               </h6>
                               {latestAppeal.response_message && (
@@ -1069,8 +1084,8 @@ const AppealPage: React.FC = () => {
                           {latestAppeal.status === "RECEIVED" && (
                             <div className="alert alert-info" role="alert">
                               <h6 className="alert-heading">
-                                <i className="bi bi-clock me-2"></i>Appeal Still
-                                Pending
+                                <BiClock className="me-2" />
+                                Appeal Still Pending
                               </h6>
                               <p className="mb-0">
                                 Your appeal is still being reviewed by
@@ -1090,10 +1105,7 @@ const AppealPage: React.FC = () => {
                       <div className="card">
                         <div className="card-body text-center">
                           <div className="mb-4">
-                            <i
-                              className="bi bi-check-circle-fill text-success"
-                              style={{ fontSize: "3rem" }}
-                            ></i>
+                            <BiCheckCircleFill className="text-success text-[3rem]" />
                           </div>
                           <h5 className="card-title">You&apos;re all good!</h5>
                           <p className="card-text text-muted">
@@ -1118,9 +1130,11 @@ const AppealPage: React.FC = () => {
                   className={`alert ${message.kind === "success" ? "alert-success" : "alert-danger"} alert-dismissible fade show`}
                   role="alert"
                 >
-                  <i
-                    className={`bi ${message.kind === "success" ? "bi-check-circle-fill" : "bi-exclamation-triangle-fill"} me-2`}
-                  ></i>
+                  {message.kind === "success" ? (
+                    <BiCheckCircleFill className="me-2" />
+                  ) : (
+                    <BiExclamationTriangleFill className="me-2" />
+                  )}
                   {message.text}
                   <button
                     type="button"

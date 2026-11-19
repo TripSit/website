@@ -54,9 +54,8 @@ test("loads factsheet rows from the drug database and expands their details", as
   // One scrolling list (#83): no pages, and the count of matching drugs instead.
   expect(screen.getByText("2 of 2 substances")).toBeVisible();
   expect(screen.queryByText(/rows per page/i)).toBeNull();
-  expect(screen.getByText("Stimulant,")).toHaveStyle({
-    color: "rgb(255, 255, 255)",
-  });
+  // White on the stimulant blue was 2.5:1; dark text is 7.3:1.
+  expect(screen.getByText("Stimulant,")).toHaveStyle({ color: "#001713" });
   expect(screen.getByText("tentative,")).toHaveStyle({ color: "#001713" });
   expect(screen.getByText(/supplement/)).toBeVisible();
   fireEvent.click(screen.getAllByRole("button", { name: "Expand" })[0]);

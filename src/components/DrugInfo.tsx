@@ -31,6 +31,8 @@ type TimingWindow = {
   max: number;
   startTime: number;
   endTime: number;
+  // The source text, when it gives more than one range (see parseRangeHours).
+  detail?: string;
 };
 
 // Keyed by ROA, eg "Oral"
@@ -50,24 +52,36 @@ const round2 = (value: number) => Number.parseFloat(value.toFixed(2));
 
 // Pulls the min and max hours out of a string like "1-2", "30" or "1.5-3hours".
 // If there is no dash, the single number is the max and the min is 0.
+// Some strings give a range per dose, like buprenorphine's "Low Dose: 8-12 hours High
+// Dose: 24-72 hours". Only the first range used to count, which showed 8-12h and hid the
+// high dose's 72h. The result spans every range instead, and says there were several.
 function parseRangeHours(
   text: string,
   unit: string | undefined,
-): { min: number; max: number } | undefined {
-  const match = /(\d+(?:\.\d+)?)(?:-(\d+(?:\.\d+)?))?([a-zA-Z]+)?/.exec(text);
-  if (!match) {
+): { min: number; max: number; several: boolean } | undefined {
+  const ranges = [...text.matchAll(/(\d+(?:\.\d+)?)(?:-(\d+(?:\.\d+)?))?/g)];
+  if (ranges.length === 0) {
     return undefined;
   }
   const divisor = unit === "minutes" ? 60 : 1;
-  const max = Number.parseFloat(match[2] ?? match[1]) / divisor;
-  const min = match[2] ? Number.parseFloat(match[1]) / divisor : 0;
-  return { min, max };
+  const mins = ranges.map(([, low, high]) =>
+    high ? Number.parseFloat(low) : 0,
+  );
+  const maxes = ranges.map(([, low, high]) => Number.parseFloat(high ?? low));
+  return {
+    min: Math.min(...mins) / divisor,
+    max: Math.max(...maxes) / divisor,
+    several: ranges.length > 1,
+  };
 }
 
-// Places a phase on the timeline: right after the previous phase when we know it,
-// otherwise on its own (Onset always starts at 0).
+// Places a phase on the timeline. A bar runs from the earliest the phase can start to the
+// latest it can end, and its marker (startTime + min) is the earliest it can end. After the
+// previous phase on the same route, it starts once that phase can have ended. Without one,
+// it is timed from dosing, like Onset: the tooltip says "after dosing" too. (It used to start
+// at its own min, which put DMT's oral-with-MAOI duration of 3-7h at 3h-7h with its marker
+// at 6h.)
 function placeWindow(
-  timingKey: TimingKey,
   range: { min: number; max: number },
   previous: TimingWindow | undefined,
 ): Pick<TimingWindow, "startTime" | "endTime"> {
@@ -78,23 +92,93 @@ function placeWindow(
     };
   }
   return {
-    startTime: timingKey === "Onset" ? 0 : round2(range.min),
+    startTime: 0,
     endTime: round2(range.max),
   };
 }
 
-// This function is called for each of the three types of duration data:
-// onset, duration, and after effects
+const PHASES: TimingKey[] = ["Onset", "Duration", "After Effects"];
+
+// Dose keys that are ways of taking a drug, as opposed to forms of it (LSA's "HBWR", peyote's
+// "Dried" and "Fresh").
+const ADMINISTRATION_ROUTES = new Set([
+  "oral",
+  "insufflated",
+  "sublingual",
+  "buccal",
+  "vapourized",
+  "vaporized",
+  "smoked",
+  "intravenous",
+  "intramuscular",
+  "rectal",
+  "transdermal",
+]);
+
+// The row for timing that names no route. It used to be "Oral" for every drug, which was
+// wrong for drugs nobody takes orally: cocaine (insufflated), the NBOMes (sublingual) or
+// 5-Br-DMT (vaporized). When every dose route is a real route and none is oral, use those.
+// Drugs dosed in forms rather than routes are eaten, so they stay "Oral".
+function routeForUnnamedTiming(drug: Drug): string {
+  const doseRoutes = Object.keys(drug.formatted_dose ?? {});
+  const allRoutes =
+    doseRoutes.length > 0 &&
+    doseRoutes.every((route) => ADMINISTRATION_ROUTES.has(route.toLowerCase()));
+  if (
+    !allRoutes ||
+    doseRoutes.some((route) => route.toLowerCase() === "oral")
+  ) {
+    return "Oral";
+  }
+  return doseRoutes.join(" / ");
+}
+
+// Route keys like "Oral_MAOI" read as "Oral (MAOI)".
+function routeLabel(route: string): string {
+  const [base, ...detail] = route.split("_");
+  return detail.length > 0 ? `${base} (${detail.join(" ")})` : base;
+}
+
+// Hours as text: 0.25 is "15m", 3 is "3h", 1.5 is "1h 30m", and 0 stays "0".
+function formatHours(hours: number): string {
+  const totalMinutes = Math.round(hours * 60);
+  if (totalMinutes === 0) {
+    return "0";
+  }
+  const wholeHours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  if (wholeHours === 0) {
+    return `${minutes}m`;
+  }
+  return minutes ? `${wholeHours}h ${minutes}m` : `${wholeHours}h`;
+}
+
+// The ROA keys a phase names, or undefined when the phase is one "value" for every ROA.
+function namedRoutes(timingData: Duration): string[] | undefined {
+  if (timingData.value !== undefined) {
+    return undefined;
+  }
+  return Object.keys(timingData).filter((key) => key !== "_unit");
+}
+
+// Adds one phase (onset, duration or after effects) to each route's timeline.
+// A phase given as a single "value" names no route. The factsheet text gives those values
+// for the drug as a whole (eg 2C-B's after effects are "2-4 hours" whichever way it was
+// taken), so it goes on every route the other phases name.
 function addDurationData(
   timingData: Duration,
   timingKey: TimingKey,
   timingObject: DurationTiming,
+  allRoutes: string[],
 ): DurationTiming {
-  // If there is a "value" parameter, then assume the ROA is "Oral" and that it is the only ROA.
-  // Otherwise every key except "_unit" is a ROA holding that ROA's timing string.
-  const roaEntries: [string, string][] = timingData.value
-    ? [["Oral", timingData.value]]
-    : Object.entries(timingData).filter(([roa]) => roa !== "_unit");
+  const value = timingData.value;
+  const roaEntries: [string, string][] =
+    value === undefined
+      ? (namedRoutes(timingData) ?? []).map((roa) => [
+          roa,
+          timingData[roa as keyof Duration] as string,
+        ])
+      : allRoutes.map((roa) => [roa, value]);
 
   const durationTiming = timingObject;
   const previousPhase = PREVIOUS_PHASE[timingKey];
@@ -105,16 +189,18 @@ function addDurationData(
       continue;
     }
 
+    const route = routeLabel(roa);
     const previous = previousPhase
-      ? durationTiming[roa]?.[previousPhase]
+      ? durationTiming[route]?.[previousPhase]
       : undefined;
 
-    durationTiming[roa] = {
-      ...durationTiming[roa],
+    durationTiming[route] = {
+      ...durationTiming[route],
       [timingKey]: {
         min: round2(range.min),
         max: round2(range.max),
-        ...placeWindow(timingKey, range, previous),
+        ...placeWindow(range, previous),
+        ...(range.several ? { detail: roaString.trim() } : {}),
       },
     };
   }
@@ -123,65 +209,67 @@ function addDurationData(
 }
 
 const addDurations = (drugData: Drug) => {
-  // We need to create a new object that has the duration data that we can use to create the chart
-  // We need to create this object first because we need to know the complete duration information
-  // before we can create the chart. The object will be structured like this:
+  const phaseData: [TimingKey, Duration | undefined][] = [
+    ["Onset", drugData.formatted_onset],
+    ["Duration", drugData.formatted_duration],
+    ["After Effects", drugData.formatted_aftereffects],
+  ];
+
+  // Every route any phase names, in the order they first appear. When no phase names one,
+  // see routeForUnnamedTiming.
+  const named = [
+    ...new Set(
+      phaseData.flatMap(([, data]) => (data ? (namedRoutes(data) ?? []) : [])),
+    ),
+  ];
+  const allRoutes =
+    named.length > 0 ? named : [routeForUnnamedTiming(drugData)];
+
+  // Build each route's timeline phase by phase, so each phase can start after the one
+  // before it on the same route.
   let durationTiming = {} as DurationTiming;
-
-  // In order, we go through the three properties and add them to the durationTiming object
-  if (drugData.formatted_onset) {
-    durationTiming = addDurationData(
-      drugData.formatted_onset,
-      "Onset",
-      durationTiming,
-    );
-  }
-
-  if (drugData.formatted_duration) {
-    durationTiming = addDurationData(
-      drugData.formatted_duration,
-      "Duration",
-      durationTiming,
-    );
-  }
-
-  if (drugData.formatted_aftereffects) {
-    durationTiming = addDurationData(
-      drugData.formatted_aftereffects,
-      "After Effects",
-      durationTiming,
-    );
-  }
-
-  // Now we need to create the array that will be used by apexcharts
-  const durationSeries = [] as ApexAxisChartSeries;
-  for (const roa of Object.keys(durationTiming)) {
-    const roaData = durationTiming[roa as keyof typeof durationTiming];
-    for (const timing of Object.keys(roaData)) {
-      const timingData = roaData[timing as keyof typeof roaData] as NonNullable<
-        (typeof roaData)[keyof typeof roaData]
-      >;
-      const data = {
-        name: timing,
-        data: [
-          {
-            x: roa,
-            y: [timingData.startTime, timingData.endTime],
-            goals: [
-              // The black line that signifies the minimum duration
-              {
-                name: "Minimum",
-                value: timingData.min + timingData.startTime,
-                strokeWidth: 2,
-                strokeColor: "#000000",
-              },
-            ] as Record<string, unknown>[],
-          },
-        ],
-      } as ApexAxisChartSeries[number];
-      durationSeries.push(data);
+  for (const [timingKey, data] of phaseData) {
+    if (data) {
+      durationTiming = addDurationData(
+        data,
+        timingKey,
+        durationTiming,
+        allRoutes,
+      );
     }
   }
+
+  const routes = Object.keys(durationTiming);
+  const phases = PHASES.filter((phase) =>
+    routes.some((route) => durationTiming[route][phase]),
+  );
+
+  // One series per phase, with a bar for each route that has it, so the legend lists each
+  // phase once and a phase is the same colour on every row.
+  const durationSeries = phases.map((phase) => ({
+    name: phase,
+    data: routes.flatMap((route) => {
+      const timing = durationTiming[route][phase];
+      if (!timing) {
+        return [];
+      }
+      return [
+        {
+          x: route,
+          y: [timing.startTime, timing.endTime],
+          goals: [
+            // The black line that signifies the minimum duration
+            {
+              name: "Minimum",
+              value: timing.min + timing.startTime,
+              strokeWidth: 2,
+              strokeColor: "#000000",
+            },
+          ] as Record<string, unknown>[],
+        },
+      ];
+    }),
+  })) as ApexAxisChartSeries;
 
   // Create chart options
   const option = {
@@ -226,62 +314,28 @@ const addDurations = (drugData: Drug) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         w: any;
       }) => {
-        const s = w.config.series[seriesIndex].data[dataPointIndex];
-        const roaTimingData =
-          durationTiming[s.x as keyof typeof durationTiming];
+        const series = w.config.series[seriesIndex];
+        const route = series.data[dataPointIndex].x as string;
+        const phase = series.name as TimingKey;
+        const routeTiming = durationTiming[route];
+        const periodData = routeTiming[phase] as TimingWindow;
 
-        const periodData = roaTimingData[
-          w.config.series[seriesIndex].name as keyof typeof roaTimingData
-        ] as NonNullable<(typeof roaTimingData)[keyof typeof roaTimingData]>;
-
-        const yStartValue = periodData.min;
-        const yEndValue = periodData.max;
-
-        let yStart = `${yStartValue}`;
-        let yEnd = `${yEndValue}h`;
-
-        // Check if the value is a decimal, if so, convert it to minutes
-        if (yStartValue % 1) {
-          const decimal = yStartValue % 1;
-          const minutes = Math.round(decimal * 60);
-          // If the hours is 0, don't display it
-          yStart = `${minutes}`;
-          // if the hours is above 0, display it
-          if (Math.floor(yStartValue) > 0) {
-            yStart = `${Math.floor(yStartValue)}h ${minutes}m`;
-          }
-        }
-
-        if (yEndValue % 1) {
-          const decimal = yEndValue % 1;
-          const minutes = Math.round(decimal * 60);
-          // If the hours is 0, don't display it
-          yEnd = `${minutes}m`;
-          // if the hours is above 0, display it
-          if (Math.floor(yEndValue) > 0) {
-            yEnd = `${Math.floor(yEndValue)}h ${minutes}m`;
-          }
-        }
-
-        const action = w.config.series[seriesIndex - 1]
-          ? `${w.config.series[seriesIndex - 1].name} ends`
-          : "dosing";
+        // Matches placeWindow: a phase follows the one before it on the same route.
+        const previous = PREVIOUS_PHASE[phase];
+        const action =
+          previous && routeTiming[previous] ? `${previous} ends` : "dosing";
 
         return `<div class="apexcharts-tooltip-rangebar"><div>
-          <span class="Type">${s.x} ${w.config.series[seriesIndex].name}</span><br>
-          <span class="value start-value">Lasts ${yStart}</span>
+          <span class="Type">${route} ${phase}</span><br>
+          <span class="value start-value">Lasts ${formatHours(periodData.min)}</span>
           <span class="separator">-</span>
-          <span class="value end-value">${yEnd} after ${action}.</span></div></div>`;
+          <span class="value end-value">${formatHours(periodData.max)} after ${action}.</span></div></div>`;
       },
     },
   };
 
-  // Get lists of all Roas and all duration types (onset, duration, after effects)
-  const allRoas = Object.keys(durationTiming);
-  const allTypes = Object.keys(durationTiming[allRoas[0]]);
-
   // Determine how many columns we need for the grid
-  const gridSpacing = Math.max(12 / (allTypes.length + 1), 2); // Ensure a minimum size for the grid
+  const gridSpacing = Math.max(12 / (phases.length + 1), 2); // Ensure a minimum size for the grid
 
   return (
     <Grid size={{ xs: 12 }} key="durations">
@@ -290,14 +344,19 @@ const addDurations = (drugData: Drug) => {
           <Grid container spacing={2}>
             {/* Duration Chart */}
             <Grid size={{ xs: 12, sm: 6, md: 6 }}>
-              <Typography variant="h5" style={{ color: "black" }}>
+              <Typography
+                variant="h5"
+                component="h2"
+                style={{ color: "black" }}
+              >
                 Durations
               </Typography>
               <ReactApexChart
                 type="rangeBar" // This allows us to have floating bars
                 options={option}
                 series={durationSeries}
-                height={200}
+                // Room for every route's label once there are more than four rows.
+                height={Math.max(200, 72 + routes.length * 32)}
                 width="100%"
               />
             </Grid>
@@ -310,60 +369,39 @@ const addDurations = (drugData: Drug) => {
                 <Grid size={{ xs: gridSpacing }}>
                   <Typography></Typography>
                 </Grid>
-                {allTypes.map((type) => (
-                  <Grid size={{ xs: gridSpacing }} key={type}>
-                    <Typography>{type}</Typography>
+                {phases.map((phase) => (
+                  <Grid size={{ xs: gridSpacing }} key={phase}>
+                    <Typography>{phase}</Typography>
                   </Grid>
                 ))}
 
-                {/* Duration Rows */}
-                {Object.keys(durationTiming).map((roa) => (
-                  <React.Fragment key={roa}>
+                {/* Duration Rows. A phase a route lacks keeps an empty cell, so later
+                    values stay under their own heading. */}
+                {routes.map((route) => (
+                  <React.Fragment key={route}>
                     <Grid size={{ xs: gridSpacing }}>
                       <Typography>
-                        <b>{roa}</b>
+                        <b>{route}</b>
                       </Typography>
                     </Grid>
-                    {allTypes.map((type) => {
-                      const durationRoa =
-                        durationTiming[roa as keyof typeof durationTiming];
-                      const durationType =
-                        durationRoa[type as keyof typeof durationRoa];
-
-                      if (!durationType) return null;
-
-                      let durationMinText = durationType.min.toFixed(0);
-                      if (durationType.min % 1) {
-                        const decimal = durationType.min % 1;
-                        const minutes = Math.round(decimal * 60);
-                        // If the hours is 0, don't display it
-                        durationMinText = `${minutes}m`;
-                        // if the hours is above 0, display it
-                        if (Math.floor(durationType.min) > 0) {
-                          durationMinText = `${Math.floor(
-                            durationType.min,
-                          )}h ${minutes}m`;
-                        }
-                      }
-                      let durationMaxText = durationType.max.toFixed(0);
-                      if (durationType.max % 1) {
-                        const decimal = durationType.max % 1;
-                        const minutes = Math.round(decimal * 60);
-                        // If the hours is 0, don't display it
-                        durationMaxText = `${minutes}m`;
-                        // if the hours is above 0, display it
-                        if (Math.floor(durationType.max) > 0) {
-                          durationMaxText = `${Math.floor(
-                            durationType.max,
-                          )}h ${minutes}m`;
-                        }
-                      }
-
+                    {phases.map((phase) => {
+                      const timing = durationTiming[route][phase];
                       return (
-                        <Grid size={{ xs: gridSpacing }} key={`${roa}-${type}`}>
-                          <Typography>
-                            {durationMinText} to {durationMaxText}
-                          </Typography>
+                        <Grid
+                          size={{ xs: gridSpacing }}
+                          key={`${route}-${phase}`}
+                        >
+                          {timing && (
+                            <Typography>
+                              {formatHours(timing.min)} to{" "}
+                              {formatHours(timing.max)}
+                            </Typography>
+                          )}
+                          {timing?.detail && (
+                            <Typography variant="body2">
+                              {timing.detail}
+                            </Typography>
+                          )}
                         </Grid>
                       );
                     })}
@@ -377,6 +415,28 @@ const addDurations = (drugData: Drug) => {
     </Grid>
   );
 };
+
+// Dose levels from weakest to strongest. The dosage table's columns and the chart's legend
+// follow this order, whichever route happens to list a level first.
+const DOSE_ORDER = [
+  "Threshold",
+  "Light",
+  "Common",
+  "Strong",
+  "Heavy",
+  "Dangerous",
+  "Fatal",
+];
+
+// Levels not in DOSE_ORDER go after the known ones, in the order they came.
+const doseRank = (strength: string) => {
+  const rank = DOSE_ORDER.indexOf(strength);
+  return rank === -1 ? DOSE_ORDER.length : rank;
+};
+const byDoseOrder = (a: string, b: string) => doseRank(a) - doseRank(b);
+
+// Dose routes are mostly single words; LSA's "Morning_Glory" reads "Morning Glory".
+const doseRouteLabel = (route: string) => route.replaceAll("_", " ");
 
 // This takes the dosage data and makes a nice table out of it
 const addDosages = (drugData: Drug) => {
@@ -401,10 +461,6 @@ const addDosages = (drugData: Drug) => {
     Fatal: "#D63131",
   };
 
-  // This will store the colors for each does, since each drug has different dose levels
-  const doseColors = [] as string[];
-  // Like above, this stores the color the gradient will go to
-  const doseGradientToColors = [] as string[];
   // This will be used by apexcharts to create the chart
   const doseSeries = [] as ApexAxisChartSeries;
   // This is used to show the text on the side of the chart
@@ -418,21 +474,7 @@ const addDosages = (drugData: Drug) => {
   for (const roa of Object.keys(doseData)) {
     const roaData = doseData[roa as keyof typeof doseData] as Dosage;
 
-    // This is the order we want them to be in
-    const desiredOrder = [
-      "Threshold",
-      "Light",
-      "Common",
-      "Strong",
-      "Heavy",
-      "Dangerous",
-      "Fatal",
-    ];
-
-    // Sort the keys according to that order
-    const sortedKeys = Object.keys(roaData).sort(
-      (a, b) => desiredOrder.indexOf(a) - desiredOrder.indexOf(b),
-    );
+    const sortedKeys = Object.keys(roaData).sort(byDoseOrder);
 
     // For each strength in the ROA
     for (const strength of sortedKeys) {
@@ -447,7 +489,7 @@ const addDosages = (drugData: Drug) => {
       const range = parseDoseRangeMg(strengthData);
       if (!range) continue;
 
-      const point = { x: `${roa} (mg)`, y: range };
+      const point = { x: `${doseRouteLabel(roa)} (mg)`, y: range };
       const existingSeries = doseSeries.find(
         (series) => series.name === strength,
       );
@@ -456,13 +498,22 @@ const addDosages = (drugData: Drug) => {
         continue;
       }
 
-      doseColors.push(doseColorData[strength as keyof typeof doseColorData]);
-      doseGradientToColors.push(
-        doseGradientData[strength as keyof typeof doseGradientData],
-      );
       doseSeries.push({ name: strength, data: [point] });
     }
   }
+
+  // A series starts with the first route that has its level, so DMT's Threshold (only
+  // vaporized lists one) came after Strong. Put them back in dose order, and colour each
+  // series by its level.
+  doseSeries.sort((a, b) =>
+    byDoseOrder(String(a.name ?? ""), String(b.name ?? "")),
+  );
+  const doseColors = doseSeries.map(
+    ({ name }) => doseColorData[name as keyof typeof doseColorData],
+  );
+  const doseGradientToColors = doseSeries.map(
+    ({ name }) => doseGradientData[name as keyof typeof doseGradientData],
+  );
 
   const option = {
     chart: {
@@ -489,6 +540,15 @@ const addDosages = (drugData: Drug) => {
     },
     xaxis: {
       min: 0,
+      // Rows otherwise follow the first series, so the route with the lowest level would
+      // jump to the top. Keep the table's route order.
+      categories: Object.keys(doseText)
+        .map((roa) => `${doseRouteLabel(roa)} (mg)`)
+        .filter((row) =>
+          doseSeries.some((series) =>
+            (series.data as { x: string }[]).some(({ x }) => x === row),
+          ),
+        ),
     },
     tooltip: {
       custom: ({
@@ -524,7 +584,8 @@ const addDosages = (drugData: Drug) => {
     }
   }
 
-  const allStrengths = [...uniqueStrengths];
+  const allStrengths = [...uniqueStrengths].sort(byDoseOrder);
+  const hasChart = doseSeries.length > 0;
   const gridSpacing = Math.max(12 / (allStrengths.length + 1), 2); // Ensure a minimum size for the grid
 
   return (
@@ -532,12 +593,17 @@ const addDosages = (drugData: Drug) => {
       <Card>
         <CardContent>
           <Grid container spacing={2}>
-            {/* Dosage Chart */}
-            <Grid size={{ xs: 12, sm: 6, md: 6 }}>
-              <Typography variant="h5" style={{ color: "black" }}>
+            {/* Dosage Chart. Without one (doses in seeds or ml, say), the table takes the
+                whole card instead of leaving half of it empty. */}
+            <Grid size={hasChart ? { xs: 12, sm: 6, md: 6 } : { xs: 12 }}>
+              <Typography
+                variant="h5"
+                component="h2"
+                style={{ color: "black" }}
+              >
                 Dosages
               </Typography>
-              {doseSeries.length > 0 && (
+              {hasChart && (
                 <>
                   <Typography variant="body2">
                     Chart shows bounded mass ranges in mg. See the table for all
@@ -555,8 +621,8 @@ const addDosages = (drugData: Drug) => {
             </Grid>
 
             {/* Dosage Text */}
-            <Grid size={{ xs: 12, sm: 6, md: 6 }}>
-              <div style={{ height: "48px" }}></div>
+            <Grid size={hasChart ? { xs: 12, sm: 6, md: 6 } : { xs: 12 }}>
+              {hasChart && <div style={{ height: "48px" }}></div>}
               <Grid container spacing={0}>
                 {/* Strength Headers */}
                 <Grid size={{ xs: gridSpacing }}>
@@ -580,7 +646,7 @@ const addDosages = (drugData: Drug) => {
                   <React.Fragment key={roa}>
                     <Grid size={{ xs: gridSpacing }}>
                       <Typography>
-                        <b>{roa}</b>
+                        <b>{doseRouteLabel(roa)}</b>
                       </Typography>
                     </Grid>
                     {allStrengths.map((strength) => (
@@ -611,6 +677,14 @@ const addDosages = (drugData: Drug) => {
   );
 };
 
+// PsychonautWiki page names use underscores for spaces, and a "#" in a name links to a
+// section ("Visual disconnection#Structures"), so encodeURI rather than encodeURIComponent.
+function psychonautWikiUrl(name: string): string {
+  return encodeURI(
+    `https://psychonautwiki.org/wiki/${name.replaceAll(" ", "_")}`,
+  );
+}
+
 // Shown above the other cards, in this order, with these headings.
 const importantProperties = [
   "warning",
@@ -636,6 +710,7 @@ function WarningCard({
       <CardContent>
         <Typography
           variant="h5"
+          component="h2"
           sx={{
             color: "#8c1d18",
             display: "flex",
@@ -710,7 +785,11 @@ function ComboGroup({
         color: "black",
       }}
     >
-      <Typography variant="h6" sx={{ color: "black", fontWeight: 700 }}>
+      <Typography
+        variant="h6"
+        component="h3"
+        sx={{ color: "black", fontWeight: 700 }}
+      >
         <span aria-hidden="true">{definition?.emoji}</span> {status} (
         {combos.length})
       </Typography>
@@ -765,7 +844,7 @@ function comboCard(comboData: Interactions): React.JSX.Element {
     <Grid size={{ xs: 12 }} key="combos">
       <Card>
         <CardContent>
-          <Typography variant="h5" style={{ color: "black" }}>
+          <Typography variant="h5" component="h2" style={{ color: "black" }}>
             Known Combinations
           </Typography>
           <Typography>
@@ -802,6 +881,22 @@ function comboCard(comboData: Interactions): React.JSX.Element {
 }
 
 // One card for each remaining property; the ones shown elsewhere are skipped.
+// A property whose whole value is one web address, like DMT's "molecule" (an image on
+// Erowid) or MDMA's "wiki". These used to print as plain text, clipped at the card's edge.
+const BARE_URL = /^https?:\/\/\S+$/;
+
+function propertyValueContent(value: unknown): ReactNode {
+  if (typeof value !== "string" || !BARE_URL.test(value.trim())) {
+    return value as ReactNode;
+  }
+  const url = value.trim();
+  return (
+    <a href={url} target="_blank" rel="noopener noreferrer">
+      {url.replace(/^https?:\/\/(www\.)?/, "")}
+    </a>
+  );
+}
+
 function propertyCards(properties: Drug["properties"]): React.JSX.Element[] {
   const elements = [] as React.JSX.Element[];
   for (const property of Object.keys(properties)) {
@@ -832,7 +927,11 @@ function propertyCards(properties: Drug["properties"]): React.JSX.Element[] {
         <Grid size={{ xs: 12, sm: 6, md: 4 }} key={propertyName}>
           <Card>
             <CardContent>
-              <Typography variant="h5" style={{ color: "black" }}>
+              <Typography
+                variant="h5"
+                component="h2"
+                style={{ color: "black" }}
+              >
                 Reagent test results
               </Typography>
               <Typography component="div">
@@ -847,7 +946,11 @@ function propertyCards(properties: Drug["properties"]): React.JSX.Element[] {
         <Grid size={{ xs: 12, sm: 6, md: 4 }} key={propertyName}>
           <Card>
             <CardContent>
-              <Typography variant="h5" style={{ color: "black" }}>
+              <Typography
+                variant="h5"
+                component="h2"
+                style={{ color: "black" }}
+              >
                 {propertyName.charAt(0).toUpperCase() + propertyName.slice(1)}
               </Typography>
               <Typography>
@@ -868,10 +971,17 @@ function propertyCards(properties: Drug["properties"]): React.JSX.Element[] {
         <Grid size={{ xs: 12, sm: 6, md: 4 }} key={propertyName}>
           <Card>
             <CardContent>
-              <Typography variant="h5" style={{ color: "black" }}>
+              <Typography
+                variant="h5"
+                component="h2"
+                style={{ color: "black" }}
+              >
                 {propertyName.charAt(0).toUpperCase() + propertyName.slice(1)}
               </Typography>
-              <Typography>{propertyValue}</Typography>
+              {/* Long addresses and words wrap instead of running off the card. */}
+              <Typography sx={{ overflowWrap: "anywhere" }}>
+                {propertyValueContent(propertyValue)}
+              </Typography>
             </CardContent>
           </Card>
         </Grid>,
@@ -905,7 +1015,7 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
     <Grid size={{ xs: 12, sm: 4, md: 4 }} key="pretty_name">
       <Card>
         <CardContent>
-          <Typography variant="h5" style={{ color: "black" }}>
+          <Typography variant="h5" component="h2" style={{ color: "black" }}>
             Chemical Name
           </Typography>
           <Typography>{drugData.pretty_name}</Typography>
@@ -919,7 +1029,7 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
       <Grid size={{ xs: 12, sm: 4, md: 4 }} key="aliases">
         <Card>
           <CardContent>
-            <Typography variant="h5" style={{ color: "black" }}>
+            <Typography variant="h5" component="h2" style={{ color: "black" }}>
               Aliases
             </Typography>
             <Typography>{drugData.aliases.join(", ")}</Typography>
@@ -942,7 +1052,7 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
       <Grid size={{ xs: 12, sm: 4, md: 4 }} key={`${drugData.name} categories`}>
         <Card>
           <CardContent>
-            <Typography variant="h5" style={{ color: "black" }}>
+            <Typography variant="h5" component="h2" style={{ color: "black" }}>
               Categories
             </Typography>
             <Typography>{addDictionaryDefs(capitalizedCategories)}</Typography>
@@ -959,7 +1069,7 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
       <Grid size={{ xs: 12, sm: 12, md: 12 }} key="summary">
         <Card>
           <CardContent>
-            <Typography variant="h5" style={{ color: "black" }}>
+            <Typography variant="h5" component="h2" style={{ color: "black" }}>
               Summary
             </Typography>
             <Typography>{addDictionaryDefs(properties.summary)}</Typography>
@@ -977,7 +1087,7 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
       <Grid size={{ xs: 12, sm: 12, md: 12 }} key="dose_note">
         <Card>
           <CardContent sx={{ backgroundColor: "yellow" }}>
-            <Typography variant="h5" style={{ color: "black" }}>
+            <Typography variant="h5" component="h2" style={{ color: "black" }}>
               Dosage Note
             </Typography>
             <Typography>{drugData.dose_note}</Typography>
@@ -1008,7 +1118,7 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
       <Grid size={{ xs: 12, sm: 12, md: 12 }} key="pweffects">
         <Card>
           <CardContent>
-            <Typography variant="h5" style={{ color: "black" }}>
+            <Typography variant="h5" component="h2" style={{ color: "black" }}>
               Psychonaut Wiki Effects
             </Typography>
             <Grid container spacing={1}>
@@ -1016,7 +1126,7 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
                 <Grid size={{ xs: 6, sm: 4, md: 3 }} key={property}>
                   <Typography>
                     <a
-                      href={`https://psychonautwiki.org/wiki/${property}`}
+                      href={psychonautWikiUrl(property)}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -1037,7 +1147,7 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
       <Grid size={{ xs: 12, sm: 6, md: 6 }} key="effects">
         <Card>
           <CardContent>
-            <Typography variant="h5" style={{ color: "black" }}>
+            <Typography variant="h5" component="h2" style={{ color: "black" }}>
               Effects
             </Typography>
             <Typography>{drugData.formatted_effects.join(", ")}</Typography>
@@ -1055,7 +1165,7 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
       <Grid size={{ xs: 12, sm: 6, md: 6 }} key="links">
         <Card>
           <CardContent>
-            <Typography variant="h5" style={{ color: "black" }}>
+            <Typography variant="h5" component="h2" style={{ color: "black" }}>
               Links
             </Typography>
             {linkKeys.map((property) => (
@@ -1082,7 +1192,7 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
       <Grid size={{ xs: 12, sm: 6, md: 6 }} key="sources">
         <Card>
           <CardContent>
-            <Typography variant="h5" style={{ color: "black" }}>
+            <Typography variant="h5" component="h2" style={{ color: "black" }}>
               Sources
             </Typography>
             <Typography>{links}</Typography>
@@ -1093,7 +1203,11 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
   }
 
   return (
-    <Container maxWidth="lg">
+    <Container
+      maxWidth="lg"
+      // The site-wide link blue (#2487ce) is 3.9:1 on these white cards; this is 4.9:1.
+      sx={{ "& a:not([class])": { color: "#1f75b3" } }}
+    >
       <Grid container spacing={2}>
         {elements}
       </Grid>

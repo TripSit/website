@@ -29,9 +29,18 @@
   min-height: 100vh;
   background: #ffffff;
   color: #444444;
-  font-family: var(--font-poppins), system-ui, -apple-system, sans-serif;
+  font-family:
+    var(--font-poppins),
+    system-ui,
+    -apple-system,
+    sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+}
+/* Plain links: the site-wide #2487ce is 3.9:1 on white and 3.7:1 on the disclaimer;
+   this is 4.9:1 and 4.75:1. Styled links (nav pills, buttons) have a class and keep theirs. */
+.root a:not([class]) {
+  color: #1f75b3;
 }
 .root *,
 .root *::before,
@@ -91,14 +100,15 @@
   background: rgba(255, 255, 255, 0.08);
   color: #dfe7ee;
 }
+/* White on the accent itself (#2487ce) is 3.9:1; 13% darker is 4.9:1. */
 .navLinkActive {
   color: #fff;
-  background: var(--cc-accent);
+  background: color-mix(in srgb, var(--cc-accent) 87%, black);
 }
 .navLinkActive:hover {
   color: #fff;
   filter: brightness(1.08);
-  background: var(--cc-accent);
+  background: color-mix(in srgb, var(--cc-accent) 87%, black);
 }
 @media (max-width: 600px) {
   .navLinks {
@@ -380,6 +390,11 @@
   font-size: 13.5px;
   line-height: 1.7;
   color: #444444;
+}
+/* Colour alone doesn't set these links apart from the grey text around them. */
+.disclaimer a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 .disclaimer strong {
   color: #683394;

@@ -26,6 +26,12 @@ updates:
       # supports 7.
       - dependency-name: "typescript"
         versions: [">=7.0.0"]
+      # The site sets proton-engine's frame step to slow some background animations (#7), which
+      # only works while it shares one copy with particles-bg, and particles-bg needs ^4. A new
+      # major here would install a second copy and silently undo that. particlesBg.test.ts
+      # checks they share a copy.
+      - dependency-name: "proton-engine"
+        versions: [">=5.0.0"]
 
   - package-ecosystem: "github-actions"
     directory: "/"

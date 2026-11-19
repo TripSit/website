@@ -14,6 +14,8 @@ describe("parseDoseRangeMg", () => {
     ["1.5-3mg", [1.5, 3]],
     ["325mg-650mg", [325, 650]],
     ["800 µg – 1.5 mg", [0.8, 1.5]],
+    ["40-80mg.", [40, 80]],
+    ["1mg-3mg.", [1, 3]],
   ])("normalizes %s to milligrams", (source, expected) => {
     expect(parseDoseRangeMg(source)).toEqual(expected);
   });
@@ -26,6 +28,8 @@ describe("parseDoseRangeMg", () => {
     "1-3",
     "3mg-1mg",
     "1-3mg/kg",
+    "3mg+.",
+    "1-3.",
   ])("leaves %s in the text table only", (source) =>
     expect(parseDoseRangeMg(source)).toBeUndefined(),
   );

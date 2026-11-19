@@ -43,11 +43,14 @@ function ComboChecker({
     >
       <nav className={styles.nav}>
         <a href={`https://${domain}`} className={styles.brand}>
+          {/* 26px tall is about 74px wide. Without sizes, Next serves its 3840px
+              variant. */}
           <Image
             src={logo}
             alt="TripSit"
             className={styles.brandLogo}
-            priority
+            sizes="74px"
+            preload
           />
         </a>
         <div className={styles.navLinks}>
@@ -148,7 +151,13 @@ function ComboChecker({
 
       <footer className={styles.footer}>
         <div className={styles.footerInner}>
-          <Image src={logo} alt="TripSit" className={styles.footerLogo} />
+          {/* 22px tall is about 63px wide. */}
+          <Image
+            src={logo}
+            alt="TripSit"
+            className={styles.footerLogo}
+            sizes="63px"
+          />
           <span className={styles.footerCopy}>
             © Copyright TripSit. All Rights Reserved.
           </span>

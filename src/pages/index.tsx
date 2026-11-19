@@ -38,6 +38,7 @@ import { DiscordStats, getDiscordStats } from "../utils/discordStats";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
+import { BxCheckDouble } from "../components/icons";
 
 /* ------------------------------------------------------------------ */
 /* Shared bits                                                         */
@@ -303,89 +304,91 @@ export default function Home({
       <Head path="/" />
       <Ghost />
 
-      {/* Hero is transparent and fills the viewport so the particles canvas
-          reads as a lazy-fullscreen animation once the content fades (Ghost) */}
-      <section
-        id="hero"
-        className="relative flex min-h-svh flex-col justify-center px-5 pb-20 pt-28 md:pt-36"
-      >
-        <div
-          className="relative z-10 mx-auto flex max-w-6xl flex-col items-center text-center"
-          data-aos="fade-up"
-        >
-          <h1 className="mb-6">
-            <Image
-              src={logo}
-              alt="TripSit"
-              priority
-              className="mx-auto h-auto w-60 max-w-full md:w-80"
-            />
-          </h1>
-          <p className="font-display text-2xl font-medium tracking-tight text-ink md:text-3xl">
-            Harm Reduction Through Education
-          </p>
-
-          {onlineNow > 0 && (
-            <p className="mt-5 inline-flex items-center gap-2.5 rounded-full border-[1px] border-solid border-line bg-surface/70 px-4 py-1.5 text-sm text-mute backdrop-blur">
-              <span className="relative flex h-2 w-2" aria-hidden>
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan opacity-60 motion-reduce:animate-none" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-cyan" />
-              </span>
-              <span>
-                <strong className="font-medium text-ink">
-                  {onlineNow.toLocaleString("en-US")}
-                </strong>{" "}
-                people are here right now
-              </span>
-            </p>
-          )}
-
-          <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row">
-            <Link
-              href="/webchat"
-              className={`${solidButton} bg-violet px-8 py-3.5 font-display text-base`}
-            >
-              I want to talk to a Trip Sitter
-            </Link>
-            <Link
-              href="/combo"
-              className={`${solidButton} bg-cyan px-8 py-3.5 font-display text-base shadow-lg shadow-cyan/25`}
-            >
-              Check drug combinations
-            </Link>
-          </div>
-
-          <div className="mt-16 grid w-full grid-cols-1 gap-4 text-left sm:grid-cols-2 lg:grid-cols-4">
-            {quickLinks.map((card) => {
-              const Comp = card.external ? "a" : Link;
-              return (
-                <Comp
-                  key={card.title}
-                  href={card.href}
-                  {...(card.external && {
-                    target: "_blank",
-                    rel: "noopener noreferrer",
-                  })}
-                  className="group flex h-full flex-col rounded-2xl border-[1px] border-solid border-line bg-surface/80 p-6 text-ink backdrop-blur transition hover:-translate-y-0.5 hover:border-violet/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan motion-reduce:hover:translate-y-0"
-                >
-                  <span className="mb-4 inline-flex text-3xl text-cyan">
-                    {card.icon}
-                  </span>
-                  <h2 className="mb-2 font-display text-lg font-semibold text-ink">
-                    {card.title}
-                  </h2>
-                  <p className="text-sm leading-relaxed text-mute">
-                    {card.text}
-                  </p>
-                </Comp>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-      <Particles />
-
+      {/* The hero is the start of the page's content, so it sits inside <main> too. */}
       <main id="main" className="relative">
+        {/* Hero is transparent and fills the viewport so the particles canvas
+          reads as a lazy-fullscreen animation once the content fades (Ghost) */}
+        <section
+          id="hero"
+          className="relative flex min-h-svh flex-col justify-center px-5 pb-20 pt-28 md:pt-36"
+        >
+          <div
+            className="relative z-10 mx-auto flex max-w-6xl flex-col items-center text-center"
+            data-aos="fade-up"
+          >
+            <h1 className="mb-6">
+              <Image
+                src={logo}
+                alt="TripSit"
+                preload
+                className="mx-auto h-auto w-60 max-w-full md:w-80"
+                sizes="(min-width: 768px) 320px, 240px"
+              />
+            </h1>
+            <p className="font-display text-2xl font-medium tracking-tight text-ink md:text-3xl">
+              Harm Reduction Through Education
+            </p>
+
+            {onlineNow > 0 && (
+              <p className="mt-5 inline-flex items-center gap-2.5 rounded-full border-[1px] border-solid border-line bg-surface/70 px-4 py-1.5 text-sm text-mute backdrop-blur">
+                <span className="relative flex h-2 w-2" aria-hidden>
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan opacity-60 motion-reduce:animate-none" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-cyan" />
+                </span>
+                <span>
+                  <strong className="font-medium text-ink">
+                    {onlineNow.toLocaleString("en-US")}
+                  </strong>{" "}
+                  people are here right now
+                </span>
+              </p>
+            )}
+
+            <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row">
+              <Link
+                href="/webchat"
+                className={`${solidButton} bg-violet px-8 py-3.5 font-display text-base`}
+              >
+                I want to talk to a Trip Sitter
+              </Link>
+              <Link
+                href="/combo"
+                className={`${solidButton} bg-cyan px-8 py-3.5 font-display text-base shadow-lg shadow-cyan/25`}
+              >
+                Check drug combinations
+              </Link>
+            </div>
+
+            <div className="mt-16 grid w-full grid-cols-1 gap-4 text-left sm:grid-cols-2 lg:grid-cols-4">
+              {quickLinks.map((card) => {
+                const Comp = card.external ? "a" : Link;
+                return (
+                  <Comp
+                    key={card.title}
+                    href={card.href}
+                    {...(card.external && {
+                      target: "_blank",
+                      rel: "noopener noreferrer",
+                    })}
+                    className="group flex h-full flex-col rounded-2xl border-[1px] border-solid border-line bg-surface/80 p-6 text-ink backdrop-blur transition hover:-translate-y-0.5 hover:border-violet/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan motion-reduce:hover:translate-y-0"
+                  >
+                    <span className="mb-4 inline-flex text-3xl text-cyan">
+                      {card.icon}
+                    </span>
+                    <h2 className="mb-2 font-display text-lg font-semibold text-ink">
+                      {card.title}
+                    </h2>
+                    <p className="text-sm leading-relaxed text-mute">
+                      {card.text}
+                    </p>
+                  </Comp>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+        <Particles />
+
         {/* Stats */}
         <section id="counts" className="border-y border-line/60 bg-night px-5">
           <div className="mx-auto grid max-w-6xl grid-cols-1 gap-x-4 gap-y-10 py-12 sm:grid-cols-3 md:py-16">
@@ -420,10 +423,7 @@ export default function Home({
                   "Conviction that informed education is the cornerstone for harm mitigation.",
                 ].map((principle) => (
                   <li key={principle} className="flex gap-3 text-mute">
-                    <i
-                      className="bx bx-check-double mt-0.5 text-xl leading-none text-violet"
-                      aria-hidden
-                    />
+                    <BxCheckDouble className="mt-0.5 text-xl leading-none text-violet" />
                     <span>{principle}</span>
                   </li>
                 ))}
@@ -530,10 +530,13 @@ export default function Home({
               className="block overflow-hidden rounded-2xl border-[1px] border-solid border-line transition hover:border-violet/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan"
               data-aos="fade-right"
             >
+              {/* Half of the 1152px section from lg up, else the section's full width.
+                  Without sizes this fetched the 3840px variant (285 KB). */}
               <Image
                 src={comboChart}
                 alt="The TripSit drug combination chart"
                 className="h-auto w-full"
+                sizes="(min-width: 1024px) 556px, calc(100vw - 40px)"
               />
             </Link>
             <div data-aos="fade-left">
@@ -553,10 +556,7 @@ export default function Home({
                   "Do not change the data. We worked hard on this and can't verify adjustments.",
                 ].map((rule) => (
                   <li key={rule} className="flex gap-3 text-mute">
-                    <i
-                      className="bx bx-check-double mt-0.5 text-xl leading-none text-violet"
-                      aria-hidden
-                    />
+                    <BxCheckDouble className="mt-0.5 text-xl leading-none text-violet" />
                     <span>{rule}</span>
                   </li>
                 ))}
@@ -588,10 +588,12 @@ export default function Home({
                   className="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan"
                 >
                   <Tooltip title={friend.title} placement="bottom">
+                    {/* At most 48px tall, so as wide as that at the logo's shape. */}
                     <Image
                       src={friend.img}
                       alt={friend.title}
                       className="h-10 w-auto opacity-60 grayscale transition hover:opacity-100 hover:grayscale-0 md:h-12"
+                      sizes={`${Math.ceil((48 * friend.img.width) / friend.img.height)}px`}
                     />
                   </Tooltip>
                 </a>

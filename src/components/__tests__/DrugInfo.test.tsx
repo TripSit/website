@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import type { Category, Drug, Unit } from "tripsit_drug_db";
+import type { Category, Dose, Drug, Unit } from "tripsit_drug_db";
 import DrugInfo from "../DrugInfo";
 
 // Called on every chart render. In the browser, react-apexcharts redraws the chart whenever it
@@ -15,6 +15,8 @@ jest.mock(
       series: unknown;
       options: {
         chart: unknown;
+        colors?: unknown;
+        xaxis?: { categories?: unknown };
         tooltip: {
           custom: (input: {
             seriesIndex: number;
@@ -28,25 +30,37 @@ jest.mock(
       return (
         <>
           <output aria-label="Chart series">{JSON.stringify(series)}</output>
+          <output aria-label="Chart colours">
+            {JSON.stringify(options.colors)}
+          </output>
+          <output aria-label="Chart rows">
+            {JSON.stringify(options.xaxis?.categories)}
+          </output>
           {Array.isArray(series) &&
-            series.map(({ name, data }, seriesIndex) => {
-              const html = options.tooltip.custom({
+            series.flatMap(
+              (
+                { name, data }: { name: string; data: { x: string }[] },
                 seriesIndex,
-                dataPointIndex: 0,
-                w: { config: { series } },
-              });
-              return (
-                <output
-                  key={`${data[0].x}-${name}`}
-                  aria-label={`Tooltip for ${name}`}
-                >
-                  {
-                    new DOMParser().parseFromString(html, "text/html").body
-                      .textContent
-                  }
-                </output>
-              );
-            })}
+              ) =>
+                data.map(({ x }, dataPointIndex) => {
+                  const html = options.tooltip.custom({
+                    seriesIndex,
+                    dataPointIndex,
+                    w: { config: { series } },
+                  });
+                  return (
+                    <output
+                      key={`${x}-${name}`}
+                      aria-label={`Tooltip for ${x} ${name}`}
+                    >
+                      {
+                        new DOMParser().parseFromString(html, "text/html").body
+                          .textContent
+                      }
+                    </output>
+                  );
+                }),
+            )}
         </>
       );
     },
@@ -90,9 +104,12 @@ test("keeps dose text and charts the ranges for each route", () => {
   expect(screen.getByText("Example dose note")).toBeVisible();
   expect(screen.getByText("unknown")).toBeVisible();
   expect(screen.getByText("1-2mg")).toBeVisible();
-  expect(screen.getByLabelText("Tooltip for common")).toHaveTextContent(
-    "oral (mg): 1 - 2",
-  );
+  expect(
+    screen.getByLabelText("Tooltip for oral (mg) common"),
+  ).toHaveTextContent("oral (mg): 1 - 2");
+  expect(
+    screen.getByLabelText("Tooltip for insufflated (mg) common"),
+  ).toHaveTextContent("insufflated (mg): 3 - 4");
   expect(
     JSON.parse(screen.getByLabelText("Chart series").textContent ?? ""),
   ).toEqual([
@@ -187,15 +204,20 @@ test("converts onset to hours and offsets duration and after effects", () => {
   );
   expect(screen.getByText("15m to 30m")).toBeVisible();
   expect(screen.getByText("1h 30m to 2h 30m")).toBeVisible();
-  expect(screen.getByLabelText("Tooltip for Onset")).toHaveTextContent(
+  expect(screen.getByLabelText("Tooltip for oral Onset")).toHaveTextContent(
     /30m after dosing/,
   );
-  expect(screen.getAllByLabelText("Tooltip for Duration")[0]).toHaveTextContent(
+  expect(screen.getByLabelText("Tooltip for oral Duration")).toHaveTextContent(
     /Lasts 1h 30m\s*-\s*2h 30m after Onset ends/,
   );
+  // insufflated has no onset, so its duration counts from dosing.
+  expect(
+    screen.getByLabelText("Tooltip for insufflated Duration"),
+  ).toHaveTextContent(/Lasts 0\s*-\s*2h after dosing/);
   const series = JSON.parse(
     screen.getByLabelText("Chart series").textContent ?? "",
   );
+  // One series per phase, so the legend lists each phase once.
   expect(series).toEqual([
     expect.objectContaining({
       name: "Onset",
@@ -203,20 +225,19 @@ test("converts onset to hours and offsets duration and after effects", () => {
     }),
     expect.objectContaining({
       name: "Duration",
-      data: [expect.objectContaining({ x: "oral", y: [0.25, 3] })],
+      data: [
+        expect.objectContaining({ x: "oral", y: [0.25, 3] }),
+        expect.objectContaining({ x: "insufflated", y: [0, 2] }),
+      ],
     }),
     expect.objectContaining({
       name: "After Effects",
       data: [expect.objectContaining({ x: "oral", y: [1.75, 5.75] })],
     }),
-    expect.objectContaining({
-      name: "Duration",
-      data: [expect.objectContaining({ x: "insufflated", y: [0, 2] })],
-    }),
   ]);
 });
 
-test("supports legacy oral onset and routes with after effects only", () => {
+test("puts a route-less onset on every route the other phases name", () => {
   render(
     <DrugInfo
       drugData={{
@@ -230,19 +251,177 @@ test("supports legacy oral onset and routes with after effects only", () => {
       }}
     />,
   );
-  expect(screen.getByText("0 to 30m")).toBeVisible();
+  expect(screen.getAllByText("0 to 30m")).toHaveLength(2);
+  // oral's after effects don't parse, so only insufflated has that bar. With no duration
+  // before it, it's timed from dosing.
   expect(
     JSON.parse(screen.getByLabelText("Chart series").textContent ?? ""),
   ).toEqual([
     expect.objectContaining({
       name: "Onset",
-      data: [expect.objectContaining({ x: "Oral", y: [0, 0.5] })],
+      data: [
+        expect.objectContaining({ x: "oral", y: [0, 0.5] }),
+        expect.objectContaining({ x: "insufflated", y: [0, 0.5] }),
+      ],
     }),
     expect.objectContaining({
       name: "After Effects",
-      data: [expect.objectContaining({ x: "insufflated", y: [1, 2] })],
+      data: [expect.objectContaining({ x: "insufflated", y: [0, 2] })],
     }),
   ]);
+});
+
+test("files timing under Oral when no phase names a route", () => {
+  render(
+    <DrugInfo
+      drugData={{
+        ...drug,
+        formatted_onset: { value: "30-60", _unit: "minutes" as Unit },
+        formatted_duration: { value: "4-6", _unit: "hours" as Unit },
+      }}
+    />,
+  );
+  expect(screen.getByText("Oral")).toBeVisible();
+  expect(screen.getByText("4h to 6h")).toBeVisible();
+  expect(screen.getByLabelText("Tooltip for Oral Duration")).toHaveTextContent(
+    /Lasts 4h\s*-\s*6h after Onset ends/,
+  );
+});
+
+describe("timing that names no route", () => {
+  const timing = {
+    formatted_onset: { value: "1-5", _unit: "minutes" as Unit },
+    formatted_duration: { value: "1-1.5", _unit: "hours" as Unit },
+  };
+  // Doses are open-ended ("+") so they draw no chart of their own.
+  const durationRows = () =>
+    (
+      JSON.parse(screen.getByLabelText("Chart series").textContent ?? "") as {
+        name: string;
+        data: { x: string }[];
+      }[]
+    )
+      .find(({ name }) => name === "Duration")
+      ?.data.map(({ x }) => x);
+
+  // Shaped like cocaine's: only insufflated doses.
+  it("goes under the dose routes when none is oral", () => {
+    render(
+      <DrugInfo
+        drugData={{
+          ...drug,
+          ...timing,
+          formatted_dose: {
+            insufflated: { Common: "30mg+" },
+          } as unknown as Dose,
+        }}
+      />,
+    );
+    expect(durationRows()).toEqual(["insufflated"]);
+    expect(screen.queryByText("Oral")).toBeNull();
+  });
+
+  it("joins several non-oral dose routes into one row", () => {
+    render(
+      <DrugInfo
+        drugData={{
+          ...drug,
+          ...timing,
+          formatted_dose: {
+            buccal: { Common: "0.5mg+" },
+            sublingual: { Common: "0.5mg+" },
+          } as unknown as Dose,
+        }}
+      />,
+    );
+    expect(durationRows()).toEqual(["buccal / sublingual"]);
+  });
+
+  it.each([
+    // Taken orally among other ways
+    [{ oral: { Common: "1mg+" }, insufflated: { Common: "1mg+" } }],
+    // LSA's dose keys are forms of seed, which are eaten
+    [
+      {
+        hbwr: { Common: "2-6seeds" },
+        Morning_Glory: { Common: "100-250seeds" },
+      },
+    ],
+  ])("stays under Oral for %j", (formatted_dose) => {
+    render(
+      <DrugInfo
+        drugData={{
+          ...drug,
+          ...timing,
+          formatted_dose: formatted_dose as unknown as Dose,
+        }}
+      />,
+    );
+    expect(durationRows()).toEqual(["Oral"]);
+  });
+});
+
+// Shaped like DMT's data: routes that only some phases name, a route-less after effects
+// value, and route keys with an underscore.
+test("keeps every duration under its own heading when routes lack phases", () => {
+  render(
+    <DrugInfo
+      drugData={{
+        ...drug,
+        formatted_onset: {
+          insufflated: "3-5",
+          oral: "20-45",
+          _unit: "minutes" as Unit,
+        },
+        formatted_duration: {
+          insufflated: "45-60",
+          Oral_MAOI: "180-420",
+          _unit: "minutes" as Unit,
+        },
+        formatted_aftereffects: { value: "15-60", _unit: "minutes" as Unit },
+      }}
+    />,
+  );
+  // The cells after a route's name, in heading order: Onset, Duration, After Effects.
+  const rowCells = (route: string) => {
+    const cells: string[] = [];
+    let cell = screen.getByText(route).closest(".MuiGrid-root")
+      ?.nextElementSibling as Element | null;
+    for (let i = 0; i < 3 && cell; i += 1) {
+      cells.push(cell.textContent ?? "");
+      cell = cell.nextElementSibling;
+    }
+    return cells;
+  };
+  expect(rowCells("insufflated")).toEqual([
+    "3m to 5m",
+    "45m to 1h",
+    "15m to 1h",
+  ]);
+  expect(rowCells("oral")).toEqual(["20m to 45m", "", "15m to 1h"]);
+  expect(rowCells("Oral (MAOI)")).toEqual(["", "3h to 7h", "15m to 1h"]);
+  expect(screen.queryByText(/Oral_MAOI/)).toBeNull();
+
+  // Each route's after effects follow that route's own duration, or dosing without one.
+  expect(
+    screen.getByLabelText("Tooltip for insufflated After Effects"),
+  ).toHaveTextContent(/after Duration ends/);
+  expect(
+    screen.getByLabelText("Tooltip for oral After Effects"),
+  ).toHaveTextContent(/after dosing/);
+  expect(screen.queryByLabelText("Tooltip for Oral (MAOI) Onset")).toBeNull();
+
+  // With no onset, Oral (MAOI)'s 3-7h duration runs from dosing with its marker at 3h,
+  // not from 3h with its marker at 6h.
+  const durations = (
+    JSON.parse(screen.getByLabelText("Chart series").textContent ?? "") as {
+      name: string;
+      data: { x: string; y: number[]; goals: { value: number }[] }[];
+    }[]
+  ).find(({ name }) => name === "Duration");
+  const maoi = durations?.data.find(({ x }) => x === "Oral (MAOI)");
+  expect(maoi?.y).toEqual([0, 7]);
+  expect(maoi?.goals[0].value).toBe(3);
 });
 
 test("displays after effects without onset or duration data", () => {
@@ -254,10 +433,53 @@ test("displays after effects without onset or duration data", () => {
       }}
     />,
   );
-  expect(screen.getByText("2 to 3")).toBeVisible();
-  expect(screen.getByLabelText("Tooltip for After Effects")).toHaveTextContent(
-    /3h after dosing/,
+  expect(screen.getByText("2h to 3h")).toBeVisible();
+  expect(
+    screen.getByLabelText("Tooltip for oral After Effects"),
+  ).toHaveTextContent(/3h after dosing/);
+  // From dosing to 3h, ending no sooner than 2h. It used to be drawn 2h-3h with its
+  // marker at 4h, past the end of its own bar.
+  expect(
+    JSON.parse(screen.getByLabelText("Chart series").textContent ?? ""),
+  ).toEqual([
+    expect.objectContaining({
+      name: "After Effects",
+      data: [
+        expect.objectContaining({
+          x: "oral",
+          y: [0, 3],
+          goals: [expect.objectContaining({ value: 2 })],
+        }),
+      ],
+    }),
+  ]);
+});
+
+// Shaped like buprenorphine's: one string with a range per dose.
+test("spans every range in a timing value and shows its text", () => {
+  render(
+    <DrugInfo
+      drugData={{
+        ...drug,
+        formatted_duration: {
+          oral: "Low Dose: 8-12 hours High Dose: 24-72 hours",
+          _unit: "hours" as Unit,
+        },
+      }}
+    />,
   );
+  // Not just the first range, which hid the high dose's 72h.
+  expect(screen.getByText("8h to 72h")).toBeVisible();
+  expect(screen.queryByText("8h to 12h")).toBeNull();
+  expect(
+    screen.getByText("Low Dose: 8-12 hours High Dose: 24-72 hours"),
+  ).toBeVisible();
+  // The bar reaches the high dose's 72h.
+  const [duration] = JSON.parse(
+    screen.getByLabelText("Chart series").textContent ?? "",
+  ) as { name: string; data: { x: string; y: number[] }[] }[];
+  expect(duration.name).toBe("Duration");
+  expect(duration.data[0].y[1]).toBe(72);
 });
 
 test("renders fractional hour durations without after effects", () => {
@@ -272,6 +494,32 @@ test("renders fractional hour durations without after effects", () => {
   );
   expect(screen.getByText("1h 30m to 2h 30m")).toBeVisible();
   expect(screen.queryByText("Aliases")).toBeNull();
+});
+
+// Shaped like DMT's: "molecule" is a bare address, "half-life" is text.
+test("links a property whose value is a bare web address", () => {
+  render(
+    <DrugInfo
+      drugData={{
+        ...drug,
+        properties: {
+          molecule:
+            "https://www.erowid.org/chemicals/dmt/images/archive/dmt_3d_mid.jpg",
+          "half-life": "10-20 minutes",
+        } as Drug["properties"],
+      }}
+    />,
+  );
+  expect(
+    screen.getByRole("link", {
+      name: "erowid.org/chemicals/dmt/images/archive/dmt_3d_mid.jpg",
+    }),
+  ).toHaveAttribute(
+    "href",
+    "https://www.erowid.org/chemicals/dmt/images/archive/dmt_3d_mid.jpg",
+  );
+  expect(screen.getByText("10-20 minutes").tagName).toBe("P");
+  expect(screen.queryByRole("link", { name: /10-20/ })).toBeNull();
 });
 
 test("renders optional references, warnings, and combination notes", () => {
@@ -326,6 +574,105 @@ test("renders optional references, warnings, and combination notes", () => {
   );
 });
 
+// Shaped like DMT's: the first route has no Threshold, so it used to land after Strong.
+// The real data capitalises its levels, unlike the Dosage type.
+test("orders dose columns and chart series from weakest to strongest", () => {
+  render(
+    <DrugInfo
+      drugData={{
+        ...drug,
+        formatted_dose: {
+          insufflated: { Light: "10-25mg", Common: "25-50mg" },
+          vapourized: {
+            Common: "15-25mg",
+            Heavy: "35mg+",
+            Light: "10-15mg",
+            Threshold: "5-10mg",
+          },
+        } as unknown as Dose,
+      }}
+    />,
+  );
+  const levels = ["Threshold", "Light", "Common", "Heavy"];
+  const headings = levels.map((level) => screen.getByText(level));
+  for (let i = 1; i < headings.length; i += 1) {
+    expect(
+      headings[i - 1].compareDocumentPosition(headings[i]) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  }
+  // The insufflated row has a dash under Threshold, then its own doses in order.
+  const cells: string[] = [];
+  let cell = screen.getByText("insufflated").closest(".MuiGrid-root")
+    ?.nextElementSibling as Element | null;
+  for (let i = 0; i < levels.length && cell; i += 1) {
+    cells.push(cell.textContent ?? "");
+    cell = cell.nextElementSibling;
+  }
+  expect(cells).toEqual(["-", "10-25mg", "25-50mg", "-"]);
+
+  // 35mg+ has no upper bound, so Heavy isn't charted.
+  const series = JSON.parse(
+    screen.getByLabelText("Chart series").textContent ?? "",
+  ) as { name: string }[];
+  expect(series.map(({ name }) => name)).toEqual([
+    "Threshold",
+    "Light",
+    "Common",
+  ]);
+  expect(
+    JSON.parse(screen.getByLabelText("Chart colours").textContent ?? ""),
+  ).toEqual(["#6DDF6D", "#A8E05F", "#FFD966"]);
+  // Threshold's series lists vapourized first, but the rows keep the table's order.
+  expect(
+    JSON.parse(screen.getByLabelText("Chart rows").textContent ?? ""),
+  ).toEqual(["insufflated (mg)", "vapourized (mg)"]);
+});
+
+// Shaped like LSA's: doses in seeds, which the mg chart can't show.
+test("gives a chartless dosage table the whole card and readable route names", () => {
+  render(
+    <DrugInfo
+      drugData={{
+        ...drug,
+        formatted_dose: {
+          hbwr: { Light: "1-2seeds" },
+          Morning_Glory: { Light: "50-100seeds" },
+        } as unknown as Dose,
+      }}
+    />,
+  );
+  expect(screen.getByText("Morning Glory")).toBeVisible();
+  expect(screen.queryByText("Morning_Glory")).toBeNull();
+  expect(screen.queryByLabelText("Chart series")).not.toBeInTheDocument();
+  const tableColumn = screen
+    .getByText("Morning Glory")
+    .closest(".MuiGrid-container")?.parentElement;
+  expect(tableColumn).toHaveClass("MuiGrid-grid-xs-12");
+  expect(tableColumn).not.toHaveClass("MuiGrid-grid-sm-6");
+});
+
+test("charts a dose range that ends with a full stop", () => {
+  render(
+    <DrugInfo
+      drugData={{
+        ...drug,
+        formatted_dose: {
+          oral: { Common: "50-100mg", Strong: "100-135mg." },
+        } as unknown as Dose,
+      }}
+    />,
+  );
+  expect(screen.getByText("100-135mg.")).toBeVisible();
+  expect(
+    (
+      JSON.parse(screen.getByLabelText("Chart series").textContent ?? "") as {
+        name: string;
+      }[]
+    ).map(({ name }) => name),
+  ).toEqual(["Common", "Strong"]);
+});
+
 test("keeps open-ended dose text without plotting an invented upper bound", () => {
   render(
     <DrugInfo
@@ -336,7 +683,9 @@ test("keeps open-ended dose text without plotting an invented upper bound", () =
     />,
   );
   expect(screen.getByText("2+")).toBeVisible();
-  expect(screen.queryByLabelText("Tooltip for common")).not.toBeInTheDocument();
+  expect(
+    screen.queryByLabelText("Tooltip for oral (mg) common"),
+  ).not.toBeInTheDocument();
   expect(screen.queryByLabelText("Chart series")).not.toBeInTheDocument();
 });
 
@@ -381,7 +730,7 @@ test("shows each safety note once, under its own heading, before the other cards
     />,
   );
   const headings = screen
-    .getAllByRole("heading", { level: 5 })
+    .getAllByRole("heading", { level: 2 })
     .map((heading) => heading.textContent);
   expect(headings.slice(0, 4)).toEqual([
     "Warning",
@@ -411,7 +760,7 @@ test("groups combinations by risk, hides empty groups and uses the checker's nam
     />,
   );
   const groups = screen
-    .getAllByRole("heading", { level: 6 })
+    .getAllByRole("heading", { level: 3 })
     .map((heading) => heading.textContent?.replace(/^\S+\s/, ""));
   expect(groups).toEqual([
     "Dangerous (1)",
@@ -424,4 +773,38 @@ test("groups combinations by risk, hides empty groups and uses the checker's nam
   expect(screen.getByText("PCP")).toBeVisible();
   expect(screen.getByText("Nitrous Oxide")).toBeVisible();
   expect(screen.getByText("Serotonin syndrome.")).toBeVisible();
+});
+
+test("links PsychonautWiki effects with valid, canonical URLs", () => {
+  render(
+    <DrugInfo
+      drugData={
+        {
+          ...drug,
+          pweffects: {
+            "Restless leg syndrome": "x",
+            "Visual disconnection#Structures": "x",
+            "Déjà vu": "x",
+          },
+        } as Drug
+      }
+    />,
+  );
+  expect(
+    screen.getByRole("link", { name: "Restless leg syndrome" }),
+  ).toHaveAttribute(
+    "href",
+    "https://psychonautwiki.org/wiki/Restless_leg_syndrome",
+  );
+  // "#" is a section link on the page, not part of the page name.
+  expect(
+    screen.getByRole("link", { name: "Visual disconnection#Structures" }),
+  ).toHaveAttribute(
+    "href",
+    "https://psychonautwiki.org/wiki/Visual_disconnection#Structures",
+  );
+  expect(screen.getByRole("link", { name: "Déjà vu" })).toHaveAttribute(
+    "href",
+    "https://psychonautwiki.org/wiki/D%C3%A9j%C3%A0_vu",
+  );
 });

@@ -843,3 +843,22 @@ test("submits an appeal and refreshes its status", async () => {
   expect(screen.queryByText("Your appeal has been submitted.")).toBeNull();
   expect(screen.getByText("Under Review")).toBeVisible();
 });
+
+test("shows and hides the submitted answers without Bootstrap's script", async () => {
+  sessionStorage.setItem("kc_token", validToken());
+  fetchMock
+    .mockResolvedValueOnce(reply({ banned: true }))
+    .mockResolvedValueOnce(reply(appeal("RECEIVED", 0)));
+  render(<AppealPage />);
+  const toggle = await screen.findByRole("button", {
+    name: "View Your Appeal Content",
+  });
+  expect(toggle).toHaveAttribute("aria-controls", "appealContent");
+  expect(toggle).toHaveAttribute("aria-expanded", "false");
+  expect(screen.getByText("My reason")).not.toBeVisible();
+  fireEvent.click(toggle);
+  expect(toggle).toHaveAttribute("aria-expanded", "true");
+  expect(screen.getByText("My reason")).toBeVisible();
+  fireEvent.click(toggle);
+  expect(screen.getByText("My reason")).not.toBeVisible();
+});

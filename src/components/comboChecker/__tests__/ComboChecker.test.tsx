@@ -14,12 +14,34 @@ test("links to chart attribution and a current way to report incorrect data", ()
     "href",
     "https://wiki.tripsit.me/wiki/Drug_combinations#Use_&_Attribution",
   );
-  expect(
-    screen.getByRole("link", { name: "Report a problem" }),
-  ).toHaveAttribute(
-    "href",
-    "https://github.com/TripSit/website/issues/new?template=bug_report.md",
+  // Combination data belongs to the drug database, so corrections go to its discussions.
+  const report = new URL(
+    screen
+      .getByRole("link", { name: "Suggest a correction" })
+      .getAttribute("href") ?? "",
   );
+  expect(report.origin + report.pathname).toBe(
+    "https://github.com/TripSit/drugs/discussions/new",
+  );
+  expect(report.searchParams.get("category")).toBe("drug-interactions");
+});
+
+test("links each result to its combination page", async () => {
+  render(<ComboPage />);
+  const user = userEvent.setup();
+  await user.click(screen.getByRole("button", { name: "MDMA" }));
+  await user.click(screen.getByRole("button", { name: "SSRIs" }));
+
+  expect(
+    screen.getByRole("link", {
+      name: "Details and 3 sources for MDMA + SSRIs",
+    }),
+  ).toHaveAttribute("href", "/combo/mdma/ssris");
+  expect(
+    screen.getByText(
+      "No explanation has been written for this combination yet.",
+    ),
+  ).toBeVisible();
 });
 
 test("searches, compares, removes and clears selected substances", () => {

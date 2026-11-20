@@ -6,6 +6,7 @@ import path from "node:path";
 import type { GetServerSidePropsContext } from "next";
 import { fetchDrugs } from "@/utils/drugs";
 import { envOrDefault } from "@/utils/envOrDefault";
+import { indexedPairPaths } from "@/components/comboChecker/comboLinks";
 
 jest.mock("@/utils/drugs", () => ({
   ...jest.requireActual("@/utils/drugs"),
@@ -32,6 +33,7 @@ const PAGES = [
   "/combo/chart/it",
   "/combo/chart/pl",
   "/combo/chart/ru",
+  ...indexedPairPaths(),
   "/webchat",
   "/reflect",
   "/reflect/privacy",
@@ -77,6 +79,17 @@ beforeEach(() => {
 afterEach(() => jest.restoreAllMocks());
 
 describe("sitemap.xml", () => {
+  it("lists the combination pages that explain their rating, and only those", async () => {
+    const { urls } = await request(loadPage());
+    // MDMA + MAOIs has a note; MDMA + SSRIs has sources but no note yet.
+    expect(urls).toContain(`${origin}/combo/mdma/maois`);
+    expect(urls).not.toContain(`${origin}/combo/mdma/ssris`);
+    const pairPages = urls
+      .map((url) => url.slice(origin.length))
+      .filter((path) => /^\/combo\/(?!chart\/)[^/]+\/[^/]+$/.test(path));
+    expect(pairPages.length).toBeGreaterThan(100);
+  });
+
   it("lists the site's pages and a factsheet page for every drug", async () => {
     const { result, headers, xml, urls } = await request(loadPage());
 

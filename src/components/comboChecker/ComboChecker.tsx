@@ -1,10 +1,8 @@
-import { useState, type CSSProperties } from "react";
-import Image from "next/image";
+import { useState } from "react";
 import Link from "next/link";
-import logo from "../../../public/assets/img/logo.png";
-import { poppinsVariable } from "../fonts";
-import { envOrDefault } from "../../utils/envOrDefault";
 import { SUBSTANCES } from "./comboData";
+import { suggestChangeUrl } from "./comboLinks";
+import ComboFrame from "./ComboFrame";
 import Legend from "./Legend";
 import SubstanceSelector from "./SubstanceSelector";
 import ComboResults from "./ComboResults";
@@ -27,7 +25,6 @@ function ComboChecker({
   sortBySeverity = true,
   nicknames = {},
 }: Readonly<ComboCheckerProps>) {
-  const domain = envOrDefault(process.env.NEXT_PUBLIC_DNS_DOMAIN, "tripsit.me");
   const [selected, setSelected] = useState<string[]>([]);
   const [query, setQuery] = useState("");
 
@@ -37,41 +34,7 @@ function ComboChecker({
     );
 
   return (
-    <div
-      className={`${styles.root} ${poppinsVariable}`}
-      style={{ "--cc-accent": accent } as CSSProperties}
-    >
-      <nav className={styles.nav}>
-        <a href={`https://${domain}`} className={styles.brand}>
-          {/* 26px tall is about 74px wide. Without sizes, Next serves its 3840px
-              variant. */}
-          <Image
-            src={logo}
-            alt="TripSit"
-            className={styles.brandLogo}
-            sizes="74px"
-            preload
-          />
-        </a>
-        <div className={styles.navLinks}>
-          <a href={`https://${domain}#about`} className={styles.navLink}>
-            About
-          </a>
-          <Link href="/factsheets" className={styles.navLink}>
-            Factsheets
-          </Link>
-          <Link href="/webchat" className={styles.navLink}>
-            Chat
-          </Link>
-          <Link
-            href="/combo"
-            className={`${styles.navLink} ${styles.navLinkActive}`}
-          >
-            Tools
-          </Link>
-        </div>
-      </nav>
-
+    <ComboFrame accent={accent}>
       <main className={styles.main}>
         <header>
           <h1 className={`${styles.title} ${styles.disp}`}>
@@ -141,29 +104,12 @@ function ComboChecker({
           </p>
           <p>
             Notice incorrect combo data?{" "}
-            <a href="https://github.com/TripSit/website/issues/new?template=bug_report.md">
-              Report a problem
-            </a>
-            {"."}
+            <a href={suggestChangeUrl()}>Suggest a correction</a> to our drug
+            team, with a source.
           </p>
         </div>
       </main>
-
-      <footer className={styles.footer}>
-        <div className={styles.footerInner}>
-          {/* 22px tall is about 63px wide. */}
-          <Image
-            src={logo}
-            alt="TripSit"
-            className={styles.footerLogo}
-            sizes="63px"
-          />
-          <span className={styles.footerCopy}>
-            © Copyright TripSit. All Rights Reserved.
-          </span>
-        </div>
-      </footer>
-    </div>
+    </ComboFrame>
   );
 }
 

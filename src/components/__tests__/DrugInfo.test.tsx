@@ -775,6 +775,63 @@ test("groups combinations by risk, hides empty groups and uses the checker's nam
   expect(screen.getByText("Serotonin syndrome.")).toBeVisible();
 });
 
+test("links combinations on the chart to their page and folds away their sources", () => {
+  render(
+    <DrugInfo
+      drugData={
+        {
+          ...drug,
+          name: "mdma",
+          combos: {
+            ssris: {
+              status: "Low Risk & Decrease",
+              sources: [
+                {
+                  author: "Sarparast, A.",
+                  title: "Drug-drug interactions",
+                  url: "https://doi.org/10.1007/s00213-022-06083-y",
+                },
+                { title: "A book without a link" },
+              ],
+            },
+            dextromethorphan: { status: "Dangerous", note: "Serotonin." },
+            pregabalin: { status: "Caution" },
+          } as Drug["combos"],
+        } as Drug
+      }
+    />,
+  );
+  expect(
+    screen.getByRole("link", { name: "SSRIs combination details" }),
+  ).toHaveAttribute("href", "/combo/mdma/ssris");
+  // Factsheets spell out dextromethorphan; its page is under the chart's name, DXM.
+  expect(
+    screen.getByRole("link", { name: "Dextromethorphan combination details" }),
+  ).toHaveAttribute("href", "/combo/dxm/mdma");
+  // Pregabalin isn't on the chart yet, so it has no page to link to.
+  expect(screen.getByText("Pregabalin").closest("a")).toBeNull();
+
+  expect(screen.getByText("Sources (2)").tagName).toBe("SUMMARY");
+  expect(
+    screen.getByRole("link", { name: "Drug-drug interactions", hidden: true }),
+  ).toHaveAttribute("href", "https://doi.org/10.1007/s00213-022-06083-y");
+  expect(screen.getByText("A book without a link").closest("a")).toBeNull();
+});
+
+test("doesn't link a factsheet that isn't on the chart", () => {
+  render(
+    <DrugInfo
+      drugData={
+        {
+          ...drug,
+          combos: { mdma: { status: "Caution" } } as Drug["combos"],
+        } as Drug
+      }
+    />,
+  );
+  expect(screen.getByText("MDMA").closest("a")).toBeNull();
+});
+
 test("links PsychonautWiki effects with valid, canonical URLs", () => {
   render(
     <DrugInfo

@@ -31,23 +31,26 @@ export default function Home({ directory = [] }: Readonly<Props>) {
       <main id="main">
         <section id="factsheets">
           <Factsheets />
-          <nav aria-label="Factsheet directory" className="container py-4">
-            <h1>Drug Factsheets</h1>
-            <p>
-              Browse individual factsheets for substance information, effects
-              and interactions.
-            </p>
-            <ul className="row list-unstyled">
-              {directory.map(({ name, pretty_name }) => (
-                <li key={name} className="col-6 col-md-4 col-lg-3">
-                  <Link href={`/factsheets/${encodeURIComponent(name)}`}>
-                    {pretty_name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
         </section>
+        {/* Outside #factsheets: that section is exactly one screen tall (style.css sets
+            height: 100vh for the table) and every section has overflow: hidden, so inside
+            it this list was cut off where no visitor could scroll to it. */}
+        <nav aria-label="Factsheet directory" className="container py-4">
+          <h1>Drug Factsheets</h1>
+          <p>
+            Browse individual factsheets for substance information, effects and
+            interactions.
+          </p>
+          <ul className="row list-unstyled">
+            {directory.map(({ name, pretty_name }) => (
+              <li key={name} className="col-6 col-md-4 col-lg-3">
+                <Link href={`/factsheets/${encodeURIComponent(name)}`}>
+                  {pretty_name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
       </main>
     </>
   );

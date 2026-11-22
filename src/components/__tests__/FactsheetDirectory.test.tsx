@@ -36,6 +36,17 @@ test("includes canonical factsheet links in server-rendered HTML", async () => {
   ).toHaveAttribute("href", "/factsheets/%CE%B1-pbp");
 });
 
+test("keeps the directory out of the one-screen-tall table section", () => {
+  render(<FactsheetsPage directory={[{ name: "lsd", pretty_name: "LSD" }]} />);
+  const directory = screen.getByRole("navigation", {
+    name: "Factsheet directory",
+  });
+  // style.css makes #factsheets exactly 100vh tall with overflow: hidden, so anything
+  // inside it below the table is cut off where no one can scroll to it.
+  expect(directory.closest("#factsheets")).toBeNull();
+  expect(directory.closest("main")).not.toBeNull();
+});
+
 test("does not publish an empty directory when the upstream database fails", async () => {
   jest.mocked(fetchDrugs).mockRejectedValue(new Error("HTTP 503"));
   await expect(getStaticProps({} as GetStaticPropsContext)).rejects.toThrow(

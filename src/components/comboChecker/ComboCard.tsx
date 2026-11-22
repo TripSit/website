@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { RISK, type RiskKey } from "./comboData";
 import styles from "./comboChecker.module.css";
 
@@ -7,6 +8,14 @@ interface ComboCardProps {
   note: string;
   showNote: boolean;
   delay: string;
+  /** The pair's own page, with its sources and how to suggest a change. */
+  href?: string;
+  sourceCount?: number;
+}
+
+function detailsLabel(sourceCount: number): string {
+  if (sourceCount === 0) return "Details";
+  return `Details and ${sourceCount} ${sourceCount === 1 ? "source" : "sources"}`;
 }
 
 function ComboCard({
@@ -15,6 +24,8 @@ function ComboCard({
   note,
   showNote,
   delay,
+  href,
+  sourceCount = 0,
 }: Readonly<ComboCardProps>) {
   const r = RISK[risk];
   return (
@@ -34,6 +45,18 @@ function ComboCard({
         </div>
       </div>
       {showNote && note && <p className={styles.cardNote}>{note}</p>}
+      {showNote && !note && (
+        <p className={`${styles.cardNote} ${styles.cardNoteMissing}`}>
+          No explanation has been written for this combination yet.
+        </p>
+      )}
+      {href && (
+        <Link href={href} className={styles.cardLink}>
+          {detailsLabel(sourceCount)}
+          <span className="sr-only"> for {title}</span>
+          <span aria-hidden="true"> →</span>
+        </Link>
+      )}
     </div>
   );
 }

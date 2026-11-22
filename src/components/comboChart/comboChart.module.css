@@ -224,6 +224,21 @@
 .matrix .diagonal {
   font-size: 17px;
 }
+/* Fills the cell, so anywhere on it opens the pair's page. */
+.cellLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  border-radius: 2px;
+  color: inherit;
+  text-decoration: none;
+}
+.cellLink:hover,
+.cellLink:focus-visible {
+  outline: 2px solid #080c10;
+  outline-offset: 3px;
+}
 .glyph {
   display: block;
   color: #080c10;

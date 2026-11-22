@@ -9,6 +9,7 @@ import {
   TRANSLATIONS,
 } from "../translations";
 import { getCombo, SUBSTANCES } from "../../comboChecker/comboData";
+import { pairPath } from "../../comboChecker/comboLinks";
 import type { ChartLanguage, ChartTranslation } from "../translations";
 import {
   getStaticPaths,
@@ -47,6 +48,8 @@ it.each(Object.keys(LANGUAGES) as ChartLanguage[])(
     cells.forEach((cell) => {
       const [a, b] = (cell.dataset.pair ?? "").split("|");
       expect(cell.dataset.risk).toBe(getCombo(a, b).risk);
+      // Both halves of the chart open the same page for a pair.
+      expect(cell.querySelector("a")).toHaveAttribute("href", pairPath(a, b));
     });
     SUBSTANCES.forEach((substance) =>
       expect(

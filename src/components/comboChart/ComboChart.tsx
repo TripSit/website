@@ -21,6 +21,7 @@ import {
   riskLabel,
   isChartLanguage,
 } from "./translations";
+import { pairPath } from "../comboChecker/comboLinks";
 import type { ChartProps } from "../../utils/comboChart.server";
 import { siteOrigin } from "../../utils/siteOrigin";
 import styles from "./comboChart.module.css";
@@ -343,16 +344,21 @@ export default function ComboChart({
                         data-risk={risk}
                         data-pair={`${a}|${b}`}
                       >
-                        <span
-                          aria-hidden="true"
-                          title={
-                            note ? [description, note].join(" — ") : description
-                          }
-                          className={styles.glyph}
-                        >
-                          {RISK[risk].glyph}
-                        </span>
-                        <span className={styles.srOnly}>{description}</span>
+                        {/* Each cell opens the pair's page, with its explanation and sources. */}
+                        <Link href={pairPath(a, b)} className={styles.cellLink}>
+                          <span
+                            aria-hidden="true"
+                            title={
+                              note
+                                ? [description, note].join(" — ")
+                                : description
+                            }
+                            className={styles.glyph}
+                          >
+                            {RISK[risk].glyph}
+                          </span>
+                          <span className={styles.srOnly}>{description}</span>
+                        </Link>
                       </td>
                     );
                   })}

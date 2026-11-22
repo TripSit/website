@@ -150,17 +150,21 @@ export default function AccordionSection({
           </span>
         </button>
       </h2>
-      {/* Kept in the DOM when closed so the FAQ text stays readable to search engines */}
-      <div
+      {/* Kept in the DOM when closed so the FAQ text stays readable to search engines.
+          A labelled <section> is the native region (Sonar S6819 flags role="region").
+          style.css gives every section 80px of padding and overflow: hidden (and
+          #factsheets sections their own padding); it isn't in a CSS layer, so only an
+          inline style keeps this panel laid out as it was. */}
+      <section
         id={`${id}-panel`}
-        role="region"
         aria-labelledby={`${id}-trigger`}
         hidden={!isExpanded}
+        style={{ padding: 0, margin: 0, overflow: "visible" }}
       >
         <div className={cn(slotDefaults.content, classNames.content)}>
           {children}
         </div>
-      </div>
+      </section>
     </div>
   );
 }

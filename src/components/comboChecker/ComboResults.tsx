@@ -1,5 +1,13 @@
 import { useMemo } from "react";
-import { accentTone, getCombo, RANK, RISK, type RiskKey } from "./comboData";
+import {
+  accentTone,
+  getCombo,
+  getComboSources,
+  RANK,
+  RISK,
+  type RiskKey,
+} from "./comboData";
+import { pairPath } from "./comboLinks";
 import ComboCard from "./ComboCard";
 import styles from "./comboChecker.module.css";
 
@@ -15,6 +23,8 @@ interface Card {
   title: string;
   risk: RiskKey;
   note: string;
+  href: string;
+  sourceCount: number;
 }
 
 function ComboResults({
@@ -35,6 +45,8 @@ function ComboResults({
           title: `${a} + ${b}`,
           risk,
           note,
+          href: pairPath(a, b),
+          sourceCount: getComboSources(a, b).length,
           rank: RANK[risk],
         });
       }
@@ -91,6 +103,8 @@ function ComboResults({
             risk={c.risk}
             note={c.note}
             showNote={showExplanations}
+            href={c.href}
+            sourceCount={c.sourceCount}
             delay={`${Math.min(i, 8) * 0.035}s`}
           />
         ))}

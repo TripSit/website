@@ -350,6 +350,104 @@
   line-height: 1.55;
   color: #5b6670;
 }
+.cardNoteMissing {
+  font-style: italic;
+}
+/* #1f75b3 like the page's other plain links: 4.9:1 on white. */
+.cardLink {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #1f75b3;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.cardLink:hover {
+  color: #16507b;
+}
+
+/* ---- One combination's page ---- */
+/* Names keep their case: SSRIs, NBOMes and 5-MeO-xxT mean less in capitals. */
+.pairTitle {
+  text-transform: none;
+}
+.crumb {
+  margin: 0 0 12px;
+  font-size: 14px;
+}
+.verdict {
+  margin-top: 24px;
+  max-width: 760px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: 10px;
+}
+.verdictBadge {
+  width: 40px;
+  height: 40px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  color: #fff;
+  font-weight: 800;
+  font-size: 20px;
+  line-height: 1;
+}
+.verdictLabel {
+  margin: 0;
+  font-size: 19px;
+  line-height: 1.25;
+}
+.verdictText {
+  margin: 6px 0 0;
+  font-size: 14.5px;
+  line-height: 1.6;
+}
+.pairHeading {
+  margin: 36px 0 10px;
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #683394;
+}
+.pairText {
+  margin: 0;
+  max-width: 760px;
+  font-size: 15.5px;
+  line-height: 1.7;
+  color: #444444;
+}
+.pairMissing {
+  color: #5b6670;
+  font-style: italic;
+}
+.sourceList {
+  margin: 0;
+  max-width: 760px;
+  padding-left: 1.3em;
+  display: grid;
+  gap: 12px;
+  font-size: 15px;
+  line-height: 1.55;
+}
+/* Underlined like the disclaimer's links, since colour alone doesn't set them apart. */
+.crumb a,
+.pairText a,
+.sourceList a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.sourceAuthor {
+  display: block;
+  margin-top: 2px;
+  font-size: 13.5px;
+  color: #5b6670;
+}
 
 /* ---- Disclaimer ---- */
 .nicknames {

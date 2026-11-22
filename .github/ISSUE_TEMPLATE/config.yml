@@ -1,5 +1,8 @@
 blank_issues_enabled: true
 contact_links:
+  - name: Wrong drug or combination information
+    url: https://github.com/TripSit/drugs/discussions/new?category=drug-interactions
+    about: Ratings, notes and sources come from TripSit's drug database. Suggest a change to the drug team there, with a reliable source.
   - name: Ask in Discord
     url: https://discord.gg/tripsit
     about: For questions or discussion, please ask in our Discord guild instead of opening an issue.

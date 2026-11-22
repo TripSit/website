@@ -6,6 +6,7 @@ import {
   chartPath,
   isChartLanguage,
 } from "../components/comboChart/translations";
+import { indexedPairPaths } from "../components/comboChecker/comboLinks";
 
 // Pages for search engines. /appeal is left out because it only works after a login.
 const PAGES = [
@@ -21,6 +22,8 @@ const PAGES = [
   ...Object.keys(LANGUAGES)
     .filter((language) => isChartLanguage(language))
     .map((language) => chartPath(language)),
+  // Combination pages that have an explanation; the rest are marked noindex.
+  ...indexedPairPaths(),
   "/webchat",
   "/reflect",
   "/reflect/privacy",

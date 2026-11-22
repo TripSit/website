@@ -23,15 +23,14 @@ const columns = [
         label: "Privacy policy",
         href: "https://wiki.tripsit.me/wiki/Privacy_Policy",
       },
-      { label: "Team Portal", href: "https://home.tripsit.me/" },
     ],
   },
   {
     title: "Our Services",
     links: [
       { label: "Combo App", href: "/combo" },
-      { label: "Factsheets", href: "https://drugs.tripsit.me/" },
-      { label: "Live Chat", href: "https://chat.tripsit.me" },
+      { label: "Factsheets", href: "/factsheets" },
+      { label: "Live Chat", href: "/webchat" },
       { label: "Reflect App", href: "/reflect" },
       { label: "Learning Portal", href: "https://learn.tripsit.me/" },
     ],

@@ -13,7 +13,13 @@ import type { ApexAxisChartSeries } from "apexcharts";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import comboDefinitions from "../assets/comboDefinitions.json";
-import { SUBSTANCES } from "./comboChecker/comboData";
+import {
+  SUBSTANCES,
+  shownSources,
+  tidyText,
+  type ShownSource,
+} from "./comboChecker/comboData";
+import { chartSubstance, pairPath } from "./comboChecker/comboLinks";
 import addDictionaryDefs from "./addDictionaryDefs";
 import ReagentResults from "./ReagentResults";
 import { parseDoseRangeMg } from "../utils/parseDoseRangeMg";
@@ -813,7 +819,13 @@ function comboLabel(key: string): string {
     .join(" ");
 }
 
-type ComboEntry = { name: string; note: string };
+type ComboEntry = {
+  name: string;
+  note: string;
+  sources: ShownSource[];
+  // The pair's page, when both substances are on the combination chart.
+  href?: string;
+};
 
 function ComboGroup({
   status,
@@ -856,15 +868,30 @@ function ComboGroup({
           },
           columnGap: 3,
           rowGap: { xs: 0.25, sm: 1 },
+          // The page's link blue (#1f75b3, set on the container below with this selector)
+          // is 3.4–4.6:1 on these tints; this is at least 5.8:1.
+          "& a:not([class])": {
+            color: "#16507b",
+            textDecoration: "underline",
+            textUnderlineOffset: "2px",
+          },
         }}
       >
-        {combos.map(({ name, note }) => (
+        {combos.map(({ name, note, sources, href }) => (
           <React.Fragment key={name}>
             <Box component="dt" sx={{ fontWeight: 700, mt: { xs: 1, sm: 0 } }}>
-              {name}
+              {href ? (
+                <Link href={href}>
+                  {name}
+                  <span className="sr-only"> combination details</span>
+                </Link>
+              ) : (
+                name
+              )}
             </Box>
             <Box component="dd" sx={{ m: 0 }}>
               {note}
+              {sources.length > 0 && <ComboSources sources={sources} />}
             </Box>
           </React.Fragment>
         ))}
@@ -873,18 +900,48 @@ function ComboGroup({
   );
 }
 
+// The drug team's sources for one combination, folded away under the note.
+function ComboSources({ sources }: Readonly<{ sources: ShownSource[] }>) {
+  return (
+    <Box component="details" sx={{ mt: 0.5 }}>
+      <summary>Sources ({sources.length})</summary>
+      <Box component="ul" sx={{ m: 0, mt: 0.5, pl: 2.5 }}>
+        {sources.map(({ title, author, url }) => (
+          <li key={`${title}|${url}`}>
+            {url ? (
+              <a href={url} target="_blank" rel="noopener noreferrer">
+                {title}
+              </a>
+            ) : (
+              title
+            )}
+            {author && ` (${author})`}
+          </li>
+        ))}
+      </Box>
+    </Box>
+  );
+}
+
 // The "Known Combinations" card: every combination grouped by risk, most risky first, each
 // group with its colour and definition. Empty groups are left out.
-function comboCard(comboData: Interactions): React.JSX.Element {
+function comboCard(
+  comboData: Interactions,
+  drugName: string,
+): React.JSX.Element {
+  const self = chartSubstance(drugName);
   const groups = new Map<string, ComboEntry[]>(
     comboOrder.map((status) => [status, []]),
   );
   for (const [drugB, combo] of Object.entries(comboData)) {
     if (!combo) continue;
+    const other = chartSubstance(drugB);
     groups.get(combo.status)?.push({
       name: comboLabel(drugB),
       // Notes are shown as written; only stray double spaces are tidied.
-      note: (combo.note ?? "").replaceAll(/ {2,}/g, " ").trim(),
+      note: tidyText(combo.note ?? ""),
+      sources: shownSources(combo.sources ?? []),
+      href: self && other && self !== other ? pairPath(self, other) : undefined,
     });
   }
 
@@ -904,7 +961,9 @@ function comboCard(comboData: Interactions): React.JSX.Element {
             >
               drug database
             </a>
-            . Sources can be found on our{" "}
+            . Where the drug team has listed sources, they&apos;re under each
+            combination, and combinations on our chart link to a page of their
+            own. Older notes and sources are on our{" "}
             <a
               href="https://wiki.tripsit.me/wiki/Drug_combinations"
               target="_blank"
@@ -1149,7 +1208,7 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
   }
 
   if (drugData.combos) {
-    elements.push(comboCard(drugData.combos));
+    elements.push(comboCard(drugData.combos, drugData.name));
   }
 
   if (drugData.pweffects !== undefined) {

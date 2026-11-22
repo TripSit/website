@@ -2,14 +2,14 @@ import React, { useEffect, useState } from "react";
 import { TypeProp } from "particles-bg";
 import Proton from "proton-engine";
 import dynamic from "next/dynamic";
-import { Dropdown } from "@heroui/react";
+import MenuButton from "./MenuButton";
 import { usePrefersReducedMotion } from "../utils/usePrefersReducedMotion";
 
 const ParticlesBg = dynamic(() => import("particles-bg"), {
   ssr: false,
 });
 
-const items = [
+export const items = [
   {
     key: "lines",
     label: "Tiny Tracers",
@@ -55,7 +55,7 @@ const items = [
   label: string;
 }[];
 
-const particleEffects = [
+export const particleEffects = [
   { type: "lines" }, // Small trailers
   { type: "thick" }, // Large trails
   { type: "cobweb", color: "#FFFFFF" }, // Must set color to white
@@ -132,35 +132,18 @@ export default function Particles() {
         id="animationButton"
         className="relative z-10 mx-auto -mt-16 flex max-w-6xl justify-end px-5 pb-4"
       >
-        <Dropdown>
-          <Dropdown.Trigger className="appearance-none [font:inherit] inline-flex cursor-pointer items-center gap-2 rounded-full border-[1px] border-solid border-line bg-surface/70 px-4 py-2 text-sm text-mute backdrop-blur transition hover:border-cyan hover:text-cyan focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan">
-            Animations
-          </Dropdown.Trigger>
-          <Dropdown.Popover
-            placement="bottom"
-            className="w-44 rounded-2xl border-[1px] border-solid border-line bg-surface p-1 shadow-2xl shadow-night/60"
-          >
-            <Dropdown.Menu
-              aria-label="Background animation"
-              items={items}
-              className="m-0 list-none p-0 outline-none"
-              onAction={(key) => {
-                const effectProps = particleEffects.find((e) => e.type === key);
-                if (effectProps) changeEffect(effectProps);
-              }}
-            >
-              {(item) => (
-                <Dropdown.Item
-                  id={item.key}
-                  textValue={item.label}
-                  className="cursor-pointer rounded-lg px-3 py-2 text-sm text-ink outline-none transition data-[hovered]:bg-violet/15 data-[hovered]:text-cyan data-[focus-visible]:bg-violet/15 data-[focus-visible]:text-cyan"
-                >
-                  {item.label}
-                </Dropdown.Item>
-              )}
-            </Dropdown.Menu>
-          </Dropdown.Popover>
-        </Dropdown>
+        <MenuButton
+          label="Animations"
+          aria-label="Background animation"
+          items={items}
+          onAction={(key) => {
+            const effectProps = particleEffects.find((e) => e.type === key);
+            if (effectProps) changeEffect(effectProps);
+          }}
+          className="appearance-none [font:inherit] inline-flex cursor-pointer items-center gap-2 rounded-full border-[1px] border-solid border-line bg-surface/70 px-4 py-2 text-sm text-mute backdrop-blur transition hover:border-cyan hover:text-cyan focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan"
+          menuClassName="absolute right-0 top-full z-20 mt-2 flex w-44 flex-col rounded-2xl border-[1px] border-solid border-line bg-surface p-1 shadow-2xl shadow-night/60"
+          itemClassName="appearance-none [background:none] [border:none] [font:inherit] w-full cursor-pointer rounded-lg px-3 py-2 text-left text-sm text-ink transition hover:bg-violet/15 hover:text-cyan focus-visible:bg-violet/15 focus-visible:text-cyan focus-visible:outline-none"
+        />
       </div>
     </div>
   );

@@ -3,8 +3,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import FactsheetsPage from "@/pages/factsheets";
 import { giveTableRoom } from "../../../test-utils/tableRoom";
 
-jest.mock("@heroui/react", () => ({ Accordion: () => null }));
-
 const originalFetch = global.fetch;
 const fetchMock = jest.fn();
 const drugs = {

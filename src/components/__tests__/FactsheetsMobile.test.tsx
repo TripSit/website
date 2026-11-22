@@ -5,7 +5,6 @@ import FactsheetsPage from "@/pages/factsheets";
 import DrugInfo from "../DrugInfo";
 import { giveTableRoom } from "../../../test-utils/tableRoom";
 
-jest.mock("@heroui/react", () => ({ Accordion: () => null }));
 // Records the size each chart is drawn at.
 const mockChartSize = jest.fn();
 jest.mock(

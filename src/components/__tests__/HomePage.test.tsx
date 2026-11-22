@@ -6,26 +6,6 @@ import drugs from "tripsit_drug_db/drugs.json";
 import { useCountUp } from "react-countup";
 
 jest.mock("@/utils/discordStats");
-jest.mock("@heroui/react", () => {
-  const Wrapper = ({ children }: { children: ReactNode }) => (
-    <div>{children}</div>
-  );
-  return {
-    Accordion: Object.assign(Wrapper, {
-      Item: ({
-        children,
-      }: {
-        children: (state: { isExpanded: boolean }) => ReactNode;
-      }) => children({ isExpanded: false }),
-      Heading: Wrapper,
-      Trigger: Wrapper,
-      Panel: Wrapper,
-      Body: Wrapper,
-    }),
-    Dropdown: Object.assign(Wrapper, { Trigger: Wrapper, Popover: () => null }),
-    cn: (...classes: string[]) => classes.filter(Boolean).join(" "),
-  };
-});
 jest.mock("swiper/modules", () => ({}));
 jest.mock("swiper/css", () => ({}));
 jest.mock("swiper/css/navigation", () => ({}));
@@ -125,15 +105,26 @@ test("links nowhere that is gone or private (#296)", () => {
   expect(
     hrefs.filter((href) => dead.some((url) => href.includes(url))),
   ).toEqual([]);
-  expect(
-    screen.getByRole("link", { name: /TripSit Discord Bot/i }),
-  ).toHaveAttribute("href", "https://github.com/TripSit/TripBot");
-  expect(screen.getByRole("link", { name: "Webchat" })).toHaveAttribute(
+  // These sit inside FAQ sections, which are collapsed until opened, so they are queried
+  // from the markup rather than the accessibility tree.
+  const linkNamed = (text: string | RegExp) =>
+    [...container.querySelectorAll("a")].find((a) =>
+      typeof text === "string"
+        ? a.textContent?.trim() === text
+        : text.test(a.textContent ?? ""),
+    );
+  expect(linkNamed(/TripSit Discord Bot/i)).toHaveAttribute(
+    "href",
+    "https://github.com/TripSit/TripBot",
+  );
+  expect(linkNamed("Webchat")).toHaveAttribute(
     "href",
     "https://github.com/TripSit/website/blob/main/src/components/Webchat.tsx",
   );
-  const phoneApp = screen.getByRole("heading", { name: "Phone App" });
-  expect(phoneApp.nextElementSibling?.querySelector("a")).toHaveAttribute(
+  const phoneApp = [
+    ...container.querySelectorAll("h3, h4, h5, strong, b"),
+  ].find((el) => el.textContent?.trim() === "Phone App");
+  expect(phoneApp?.nextElementSibling?.querySelector("a")).toHaveAttribute(
     "href",
     "/reflect",
   );

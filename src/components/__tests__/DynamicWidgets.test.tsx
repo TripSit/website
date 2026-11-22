@@ -12,7 +12,6 @@ jest.mock("@widgetbot/react-embed", () => ({
   __esModule: true,
   default: () => null,
 }));
-jest.mock("@heroui/react", () => ({}));
 
 test.each([
   "@/components/Particles",

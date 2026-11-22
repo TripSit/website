@@ -4,7 +4,6 @@ import type { Drug } from "tripsit_drug_db";
 import FactsheetsPage from "@/pages/factsheets";
 import { giveTableRoom } from "../../../test-utils/tableRoom";
 
-jest.mock("@heroui/react", () => ({ Accordion: () => null }));
 const mockDrugInfoCard = jest.fn(({ drugData }: { drugData: Drug }) => (
   <p>Details for {drugData.pretty_name}</p>
 ));

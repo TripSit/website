@@ -131,9 +131,17 @@ export const LEGEND_ORDER: RiskKey[] = [
   "unknown",
 ];
 
+// A reference the drug team cited for a combination. The database requires none of the fields.
+export interface ComboSource {
+  author?: string;
+  title?: string;
+  url?: string;
+}
+
 interface Interaction {
   status: string;
   note?: string;
+  sources?: ComboSource[];
 }
 const INTERACTIONS = rawInteractions as Record<
   string,
@@ -152,9 +160,16 @@ const STATUS_TO_RISK: Record<string, RiskKey> = {
 const UNKNOWN_NOTE =
   "There isn't enough reliable data on this combination. Treat it as potentially risky and research it thoroughly.";
 
-function comboKey(substance: string): string {
+// The substance's key in combos.json: its name in lower case, except DXM.
+export function comboKey(substance: string): string {
   const key = substance.toLowerCase();
   return key === "dxm" ? "dextromethorphan" : key;
+}
+
+function findInteraction(a: string, b: string): Interaction | undefined {
+  const ka = comboKey(a);
+  const kb = comboKey(b);
+  return INTERACTIONS[ka]?.[kb] ?? INTERACTIONS[kb]?.[ka];
 }
 
 // Other names for each substance in the chart, from its entry in the drug database
@@ -182,14 +197,39 @@ export function getCombo(
   a: string,
   b: string,
 ): { risk: RiskKey; note: string } {
-  const ka = comboKey(a);
-  const kb = comboKey(b);
-  const entry = INTERACTIONS[ka]?.[kb] ?? INTERACTIONS[kb]?.[ka];
+  const entry = findInteraction(a, b);
   if (!entry) return { risk: "unknown", note: UNKNOWN_NOTE };
   return {
     risk: STATUS_TO_RISK[entry.status] ?? "unknown",
     note: entry.note ?? "",
   };
+}
+
+// Kept out of getCombo: the chart's PNG/PDF downloads are tied to a hash of getCombo's
+// results (comboChart.server.ts), so adding fields there would hide them until regenerated.
+export function getComboSources(a: string, b: string): ComboSource[] {
+  return findInteraction(a, b)?.sources ?? [];
+}
+
+// A source ready to show: a title (the address when there's none) and only http(s) links.
+export interface ShownSource {
+  title: string;
+  author: string;
+  url: string | null;
+}
+
+// The database's text sometimes has double spaces; they're tidied wherever it's shown.
+export const tidyText = (text: string) => text.replaceAll(/ {2,}/g, " ").trim();
+
+export function shownSources(sources: readonly ComboSource[]): ShownSource[] {
+  return sources.flatMap(({ author, title, url }) => {
+    const link = url?.trim() ?? "";
+    const safeUrl = /^https?:\/\//i.test(link) ? link : null;
+    const name = tidyText(title ?? "") || safeUrl;
+    return name
+      ? [{ title: name, author: tidyText(author ?? ""), url: safeUrl }]
+      : [];
+  });
 }
 
 // Accent color -> tonal container/on-container roles (used for empty state + focus tones).

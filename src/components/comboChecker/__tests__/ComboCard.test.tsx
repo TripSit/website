@@ -42,10 +42,55 @@ describe("ComboCard", () => {
     expect(screen.getByText("Be careful")).toBeInTheDocument();
   });
 
-  it("does not render a note element when the note is empty, even if showNote is true", () => {
-    render(
-      <ComboCard title="A + B" risk="unknown" note="" showNote delay="0s" />,
+  it("says when no explanation has been written yet, if notes are shown", () => {
+    const { rerender } = render(
+      <ComboCard title="A + B" risk="caution" note="" showNote delay="0s" />,
+    );
+    expect(
+      screen.getByText(
+        "No explanation has been written for this combination yet.",
+      ),
+    ).toBeVisible();
+
+    rerender(
+      <ComboCard
+        title="A + B"
+        risk="caution"
+        note=""
+        showNote={false}
+        delay="0s"
+      />,
     );
     expect(screen.queryByRole("paragraph")).not.toBeInTheDocument();
+  });
+
+  it.each([
+    [undefined, "Details for A + B"],
+    [0, "Details for A + B"],
+    [1, "Details and 1 source for A + B"],
+    [4, "Details and 4 sources for A + B"],
+  ])("links to the pair's page, counting %s sources", (sourceCount, name) => {
+    render(
+      <ComboCard
+        title="A + B"
+        risk="caution"
+        note=""
+        showNote={false}
+        delay="0s"
+        href="/combo/a/b"
+        sourceCount={sourceCount}
+      />,
+    );
+    expect(screen.getByRole("link", { name })).toHaveAttribute(
+      "href",
+      "/combo/a/b",
+    );
+  });
+
+  it("has no details link without a page to go to", () => {
+    render(
+      <ComboCard title="A + B" risk="caution" note="" showNote delay="0s" />,
+    );
+    expect(screen.queryByRole("link")).not.toBeInTheDocument();
   });
 });

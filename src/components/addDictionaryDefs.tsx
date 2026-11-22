@@ -24,7 +24,9 @@ export default function addDictionaryDefs(
               component="span"
               style={{
                 display: "inline",
-                color: "darkblue",
+                // darkblue reads on the light factsheets table. A dark surface sets
+                // --dictionary-term to something that reads there; see DrugInfo's InfoCard.
+                color: "var(--dictionary-term, darkblue)",
                 textDecoration: "underline",
                 fontSize: "inherit", // Inherit font size
                 fontFamily: "inherit", // Inherit font family

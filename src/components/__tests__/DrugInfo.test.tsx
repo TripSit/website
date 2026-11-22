@@ -743,6 +743,38 @@ test("shows each safety note once, under its own heading, before the other cards
   expect(screen.getByText("Very long lasting").tagName).toBe("P");
 });
 
+test("outlines the information cards and keeps the shadow for safety notes (#77)", () => {
+  const { container } = render(
+    <DrugInfo
+      drugData={
+        {
+          ...drug,
+          properties: { warning: "Very long lasting", summary: "A drug." },
+        } as unknown as Drug
+      }
+    />,
+  );
+  const cards = [...container.querySelectorAll(".MuiCard-root")];
+  expect(cards.length).toBeGreaterThan(1);
+
+  const warning = cards.find((card) =>
+    card.querySelector("h2")?.textContent?.includes("Warning"),
+  );
+  if (!warning) {
+    throw new Error("No warning card was rendered");
+  }
+  // Material 3's filled card: it is the only one that keeps a raised edge, so the fill and
+  // the shadow together separate it from the information around it.
+  expect(warning).not.toHaveClass("MuiPaper-outlined");
+  expect(warning).toHaveClass("MuiPaper-elevation4");
+
+  // Every other card is outlined and flat.
+  for (const card of cards.filter((card) => card !== warning)) {
+    expect(card).toHaveClass("MuiPaper-outlined");
+    expect(card.className).not.toMatch(/MuiPaper-elevation[1-9]/);
+  }
+});
+
 test("groups combinations by risk, hides empty groups and uses the checker's names", () => {
   render(
     <DrugInfo

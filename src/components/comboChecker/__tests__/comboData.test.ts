@@ -1,10 +1,12 @@
 import {
   accentTone,
   getCombo,
+  getComboSources,
   GROUPS,
   LEGEND_ORDER,
   RANK,
   RISK,
+  shownSources,
   SUBSTANCES,
   substanceNicknames,
 } from "../comboData";
@@ -110,5 +112,45 @@ describe("substanceNicknames", () => {
       // "DXM" is stored under its full name, which counts as another name.
       DXM: ["robo"],
     });
+  });
+});
+
+describe("getComboSources", () => {
+  it("returns the drug team's sources in either order, and none when there are none", () => {
+    const sources = getComboSources("MDMA", "SSRIs");
+    expect(sources).toHaveLength(3);
+    expect(getComboSources("SSRIs", "MDMA")).toEqual(sources);
+    expect(getComboSources("LSD", "Mushrooms")).toEqual([]);
+    expect(getComboSources("Nothing", "Else")).toEqual([]);
+  });
+});
+
+describe("shownSources", () => {
+  it("tidies the text, links only web addresses and drops sources with nothing to show", () => {
+    expect(
+      shownSources([
+        {
+          author: "Malcolm, B.,  & Thomas, K. ",
+          title: "A  title",
+          url: "https://doi.org/x",
+        },
+        { title: "No link", url: "javascript:alert(1)" },
+        { url: " http://example.test/page " },
+        { author: "Only an author" },
+        {},
+      ]),
+    ).toEqual([
+      {
+        title: "A title",
+        author: "Malcolm, B., & Thomas, K.",
+        url: "https://doi.org/x",
+      },
+      { title: "No link", author: "", url: null },
+      {
+        title: "http://example.test/page",
+        author: "",
+        url: "http://example.test/page",
+      },
+    ]);
   });
 });

@@ -13,7 +13,13 @@ import type { ApexAxisChartSeries } from "apexcharts";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import comboDefinitions from "../assets/comboDefinitions.json";
-import { SUBSTANCES } from "./comboChecker/comboData";
+import {
+  SUBSTANCES,
+  shownSources,
+  tidyText,
+  type ShownSource,
+} from "./comboChecker/comboData";
+import { chartSubstance, pairPath } from "./comboChecker/comboLinks";
 import addDictionaryDefs from "./addDictionaryDefs";
 import ReagentResults from "./ReagentResults";
 import { parseDoseRangeMg } from "../utils/parseDoseRangeMg";
@@ -22,6 +28,47 @@ import { parseDoseRangeMg } from "../utils/parseDoseRangeMg";
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
 });
+
+// The site's palette, from src/styles/tailwind.css. The factsheet cards were white on the
+// dark page, so a drop shadow did nothing and nothing marked where one card ended and the
+// next began.
+const SURFACE = "#141a2e"; // one step up from --color-night, so a card reads as raised
+const LINE = "#2a3152"; // --color-line
+const INK = "#e9ecfb"; // --color-ink
+const LINK = "#8ab4f8"; // ink-side blue: 7.4:1 on SURFACE, where #1f75b3 is 2.2:1
+
+// Every card of ordinary information: outlined and flat, in Material 3's sense. On a dark
+// page an outline is what separates one card from the next, since a shadow has nothing to
+// fall on. That leaves fill and shadow free to mean "this is a safety note" (WarningCard),
+// which is the mix Material 3 suggests.
+function InfoCard({ children }: Readonly<{ children: ReactNode }>) {
+  return (
+    <Card
+      variant="outlined"
+      sx={{
+        backgroundColor: SURFACE,
+        borderColor: LINE,
+        color: INK,
+        "--dictionary-term": LINK, // see addDictionaryDefs
+        // ApexCharts' export menu is its own white popup, so foreColor would leave its
+        // items near-invisible. Give the menu the card's colours instead.
+        "& .apexcharts-menu": {
+          backgroundColor: SURFACE,
+          borderColor: LINE,
+          color: INK,
+        },
+        "& .apexcharts-menu-item:hover": { backgroundColor: LINE },
+        // Its toolbar paints a near-white panel, invisible on a white card and a bright
+        // box on a dark one. The icons carry themselves once it is gone.
+        "& .apexcharts-toolbar": { backgroundColor: "transparent" },
+        "& .apexcharts-toolbar svg": { fill: INK },
+        "& .apexcharts-pan-icon svg": { stroke: INK, fill: "none" },
+      }}
+    >
+      {children}
+    </Card>
+  );
+}
 
 type TimingKey = "Onset" | "Duration" | "After Effects";
 
@@ -278,6 +325,11 @@ const addDurations = (drugData: Drug) => {
       // The grow-in animation keeps the browser drawing frames for about two seconds after a
       // factsheet row is expanded. Draw the chart once instead.
       animations: { enabled: false },
+      // The card is dark now, so the chart takes its colour from the card rather than
+      // painting its own white panel behind the bars, and its labels match the card's text.
+      // Not theme.mode: that repaints the bar gradients and would undo the per-phase colours.
+      background: "transparent",
+      foreColor: INK,
     },
     plotOptions: {
       bar: {
@@ -339,16 +391,12 @@ const addDurations = (drugData: Drug) => {
 
   return (
     <Grid size={{ xs: 12 }} key="durations">
-      <Card>
+      <InfoCard>
         <CardContent>
           <Grid container spacing={2}>
             {/* Duration Chart */}
             <Grid size={{ xs: 12, sm: 6, md: 6 }}>
-              <Typography
-                variant="h5"
-                component="h2"
-                style={{ color: "black" }}
-              >
+              <Typography variant="h5" component="h2">
                 Durations
               </Typography>
               <ReactApexChart
@@ -411,7 +459,7 @@ const addDurations = (drugData: Drug) => {
             </Grid>
           </Grid>
         </CardContent>
-      </Card>
+      </InfoCard>
     </Grid>
   );
 };
@@ -519,6 +567,8 @@ const addDosages = (drugData: Drug) => {
     chart: {
       id: "doseChart",
       animations: { enabled: false }, // See the duration chart above
+      background: "transparent", // See the duration chart above
+      foreColor: INK,
     },
     plotOptions: {
       bar: {
@@ -590,17 +640,13 @@ const addDosages = (drugData: Drug) => {
 
   return (
     <Grid size={{ xs: 12 }} key="dosage">
-      <Card>
+      <InfoCard>
         <CardContent>
           <Grid container spacing={2}>
             {/* Dosage Chart. Without one (doses in seeds or ml, say), the table takes the
                 whole card instead of leaving half of it empty. */}
             <Grid size={hasChart ? { xs: 12, sm: 6, md: 6 } : { xs: 12 }}>
-              <Typography
-                variant="h5"
-                component="h2"
-                style={{ color: "black" }}
-              >
+              <Typography variant="h5" component="h2">
                 Dosages
               </Typography>
               {hasChart && (
@@ -634,6 +680,7 @@ const addDosages = (drugData: Drug) => {
                       style={{
                         backgroundColor:
                           doseColorData[strength as keyof typeof doseColorData],
+                        color: "black", // a light dose colour, on a dark card
                       }}
                     >
                       {strength}
@@ -660,6 +707,7 @@ const addDosages = (drugData: Drug) => {
                               doseColorData[
                                 strength as keyof typeof doseColorData
                               ],
+                            color: "black", // a light dose colour, on a dark card
                           }}
                         >
                           {doseText[roa][strength] || "-"}
@@ -672,7 +720,7 @@ const addDosages = (drugData: Drug) => {
             </Grid>
           </Grid>
         </CardContent>
-      </Card>
+      </InfoCard>
     </Grid>
   );
 };
@@ -701,12 +749,18 @@ const warningLabels: Record<(typeof importantProperties)[number], string> = {
   adverseEffects: "Adverse effects",
 };
 
+// A safety note. Material 3 calls this a filled card, and it is the one card here that
+// keeps a shadow: the fill and the raised edge are what separate it from the information
+// around it, which is outlined and flat. See InfoCard.
 function WarningCard({
   label,
   text,
 }: Readonly<{ label: string; text: string }>) {
   return (
-    <Card sx={{ backgroundColor: "#fdecea", borderLeft: "6px solid #b3261e" }}>
+    <Card
+      elevation={4}
+      sx={{ backgroundColor: "#fdecea", borderLeft: "6px solid #b3261e" }}
+    >
       <CardContent>
         <Typography
           variant="h5"
@@ -765,7 +819,13 @@ function comboLabel(key: string): string {
     .join(" ");
 }
 
-type ComboEntry = { name: string; note: string };
+type ComboEntry = {
+  name: string;
+  note: string;
+  sources: ShownSource[];
+  // The pair's page, when both substances are on the combination chart.
+  href?: string;
+};
 
 function ComboGroup({
   status,
@@ -808,15 +868,30 @@ function ComboGroup({
           },
           columnGap: 3,
           rowGap: { xs: 0.25, sm: 1 },
+          // The page's link blue (#1f75b3, set on the container below with this selector)
+          // is 3.4–4.6:1 on these tints; this is at least 5.8:1.
+          "& a:not([class])": {
+            color: "#16507b",
+            textDecoration: "underline",
+            textUnderlineOffset: "2px",
+          },
         }}
       >
-        {combos.map(({ name, note }) => (
+        {combos.map(({ name, note, sources, href }) => (
           <React.Fragment key={name}>
             <Box component="dt" sx={{ fontWeight: 700, mt: { xs: 1, sm: 0 } }}>
-              {name}
+              {href ? (
+                <Link href={href}>
+                  {name}
+                  <span className="sr-only"> combination details</span>
+                </Link>
+              ) : (
+                name
+              )}
             </Box>
             <Box component="dd" sx={{ m: 0 }}>
               {note}
+              {sources.length > 0 && <ComboSources sources={sources} />}
             </Box>
           </React.Fragment>
         ))}
@@ -825,26 +900,56 @@ function ComboGroup({
   );
 }
 
+// The drug team's sources for one combination, folded away under the note.
+function ComboSources({ sources }: Readonly<{ sources: ShownSource[] }>) {
+  return (
+    <Box component="details" sx={{ mt: 0.5 }}>
+      <summary>Sources ({sources.length})</summary>
+      <Box component="ul" sx={{ m: 0, mt: 0.5, pl: 2.5 }}>
+        {sources.map(({ title, author, url }) => (
+          <li key={`${title}|${url}`}>
+            {url ? (
+              <a href={url} target="_blank" rel="noopener noreferrer">
+                {title}
+              </a>
+            ) : (
+              title
+            )}
+            {author && ` (${author})`}
+          </li>
+        ))}
+      </Box>
+    </Box>
+  );
+}
+
 // The "Known Combinations" card: every combination grouped by risk, most risky first, each
 // group with its colour and definition. Empty groups are left out.
-function comboCard(comboData: Interactions): React.JSX.Element {
+function comboCard(
+  comboData: Interactions,
+  drugName: string,
+): React.JSX.Element {
+  const self = chartSubstance(drugName);
   const groups = new Map<string, ComboEntry[]>(
     comboOrder.map((status) => [status, []]),
   );
   for (const [drugB, combo] of Object.entries(comboData)) {
     if (!combo) continue;
+    const other = chartSubstance(drugB);
     groups.get(combo.status)?.push({
       name: comboLabel(drugB),
       // Notes are shown as written; only stray double spaces are tidied.
-      note: (combo.note ?? "").replaceAll(/ {2,}/g, " ").trim(),
+      note: tidyText(combo.note ?? ""),
+      sources: shownSources(combo.sources ?? []),
+      href: self && other && self !== other ? pairPath(self, other) : undefined,
     });
   }
 
   return (
     <Grid size={{ xs: 12 }} key="combos">
-      <Card>
+      <InfoCard>
         <CardContent>
-          <Typography variant="h5" component="h2" style={{ color: "black" }}>
+          <Typography variant="h5" component="h2">
             Known Combinations
           </Typography>
           <Typography>
@@ -856,7 +961,9 @@ function comboCard(comboData: Interactions): React.JSX.Element {
             >
               drug database
             </a>
-            . Sources can be found on our{" "}
+            . Where the drug team has listed sources, they&apos;re under each
+            combination, and combinations on our chart link to a page of their
+            own. Older notes and sources are on our{" "}
             <a
               href="https://wiki.tripsit.me/wiki/Drug_combinations"
               target="_blank"
@@ -875,7 +982,7 @@ function comboCard(comboData: Interactions): React.JSX.Element {
             ) : null;
           })}
         </CardContent>
-      </Card>
+      </InfoCard>
     </Grid>
   );
 }
@@ -925,32 +1032,24 @@ function propertyCards(properties: Drug["properties"]): React.JSX.Element[] {
     if (propertyName === "test-kits") {
       elements.push(
         <Grid size={{ xs: 12, sm: 6, md: 4 }} key={propertyName}>
-          <Card>
+          <InfoCard>
             <CardContent>
-              <Typography
-                variant="h5"
-                component="h2"
-                style={{ color: "black" }}
-              >
+              <Typography variant="h5" component="h2">
                 Reagent test results
               </Typography>
               <Typography component="div">
                 <ReagentResults text={propertyValue as string} />
               </Typography>
             </CardContent>
-          </Card>
+          </InfoCard>
         </Grid>,
       );
     } else if (propertyName === "experiences") {
       elements.push(
         <Grid size={{ xs: 12, sm: 6, md: 4 }} key={propertyName}>
-          <Card>
+          <InfoCard>
             <CardContent>
-              <Typography
-                variant="h5"
-                component="h2"
-                style={{ color: "black" }}
-              >
+              <Typography variant="h5" component="h2">
                 {propertyName.charAt(0).toUpperCase() + propertyName.slice(1)}
               </Typography>
               <Typography>
@@ -963,19 +1062,15 @@ function propertyCards(properties: Drug["properties"]): React.JSX.Element[] {
                 </a>
               </Typography>
             </CardContent>
-          </Card>
+          </InfoCard>
         </Grid>,
       );
     } else {
       elements.push(
         <Grid size={{ xs: 12, sm: 6, md: 4 }} key={propertyName}>
-          <Card>
+          <InfoCard>
             <CardContent>
-              <Typography
-                variant="h5"
-                component="h2"
-                style={{ color: "black" }}
-              >
+              <Typography variant="h5" component="h2">
                 {propertyName.charAt(0).toUpperCase() + propertyName.slice(1)}
               </Typography>
               {/* Long addresses and words wrap instead of running off the card. */}
@@ -983,7 +1078,7 @@ function propertyCards(properties: Drug["properties"]): React.JSX.Element[] {
                 {propertyValueContent(propertyValue)}
               </Typography>
             </CardContent>
-          </Card>
+          </InfoCard>
         </Grid>,
       );
     }
@@ -1013,28 +1108,28 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
   // Always push the drug name since it's the one required field
   elements.push(
     <Grid size={{ xs: 12, sm: 4, md: 4 }} key="pretty_name">
-      <Card>
+      <InfoCard>
         <CardContent>
-          <Typography variant="h5" component="h2" style={{ color: "black" }}>
+          <Typography variant="h5" component="h2">
             Chemical Name
           </Typography>
           <Typography>{drugData.pretty_name}</Typography>
         </CardContent>
-      </Card>
+      </InfoCard>
     </Grid>,
   );
 
   if (drugData.aliases) {
     elements.push(
       <Grid size={{ xs: 12, sm: 4, md: 4 }} key="aliases">
-        <Card>
+        <InfoCard>
           <CardContent>
-            <Typography variant="h5" component="h2" style={{ color: "black" }}>
+            <Typography variant="h5" component="h2">
               Aliases
             </Typography>
             <Typography>{drugData.aliases.join(", ")}</Typography>
           </CardContent>
-        </Card>
+        </InfoCard>
       </Grid>,
     );
   }
@@ -1050,14 +1145,14 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
       .join(", ");
     elements.push(
       <Grid size={{ xs: 12, sm: 4, md: 4 }} key={`${drugData.name} categories`}>
-        <Card>
+        <InfoCard>
           <CardContent>
-            <Typography variant="h5" component="h2" style={{ color: "black" }}>
+            <Typography variant="h5" component="h2">
               Categories
             </Typography>
             <Typography>{addDictionaryDefs(capitalizedCategories)}</Typography>
           </CardContent>
-        </Card>
+        </InfoCard>
       </Grid>,
     );
   }
@@ -1067,14 +1162,14 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
 
     elements.push(
       <Grid size={{ xs: 12, sm: 12, md: 12 }} key="summary">
-        <Card>
+        <InfoCard>
           <CardContent>
-            <Typography variant="h5" component="h2" style={{ color: "black" }}>
+            <Typography variant="h5" component="h2">
               Summary
             </Typography>
             <Typography>{addDictionaryDefs(properties.summary)}</Typography>
           </CardContent>
-        </Card>
+        </InfoCard>
       </Grid>,
     );
   }
@@ -1085,14 +1180,17 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
   if (drugData.dose_note) {
     elements.push(
       <Grid size={{ xs: 12, sm: 12, md: 12 }} key="dose_note">
-        <Card>
-          <CardContent sx={{ backgroundColor: "yellow" }}>
+        <InfoCard>
+          {/* Filled, so its text is set back to black: the card around it is dark. The
+              heading says so itself, since a global rule colours headings and an inherited
+              colour cannot override one. */}
+          <CardContent sx={{ backgroundColor: "yellow", color: "black" }}>
             <Typography variant="h5" component="h2" style={{ color: "black" }}>
               Dosage Note
             </Typography>
             <Typography>{drugData.dose_note}</Typography>
           </CardContent>
-        </Card>
+        </InfoCard>
       </Grid>,
     );
   }
@@ -1110,15 +1208,15 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
   }
 
   if (drugData.combos) {
-    elements.push(comboCard(drugData.combos));
+    elements.push(comboCard(drugData.combos, drugData.name));
   }
 
   if (drugData.pweffects !== undefined) {
     elements.push(
       <Grid size={{ xs: 12, sm: 12, md: 12 }} key="pweffects">
-        <Card>
+        <InfoCard>
           <CardContent>
-            <Typography variant="h5" component="h2" style={{ color: "black" }}>
+            <Typography variant="h5" component="h2">
               Psychonaut Wiki Effects
             </Typography>
             <Grid container spacing={1}>
@@ -1137,7 +1235,7 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
               ))}
             </Grid>
           </CardContent>
-        </Card>
+        </InfoCard>
       </Grid>,
     );
   }
@@ -1145,14 +1243,14 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
   if (drugData.formatted_effects) {
     elements.push(
       <Grid size={{ xs: 12, sm: 6, md: 6 }} key="effects">
-        <Card>
+        <InfoCard>
           <CardContent>
-            <Typography variant="h5" component="h2" style={{ color: "black" }}>
+            <Typography variant="h5" component="h2">
               Effects
             </Typography>
             <Typography>{drugData.formatted_effects.join(", ")}</Typography>
           </CardContent>
-        </Card>
+        </InfoCard>
       </Grid>,
     );
   }
@@ -1163,9 +1261,9 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
 
     elements.push(
       <Grid size={{ xs: 12, sm: 6, md: 6 }} key="links">
-        <Card>
+        <InfoCard>
           <CardContent>
-            <Typography variant="h5" component="h2" style={{ color: "black" }}>
+            <Typography variant="h5" component="h2">
               Links
             </Typography>
             {linkKeys.map((property) => (
@@ -1180,7 +1278,7 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
               </Typography>
             ))}
           </CardContent>
-        </Card>
+        </InfoCard>
       </Grid>,
     );
   }
@@ -1190,14 +1288,14 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
     const links = Object.values(sourceData);
     elements.push(
       <Grid size={{ xs: 12, sm: 6, md: 6 }} key="sources">
-        <Card>
+        <InfoCard>
           <CardContent>
-            <Typography variant="h5" component="h2" style={{ color: "black" }}>
+            <Typography variant="h5" component="h2">
               Sources
             </Typography>
             <Typography>{links}</Typography>
           </CardContent>
-        </Card>
+        </InfoCard>
       </Grid>,
     );
   }
@@ -1205,8 +1303,9 @@ function DrugInfoCard({ drugData }: Readonly<{ drugData: Drug }>): ReactNode {
   return (
     <Container
       maxWidth="lg"
-      // The site-wide link blue (#2487ce) is 3.9:1 on these white cards; this is 4.9:1.
-      sx={{ "& a:not([class])": { color: "#1f75b3" } }}
+      // The cards are dark now, so the blue that read on white (#1f75b3, 3.5:1 here) is
+      // replaced by the ink-side blue. Safety notes and the dosage note hold no links.
+      sx={{ "& a:not([class])": { color: LINK } }}
     >
       <Grid container spacing={2}>
         {elements}

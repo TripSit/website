@@ -139,6 +139,31 @@ test("links nowhere that is gone or private (#296)", () => {
   );
 });
 
+test("footer links go straight to the site's pages, with no staff-only portal (#296)", () => {
+  const { container } = render(<Home discord={discord} drugCount={555} />);
+  const footer = container.querySelector("footer");
+  if (!footer) {
+    throw new Error("The homepage has no footer");
+  }
+  const hrefs = [...footer.querySelectorAll("a")].map(
+    (a) => a.getAttribute("href") ?? "",
+  );
+  // drugs.tripsit.me and chat.tripsit.me only redirect to these pages, and home.tripsit.me
+  // is the team's Google sign-in.
+  expect(
+    hrefs.filter((href) =>
+      ["drugs.tripsit.me", "chat.tripsit.me", "home.tripsit.me"].some((host) =>
+        href.includes(host),
+      ),
+    ),
+  ).toEqual([]);
+  const link = (name: string) =>
+    [...footer.querySelectorAll("a")].find((a) => a.textContent === name);
+  expect(link("Factsheets")).toHaveAttribute("href", "/factsheets");
+  expect(link("Live Chat")).toHaveAttribute("href", "/webchat");
+  expect(link("Team Portal")).toBeUndefined();
+});
+
 test("draws its icons as inline SVG, with no icon font left (#285)", () => {
   const { container } = render(<Home discord={discord} drugCount={555} />);
   expect(

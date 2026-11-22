@@ -1,0 +1,77 @@
+# The UAT Drone server (drone.tripsit.io) builds this file; the production server
+# (drone.tripsit.me) builds .drone.yml. Each server's repository settings name its own file,
+# so neither opens a build it has no runner for. See issue #287.
+#
+# Keep this pipeline and .drone.yml's production pipeline in step by hand: Drone has no
+# include, so a change meant for both has to be made in both.
+
+kind: pipeline
+type: docker
+name: Deploy Website UAT
+
+node:
+  env: uat
+
+steps:
+  - name: Rebuild Website UAT
+    # Pinned like production's images: this step can reach the UAT Docker daemon, so it must
+    # not run whatever docker:latest is that day. docker:latest has been 29.10.0 for every UAT
+    # build since 2026-11-16, so this pin changes nothing that runs today.
+    image: docker:29.10.0@sha256:4bbc7223f81db790097c6dea42fb93e05b8fead4f0431fbe6ccaba6e8473201c
+    commands:
+      - apk add --no-cache git
+      # Public settings must be build arguments now that .env files stay out of image layers.
+      - docker compose -f docker-compose.website-prod.yml --project-name website build --build-arg NEXT_PUBLIC_DNS_DOMAIN --build-arg NEXT_PUBLIC_KEYCLOAK_URL --build-arg NEXT_PUBLIC_KEYCLOAK_CLIENT_ID
+      - docker compose -f docker-compose.website-prod.yml --project-name website up -d --force-recreate --no-build
+      # - tail -f /dev/null
+    environment:
+      NODE_ENV:
+        from_secret: NODE_ENV
+      DOCKER_HOST:
+        from_secret: DOCKER_HOST
+      DOCKER_BUILDKIT:
+        from_secret: DOCKER_BUILDKIT
+      NEXT_PUBLIC_DNS_DOMAIN:
+        from_secret: NEXT_PUBLIC_DNS_DOMAIN
+      NEXT_PUBLIC_KEYCLOAK_URL:
+        from_secret: NEXT_PUBLIC_KEYCLOAK_URL
+      NEXT_PUBLIC_KEYCLOAK_CLIENT_ID:
+        from_secret: NEXT_PUBLIC_KEYCLOAK_CLIENT_ID
+      # Read by the homepage Discord stats (src/utils/discordStats.ts).
+      DISCORD_CLIENT_TOKEN:
+        from_secret: DISCORD_CLIENT_TOKEN
+      # The server the homepage Discord stats read; UAT's bot is only in the test server.
+      DISCORD_GUILD_ID:
+        from_secret: DISCORD_GUILD_ID
+
+  - name: discord notification
+    image: appleboy/drone-discord:1.5.2@sha256:c850372e85a4b86465e8fa89876fe86263f7b1979f1f0c8d51243b78b792155c
+    settings:
+      webhook_id:
+        from_secret: WEBHOOK_ID
+      webhook_token:
+        from_secret: WEBHOOK_TOKEN
+      avatar_url: https://i.imgur.com/tnw3I34.png
+      username: 'Drone CI'
+      message: |
+        {{#success build.status}}
+        UAT build {{build.number}} succeeded.
+        {{else}}
+        UAT build {{build.number}} failed.
+        {{/success}}
+        Build time: {{build.started}}
+        Commit message: {{truncate commit.message 500}}
+        Commit author: {{commit.author}}
+        Commit branch: {{commit.branch}}
+        {{#success build.status}}
+        View logs: <{{build.link}}>
+        {{else}}
+        View failed job: <{{build.link}}>
+        {{/success}}
+
+trigger:
+  branch:
+  - uat
+  event:
+  - custom
+  - push

@@ -5,30 +5,6 @@ import { useDrugs } from "@/utils/drugs";
 import Factsheets from "../Factsheets";
 
 jest.mock("@/utils/drugs", () => ({ useDrugs: jest.fn() }));
-jest.mock("@heroui/react", () => {
-  const Wrapper = ({ children }: { children: ReactNode }) => (
-    <div>{children}</div>
-  );
-  return {
-    cn: (...classes: string[]) => classes.filter(Boolean).join(" "),
-    Accordion: Object.assign(Wrapper, {
-      Item: ({
-        children,
-      }: {
-        children: (state: { isExpanded: boolean }) => ReactNode;
-      }) => (
-        <>
-          {children({ isExpanded: false })}
-          {children({ isExpanded: true })}
-        </>
-      ),
-      Heading: Wrapper,
-      Trigger: Wrapper,
-      Panel: Wrapper,
-      Body: Wrapper,
-    }),
-  };
-});
 jest.mock("material-react-table", () => {
   // Every factsheet column holds text (or nothing), so the mock treats values as strings.
   type Column = {

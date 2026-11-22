@@ -1,68 +1,8 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import type { ReactNode } from "react";
-import AccordionSection from "../AccordionSection";
+import AccordionSection, { Accordion } from "../AccordionSection";
 import Proton from "proton-engine";
 import Particles, { frameStep } from "../Particles";
-
-jest.mock("@heroui/react", () => {
-  const React = jest.requireActual<typeof import("react")>("react");
-  const Wrapper = ({ children }: { children: ReactNode }) => (
-    <div>{children}</div>
-  );
-  return {
-    cn: (...classes: string[]) => classes.filter(Boolean).join(" "),
-    Accordion: {
-      Item: ({
-        children,
-      }: {
-        children: (state: { isExpanded: boolean }) => ReactNode;
-      }) => {
-        const [isExpanded, setExpanded] = React.useState(false);
-        return (
-          <div>
-            <button onClick={() => setExpanded(!isExpanded)}>
-              Toggle section
-            </button>
-            {children({ isExpanded })}
-          </div>
-        );
-      },
-      Heading: Wrapper,
-      Trigger: ({ children, ...props }: { children: ReactNode }) => (
-        <button {...props}>{children}</button>
-      ),
-      Panel: Wrapper,
-      Body: Wrapper,
-    },
-    Dropdown: Object.assign(Wrapper, {
-      Trigger: Wrapper,
-      Popover: Wrapper,
-      Menu: ({
-        items,
-        children,
-        onAction,
-      }: {
-        items: { key: string; label: string }[];
-        children: (item: { key: string; label: string }) => ReactNode;
-        onAction: (key: string) => void;
-      }) => (
-        <div>
-          {items.map((item) => (
-            <button
-              type="button"
-              key={item.key}
-              onClick={() => onAction(item.key)}
-            >
-              {children(item)}
-            </button>
-          ))}
-          <button onClick={() => onAction("unknown")}>Unknown effect</button>
-        </div>
-      ),
-      Item: ({ children }: { children: ReactNode }) => <span>{children}</span>,
-    }),
-  };
-});
+import { items, particleEffects } from "../Particles";
 
 jest.mock(
   "next/dynamic",
@@ -84,8 +24,33 @@ test("provides a default accordion indicator and exposes expansion state", () =>
     screen.getByRole("button", { name: "Details" }).querySelector("svg"),
   ).toBeInTheDocument();
   expect(container.querySelector("[data-open]")).toBeNull();
-  fireEvent.click(screen.getByRole("button", { name: "Toggle section" }));
+  fireEvent.click(screen.getByRole("button", { name: "Details" }));
   expect(container.querySelector('[data-open="true"]')).toBeInTheDocument();
+});
+
+test("inside an Accordion, opening one section closes the one before it", () => {
+  render(
+    <Accordion hideSeparator className="w-full px-2">
+      <AccordionSection title="First">First body</AccordionSection>
+      <AccordionSection title="Second">Second body</AccordionSection>
+    </Accordion>,
+  );
+  const first = screen.getByRole("button", { name: /First/ });
+  const second = screen.getByRole("button", { name: /Second/ });
+  expect(first).toHaveAttribute("aria-expanded", "false");
+
+  fireEvent.click(first);
+  expect(first).toHaveAttribute("aria-expanded", "true");
+  expect(screen.getByText("First body")).toBeVisible();
+
+  fireEvent.click(second);
+  expect(first).toHaveAttribute("aria-expanded", "false");
+  expect(second).toHaveAttribute("aria-expanded", "true");
+  // Closed panels stay in the markup, for search engines, but out of the page.
+  expect(screen.getByText("First body")).not.toBeVisible();
+
+  fireEvent.click(second);
+  expect(second).toHaveAttribute("aria-expanded", "false");
 });
 
 test("passes expanded state to a caller's accordion indicator", () => {
@@ -100,23 +65,34 @@ test("passes expanded state to a caller's accordion indicator", () => {
   );
   expect(screen.getByText("Icon")).toBeVisible();
   expect(screen.getByText("Collapsed")).toBeVisible();
-  fireEvent.click(screen.getByRole("button", { name: "Toggle section" }));
+  fireEvent.click(screen.getByRole("button", { name: /Details/ }));
   expect(screen.getByText("Expanded")).toBeVisible();
 });
 
-test("changes the background effect and ignores unknown selections", () => {
+// The picker is a menu: open it, then choose.
+const choose = (name: string) => {
+  fireEvent.click(screen.getByRole("button", { name: "Animations" }));
+  fireEvent.click(screen.getByRole("menuitem", { name }));
+};
+
+test("changes the background effect", () => {
   render(<Particles />);
   expect(screen.getByLabelText("Background effect")).toHaveTextContent(
     "cobweb #FFFFFF",
   );
-  fireEvent.click(screen.getByRole("button", { name: "Tiny Tracers" }));
+  choose("Tiny Tracers");
   expect(screen.getByLabelText("Background effect")).toHaveTextContent("lines");
-  fireEvent.click(screen.getByRole("button", { name: "Unknown effect" }));
-  expect(screen.getByLabelText("Background effect")).toHaveTextContent("lines");
-  fireEvent.click(screen.getByRole("button", { name: "Connections" }));
+  choose("Connections");
   expect(screen.getByLabelText("Background effect")).toHaveTextContent(
     "cobweb #FFFFFF",
   );
+});
+
+// Particles ignores a key with no matching effect. Nothing in the menu can produce one,
+// so this guards the two lists against drifting apart instead.
+test("every item in the picker names a real effect", () => {
+  const types = new Set<string>(particleEffects.map((effect) => effect.type));
+  expect(items.filter((item) => !types.has(item.key))).toEqual([]);
 });
 
 test("shows no background animation or picker to someone who prefers reduced motion", () => {
@@ -139,11 +115,11 @@ test("shows no background animation or picker to someone who prefers reduced mot
 test("runs the hectic effects at half speed and restores full speed afterwards (#7)", () => {
   const { unmount } = render(<Particles />);
   expect(Proton.DEFAULT_INTERVAL).toBeCloseTo(0.0167);
-  fireEvent.click(screen.getByRole("button", { name: "Balls" }));
+  choose("Balls");
   expect(Proton.DEFAULT_INTERVAL).toBeCloseTo(0.0167 / 2);
-  fireEvent.click(screen.getByRole("button", { name: "Tadpoles" }));
+  choose("Tadpoles");
   expect(Proton.DEFAULT_INTERVAL).toBeCloseTo(0.0167);
-  fireEvent.click(screen.getByRole("button", { name: "Fountain" }));
+  choose("Fountain");
   unmount();
   // Leaving the page must not leave the engine slowed for the next visit.
   expect(Proton.DEFAULT_INTERVAL).toBeCloseTo(0.0167);

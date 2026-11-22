@@ -3,7 +3,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import FactsheetsPage from "@/pages/factsheets";
 import { giveTableRoom } from "../../../test-utils/tableRoom";
 
-jest.mock("@heroui/react", () => ({ Accordion: () => null }));
 // "unlisted" is not in the database: pins for drugs that aren't loaded must be ignored,
 // not crash the table (as the commented-out rowPinning in #78 did).
 jest.mock("@/assets/pinnedDrugs.json", () => ["minimal", "unlisted"]);

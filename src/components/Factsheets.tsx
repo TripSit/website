@@ -36,8 +36,7 @@ import {
   Card,
   CardContent,
 } from "@mui/material";
-import { Accordion } from "@heroui/react";
-import AccordionSection from "./AccordionSection";
+import AccordionSection, { Accordion } from "./AccordionSection";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { Category, Drug } from "tripsit_drug_db";
 import { useDrugs } from "../utils/drugs";

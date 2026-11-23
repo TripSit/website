@@ -1,4 +1,19 @@
-# Code owners for the TripSit website.
-# See https://docs.github.com/articles/about-codeowners for syntax.
-
-* @TripSit/website
+# Ordinary application PRs may enter the UAT queue without review.
+# Delivery controls require an independent code-owner approval.
+/.github/ @TripSit/website
+/.drone.yml @TripSit/website
+/CICD-POLICY.md @TripSit/website
+/AGENTS.md @TripSit/website
+/Dockerfile @TripSit/website
+/src/docker/ @TripSit/website
+/docker-compose*.yml @TripSit/website
+/sonar-project.properties @TripSit/website
+/.nvmrc @TripSit/website
+/jest.config.* @TripSit/website
+/vitest.config.* @TripSit/website
+/scripts/deploy* @TripSit/website
+/package.json @TripSit/website
+/package-lock.json @TripSit/website
+/tsconfig*.json @TripSit/website
+/eslint.config.* @TripSit/website
+/.eslintrc* @TripSit/website

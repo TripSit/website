@@ -105,7 +105,7 @@ export default function PrivacyPage() {
         <b>
           Reminders can be individually removed with the /reminder remove
           command
-        </b>
+        </b>{" "}
         Reminders are deleted once the user is reminded.<b></b>
       </p>
       <h4 className="mt-8 text-lg font-semibold text-ink" id="Tickets:">
@@ -155,7 +155,7 @@ export default function PrivacyPage() {
         <a href="https://wiki.tripsit.me/index.php?title=Privacy_Policy&amp;oldid=5929">
           TripSit Wiki privacy policy
         </a>
-        ; policy wording preserved.
+        {"; policy wording preserved."}
       </p>
     </LegalPage>
   );

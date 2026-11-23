@@ -22,7 +22,11 @@ const config: Config = {
     global: { branches: 90 },
   },
   setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
-  testPathIgnorePatterns: ["<rootDir>/.next/", "<rootDir>/node_modules/"],
+  testPathIgnorePatterns: [
+    "<rootDir>/.github/",
+    "<rootDir>/.next/",
+    "<rootDir>/node_modules/",
+  ],
   modulePathIgnorePatterns: ["<rootDir>/.next/"],
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",

@@ -2,48 +2,46 @@ name: OpenUatToMainPR
 
 on:
   push:
-    branches:
-      - uat
+    branches: [uat]
 
 permissions:
   contents: read
+  pull-requests: write
 
-# Each run lists what uat holds when it runs, so the newest push should be the one that writes.
 concurrency:
   group: open-uat-to-main-pr
   cancel-in-progress: true
 
 jobs:
   open-pr:
-    permissions:
-      contents: read
-      pull-requests: write
-    name: Open PR to main
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          fetch-depth: 0  # The PR body walks uat's history back to main.
-      - name: Open the uat -> main PR, or refresh its list of changes
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_REPO: ${{ github.repository }}
-        run: |
-          # Right after a promotion uat has nothing main lacks, and gh pr create would refuse.
-          ahead=$(git rev-list --count origin/main..origin/uat)
-          if [ "$ahead" -eq 0 ]; then
-            echo "uat has no commits that main lacks, nothing to promote."
-            exit 0
-          fi
-
-          body="$RUNNER_TEMP/promotion-pr-body.md"
-          bash .github/scripts/promotion-pr-body.sh > "$body"
-          cat "$body"
-
-          existing=$(gh pr list --base main --head uat --state open --json number --jq '.[0].number // empty')
-          if [ -n "$existing" ]; then
-            gh api -X PATCH "repos/${GH_REPO}/pulls/${existing}" -F body=@"$body" --silent
-            echo "Refreshed the body of PR #${existing}."
-          else
-            gh pr create --base main --head uat --title "Promote uat to main" --body-file "$body"
-          fi
+          # Privileged jobs load only the trusted workflow revision, never a PR checkout.
+          ref: ${{ github.workflow_sha }}
+          persist-credentials: false
+          sparse-checkout: |
+            /.github/scripts/
+            /.github/cicd.json
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3
+        with:
+          script: |
+            const sha = (await github.rest.git.getRef({...context.repo, ref: 'heads/uat'})).data.object.sha;
+            const compare = await github.rest.repos.compareCommitsWithBasehead({...context.repo, basehead: `main...${sha}`});
+            if (compare.data.ahead_by === 0) return;
+            const commits = await github.paginate(github.rest.repos.compareCommitsWithBasehead,
+              {...context.repo, basehead: `main...${sha}`, per_page: 100}, r => r.data.commits);
+            const body = [
+              'Approve this PR after testing the successfully deployed UAT commit shown below. Do not click Merge.',
+              '', `Candidate: ${sha}`, '',
+              'Promotion verifies current-commit approval, CI, UAT deployment evidence, resolved conversations, and fast-forward ancestry.',
+              'New UAT commits invalidate the release sign-off. Approval before deployment is recorded will be retried when evidence arrives.',
+              '', 'Included changes:',
+              ...commits.map(c => `- ${c.commit.message.split("\n")[0]} (${c.sha.slice(0, 7)})`),
+            ].join('\n').slice(0, 60000);
+            const prs = await github.paginate(github.rest.pulls.list,
+              {...context.repo, state: 'open', base: 'main', head: `${context.repo.owner}:uat`, per_page: 100});
+            if (prs.length) await github.rest.pulls.update({...context.repo, pull_number: prs[0].number, body});
+            else await github.rest.pulls.create({...context.repo, base: 'main', head: 'uat', title: 'Promote uat to main', body});

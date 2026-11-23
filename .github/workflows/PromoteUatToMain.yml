@@ -1,88 +1,66 @@
 name: PromoteUatToMain
 
-# main must never gain a commit that doesn't already exist, byte-for-byte, on uat. Promotion is
-# a fast-forward of main's ref to a commit uat already reached - never a squash/rebase/merge
-# commit - so the two branches can never diverge and there is nothing to sync back afterward.
-# GuardMainSource.yml guarantees every PR into main has head uat and that main is an ancestor
-# of it. Once a promotion PR is approved and its required checks are green, the job below
-# moves main's ref forward to that exact commit via the Git Data API with force=false (it
-# fails closed if the move is not a true fast-forward). GitHub then detects that the head
-# commit landed on main and marks the PR merged automatically. Reviewers should just Approve;
-# do NOT press Merge on the promotion PR (that would create a merge commit uat does not have).
-#
-# OpenUatToMainPR.yml keeps opening the promotion PR; this file adds only the approval-driven
-# fast-forward. It needs a repository secret PROMOTION_BOT_TOKEN: a fine-grained personal access
-# token (Contents: read/write on this repository) from an account allowed to bypass main's
-# "require a pull request before merging" rule.
-
 on:
-  pull_request_review:
-    types:
-      - submitted
+  workflow_dispatch:
+  workflow_run:
+    workflows: [Record UAT deployment]
+    types: [completed]
 
 permissions:
   contents: read
+  pull-requests: read
+  actions: read
+  deployments: read
+  security-events: read
 
-# Two approvals in quick succession would otherwise run two promotions side by side.
 concurrency:
   group: promote-main
   cancel-in-progress: false
 
 jobs:
   fast-forward:
-    permissions:
-      contents: read
-      pull-requests: read
-    name: Fast-forward main to the approved uat commit
+    name: Promote verified UAT commit
+    if: vars.CICD_PROMOTION_ENABLED == 'true' && (github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success')
+    environment: production-promotion
     runs-on: ubuntu-latest
-    if: >
-      github.event_name == 'pull_request_review' &&
-      github.event.review.state == 'approved' &&
-      github.event.pull_request.base.ref == 'main' &&
-      github.event.pull_request.head.ref == 'uat' &&
-      github.event.pull_request.head.repo.full_name == github.repository
+    timeout-minutes: 10
     steps:
-      - name: Wait for the PR to be mergeable (reviews + required checks satisfied)
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          # Privileged jobs load only the trusted workflow revision, never a PR checkout.
+          ref: ${{ github.workflow_sha }}
+          persist-credentials: false
+          sparse-checkout: |
+            /.github/scripts/
+            /.github/cicd.json
+      - name: Create scoped promotion installation token
+        id: promotion-token
+        uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349
+        with:
+          app-id: ${{ vars.PROMOTION_APP_ID }}
+          private-key: ${{ secrets.PROMOTION_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.event.repository.name }}
+          permission-contents: write
+          permission-workflows: write
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3
         env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: |
-          status="UNKNOWN"
-          for i in $(seq 1 20); do
-            status=$(gh pr view "$PR_NUMBER" --json mergeStateStatus --jq '.mergeStateStatus')
-            echo "mergeStateStatus=$status (attempt $i/20)"
-            if [ "$status" = "CLEAN" ] || [ "$status" = "UNSTABLE" ]; then
-              exit 0
-            fi
-            sleep 30
-          done
-          echo "::error::PR #$PR_NUMBER never reached a mergeable state (last status: $status) - required checks may still be running or failed. Not promoting; re-approve once checks are green, or re-run this job."
-          exit 1
-
-      - name: Fast-forward main to uat's approved commit
-        env:
-          GH_TOKEN: ${{ secrets.PROMOTION_BOT_TOKEN }}
-          GH_REPO: ${{ github.repository }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-          REVIEWED_SHA: ${{ github.event.review.commit_id }}
-          # The promotion token may only have Contents access, so the PR is read with the
-          # workflow's own token.
-          READ_TOKEN: ${{ github.token }}
-        run: |
-          # Promote only the commit that was approved. uat can move on while the step above
-          # waits for checks, and the review may have been left on an older commit.
-          CURRENT_SHA=$(GH_TOKEN="$READ_TOKEN" gh pr view "$PR_NUMBER" --json headRefOid --jq '.headRefOid')
-          if [ "$REVIEWED_SHA" != "$HEAD_SHA" ] || [ "$CURRENT_SHA" != "$HEAD_SHA" ]; then
-            echo "::error::Not promoting: the approval was for $REVIEWED_SHA, the event's head is $HEAD_SHA and the PR's head is now $CURRENT_SHA. Approve the PR's current head to promote it."
-            exit 1
-          fi
-
-          if [ -z "$GH_TOKEN" ]; then
-            echo "::error::PROMOTION_BOT_TOKEN secret is not set. It must be a fine-grained PAT (Contents: read/write on this repo) from an account allowed to bypass main's 'require a pull request before merging' rule, so this job can push the fast-forward directly."
-            exit 1
-          fi
-          # force=false makes this fail closed if main isn't a strict ancestor of HEAD_SHA -
-          # i.e. it can only ever fast-forward, never overwrite or rewrite history.
-          gh api -X PATCH "repos/${GH_REPO}/git/refs/heads/main" -f sha="$HEAD_SHA" -F force=false
+          PROMOTION_TOKEN: ${{ steps.promotion-token.outputs.token }}
+        with:
+          script: |
+            const policy = require('./.github/scripts/release-policy.cjs');
+            {
+              const prs = await github.paginate(github.rest.pulls.list, {...context.repo,
+                state: 'open', base: 'main', head: `${context.repo.owner}:uat`, per_page: 100});
+              if (prs.length !== 1 || prs[0].head.repo?.full_name !== context.payload.repository.full_name) {
+                core.info('No canonical promotion PR is ready.'); return;
+              }
+              const reviews = await github.paginate(github.rest.pulls.listReviews,
+                {...context.repo, pull_number: prs[0].number, per_page: 100});
+              const review = policy.latestReviews(reviews).find(r =>
+                r.state === 'APPROVED' && r.commit_id === prs[0].head.sha);
+              if (!review) { core.info('Waiting for UAT testing and approval of the current commit.'); return; }
+              context.payload.pull_request = prs[0];
+              context.payload.review = review;
+            }
+            await policy.promote({github, context, core});

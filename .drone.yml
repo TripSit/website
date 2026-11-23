@@ -84,6 +84,8 @@ steps:
 trigger:
   branch:
   - main
+  instance:
+  - drone.tripsit.me
   event:
   # - cron
   - push
@@ -177,6 +179,8 @@ steps:
 trigger:
   branch:
   - uat
+  instance:
+  - drone.tripsit.io
   event:
   - custom
   - push

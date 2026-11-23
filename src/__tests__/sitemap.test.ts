@@ -24,6 +24,7 @@ const PAGES = [
   "/levels",
   "/rules",
   "/terms",
+  "/privacy",
   "/combo/chart",
   "/combo/chart/cs",
   "/combo/chart/de",

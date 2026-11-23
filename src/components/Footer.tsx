@@ -21,7 +21,7 @@ const columns = [
       { label: "Terms of service", href: "/terms" },
       {
         label: "Privacy policy",
-        href: "https://wiki.tripsit.me/wiki/Privacy_Policy",
+        href: "/privacy",
       },
     ],
   },

@@ -1,6 +1,8 @@
 # Website UAT deployment
 
 UAT uses a signed hook on its own host, matching the production deployment model.
+Both `.drone-uat.yml` and the UAT document in `.drone.yml` carry this pipeline,
+so existing and split-file Drone configurations use the same restricted runner.
 The infrastructure package is maintained in `TripSit/live`, under
 `docker/deploy-uat/`, with additive website-deployer/runner compose configuration.
 Provision and verify it before merging the corresponding `.drone.yml` change.

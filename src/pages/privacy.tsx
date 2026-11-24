@@ -93,8 +93,8 @@ export default function PrivacyPage() {
       </p>
       <p>
         Moderation actions and the Discord ID used to enforce them are retained
-        after <code>/privacy delete</code>. Non-permanent moderation actions are
-        retained for up to two years. Permanent bans, ban-evasion records, and
+        after <code>/privacy delete</code>. Non-permanent moderation actions are retained for
+        up to two years. Permanent bans, ban-evasion records, and
         actions associated with an active full ban are retained while needed
         for ban enforcement. Discord&apos;s own server ban is separate from
         TripBot&apos;s database and is not reversed by deleting bot data.

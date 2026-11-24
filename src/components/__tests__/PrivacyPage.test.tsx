@@ -29,17 +29,32 @@ test("hosts the current privacy policy with its local footer links", () => {
 
 test("explains TripBot data deletion, moderation retention, and IRC opt-in", () => {
   render(<PrivacyPage />);
-  expect(screen.getByText(/Use \/privacy get/)).toBeVisible();
-  expect(screen.getByText(/\/privacy delete/)).toHaveTextContent(
-    /tickets and appeals/,
-  );
   expect(
-    screen.getByText(/Moderation actions and the Discord ID used to enforce them/),
+    screen.getByText(
+      (_, element) =>
+        element?.tagName === "P" &&
+        /Use \/privacy get.*\/privacy delete/.test(element.textContent ?? ""),
+    ),
+  ).toHaveTextContent(/tickets and appeals/);
+  expect(
+    screen.getByText(
+      (_, element) =>
+        element?.tagName === "P" &&
+        /Moderation actions and the Discord ID/.test(element.textContent ?? ""),
+    ),
   ).toHaveTextContent(/retained for up to two years/);
   expect(
-    screen.getByText(/IRC Bridge.*role for their Discord messages to be sent to IRC/),
+    screen.getByText(
+      (_, element) =>
+        element?.tagName === "P" &&
+        /IRC Bridge.*role for their Discord messages to be sent to IRC/.test(
+          element.textContent ?? "",
+        ),
+    ),
   ).toHaveTextContent(/Adding the role opts you in/);
   expect(
-    screen.getByText(/command usage records themselves do not currently have an automatic deletion period/),
+    screen.getByText(
+      /command usage records themselves do not currently have an automatic deletion period/,
+    ),
   ).toBeVisible();
 });

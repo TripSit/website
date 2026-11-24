@@ -70,8 +70,8 @@ export default function PrivacyPage() {
         is also removed when you use <code>/privacy delete</code>.
       </p>
       <p>
-        The bridge sends message text and a display name so people on the other
-        network can see who wrote it. Edits and deletions are relayed where the
+        The bridge sends message text, including links to attachments, and a
+        display name so people on the other network can see who wrote it. Edits and deletions are relayed where the
         receiving network supports them. IRC is a separate service: TripBot
         cannot remove copies that other people or IRC services may have
         retained. The IRC network&apos;s own operators and users handle data

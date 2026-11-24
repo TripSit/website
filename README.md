@@ -73,6 +73,9 @@ The full combination chart, translations, and PNG/PDF generation are documented 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for branching conventions (feature branches target `uat`, not `main`) and
 the checks that run in CI.
 
+Follow the [PR to production walkthrough](docs/pr-to-production.md) for automatic UAT queueing,
+deployment verification, UAT testing, and production sign-off.
+
 ## Staff appeal review
 
 The staff appeal queue is available at `/dashboard/appeals`. See

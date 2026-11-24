@@ -46,11 +46,11 @@ export default function PrivacyPage() {
           kept separately from ordinary profile and feature data.
         </li>
         <li>
-          <strong>Command usage statistics:</strong> command names, times,
-          server and channel IDs, and a limited set of command parameter values.
-          These records do not include a Discord user ID. Parameter values are
-          deleted after 90 days; the command usage records themselves do not
-          currently have an automatic deletion period.
+          <strong>Command usage statistics:</strong> aggregate lifetime totals
+          and the most recent use time for each command. These totals are not
+          linked to a user, server, or channel, and command option values are
+          not stored in these statistics. They do not currently expire
+          automatically.
         </li>
       </ul>
       <p>
@@ -71,10 +71,22 @@ export default function PrivacyPage() {
       </p>
       <p>
         The bridge sends message text, including links to attachments, and a
-        display name so people on the other network can see who wrote it. Edits
-        and deletions are relayed where the receiving network supports them. IRC
-        is a separate service: TripBot cannot remove copies that other people or
-        IRC services may have retained. The IRC network&apos;s own operators and
+        display name so people on the other network can see who wrote it.
+        Discord edits are sent to IRC as an additional line marked as edited;
+        IRC does not support changing the original line. When Discord messages
+        are deleted, TripBot attempts to redact its IRC copies where the
+        network supports redaction and TripBot still has the message mapping.
+        That mapping is temporary and held in memory, so a restart or mapping
+        expiry can prevent a later redaction attempt.
+      </p>
+      <p>
+        Removing the IRC Bridge role or using <code>/privacy delete</code>
+        stops future relays, but does not guarantee removal of messages already
+        sent to IRC. IRC servers may retain message history according to their
+        own configuration, and IRC users may keep client logs, screenshots, or
+        other copies. Even an IRC redaction is best effort: it cannot recall
+        content already seen or copied, and clients that do not support
+        redaction may still display it. The IRC network&apos;s operators and
         users handle data under their own practices.
       </p>
 
@@ -102,9 +114,7 @@ export default function PrivacyPage() {
       <p>
         For accounts that have not been seen for six months, TripBot
         automatically deletes ordinary profile and feature data, unless the
-        account has an active full ban. Command parameter values are deleted
-        after 90 days. The command usage statistics described above currently
-        have no automatic expiry.
+        account has an active full ban.
       </p>
       <p>
         Deletion cannot remove messages you posted in Discord, copies held by

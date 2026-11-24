@@ -1,7 +1,7 @@
 import { render, screen, within } from "@testing-library/react";
 import PrivacyPage from "@/pages/privacy";
 
-test("hosts the general privacy policy with its source and local footer links", () => {
+test("hosts the current privacy policy with its local footer links", () => {
   render(<PrivacyPage />);
   const article = within(screen.getByRole("article"));
   expect(
@@ -9,17 +9,14 @@ test("hosts the general privacy policy with its source and local footer links", 
   ).toBeVisible();
   expect(
     article.getByRole("heading", {
-      level: 2,
-      name: "Removing your information",
+      level: 3,
+      name: "Viewing and deleting your information",
     }),
   ).toBeVisible();
-  expect(article.getByText("Last updated: 11 January 2023")).toBeVisible();
+  expect(article.getByText("Last updated: 24 November 2026")).toBeVisible();
   expect(
-    article.getByRole("link", { name: "TripSit Wiki privacy policy" }),
-  ).toHaveAttribute(
-    "href",
-    "https://wiki.tripsit.me/index.php?title=Privacy_Policy&oldid=5929",
-  );
+    article.getByRole("link", { name: "Reflect's privacy policy" }),
+  ).toHaveAttribute("href", "/reflect/privacy");
   const footer = within(screen.getByRole("contentinfo"));
   expect(footer.getByRole("link", { name: "Privacy policy" })).toHaveAttribute(
     "href",
@@ -30,14 +27,19 @@ test("hosts the general privacy policy with its source and local footer links", 
   ).toHaveAttribute("href", "/terms");
 });
 
-test("preserves the data removal command and moderation exception", () => {
+test("explains TripBot data deletion, moderation retention, and IRC opt-in", () => {
   render(<PrivacyPage />);
-  expect(
-    screen.getByText(/You can use the \/privacy command/),
-  ).toHaveTextContent(
-    /except for moderation actions associated with your discord ID/,
+  expect(screen.getByText(/Use \/privacy get/)).toBeVisible();
+  expect(screen.getByText(/\/privacy delete/)).toHaveTextContent(
+    /tickets and appeals/,
   );
   expect(
-    screen.getByText("Issue information is deleted from the DB after 14 days."),
+    screen.getByText(/Moderation actions and the Discord ID used to enforce them/),
+  ).toHaveTextContent(/retained for up to two years/);
+  expect(
+    screen.getByText(/IRC Bridge.*role for their Discord messages to be sent to IRC/),
+  ).toHaveTextContent(/Adding the role opts you in/);
+  expect(
+    screen.getByText(/command usage records themselves do not currently have an automatic deletion period/),
   ).toBeVisible();
 });

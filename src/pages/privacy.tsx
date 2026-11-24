@@ -1,3 +1,4 @@
+import Link from "next/link";
 import LegalPage from "../components/LegalPage";
 
 export default function PrivacyPage() {
@@ -10,9 +11,9 @@ export default function PrivacyPage() {
     >
       <h2 id="TripSit's_Privacy_Policy">TripSit&apos;s Privacy Policy</h2>
       <p>
-        This policy describes information handled by TripSit services,
-        including TripBot, our Discord bot. Discord also processes information
-        when you use Discord; its own privacy policy applies to that processing.
+        This policy describes information handled by TripSit services, including
+        TripBot, our Discord bot. Discord also processes information when you
+        use Discord; its own privacy policy applies to that processing.
       </p>
 
       <h3 id="Discord_Bot">TripBot on Discord</h3>
@@ -22,7 +23,9 @@ export default function PrivacyPage() {
         in TripSit&apos;s database outside Discord.
       </p>
 
-      <h4 className="mt-8 text-lg font-semibold text-ink">Information TripBot handles</h4>
+      <h4 className="mt-8 text-lg font-semibold text-ink">
+        Information TripBot handles
+      </h4>
       <ul>
         <li>
           <strong>Account and server information:</strong> your Discord user ID,
@@ -32,15 +35,15 @@ export default function PrivacyPage() {
         </li>
         <li>
           <strong>Information you provide:</strong> profile choices such as
-          timezone, birthday, and linked account names; information entered
-          into commands and features such as reminders, dose records, support
+          timezone, birthday, and linked account names; information entered into
+          commands and features such as reminders, dose records, support
           tickets, appeals, and games. Some features may involve sensitive
           personal information, including information about substance use.
         </li>
         <li>
           <strong>Moderation records:</strong> moderation actions and the
-          Discord IDs needed to enforce them, including bans. These records
-          are kept separately from ordinary profile and feature data.
+          Discord IDs needed to enforce them, including bans. These records are
+          kept separately from ordinary profile and feature data.
         </li>
         <li>
           <strong>Command usage statistics:</strong> command names, times,
@@ -70,12 +73,14 @@ export default function PrivacyPage() {
         The bridge sends message text and a display name so people on the other
         network can see who wrote it. Edits and deletions are relayed where the
         receiving network supports them. IRC is a separate service: TripBot
-        cannot remove copies that other people or IRC services may have retained.
-        The IRC network&apos;s own operators and users handle data under their
-        own practices.
+        cannot remove copies that other people or IRC services may have
+        retained. The IRC network&apos;s own operators and users handle data
+        under their own practices.
       </p>
 
-      <h3 id="Removing_your_information">Viewing and deleting your information</h3>
+      <h3 id="Removing_your_information">
+        Viewing and deleting your information
+      </h3>
       <p>
         Use <code>/privacy get</code> to see the profile and feature information
         TripBot currently associates with your account. Use{" "}
@@ -103,7 +108,7 @@ export default function PrivacyPage() {
       </p>
       <p>
         Deletion cannot remove messages you posted in Discord, copies held by
-        other people, or content already retained by another service after it
+        other people, or content another service has already retained after it
         was relayed. Moderation records may remain as described above.
       </p>
 
@@ -112,8 +117,8 @@ export default function PrivacyPage() {
         Some TripSit services have separate data practices. This policy section
         describes TripBot and should not be read as a description of the
         separate Reflect app. See{" "}
-        <a href="/reflect/privacy">Reflect&apos;s privacy policy</a> for that
-        app.
+        <Link href="/reflect/privacy">Reflect&apos;s privacy policy</Link> for
+        that app.
       </p>
 
       <h3 id="Changes">Changes to this policy</h3>

@@ -94,7 +94,9 @@ export default function PrivacyPage() {
         under their own practices.
       </p>
 
-      <h4 className="mt-8 text-lg font-semibold text-ink">Support ticket retention</h4>
+      <h4 className="mt-8 text-lg font-semibold text-ink">
+        Support ticket retention
+      </h4>
       <p>
         Ticket retention timers are set when a ticket is created, closed, or
         reopened. TripBot archives ticket threads after 3 days and schedules
@@ -117,10 +119,11 @@ export default function PrivacyPage() {
         TripBot currently associates with your account. Use{" "}
         <code>/privacy delete</code> to request deletion. The command deletes
         your profile and feature records, including dose and reminder records,
-        linked accounts, ticket lifecycle records and appeals, their bot-managed Discord threads,
-        saved Best Of copies, and moderation actions about you. It also removes
-        your IRC Bridge role and deletes messages containing your Discord ID
-        from TripBot&apos;s bot-error and configured moderation log channels.
+        linked accounts, ticket lifecycle records and appeals, their bot-managed
+        Discord threads, saved Best Of copies, and moderation actions about you.
+        It also removes your IRC Bridge role and deletes messages containing
+        your Discord ID from TripBot&apos;s bot-error and configured moderation
+        log channels.
       </p>
       <p>
         When a moderation action about another user was recorded by you, TripBot

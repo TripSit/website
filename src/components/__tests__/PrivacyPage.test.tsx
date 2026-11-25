@@ -27,7 +27,7 @@ test("hosts the current privacy policy with its local footer links", () => {
   ).toHaveAttribute("href", "/terms");
 });
 
-test("explains TripBot data deletion, moderation retention, and IRC opt-in", () => {
+test("explains TripBot deletion, moderation handling, and IRC opt-in", () => {
   render(<PrivacyPage />);
   expect(
     screen.getByText(
@@ -35,14 +35,34 @@ test("explains TripBot data deletion, moderation retention, and IRC opt-in", () 
         element?.tagName === "P" &&
         /Use \/privacy get.*\/privacy delete/.test(element.textContent ?? ""),
     ),
-  ).toHaveTextContent(/tickets and appeals/);
+  ).toHaveTextContent(/moderation actions about you/);
   expect(
     screen.getByText(
       (_, element) =>
         element?.tagName === "P" &&
-        /Moderation actions and the Discord ID/.test(element.textContent ?? ""),
+        /When a moderation action about another user/.test(
+          element.textContent ?? "",
+        ),
     ),
-  ).toHaveTextContent(/retained for up to two years/);
+  ).toHaveTextContent(/removes your moderator attribution/);
+  expect(
+    screen.getByText(
+      (_, element) =>
+        element?.tagName === "P" &&
+        /temporary Discord ban is awaiting its automatic lift/.test(
+          element.textContent ?? "",
+        ),
+    ),
+  ).toHaveTextContent(/deletes that timer record after Discord confirms the unban/);
+  expect(
+    screen.getByText(
+      (_, element) =>
+        element?.tagName === "P" &&
+        /aggregate totals and a most recent use time per command/.test(
+          element.textContent ?? "",
+        ),
+    ),
+  ).toHaveTextContent(/hosting logs and backups/);
   expect(
     screen.getByText(
       (_, element) =>
@@ -52,9 +72,4 @@ test("explains TripBot data deletion, moderation retention, and IRC opt-in", () 
         ),
     ),
   ).toHaveTextContent(/Adding the role opts you in/);
-  expect(
-    screen.getByText(
-      /command usage records themselves do not currently have an automatic deletion period/,
-    ),
-  ).toBeVisible();
 });

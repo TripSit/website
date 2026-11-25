@@ -24,7 +24,8 @@ const PAGES = [
   "/levels",
   "/rules",
   "/terms",
-  "/privacy",
+  "/tripbot",
+  "/tripbot/privacy",
   "/combo/chart",
   "/combo/chart/cs",
   "/combo/chart/de",
@@ -94,6 +95,7 @@ describe("sitemap.xml", () => {
   it("lists the site's pages and a factsheet page for every drug", async () => {
     const { result, headers, xml, urls } = await request(loadPage());
 
+    expect(urls).not.toContain(`${origin}/privacy`);
     expect(result).toEqual({ props: {} });
     expect(headers["Content-Type"]).toBe("application/xml; charset=utf-8");
     expect(xml).toMatch(

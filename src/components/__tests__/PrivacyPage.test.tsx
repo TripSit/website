@@ -1,5 +1,5 @@
 import { render, screen, within } from "@testing-library/react";
-import PrivacyPage from "@/pages/privacy";
+import PrivacyPage from "@/pages/tripbot/privacy";
 
 test("hosts the current privacy policy with its local footer links", () => {
   render(<PrivacyPage />);
@@ -13,15 +13,17 @@ test("hosts the current privacy policy with its local footer links", () => {
       name: "Viewing and deleting your information",
     }),
   ).toBeVisible();
-  expect(article.getByText("Last updated: 24 November 2026")).toBeVisible();
+  expect(article.getByText("Last updated: 25 November 2026")).toBeVisible();
   expect(
     article.getByRole("link", { name: "Reflect's privacy policy" }),
   ).toHaveAttribute("href", "/reflect/privacy");
+  expect(
+    article.getByRole("link", { name: "Back to TripBot" }),
+  ).toHaveAttribute("href", "/tripbot");
   const footer = within(screen.getByRole("contentinfo"));
-  expect(footer.getByRole("link", { name: "Privacy policy" })).toHaveAttribute(
-    "href",
-    "/privacy",
-  );
+  expect(
+    footer.getByRole("link", { name: "TripBot privacy policy" }),
+  ).toHaveAttribute("href", "/tripbot/privacy");
   expect(
     footer.getByRole("link", { name: "Terms of service" }),
   ).toHaveAttribute("href", "/terms");
@@ -78,7 +80,111 @@ test("explains TripBot deletion, moderation handling, and IRC opt-in", () => {
     screen.getByText(
       (_, element) =>
         element?.tagName === "P" &&
-        /Removing the IRC Bridge role or using/.test(element.textContent ?? ""),
+        /Removing the IRC Bridge role, including during a successful/.test(
+          element.textContent ?? "",
+        ),
     ),
   ).toHaveTextContent(/stops future relays, including queued messages/);
+});
+
+test("gives an accessible contact and accurate individual deletion commands", () => {
+  render(<PrivacyPage />);
+  const article = within(screen.getByRole("article"));
+  for (const link of article.getAllByRole("link", {
+    name: "privacy@tripsit.me",
+  })) {
+    expect(link).toHaveAttribute("href", "mailto:privacy@tripsit.me");
+  }
+  expect(article.getByText("/idose delete")).toBeVisible();
+  expect(article.getByText("/remind_me delete")).toBeVisible();
+  expect(article.getByText("YesPlease!")).toBeVisible();
+  expect(
+    article.getByText(/including if you have left Discord or are banned/),
+  ).toBeVisible();
+});
+
+test("discloses retention and deletion limits without promising complete erasure", () => {
+  render(<PrivacyPage />);
+  const article = screen.getByRole("article");
+  expect(article).toHaveTextContent(/not a complete data export/);
+  expect(article).toHaveTextContent(
+    /Some Discord cleanup may already have happened/,
+  );
+  expect(article).toHaveTextContent(/including when the DM cannot be sent/);
+  expect(article).toHaveTextContent(/six months without recorded activity/);
+  expect(article).toHaveTextContent(/actions older than two years/);
+  expect(article).toHaveTextContent(
+    /does not erase the remaining database record/,
+  );
+  expect(article).toHaveTextContent(
+    /no automatic 14-day database deletion rule/,
+  );
+  expect(article).toHaveTextContent(
+    /even if the ban was temporary or later repealed/,
+  );
+  expect(article).toHaveTextContent(/no bot-enforced expiry/);
+  expect(article).toHaveTextContent(
+    /Historical AI audit posts and replies on Discord.*are not erased/,
+  );
+});
+
+test("distinguishes transient message processing from stored content and retention", () => {
+  render(<PrivacyPage />);
+  const article = within(screen.getByRole("article"));
+  expect(
+    article.getByRole("heading", {
+      name: "How TripBot uses Discord message content",
+    }),
+  ).toBeVisible();
+  expect(
+    article.getByText(/recognize and respond to text commands/),
+  ).toHaveTextContent(/active message-driven features/);
+  expect(article.getByText(/Text-command recognition/)).toHaveTextContent(
+    /transiently in memory.*do not by themselves create a database archive.*caches and relay queues/,
+  );
+  expect(article.getByText(/Features can store content/)).toHaveTextContent(
+    /ticket and appeal details.*reminder text.*Activity features.*Operational logs/,
+  );
+  expect(
+    article.getByRole("link", { name: "retention rules and exceptions below" }),
+  ).toHaveAttribute("href", "#Retention");
+  expect(
+    article.getByRole("link", { name: "deletion controls" }),
+  ).toHaveAttribute("href", "#Removing_your_information");
+});
+
+test("separates disabled message moderation and model training from explicit AI features", () => {
+  render(<PrivacyPage />);
+  const article = within(screen.getByRole("article"));
+  expect(article.getByText(/The active message handler/)).toHaveTextContent(
+    /does not call the AI moderation function.*does not use Discord message content to train or fine-tune AI or machine-learning models/,
+  );
+  expect(
+    article.getByText(/Translation sends a selected message/),
+  ).toHaveTextContent(
+    /only if its author has agreed.*do not fetch conversation history or save their prompts and responses as AI message history/,
+  );
+  expect(
+    article.getByText(/When configured, a separate developer-only/),
+  ).toHaveTextContent(
+    /Anthropic.*GitHub.*separate from TripBot database deletion/,
+  );
+});
+
+test("keeps IRC consent separate from other processing and existing-copy deletion", () => {
+  render(<PrivacyPage />);
+  const article = within(screen.getByRole("article"));
+  expect(
+    article.getByText(/recognize and respond to text commands/),
+  ).toHaveTextContent(
+    /Removing the IRC Bridge role stops relaying; it does not stop the other message-driven features/,
+  );
+  expect(
+    article.getByText(/Removing the IRC Bridge role, including/),
+  ).toHaveTextContent(
+    /stops future relays, including queued messages.*does not guarantee removal of messages already sent to IRC.*IRC servers may retain message history/,
+  );
+  expect(article.getByText(/Ticket cleanup is separate/)).toHaveTextContent(
+    /three and six days.*both the support thread and its separate staff discussion thread.*does not erase the remaining database record/,
+  );
 });

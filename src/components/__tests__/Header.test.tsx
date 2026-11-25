@@ -155,3 +155,19 @@ test("reveals mobile navigation and closes it after following a link", () => {
   fireEvent.click(factsheets);
   expect(screen.queryByRole("navigation", { name: "Mobile" })).toBeNull();
 });
+
+test("makes TripBot discoverable in desktop resources and mobile navigation", () => {
+  render(<Header />);
+  const main = within(screen.getByRole("navigation", { name: "Main" }));
+  fireEvent.click(main.getByRole("button", { name: "Resources" }));
+  expect(main.getByRole("link", { name: "TripBot" })).toHaveAttribute(
+    "href",
+    "/tripbot",
+  );
+  fireEvent.click(screen.getByRole("button", { name: "Open menu" }));
+  const mobile = within(screen.getByRole("navigation", { name: "Mobile" }));
+  expect(mobile.getByRole("link", { name: "TripBot" })).toHaveAttribute(
+    "href",
+    "/tripbot",
+  );
+});

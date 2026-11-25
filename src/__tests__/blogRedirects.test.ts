@@ -31,6 +31,16 @@ async function redirects() {
 }
 
 describe("blog redirects", () => {
+  it("permanently redirects the old privacy URL directly to the TripBot policy", async () => {
+    expect(await redirects()).toContainEqual({
+      source: "/privacy",
+      destination: "/tripbot/privacy",
+      permanent: true,
+    });
+    expect(
+      (await redirects()).some(({ source }) => source.startsWith("/tripbot")),
+    ).toBe(false);
+  });
   it("sends legacy homepage addresses to the canonical homepage", async () => {
     expect(await redirects()).toEqual(
       expect.arrayContaining([
@@ -76,7 +86,7 @@ describe("blog redirects", () => {
         },
       ]),
     );
-    expect(await redirects()).toHaveLength(blogPaths.length + 6);
+    expect(await redirects()).toHaveLength(blogPaths.length + 7);
   });
 
   it("lists each path once, as plain slugs with no pattern syntax", () => {

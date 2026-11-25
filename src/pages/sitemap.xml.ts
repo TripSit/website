@@ -19,7 +19,8 @@ const PAGES = [
   "/levels",
   "/rules",
   "/terms",
-  "/privacy",
+  "/tripbot",
+  "/tripbot/privacy",
   ...Object.keys(LANGUAGES)
     .filter((language) => isChartLanguage(language))
     .map((language) => chartPath(language)),

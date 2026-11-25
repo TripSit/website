@@ -56,8 +56,8 @@ export default function PrivacyPage() {
           birthday, TripBot posts a birthday greeting that mentions you in a
           server channel on that day. If you link an account on TripSit&apos;s
           learning site, TripBot regularly checks it for completed courses,
-          gives you the matching Discord role, and posts a congratulation in a
-          server channel.
+          gives you the matching Discord role, and sends you a direct message.
+          Course completions are not announced in the server.
         </li>
         <li>
           <strong>Community activity:</strong> reputation, engagement and

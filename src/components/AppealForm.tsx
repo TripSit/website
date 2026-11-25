@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Link from "next/link";
 
 interface AppealFormProps {
   onSubmit: (data: {
@@ -138,6 +139,15 @@ const AppealForm: React.FC<AppealFormProps> = ({
                 " (Getting close to limit!)"}
             </small>
           </div>
+
+          <p className="form-text mb-3">
+            TripBot stores your answers with your account and shares them with
+            TripSit moderators to review your appeal. See{" "}
+            <Link href="/tripbot/privacy#Website_appeals">
+              how we handle ban appeals
+            </Link>{" "}
+            in TripBot&apos;s privacy policy.
+          </p>
 
           <div className="text-center">
             <button

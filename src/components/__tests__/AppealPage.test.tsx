@@ -429,6 +429,14 @@ test("doesn't show a login error to a visitor who hasn't tried to log in", async
   expect(screen.queryByRole("alert")).toBeNull();
 });
 
+test("links to the ban appeal privacy notice before login", async () => {
+  render(<AppealPage />);
+  await screen.findByRole("button", { name: "Login with Discord" });
+  expect(
+    screen.getByRole("link", { name: "how we handle ban appeals" }),
+  ).toHaveAttribute("href", "/tripbot/privacy#Website_appeals");
+});
+
 test("refreshes the session in the background, then returns to login if refresh fails", async () => {
   jest.useFakeTimers();
   const access = token(Date.now() / 1000 + 75);

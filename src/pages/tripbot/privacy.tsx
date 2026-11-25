@@ -48,16 +48,16 @@ export default function PrivacyPage() {
           <strong>Information you provide:</strong> profile choices such as
           timezone, birthday, and linked account names; information entered into
           commands and features such as reminders, dose records, support
-          tickets, appeals, saved quotes and Best Of messages, temporary mindset
-          role choices, and games. Dose records include the substance, amount,
-          units, route, and recorded time; reminders include their text and
-          scheduled time. Some features may involve sensitive personal
-          information, including information about substance use. If you set a
-          birthday, TripBot posts a birthday greeting that mentions you in a
-          server channel on that day. If you link an account on TripSit&apos;s
-          learning site, TripBot regularly checks it for completed courses,
-          gives you the matching Discord role, and sends you a direct message.
-          Course completions are not announced in the server.
+          tickets, appeals, saved quotes and Best Of messages, and games. Dose
+          records include the substance, amount, units, route, and recorded
+          time; reminders include their text and scheduled time. Some features
+          may involve sensitive personal information, including information
+          about substance use. If you set a birthday, TripBot posts a birthday
+          greeting that mentions you in a server channel on that day. If you
+          link an account on TripSit&apos;s learning site, TripBot regularly
+          checks it for completed courses, gives you the matching Discord role,
+          and sends you a direct message. Course completions are not announced
+          in the server.
         </li>
         <li>
           <strong>Community activity:</strong> reputation, engagement and
@@ -122,12 +122,21 @@ export default function PrivacyPage() {
         ticket and appeal details, saved quotes and Best Of copies, reminder
         text, dose records, and moderation records. Activity features can store
         counters and last-seen information without keeping the full message
-        body. Operational logs can also contain personal information. Aggregate
-        command statistics are separate from these records and logs. Stored
-        records follow the{" "}
+        body. Operational logs can also contain personal information; only
+        warnings and errors are posted to TripBot&apos;s bot-error Discord
+        channel, and other operational logs stay on TripSit&apos;s servers.
+        Aggregate command statistics are separate from these records and logs.
+        Stored records follow the{" "}
         <a href="#Retention">retention rules and exceptions below</a>;{" "}
         <a href="#Removing_your_information">deletion controls</a> do not erase
         every Discord reply, relayed copy, log, or backup.
+      </p>
+      <p>
+        When a message is deleted on Discord, TripBot deletes its Best Of copy
+        and any saved quotes of it, including their copies in the quote log
+        channel. Messages deleted while TripBot is offline, or removed in a bulk
+        deletion, are not covered; their copies are removed by{" "}
+        <code>/privacy delete</code> or the scheduled retention described below.
       </p>
       <p>
         The active message handler does not call the AI moderation function.
@@ -217,10 +226,11 @@ export default function PrivacyPage() {
         about you, saved Best Of copies, and moderation actions about you. It
         also removes your IRC Bridge role and deletes messages that contain your
         literal Discord ID, in their text or embeds, from TripBot&apos;s bot
-        log, bot-error, and moderation log channels. This matching does not find
-        every reference to you, such as a display name, username, or information
-        inside an attachment, and it does not search the staff audit log channel
-        that records role changes, voice channel activity, and bans and unbans.
+        log, bot-error, moderation log, and quote log channels. This matching
+        does not find every reference to you, such as a display name, username,
+        or information inside an attachment, and it does not search the staff
+        audit log channel that records role changes, voice channel activity, and
+        bans and unbans.
       </p>
       <p>
         Privacy command replies are visible only to you by default. Setting
@@ -331,6 +341,13 @@ export default function PrivacyPage() {
         review and decide appeals on the website&apos;s staff dashboard. Appeal
         records follow the viewing, deletion, and retention rules in this
         policy.
+      </p>
+
+      <h3 id="Security">Security incidents</h3>
+      <p>
+        If we learn that someone has accessed TripBot&apos;s data without
+        authorization, we will notify Discord and the affected users, including
+        through an announcement on the TripSit Discord server.
       </p>
 
       <h3 id="Contact">Contact and privacy requests</h3>

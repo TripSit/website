@@ -83,9 +83,11 @@ export default function PrivacyPage() {
       </p>
       <p>
         Removing the IRC Bridge role or using <code>/privacy delete</code>
-        stops future relays, but does not guarantee removal of messages already
-        sent to IRC. IRC servers may retain message history according to their
-        own configuration, and IRC users may keep client logs, screenshots, or
+        stops future relays, including queued messages that have not yet been
+        delivered. TripBot checks the current role before sending each queued
+        line. This does not guarantee removal of messages already sent to IRC.
+        IRC servers may retain message history according to their own
+        configuration, and IRC users may keep client logs, screenshots, or
         other copies. Even an IRC redaction is best effort: it cannot recall
         content already seen or copied, and clients that do not support
         redaction may still display it. The IRC network&apos;s operators and

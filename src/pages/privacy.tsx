@@ -41,9 +41,11 @@ export default function PrivacyPage() {
           personal information, including information about substance use.
         </li>
         <li>
-          <strong>Moderation records:</strong> moderation actions and the
-          Discord IDs needed to enforce them, including bans. These records are
-          kept separately from ordinary profile and feature data.
+          <strong>Moderation records:</strong> moderation actions and Discord
+          IDs used to identify the affected user and enforce the action. In
+          ordinary operation, non-permanent actions are kept for up to two
+          years; permanent bans, ban-evasion records, and actions concerning a
+          currently banned user may be kept longer as needed for moderation.
         </li>
         <li>
           <strong>Command usage statistics:</strong> aggregate lifetime totals
@@ -96,30 +98,38 @@ export default function PrivacyPage() {
       <p>
         Use <code>/privacy get</code> to see the profile and feature information
         TripBot currently associates with your account. Use{" "}
-        <code>/privacy delete</code> to request deletion of that information.
-        The command deletes your ordinary profile and feature records, including
-        dose and reminder records, linked accounts, tickets and appeals, their
-        bot-managed Discord threads, and your saved Best Of archive copies. It
-        also removes your IRC Bridge role. You can opt out of the bridge at any
-        time by removing that role yourself.
+        <code>/privacy delete</code> to request deletion. The command deletes
+        your profile and feature records, including dose and reminder records,
+        linked accounts, tickets and appeals, their bot-managed Discord threads,
+        saved Best Of copies, and moderation actions about you. It also removes
+        your IRC Bridge role and deletes messages containing your Discord ID
+        from TripBot&apos;s bot-error and configured moderation log channels.
       </p>
       <p>
-        Moderation actions and the Discord ID used to enforce them are retained
-        after <code>/privacy delete</code>. Non-permanent moderation actions are
-        retained for up to two years. Permanent bans, ban-evasion records, and
-        actions associated with an active full ban are retained while needed for
-        ban enforcement. Discord&apos;s own server ban is separate from
-        TripBot&apos;s database and is not reversed by deleting bot data.
+        When a moderation action about another user was recorded by you,
+        TripBot removes your moderator attribution and the action&apos;s notes
+        and description. The action may remain as part of the affected user&apos;s
+        moderation history without those identifying details.
+      </p>
+      <p>
+        If a temporary Discord ban is awaiting its automatic lift, TripBot
+        retains only the target Discord ID, guild, and timing information
+        needed to lift it. TripBot deletes that timer record after Discord
+        confirms the unban. Deleting TripBot data does not reverse a
+        Discord-managed server ban.
+      </p>
+      <p>
+        Command statistics remain as aggregate totals and a most recent use
+        time per command; they do not include user, guild, channel, or option
+        data. Deletion cannot remove ordinary Discord messages, copies held by
+        other people, IRC content already relayed, or data in hosting logs and
+        backups that TripBot cannot delete through Discord. Hosting log and
+        backup retention depends on the service configuration.
       </p>
       <p>
         For accounts that have not been seen for six months, TripBot
         automatically deletes ordinary profile and feature data, unless the
         account has an active full ban.
-      </p>
-      <p>
-        Deletion cannot remove messages you posted in Discord, copies held by
-        other people, or content another service has already retained after it
-        was relayed. Moderation records may remain as described above.
       </p>
 
       <h3 id="Other_TripSit_services">Other TripSit services</h3>

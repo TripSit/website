@@ -69,12 +69,12 @@ test("explains TripBot deletion, moderation handling, and IRC opt-in", () => {
     screen.getByText(
       (_, element) =>
         element?.tagName === "P" &&
-        /temporary Discord ban is awaiting its automatic lift/.test(
+        /database keeps no ban records about you/.test(
           element.textContent ?? "",
         ),
     ),
   ).toHaveTextContent(
-    /deletes that timer record after Discord confirms the unban/,
+    /removes the timer TripBot uses to lift it.*stays in place until a moderator lifts it/,
   );
   expect(
     screen.getByText(

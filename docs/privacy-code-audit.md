@@ -145,6 +145,11 @@ Follow-up TripBot changes the policy now depends on:
 - TripSit/TripBot#1573 stops the public "Congratulate @member" course-completion
   post (the member only gets the role and a DM) and makes `/privacy get` point to
   `/levels` and `/remind_me get` instead of commands that do not exist.
+- TripSit/TripBot#1575 makes `/privacy delete` delete every moderation action
+  about the user, including the anonymized timer it used to keep for a temporary
+  ban that had not ended. No ban record about the user remains in the database;
+  that ban now stays until a moderator lifts it, and the confirmation warns about
+  this. Ban and unban entries in the staff audit log channel are not searched.
 - TripSit/TripBot#1572 fixes two retention bugs; the policy's ban and scheduling
   wording depends on it:
   - `checkEvery` waited a full interval before the first run, so the daily purge

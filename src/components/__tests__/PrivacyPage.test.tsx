@@ -208,3 +208,74 @@ test("keeps IRC consent separate from other processing and existing-copy deletio
     /3 days.*both the support thread and its separate staff discussion thread after 6 days.*does not erase the remaining database record/,
   );
 });
+
+test("explains automatic profiles, staff tools, and posts that mention members", () => {
+  render(<PrivacyPage />);
+  const article = screen.getByRole("article");
+  expect(article).toHaveTextContent(
+    /creates a profile automatically when you send a message in the TripSit Discord server or in a direct message to TripBot/,
+  );
+  expect(article).toHaveTextContent(
+    /Sending a message in the TripSit server or to TripBot, or using TripBot again, creates a new profile/,
+  );
+  expect(article).toHaveTextContent(
+    /ask TripBot to notify them.*the next time a member posts/,
+  );
+  expect(article).toHaveTextContent(
+    /voice channel joins, moves, and departures to staff-only Discord log channels/,
+  );
+  expect(article).toHaveTextContent(
+    /birthday greeting that mentions you in a server channel/,
+  );
+  expect(article).toHaveTextContent(/claimed GitHub bounties/);
+  expect(article).toHaveTextContent(
+    /reject a TripBot pull request from Discord.*display name and comment publicly on GitHub/,
+  );
+});
+
+test("matches the deletion scope and current-ban rules to TripBot", () => {
+  render(<PrivacyPage />);
+  const article = screen.getByRole("article");
+  expect(article).toHaveTextContent(
+    /in their text or embeds, from TripBot's bot log, bot-error, and moderation log channels/,
+  );
+  expect(article).toHaveTextContent(
+    /does not search the staff audit log channel/,
+  );
+  expect(article).toHaveTextContent(
+    /the moderators' discussion thread about you, saved Best Of copies/,
+  );
+  expect(article).toHaveTextContent(
+    /when TripBot lifts it at the end of a temporary ban, or when TripBot's daily check finds that Discord no longer has the ban/,
+  );
+  expect(article).toHaveTextContent(
+    /checks hourly and runs this cleanup once a day: at the first check after midnight UTC, and at the first check after each restart/,
+  );
+  expect(article).toHaveTextContent(
+    /when a response was due, when the team responded, and when it sent reminders/,
+  );
+});
+
+test("covers website appeals and the IRC-to-Discord direction of the bridge", () => {
+  render(<PrivacyPage />);
+  const article = within(screen.getByRole("article"));
+  expect(
+    article.getByRole("heading", {
+      level: 3,
+      name: "Ban appeals on the TripSit website",
+    }),
+  ).toBeVisible();
+  expect(
+    article.getByText(/To appeal a ban on the TripSit website/),
+  ).toHaveTextContent(
+    /TripSit account linked to Discord.*stores your appeal answers.*staff dashboard/,
+  );
+  expect(
+    article.getByText(/Messages sent on IRC in a shared channel/),
+  ).toHaveTextContent(
+    /IRC users do not need to opt in.*does not delete its Discord copy/,
+  );
+  expect(
+    article.getByText(/In shared channels, TripBot can relay/),
+  ).toHaveTextContent(/private channels are never shared automatically/);
+});

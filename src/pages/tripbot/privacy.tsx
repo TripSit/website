@@ -13,9 +13,10 @@ export default function PrivacyPage() {
       <h2 id="TripSit's_Privacy_Policy">TripBot&apos;s Privacy Policy</h2>
       <p>
         TripSit operates TripBot, our community Discord bot. This policy
-        describes TripBot&apos;s data handling, including its IRC bridge; it
-        does not describe every TripSit website or service. Discord also
-        processes information when you use Discord; its{" "}
+        describes TripBot&apos;s data handling, including its IRC bridge and the
+        ban appeals that the TripSit website stores through TripBot; it does not
+        describe every TripSit website or service. Discord also processes
+        information when you use Discord; its{" "}
         <a href="https://discord.com/privacy">privacy policy</a> applies to that
         processing.
       </p>
@@ -33,10 +34,15 @@ export default function PrivacyPage() {
       <ul>
         <li>
           <strong>Account and server information:</strong> your Discord user ID,
-          username, server membership, selected role information, bot and ticket
-          access restrictions, when you joined or left, and when and in which
-          channel you were last seen. The bot uses member information for server
-          features and moderation.
+          username, server membership, selected role information, bot, ticket,
+          and helper or contributor role restrictions, when your TripBot profile
+          was created, when you left the server, and when you were last active.
+          Older profiles may also hold the channel you were last seen in.
+          TripBot creates a profile automatically when you send a message in the
+          TripSit Discord server or in a direct message to TripBot, or use a
+          TripBot command in the TripSit server; commands that look up or save
+          your information create one wherever they are used. The bot uses
+          member information for server features and moderation.
         </li>
         <li>
           <strong>Information you provide:</strong> profile choices such as
@@ -46,22 +52,44 @@ export default function PrivacyPage() {
           role choices, and games. Dose records include the substance, amount,
           units, route, and recorded time; reminders include their text and
           scheduled time. Some features may involve sensitive personal
-          information, including information about substance use.
+          information, including information about substance use. If you set a
+          birthday, TripBot posts a birthday greeting that mentions you in a
+          server channel on that day. If you link an account on TripSit&apos;s
+          learning site, TripBot regularly checks it for completed courses,
+          gives you the matching Discord role, and posts a congratulation in a
+          server channel.
         </li>
         <li>
           <strong>Community activity:</strong> reputation, engagement and
           experience counters, game scores, and related feature records
-          generated through your use of community features.
+          generated through your use of community features. For helpers, TripBot
+          records when they were last active in the harm reduction channels. For
+          code contributors, it records claimed GitHub bounties: the pull
+          request and issue reference and the amount awarded.
         </li>
         <li>
-          <strong>Moderation records:</strong> moderation actions and Discord
-          IDs, descriptions, internal notes, moderator attribution, and timing
-          information used to identify the affected user and enforce the action.
+          <strong>Moderation records:</strong> moderation actions and reports,
+          Discord IDs, descriptions, internal notes, moderator or reporter
+          attribution, and timing information used to identify the affected user
+          and enforce the action. Moderators can also ask TripBot to notify
+          them, by direct message or in a channel they choose, the next time a
+          member posts; TripBot keeps the request until that notification is
+          sent, and the notification names the channel the member posted in.
           Scheduled cleanup attempts to remove actions older than two years,
           except full-ban and ban-evasion records and actions concerning a user
-          with an unrepealed full ban. Full-ban records are excluded even if the
-          ban was temporary or later repealed. These excluded records have no
-          automatic age-based expiry in this cleanup.
+          who is currently banned. A full ban stops counting as current when a
+          moderator lifts it, when TripBot lifts it at the end of a temporary
+          ban, or when TripBot&apos;s daily check finds that Discord no longer
+          has the ban. Full-ban records are excluded even if the ban was
+          temporary or later repealed. These excluded records have no automatic
+          age-based expiry in this cleanup.
+        </li>
+        <li>
+          <strong>Staff log entries:</strong> TripBot posts records of
+          moderation actions and reports, members leaving, role changes, and
+          voice channel joins, moves, and departures to staff-only Discord log
+          channels. These entries identify you by mention, display name, or
+          Discord ID.
         </li>
         <li>
           <strong>Command usage statistics:</strong> aggregate lifetime totals
@@ -76,9 +104,10 @@ export default function PrivacyPage() {
         TripBot reads message content to recognize and respond to text commands
         and to run its active message-driven features. These include replies and
         reactions, counting games, channel rules such as image-only posting,
-        community activity features, and configured chat relays. Removing the
-        IRC Bridge role stops relaying; it does not stop the other
-        message-driven features from processing messages they can access.
+        community activity features, moderators&apos; watch notifications, and
+        configured chat relays. Removing the IRC Bridge role stops relaying; it
+        does not stop the other message-driven features from processing messages
+        they can access.
       </p>
       <p>
         Text-command recognition and feature checks process message content
@@ -124,16 +153,21 @@ export default function PrivacyPage() {
         an explicitly requested investigation or fix message to Anthropic&apos;s
         coding agent and open a resulting pull request on GitHub. It is not AI
         moderation of ordinary community messages. Provider and GitHub handling
-        is separate from TripBot database deletion.
+        is separate from TripBot database deletion. When staff reject a TripBot
+        pull request from Discord, TripBot posts their display name and comment
+        publicly on GitHub.
       </p>
 
       <h4 className="mt-8 text-lg font-semibold text-ink">IRC chat bridge</h4>
       <p>
-        In configured shared channels, TripBot can relay messages between
-        Discord and TripSit&apos;s IRC network. A member must have the{" "}
-        <strong>IRC Bridge</strong> role for their Discord messages to be sent
-        to IRC. Adding the role opts you in; removing it opts you out. The role
-        is also removed during a successful <code>/privacy delete</code>.
+        In shared channels, TripBot can relay messages between Discord and
+        TripSit&apos;s IRC network. Shared channels are the channels staff set
+        up for relaying and the public channels in configured categories of the
+        TripSit server; private channels are never shared automatically. A
+        member must have the <strong>IRC Bridge</strong> role for their Discord
+        messages to be sent to IRC. Adding the role opts you in; removing it
+        opts you out. The role is also removed during a successful{" "}
+        <code>/privacy delete</code>.
       </p>
       <p>
         The bridge sends message text, including links to attachments, and a
@@ -158,6 +192,13 @@ export default function PrivacyPage() {
         IRC network; removing TripBot database records does not erase IRC server
         history or copies retained by IRC users.
       </p>
+      <p>
+        Messages sent on IRC in a shared channel are posted to Discord under the
+        sender&apos;s IRC nickname; IRC users do not need to opt in. Deleting a
+        message on IRC does not delete its Discord copy. When an IRC nickname
+        matches a Discord member&apos;s name, the relayed message may show that
+        member&apos;s Discord avatar.
+      </p>
 
       <h3 id="Removing_your_information">
         Viewing and deleting your information
@@ -169,13 +210,17 @@ export default function PrivacyPage() {
         <code>/privacy delete</code> to request deletion, then repeat it with
         the confirmation value <code>YesPlease!</code>. On success, the command
         deletes your profile and feature records, including dose and reminder
-        records, linked accounts, ticket lifecycle records and appeals, their
-        bot-managed Discord threads, saved Best Of copies, and moderation
-        actions about you. It also removes your IRC Bridge role and deletes
-        messages whose text contains your literal Discord ID from TripBot&apos;s
-        bot-error and configured moderation log channels. This matching does not
-        find every reference to you, such as a username or information inside an
-        attachment.
+        records, linked accounts, game scores and RPG character, quotes of you
+        and quotes you saved, bounty claims, moderators&apos; watch requests
+        about you or made by you, ticket lifecycle records and appeals, their
+        bot-managed Discord threads, the moderators&apos; discussion thread
+        about you, saved Best Of copies, and moderation actions about you. It
+        also removes your IRC Bridge role and deletes messages that contain your
+        literal Discord ID, in their text or embeds, from TripBot&apos;s bot
+        log, bot-error, and moderation log channels. This matching does not find
+        every reference to you, such as a display name, username, or information
+        inside an attachment, and it does not search the staff audit log channel
+        that records role changes and voice channel activity.
       </p>
       <p>
         Privacy command replies are visible only to you by default. Setting
@@ -191,9 +236,10 @@ export default function PrivacyPage() {
         <code>/idose delete</code>, or <code>/remind_me get</code> followed by{" "}
         <code>/remind_me delete</code>, selecting the record number shown in the
         list. These commands remove the selected database record; they do not
-        recall messages or copies already delivered elsewhere. Using TripBot
-        again can create new profile and feature records; deletion does not
-        prevent future collection when you use the bot.
+        recall messages or copies already delivered elsewhere. Sending a message
+        in the TripSit server or to TripBot, or using TripBot again, creates a
+        new profile and can create new feature records; deletion does not
+        prevent future collection.
       </p>
       <p>
         When a moderation action about another user was recorded by you, TripBot
@@ -205,8 +251,8 @@ export default function PrivacyPage() {
         If a temporary Discord ban is awaiting its automatic lift, TripBot
         retains only the target Discord ID, guild, and timing information needed
         to lift it. TripBot deletes that timer record after Discord confirms the
-        unban. Deleting TripBot data does not reverse a Discord-managed server
-        ban.
+        unban, including when the ban was already lifted on Discord. Deleting
+        TripBot data does not reverse a Discord-managed server ban.
       </p>
       <p>
         Command statistics remain as aggregate totals and a most recent use time
@@ -223,9 +269,11 @@ export default function PrivacyPage() {
       <p>
         A scheduled job attempts to delete eligible Discord-linked profiles and
         their associated data after six months without recorded activity, using
-        the same deletion process. Accounts with an unrepealed full ban are
-        excluded, as are legacy profiles marked as already scrubbed. Production
-        cleanup is scheduled daily; downtime or cleanup failures can delay
+        the same deletion process. Accounts that are currently banned, as
+        described under moderation records, are excluded, as are legacy profiles
+        marked as already scrubbed. TripBot checks hourly and runs this cleanup
+        once a day: at the first check after midnight UTC, and at the first
+        check after each restart. Downtime or cleanup failures can delay
         removal. This is not a promise that every record disappears exactly six
         months after your last visit.
       </p>
@@ -247,13 +295,15 @@ export default function PrivacyPage() {
         needed to retry, so removal may take longer. After both threads are
         removed, TripBot retains a minimal ticket lifecycle record linked to
         your account: ticket type, status, and creation, closure, reopen,
-        archive, and deletion timestamps. It removes the Discord thread IDs,
-        first message ID, and moderator IDs. This scheduled cleanup marks the
-        ticket as deleted but does not erase the remaining database record. The
-        record remains until a successful <code>/privacy delete</code> or the
-        eligible inactive-account purge after six months without recorded
-        activity, subject to the exclusions described above. There is no
-        automatic 14-day database deletion rule for tickets.
+        archive, and deletion timestamps, plus the timestamps it uses to track
+        when a response was due, when the team responded, and when it sent
+        reminders. It removes the Discord thread IDs, first message ID, and
+        moderator IDs. This scheduled cleanup marks the ticket as deleted but
+        does not erase the remaining database record. The record remains until a
+        successful <code>/privacy delete</code> or the eligible inactive-account
+        purge after six months without recorded activity, subject to the
+        exclusions described above. There is no automatic 14-day database
+        deletion rule for tickets.
       </p>
 
       <h3 id="Access">Who can see information</h3>
@@ -262,9 +312,24 @@ export default function PrivacyPage() {
         conversations and moderation discussions, including participating
         support volunteers, moderators, and administrators with access. A
         private thread is not a promise of confidentiality from server
-        administrators. TripBot&apos;s database and hosting infrastructure can
-        also be accessed by their operators with the relevant technical
-        permissions. Messages relayed to IRC are visible to recipients there.
+        administrators. Staff log channels are visible to the staff who can open
+        them. Staff who review appeals can also see appeal answers and ban
+        status on the TripSit website&apos;s staff dashboard after signing in.
+        TripBot&apos;s database and hosting infrastructure can also be accessed
+        by their operators with the relevant technical permissions. Messages
+        relayed to IRC are visible to recipients there.
+      </p>
+
+      <h3 id="Website_appeals">Ban appeals on the TripSit website</h3>
+      <p>
+        To appeal a ban on the TripSit website, you sign in with a TripSit
+        account linked to Discord. TripBot uses that sign-in to find your
+        Discord ID, checks your ban status with Discord, and stores your appeal
+        answers with your TripBot profile. It posts the appeal to the
+        moderators&apos; Discord discussion thread about you, and staff can also
+        review and decide appeals on the website&apos;s staff dashboard. Appeal
+        records follow the viewing, deletion, and retention rules in this
+        policy.
       </p>
 
       <h3 id="Contact">Contact and privacy requests</h3>

@@ -112,6 +112,47 @@ No bot behavior or CI/CD is changed by this website task.
   whose fixtures omitted `user_id`. Those results are historical, not a check of
   the changed 25 November bot working tree. This update runs website checks only.
 
+## Live recheck after promotion (25 November 2026)
+
+TripBot `main` and `uat` were both `6fb25ce9` (PR #1569) when rechecked, so the
+source findings above now describe production. That recheck found these policy
+gaps, now covered at `/tripbot/privacy`:
+
+- Profiles are created automatically for anyone who posts in the TripSit server
+  or DMs the bot (`messageCreate` calls `getOrCreateUser`), and for TripSit-server
+  slash commands; deletion is undone by the next message, not only by bot use.
+- `users.last_seen_in` is no longer written and `users.joined_at` is the profile
+  creation time; the policy no longer implies channel tracking or guild-join time.
+- Undisclosed processing: moderators' watch requests (`g.watchuser.ts`), staff
+  audit-log posts for role changes and voice moves (`guildMemberUpdate.ts`,
+  `voiceStateUpdate.ts`), birthday and course-completion posts (`timer.ts`),
+  helper activity, GitHub bounty claims, and public GitHub comments from PR
+  rejections (`g.prReview.ts`).
+- `/privacy delete` also searches the bot log channel and embeds, deletes the
+  per-user moderator thread, and does not search `CHANNEL_AUDITLOG`.
+- Retained ticket rows also keep `response_due_at`, `responded_at`,
+  `team_reminded_at` and `user_reminded_at`.
+- Website appeals (Keycloak sign-in mapped to a Discord ID, stored by the bot API,
+  posted to the moderator thread, reviewed on `/dashboard/appeals`) had no policy.
+- IRC users' messages reach Discord without opt-in, IRC deletes are not mirrored,
+  and the bridge may borrow a same-named member's avatar. Automatic bridging is
+  limited to public channels in configured categories.
+- The archived Wikipedia, Urban Dictionary, IMDb and Imgur commands are not
+  registered, so they are not disclosed as third-party lookups.
+
+Two TripBot retention bugs were fixed in TripBot branch
+`fix/privacy-retention-timers`; the policy's ban and scheduling wording depends
+on that change being live:
+
+- `checkEvery` waited a full interval before the first run, so the daily purge
+  needed 24 hours of uptime and every restart reset it. Retention now polls
+  hourly and runs once per UTC day, including after a restart; expired bans are
+  checked hourly instead of every 12 hours.
+- Automatic temporary-ban lifts only cleared `expires_at`, leaving an
+  "unrepealed" `FULL_BAN` that kept the user out of the purge and pruning forever.
+  Lifts now set `repealed_at`, and the daily job repeals (or, for timer-only rows,
+  deletes) full bans that Discord's ban list no longer contains.
+
 ## Website routes
 
 The scoped policy now lives at `/tripbot/privacy`, with a permanent (308)

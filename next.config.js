@@ -50,6 +50,7 @@ const nextConfig = {
       // Legacy homepage addresses should consolidate on the homepage, not the blog.
       { source: "/index.html", destination: "/", permanent: true },
       { source: "/index.php", destination: "/", permanent: true },
+      { source: "/privacy", destination: "/tripbot/privacy", permanent: true },
       ...blogPaths.map((path) => toBlog(path)),
       // Not in the sitemap, but still linked from elsewhere: feed readers subscribed to the
       // old address, the blog's front-page pages, and images other sites embed from posts.

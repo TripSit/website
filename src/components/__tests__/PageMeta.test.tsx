@@ -10,6 +10,8 @@ import DrugPage from "@/pages/factsheets/[drug]";
 import FactsheetsPage from "@/pages/factsheets";
 import ComboPage from "@/pages/combo";
 import ReflectPrivacyPage from "@/pages/reflect/privacy";
+import TripBotPage from "@/pages/tripbot";
+import TripBotPrivacyPage from "@/pages/tripbot/privacy";
 import NotFoundPage from "@/pages/404";
 
 // next/head only writes to the document inside a Next.js app. Here it renders its tags
@@ -115,6 +117,12 @@ test("describes a drug page without a summary in general terms", () => {
 });
 
 test.each([
+  { path: "/tripbot", Page: TripBotPage, title: "TripBot - TripSit" },
+  {
+    path: "/tripbot/privacy",
+    Page: TripBotPrivacyPage,
+    title: "Privacy Policy - TripBot - TripSit",
+  },
   {
     path: "/factsheets",
     Page: FactsheetsPage,

@@ -20,8 +20,8 @@ const columns = [
       { label: "Rules", href: "/rules" },
       { label: "Terms of service", href: "/terms" },
       {
-        label: "Privacy policy",
-        href: "/privacy",
+        label: "TripBot privacy policy",
+        href: "/tripbot/privacy",
       },
     ],
   },
@@ -32,6 +32,7 @@ const columns = [
       { label: "Factsheets", href: "/factsheets" },
       { label: "Live Chat", href: "/webchat" },
       { label: "Reflect App", href: "/reflect" },
+      { label: "TripBot", href: "/tripbot" },
       { label: "Learning Portal", href: "https://learn.tripsit.me/" },
     ],
   },

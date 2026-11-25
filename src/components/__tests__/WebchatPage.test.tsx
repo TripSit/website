@@ -21,5 +21,7 @@ test("mounts the configured chat widget alongside navigation and footer links", 
   expect(widget).toHaveAttribute("data-server", "960606557622657026");
   expect(widget).toHaveAttribute("data-channel", "1052634176161054782");
   expect(screen.getByRole("navigation", { name: "Main" })).toBeVisible();
-  expect(screen.getByRole("link", { name: "Privacy policy" })).toBeVisible();
+  expect(
+    screen.getByRole("link", { name: "TripBot privacy policy" }),
+  ).toBeVisible();
 });

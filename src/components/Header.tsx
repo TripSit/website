@@ -78,6 +78,7 @@ const menus: { label: string; groups: NavGroup[] }[] = [
         links: [
           { label: "Learning Platform", href: `https://learn.${domain}` },
           { label: "Reflect App", href: "/reflect" },
+          { label: "TripBot", href: "/tripbot" },
           {
             label: "Service Status",
             href: `https://uptime.${domain}/status/default`,

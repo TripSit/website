@@ -96,8 +96,8 @@ export default function PrivacyPage() {
         body. Operational logs can also contain personal information. Aggregate
         command statistics are separate from these records and logs. Stored
         records follow the{" "}
-        <a href="#Retention">retention rules and exceptions below</a>;
-        <a href="#Removing_your_information"> deletion controls</a> do not erase
+        <a href="#Retention">retention rules and exceptions below</a>;{" "}
+        <a href="#Removing_your_information">deletion controls</a> do not erase
         every Discord reply, relayed copy, log, or backup.
       </p>
       <p>

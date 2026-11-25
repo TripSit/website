@@ -190,7 +190,7 @@ export default function TripBotPage() {
             <a href="mailto:privacy@tripsit.me" className={linkClass}>
               privacy@tripsit.me
             </a>
-            .
+            {"."}
           </p>
         </div>
       </section>

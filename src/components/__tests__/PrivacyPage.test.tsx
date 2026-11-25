@@ -27,6 +27,23 @@ test("hosts the current privacy policy with its local footer links", () => {
   ).toHaveAttribute("href", "/terms");
 });
 
+test("explains six-day ticket retention and lifecycle data", () => {
+  render(<PrivacyPage />);
+  expect(
+    screen.getByRole("heading", { level: 4, name: "Support ticket retention" }),
+  ).toBeVisible();
+  const retention = screen.getByText(
+    (_, element) =>
+      element?.tagName === "P" &&
+      /Ticket retention timers are set/.test(element.textContent ?? ""),
+  );
+  expect(retention).toHaveTextContent(/archives.*3 days.*deletion.*6 days/i);
+  expect(retention).toHaveTextContent(
+    /removes the Discord thread IDs, first message ID, and moderator IDs/,
+  );
+  expect(retention).toHaveTextContent(/\/privacy delete.*six months/);
+});
+
 test("explains TripBot deletion, moderation handling, and IRC opt-in", () => {
   render(<PrivacyPage />);
   expect(

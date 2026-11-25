@@ -72,4 +72,11 @@ test("explains TripBot deletion, moderation handling, and IRC opt-in", () => {
         ),
     ),
   ).toHaveTextContent(/Adding the role opts you in/);
+  expect(
+    screen.getByText(
+      (_, element) =>
+        element?.tagName === "P" &&
+        /Removing the IRC Bridge role or using/.test(element.textContent ?? ""),
+    ),
+  ).toHaveTextContent(/stops future relays, including queued messages/);
 });

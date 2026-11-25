@@ -53,7 +53,9 @@ test("explains TripBot deletion, moderation handling, and IRC opt-in", () => {
           element.textContent ?? "",
         ),
     ),
-  ).toHaveTextContent(/deletes that timer record after Discord confirms the unban/);
+  ).toHaveTextContent(
+    /deletes that timer record after Discord confirms the unban/,
+  );
   expect(
     screen.getByText(
       (_, element) =>

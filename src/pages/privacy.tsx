@@ -66,8 +66,8 @@ export default function PrivacyPage() {
       <h4 className="mt-8 text-lg font-semibold text-ink">IRC chat bridge</h4>
       <p>
         In configured shared channels, TripBot can relay messages between
-        Discord and TripSit&apos;s IRC network. A member must have the
-        <strong> IRC Bridge</strong> role for their Discord messages to be sent
+        Discord and TripSit&apos;s IRC network. A member must have the{" "}
+        <strong>IRC Bridge</strong> role for their Discord messages to be sent
         to IRC. Adding the role opts you in; removing it opts you out. The role
         is also removed when you use <code>/privacy delete</code>.
       </p>
@@ -76,22 +76,22 @@ export default function PrivacyPage() {
         display name so people on the other network can see who wrote it.
         Discord edits are sent to IRC as an additional line marked as edited;
         IRC does not support changing the original line. When Discord messages
-        are deleted, TripBot attempts to redact its IRC copies where the
-        network supports redaction and TripBot still has the message mapping.
-        That mapping is temporary and held in memory, so a restart or mapping
-        expiry can prevent a later redaction attempt.
+        are deleted, TripBot attempts to redact its IRC copies where the network
+        supports redaction and TripBot still has the message mapping. That
+        mapping is temporary and held in memory, so a restart or mapping expiry
+        can prevent a later redaction attempt.
       </p>
       <p>
-        Removing the IRC Bridge role or using <code>/privacy delete</code>
-        stops future relays, including queued messages that have not yet been
+        Removing the IRC Bridge role or using <code>/privacy delete</code> stops
+        future relays, including queued messages that have not yet been
         delivered. TripBot checks the current role before sending each queued
         line. This does not guarantee removal of messages already sent to IRC.
         IRC servers may retain message history according to their own
-        configuration, and IRC users may keep client logs, screenshots, or
-        other copies. Even an IRC redaction is best effort: it cannot recall
-        content already seen or copied, and clients that do not support
-        redaction may still display it. The IRC network&apos;s operators and
-        users handle data under their own practices.
+        configuration, and IRC users may keep client logs, screenshots, or other
+        copies. Even an IRC redaction is best effort: it cannot recall content
+        already seen or copied, and clients that do not support redaction may
+        still display it. The IRC network&apos;s operators and users handle data
+        under their own practices.
       </p>
 
       <h3 id="Removing_your_information">
@@ -108,25 +108,25 @@ export default function PrivacyPage() {
         from TripBot&apos;s bot-error and configured moderation log channels.
       </p>
       <p>
-        When a moderation action about another user was recorded by you,
-        TripBot removes your moderator attribution and the action&apos;s notes
-        and description. The action may remain as part of the affected user&apos;s
+        When a moderation action about another user was recorded by you, TripBot
+        removes your moderator attribution and the action&apos;s notes and
+        description. The action may remain as part of the affected user&apos;s
         moderation history without those identifying details.
       </p>
       <p>
         If a temporary Discord ban is awaiting its automatic lift, TripBot
-        retains only the target Discord ID, guild, and timing information
-        needed to lift it. TripBot deletes that timer record after Discord
-        confirms the unban. Deleting TripBot data does not reverse a
-        Discord-managed server ban.
+        retains only the target Discord ID, guild, and timing information needed
+        to lift it. TripBot deletes that timer record after Discord confirms the
+        unban. Deleting TripBot data does not reverse a Discord-managed server
+        ban.
       </p>
       <p>
-        Command statistics remain as aggregate totals and a most recent use
-        time per command; they do not include user, guild, channel, or option
-        data. Deletion cannot remove ordinary Discord messages, copies held by
-        other people, IRC content already relayed, or data in hosting logs and
-        backups that TripBot cannot delete through Discord. Hosting log and
-        backup retention depends on the service configuration.
+        Command statistics remain as aggregate totals and a most recent use time
+        per command; they do not include user, guild, channel, or option data.
+        Deletion cannot remove ordinary Discord messages, copies held by other
+        people, IRC content already relayed, or data in hosting logs and backups
+        that TripBot cannot delete through Discord. Hosting log and backup
+        retention depends on the service configuration.
       </p>
       <p>
         For accounts that have not been seen for six months, TripBot

@@ -56,8 +56,8 @@ export default function PrivacyPage() {
           birthday, TripBot posts a birthday greeting that mentions you in a
           server channel on that day. If you link an account on TripSit&apos;s
           learning site, TripBot regularly checks it for completed courses,
-          gives you the matching Discord role, and posts a congratulation in a
-          server channel.
+          gives you the matching Discord role, and sends you a direct message.
+          Course completions are not announced in the server.
         </li>
         <li>
           <strong>Community activity:</strong> reputation, engagement and
@@ -220,7 +220,7 @@ export default function PrivacyPage() {
         log, bot-error, and moderation log channels. This matching does not find
         every reference to you, such as a display name, username, or information
         inside an attachment, and it does not search the staff audit log channel
-        that records role changes and voice channel activity.
+        that records role changes, voice channel activity, and bans and unbans.
       </p>
       <p>
         Privacy command replies are visible only to you by default. Setting
@@ -248,11 +248,12 @@ export default function PrivacyPage() {
         moderation history without those identifying details.
       </p>
       <p>
-        If a temporary Discord ban is awaiting its automatic lift, TripBot
-        retains only the target Discord ID, guild, and timing information needed
-        to lift it. TripBot deletes that timer record after Discord confirms the
-        unban, including when the ban was already lifted on Discord. Deleting
-        TripBot data does not reverse a Discord-managed server ban.
+        After a successful deletion, TripBot&apos;s database keeps no ban
+        records about you. If you have a temporary Discord ban that has not
+        ended, deletion also removes the timer TripBot uses to lift it, so
+        TripBot can no longer lift that ban automatically: it stays in place
+        until a moderator lifts it. The confirmation step warns you about this.
+        Deleting TripBot data does not reverse a Discord-managed server ban.
       </p>
       <p>
         Command statistics remain as aggregate totals and a most recent use time

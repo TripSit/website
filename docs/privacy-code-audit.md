@@ -140,18 +140,27 @@ gaps, now covered at `/tripbot/privacy`:
 - The archived Wikipedia, Urban Dictionary, IMDb and Imgur commands are not
   registered, so they are not disclosed as third-party lookups.
 
-Two TripBot retention bugs were fixed in TripBot branch
-`fix/privacy-retention-timers`; the policy's ban and scheduling wording depends
-on that change being live:
+Follow-up TripBot changes the policy now depends on:
 
-- `checkEvery` waited a full interval before the first run, so the daily purge
-  needed 24 hours of uptime and every restart reset it. Retention now polls
-  hourly and runs once per UTC day, including after a restart; expired bans are
-  checked hourly instead of every 12 hours.
-- Automatic temporary-ban lifts only cleared `expires_at`, leaving an
-  "unrepealed" `FULL_BAN` that kept the user out of the purge and pruning forever.
-  Lifts now set `repealed_at`, and the daily job repeals (or, for timer-only rows,
-  deletes) full bans that Discord's ban list no longer contains.
+- TripSit/TripBot#1573 stops the public "Congratulate @member" course-completion
+  post (the member only gets the role and a DM) and makes `/privacy get` point to
+  `/levels` and `/remind_me get` instead of commands that do not exist.
+- TripSit/TripBot#1575 makes `/privacy delete` delete every moderation action
+  about the user, including the anonymized timer it used to keep for a temporary
+  ban that had not ended. No ban record about the user remains in the database;
+  that ban now stays until a moderator lifts it, and the confirmation warns about
+  this. Ban and unban entries in the staff audit log channel are not searched.
+- TripSit/TripBot#1572 fixes two retention bugs; the policy's ban and scheduling
+  wording depends on it:
+  - `checkEvery` waited a full interval before the first run, so the daily purge
+    needed 24 hours of uptime and every restart reset it. Retention now polls
+    hourly and runs once per UTC day, including after a restart; expired bans
+    are checked hourly instead of every 12 hours.
+  - Automatic temporary-ban lifts only cleared `expires_at`, leaving an
+    "unrepealed" `FULL_BAN` that kept the user out of the purge and pruning
+    forever. Lifts now set `repealed_at`, and the daily job repeals (or, for
+    timer-only rows, deletes) full bans that Discord's ban list no longer
+    contains.
 
 ## Website routes
 

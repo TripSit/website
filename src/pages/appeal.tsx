@@ -3,6 +3,7 @@ import Head from "../components/Head";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import AppealForm from "../components/AppealForm";
+import Link from "next/link";
 import { consumeLoginState, getLoginUrl } from "../utils/keycloak";
 import { decodeJwtPayload } from "../utils/jwt";
 import {
@@ -600,6 +601,14 @@ const AppealPage: React.FC = () => {
                       <p className="card-text">
                         Remember to revisit this page to check the status of
                         your appeal in the future.
+                      </p>
+                      <p className="card-text">
+                        Logging in lets TripBot find your Discord account and
+                        check your ban status. See{" "}
+                        <Link href="/tripbot/privacy#Website_appeals">
+                          how we handle ban appeals
+                        </Link>
+                        .
                       </p>
                     </div>
                   </div>

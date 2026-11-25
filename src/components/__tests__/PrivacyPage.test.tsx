@@ -198,7 +198,7 @@ test("limits direct messages and join checks to what the policy describes", () =
     /does not use bans or memberships in other servers/,
   );
   expect(article.getByText(/Replies to/).closest("li")).toHaveTextContent(
-    /does not send you a copy by direct message/,
+    /Replies to \/idose are visible only to you.*does not send you a copy by direct message/,
   );
 });
 

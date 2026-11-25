@@ -50,7 +50,7 @@ export default function PrivacyPage() {
           commands and features such as reminders, dose records, support
           tickets, appeals, saved quotes and Best Of messages, and games. Dose
           records include the substance, amount, units, route, and recorded
-          time; reminders include their text and scheduled time. Replies to
+          time; reminders include their text and scheduled time. Replies to{" "}
           <code>/idose</code> are visible only to you, and TripBot does not send
           you a copy by direct message. Some features may involve sensitive
           personal information, including information about substance use. If

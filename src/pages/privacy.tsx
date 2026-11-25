@@ -94,6 +94,21 @@ export default function PrivacyPage() {
         under their own practices.
       </p>
 
+      <h4 className="mt-8 text-lg font-semibold text-ink">Support ticket retention</h4>
+      <p>
+        Ticket retention timers are set when a ticket is created, closed, or
+        reopened. TripBot archives ticket threads after 3 days and schedules
+        deletion of both the support and metadata threads after 6 days. If
+        Discord does not allow a deletion, TripBot keeps the references needed
+        to retry, so removal may take longer. After both threads are removed,
+        TripBot retains only a minimal ticket lifecycle record linked to your
+        account: ticket type, status, and creation, closure, reopen, archive,
+        and deletion timestamps. It removes the Discord thread IDs, first
+        message ID, and moderator IDs. This record remains until you use
+        <code>/privacy delete</code> or TripBot deletes your inactive account
+        data after six months, unless you have an active full ban.
+      </p>
+
       <h3 id="Removing_your_information">
         Viewing and deleting your information
       </h3>
@@ -102,7 +117,7 @@ export default function PrivacyPage() {
         TripBot currently associates with your account. Use{" "}
         <code>/privacy delete</code> to request deletion. The command deletes
         your profile and feature records, including dose and reminder records,
-        linked accounts, tickets and appeals, their bot-managed Discord threads,
+        linked accounts, ticket lifecycle records and appeals, their bot-managed Discord threads,
         saved Best Of copies, and moderation actions about you. It also removes
         your IRC Bridge role and deletes messages containing your Discord ID
         from TripBot&apos;s bot-error and configured moderation log channels.

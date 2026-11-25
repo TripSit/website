@@ -55,3 +55,10 @@ test("warns near the shared limit and blocks submissions over it", () => {
   rerender(<AppealForm onSubmit={onSubmit} submitting />);
   expect(screen.getByRole("button", { name: /submitting/i })).toBeDisabled();
 });
+
+test("points to the privacy policy section about ban appeals", () => {
+  render(<AppealForm onSubmit={jest.fn()} submitting={false} />);
+  expect(
+    screen.getByRole("link", { name: "how we handle ban appeals" }),
+  ).toHaveAttribute("href", "/tripbot/privacy#Website_appeals");
+});

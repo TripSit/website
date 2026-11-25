@@ -45,7 +45,7 @@
     "autoprefixer": "^10.6.2",
     "axios": "^1.21.1",
     "date-fns": "^4.4.0",
-    "discord-api-types": "^0.38.58",
+    "discord-api-types": "^0.38.60",
     "markdown-it": "^15.0.3",
     "material-react-table": "^3.2.1",
     "next": "^16.4.6",

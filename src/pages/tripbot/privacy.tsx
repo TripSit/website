@@ -50,14 +50,15 @@ export default function PrivacyPage() {
           commands and features such as reminders, dose records, support
           tickets, appeals, saved quotes and Best Of messages, and games. Dose
           records include the substance, amount, units, route, and recorded
-          time; reminders include their text and scheduled time. Some features
-          may involve sensitive personal information, including information
-          about substance use. If you set a birthday, TripBot posts a birthday
-          greeting that mentions you in a server channel on that day. If you
-          link an account on TripSit&apos;s learning site, TripBot regularly
-          checks it for completed courses, gives you the matching Discord role,
-          and sends you a direct message. Course completions are not announced
-          in the server.
+          time; reminders include their text and scheduled time. Replies to{" "}
+          <code>/idose</code> are visible only to you, and TripBot does not send
+          you a copy by direct message. Some features may involve sensitive
+          personal information, including information about substance use. If
+          you set a birthday, TripBot posts a birthday greeting that mentions
+          you in a server channel on that day. If you link an account on
+          TripSit&apos;s learning site, TripBot regularly checks it for
+          completed courses, gives you the matching Discord role, and sends you
+          a direct message. Course completions are not announced in the server.
         </li>
         <li>
           <strong>Community activity:</strong> reputation, engagement and
@@ -90,6 +91,12 @@ export default function PrivacyPage() {
           voice channel joins, moves, and departures to staff-only Discord log
           channels. These entries identify you by mention, display name, or
           Discord ID.
+        </li>
+        <li>
+          <strong>Join checks:</strong> when someone joins, TripBot calculates a
+          trust score from the age of their Discord account and whether it has a
+          profile picture, and shows it to moderators. The score does not use
+          bans or memberships in other servers.
         </li>
         <li>
           <strong>Command usage statistics:</strong> aggregate lifetime totals
@@ -139,32 +146,27 @@ export default function PrivacyPage() {
         <code>/privacy delete</code> or the scheduled retention described below.
       </p>
       <p>
-        The active message handler does not call the AI moderation function.
         TripBot does not use Discord message content to train or fine-tune AI or
-        machine-learning models. This does not mean that all AI processing is
-        disabled: AI chat has been removed, but translation and RPG flair review
-        remain available.
+        machine-learning models, and it does not send Discord message content to
+        any AI provider. AI chat, translation, AI review of RPG flair, and AI
+        moderation have all been removed; RPG flair is now checked locally with
+        a keyword filter.
       </p>
       <p>
-        Translation sends a selected message to OpenAI only if its author has
-        agreed to both the AI terms and privacy policy. RPG flair review sends
-        the submitted flair text to OpenAI. These features do not fetch
-        conversation history or save their prompts and responses as AI message
-        history in TripBot&apos;s database. AI consent timestamps remain linked
-        to your profile and are included in successful profile deletion. Discord
-        replies and any content saved as an RPG feature record are separate
-        copies. Historical AI audit posts and replies on Discord, and copies
-        held by providers, are not erased by removing AI chat or by deleting
-        your TripBot profile.
+        AI consent timestamps from the period when those features ran remain
+        linked to your profile until you revoke them with <code>/ai</code> or
+        your profile is deleted. Historical AI audit posts and replies on
+        Discord, and any copies held by AI providers from that period, are not
+        erased by removing the features or by deleting your TripBot profile.
+        When staff reject a TripBot pull request from Discord, TripBot posts
+        their display name and comment publicly on GitHub.
       </p>
       <p>
-        When configured, a separate developer-only maintenance feature can send
-        an explicitly requested investigation or fix message to Anthropic&apos;s
-        coding agent and open a resulting pull request on GitHub. It is not AI
-        moderation of ordinary community messages. Provider and GitHub handling
-        is separate from TripBot database deletion. When staff reject a TripBot
-        pull request from Discord, TripBot posts their display name and comment
-        publicly on GitHub.
+        TripBot sends you a direct message only because of something you did: a
+        report you filed, an application you submitted, a reminder you set, a
+        linked learning-site course you completed, or a moderation notice. Each
+        message says why you received it. TripBot does not send promotional
+        direct messages or contact you outside Discord.
       </p>
 
       <h4 className="mt-8 text-lg font-semibold text-ink">IRC chat bridge</h4>

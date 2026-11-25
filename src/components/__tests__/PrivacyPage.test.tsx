@@ -171,21 +171,34 @@ test("distinguishes transient message processing from stored content and retenti
   ).toHaveAttribute("href", "#Removing_your_information");
 });
 
-test("separates disabled message moderation and model training from explicit AI features", () => {
+test("states that no message content goes to an AI provider and that model training is not done", () => {
   render(<PrivacyPage />);
   const article = within(screen.getByRole("article"));
-  expect(article.getByText(/The active message handler/)).toHaveTextContent(
-    /does not call the AI moderation function.*does not use Discord message content to train or fine-tune AI or machine-learning models/,
+  expect(
+    article.getByText(/does not use Discord message content to train/),
+  ).toHaveTextContent(
+    /does not send Discord message content to any AI provider.*AI chat, translation, AI review of RPG flair, and AI moderation have all been removed/,
   );
   expect(
-    article.getByText(/Translation sends a selected message/),
+    article.getByText(/AI consent timestamps from the period/),
   ).toHaveTextContent(
-    /only if its author has agreed.*do not fetch conversation history or save their prompts and responses as AI message history/,
+    /revoke them with \/ai.*not erased by removing the features/,
   );
+  expect(article.queryByText(/OpenAI/)).toBeNull();
+  expect(article.queryByText(/Anthropic/)).toBeNull();
+});
+
+test("limits direct messages and join checks to what the policy describes", () => {
+  render(<PrivacyPage />);
+  const article = within(screen.getByRole("article"));
   expect(
-    article.getByText(/When configured, a separate developer-only/),
-  ).toHaveTextContent(
-    /Anthropic.*GitHub.*separate from TripBot database deletion/,
+    article.getByText(/only because of something you did/),
+  ).toHaveTextContent(/does not send promotional direct messages/);
+  expect(article.getByText(/Join checks:/).closest("li")).toHaveTextContent(
+    /does not use bans or memberships in other servers/,
+  );
+  expect(article.getByText(/Replies to/).closest("li")).toHaveTextContent(
+    /Replies to \/idose are visible only to you.*does not send you a copy by direct message/,
   );
 });
 

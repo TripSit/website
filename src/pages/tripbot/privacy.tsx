@@ -169,12 +169,13 @@ export default function PrivacyPage() {
         <code>/privacy delete</code> to request deletion, then repeat it with
         the confirmation value <code>YesPlease!</code>. On success, the command
         deletes your profile and feature records, including dose and reminder
-        records, linked accounts, tickets and appeals, their bot-managed Discord
-        threads, saved Best Of copies, and moderation actions about you. It also
-        removes your IRC Bridge role and deletes messages whose text contains
-        your literal Discord ID from TripBot&apos;s bot-error and configured
-        moderation log channels. This matching does not find every reference to
-        you, such as a username or information inside an attachment.
+        records, linked accounts, ticket lifecycle records and appeals, their
+        bot-managed Discord threads, saved Best Of copies, and moderation
+        actions about you. It also removes your IRC Bridge role and deletes
+        messages whose text contains your literal Discord ID from TripBot&apos;s
+        bot-error and configured moderation log channels. This matching does not
+        find every reference to you, such as a username or information inside an
+        attachment.
       </p>
       <p>
         Privacy command replies are visible only to you by default. Setting
@@ -233,19 +234,26 @@ export default function PrivacyPage() {
         after attempting delivery, including when the DM cannot be sent. A
         reminder message already delivered through Discord is a separate copy.
       </p>
+      <h4 className="mt-8 text-lg font-semibold text-ink">
+        Support ticket retention
+      </h4>
       <p>
-        Ticket cleanup is separate from database deletion. The production ticket
-        lifecycle sets archive and deletion deadlines three and six days ahead
-        when those deadlines are set or refreshed. At the deletion deadline,
-        scheduled cleanup attempts to delete both the support thread and its
-        separate staff discussion thread. Reopening or updating a ticket can
+        Ticket retention timers are set when a ticket is created, closed, or
+        reopened. In production, TripBot archives the support thread after 3
+        days and schedules deletion of both the support thread and its separate
+        staff discussion thread after 6 days. Reopening or updating a ticket can
         refresh its deadlines; downtime or cleanup failures can delay removal.
-        Successful scheduled cleanup clears the stored Discord thread and
-        message references and marks the database ticket record as deleted, but
-        does not erase the remaining database record. Ticket database records
-        and associated threads are included in successful profile deletion and
-        the eligible inactive-account purge. There is no automatic 14-day
-        database deletion rule for tickets.
+        If Discord does not allow a deletion, TripBot keeps the references
+        needed to retry, so removal may take longer. After both threads are
+        removed, TripBot retains a minimal ticket lifecycle record linked to
+        your account: ticket type, status, and creation, closure, reopen,
+        archive, and deletion timestamps. It removes the Discord thread IDs,
+        first message ID, and moderator IDs. This scheduled cleanup marks the
+        ticket as deleted but does not erase the remaining database record. The
+        record remains until a successful <code>/privacy delete</code> or the
+        eligible inactive-account purge after six months without recorded
+        activity, subject to the exclusions described above. There is no
+        automatic 14-day database deletion rule for tickets.
       </p>
 
       <h3 id="Access">Who can see information</h3>

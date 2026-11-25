@@ -124,3 +124,16 @@ website tests passed across 66 suites. HTTP checks confirmed 200 responses and
 canonical URLs for both new routes and a 308 redirect preserving query parameters.
 Browser checks confirmed the policy/back links, legacy fragment redirect, and
 mobile layouts without horizontal overflow on either TripBot page.
+
+## Reconciliation with website PR #478
+
+PR #478's branch is merged into the combined overview/policy branch. Its lifecycle
+record details and regression test are preserved at `/tripbot/privacy`, with the
+old page kept deleted so the 308 redirect remains the only `/privacy` behavior.
+The inspected `archiveTicket` code explicitly archives the support thread only;
+`deleteTicket` removes both support and metadata threads. The combined policy
+therefore does not promise automatic metadata-thread archiving. Retry-reference,
+moderator-ID cleanup, lifecycle fields, and purge exclusions remain explicit.
+
+Combined-branch validation after merging PR #478: repository lint and production
+build passed; all 574 website tests passed across 66 suites.

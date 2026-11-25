@@ -29,6 +29,24 @@ test("hosts the current privacy policy with its local footer links", () => {
   ).toHaveAttribute("href", "/terms");
 });
 
+test("explains six-day ticket retention and lifecycle data", () => {
+  render(<PrivacyPage />);
+  expect(
+    screen.getByRole("heading", { level: 4, name: "Support ticket retention" }),
+  ).toBeVisible();
+  const retention = screen.getByText(
+    (_, element) =>
+      element?.tagName === "P" &&
+      /Ticket retention timers are set/.test(element.textContent ?? ""),
+  );
+  expect(retention).toHaveTextContent(/archives.*3 days.*deletion.*6 days/i);
+  expect(retention).toHaveTextContent(
+    /removes the Discord thread IDs, first message ID, and moderator IDs/,
+  );
+  expect(retention).toHaveTextContent(/\/privacy delete.*six months/);
+  expect(retention).toHaveTextContent(/references needed to retry/);
+});
+
 test("explains TripBot deletion, moderation handling, and IRC opt-in", () => {
   render(<PrivacyPage />);
   expect(
@@ -184,7 +202,9 @@ test("keeps IRC consent separate from other processing and existing-copy deletio
   ).toHaveTextContent(
     /stops future relays, including queued messages.*does not guarantee removal of messages already sent to IRC.*IRC servers may retain message history/,
   );
-  expect(article.getByText(/Ticket cleanup is separate/)).toHaveTextContent(
-    /three and six days.*both the support thread and its separate staff discussion thread.*does not erase the remaining database record/,
+  expect(
+    article.getByText(/Ticket retention timers are set/),
+  ).toHaveTextContent(
+    /3 days.*both the support thread and its separate staff discussion thread after 6 days.*does not erase the remaining database record/,
   );
 });

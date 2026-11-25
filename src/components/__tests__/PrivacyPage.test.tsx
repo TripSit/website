@@ -237,7 +237,7 @@ test("matches the deletion scope and current-ban rules to TripBot", () => {
   render(<PrivacyPage />);
   const article = screen.getByRole("article");
   expect(article).toHaveTextContent(
-    /in their text or embeds, from TripBot's bot log, bot-error, and moderation log channels/,
+    /in their text or embeds, from TripBot's bot log, bot-error, moderation log, and quote log channels/,
   );
   expect(article).toHaveTextContent(
     /does not search the staff audit log channel/,
@@ -278,4 +278,25 @@ test("covers website appeals and the IRC-to-Discord direction of the bridge", ()
   expect(
     article.getByText(/In shared channels, TripBot can relay/),
   ).toHaveTextContent(/private channels are never shared automatically/);
+});
+
+test("covers deleted-message copies, log posting, and security incidents", () => {
+  render(<PrivacyPage />);
+  const article = within(screen.getByRole("article"));
+  expect(
+    article.getByText(/When a message is deleted on Discord/),
+  ).toHaveTextContent(/Best Of copy and any saved quotes of it.*quote log/);
+  expect(screen.getByRole("article")).toHaveTextContent(
+    /only warnings and errors are posted to TripBot's bot-error Discord channel/,
+  );
+  expect(screen.getByRole("article")).toHaveTextContent(
+    /moderation log, and quote log channels/,
+  );
+  expect(
+    article.getByRole("heading", { level: 3, name: "Security incidents" }),
+  ).toBeVisible();
+  expect(
+    article.getByText(/accessed TripBot's data without authorization/),
+  ).toHaveTextContent(/notify Discord and the affected users/);
+  expect(screen.getByRole("article")).not.toHaveTextContent(/mindset/);
 });

@@ -145,6 +145,12 @@ Follow-up TripBot changes the policy now depends on:
 - TripSit/TripBot#1573 stops the public "Congratulate @member" course-completion
   post (the member only gets the role and a DM) and makes `/privacy get` point to
   `/levels` and `/remind_me get` instead of commands that do not exist.
+- TripSit/TripBot#1576 posts only warnings and errors to the bot-errors channel
+  (info and debug lines carried IDs and whole user records), deletes Best Of and
+  quote copies when the source message is deleted, and adds the quote log to
+  `/privacy delete`. Mindset roles are no longer stored by active code (only the
+  archived reaction-role handler wrote `users.mindset_role`), so the policy no
+  longer lists them.
 - TripSit/TripBot#1575 makes `/privacy delete` delete every moderation action
   about the user, including the anonymized timer it used to keep for a temporary
   ban that had not ended. No ban record about the user remains in the database;

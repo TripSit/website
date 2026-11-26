@@ -8,7 +8,7 @@ export default function PrivacyPage() {
       path="/tripbot/privacy"
       section={{ label: "TripBot", href: "/tripbot" }}
       description="What TripBot collects, how it uses and shares information, its retention and deletion limits, and how to contact TripSit about privacy."
-      updated="25 November 2026"
+      updated="26 November 2026"
     >
       <h2 id="TripSit's_Privacy_Policy">TripBot&apos;s Privacy Policy</h2>
       <p>
@@ -148,16 +148,9 @@ export default function PrivacyPage() {
       <p>
         TripBot does not use Discord message content to train or fine-tune AI or
         machine-learning models, and it does not send Discord message content to
-        any AI provider. AI chat, translation, AI review of RPG flair, and AI
-        moderation have all been removed; RPG flair is now checked locally with
-        a keyword filter.
+        any AI provider.
       </p>
       <p>
-        AI consent timestamps from the period when those features ran remain
-        linked to your profile until you revoke them with <code>/ai</code> or
-        your profile is deleted. Historical AI audit posts and replies on
-        Discord, and any copies held by AI providers from that period, are not
-        erased by removing the features or by deleting your TripBot profile.
         When staff reject a TripBot pull request from Discord, TripBot posts
         their display name and comment publicly on GitHub.
       </p>

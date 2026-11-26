@@ -38,3 +38,10 @@ updates:
     target-branch: "uat"
     schedule:
       interval: "weekly"
+    groups:
+      # CodeQL's init, autobuild and analyze steps refuse to run at different
+      # versions, so bumping init (#491) or analyze (#493) alone fails CodeQL.
+      # Bump them together.
+      codeql:
+        patterns:
+          - "github/codeql-action*"

@@ -13,7 +13,7 @@ test("hosts the current privacy policy with its local footer links", () => {
       name: "Viewing and deleting your information",
     }),
   ).toBeVisible();
-  expect(article.getByText("Last updated: 25 November 2026")).toBeVisible();
+  expect(article.getByText("Last updated: 26 November 2026")).toBeVisible();
   expect(
     article.getByRole("link", { name: "Reflect's privacy policy" }),
   ).toHaveAttribute("href", "/reflect/privacy");
@@ -141,9 +141,6 @@ test("discloses retention and deletion limits without promising complete erasure
     /even if the ban was temporary or later repealed/,
   );
   expect(article).toHaveTextContent(/no bot-enforced expiry/);
-  expect(article).toHaveTextContent(
-    /Historical AI audit posts and replies on Discord.*are not erased/,
-  );
 });
 
 test("distinguishes transient message processing from stored content and retention", () => {
@@ -177,13 +174,11 @@ test("states that no message content goes to an AI provider and that model train
   expect(
     article.getByText(/does not use Discord message content to train/),
   ).toHaveTextContent(
-    /does not send Discord message content to any AI provider.*AI chat, translation, AI review of RPG flair, and AI moderation have all been removed/,
+    /does not send Discord message content to any AI provider\.$/,
   );
-  expect(
-    article.getByText(/AI consent timestamps from the period/),
-  ).toHaveTextContent(
-    /revoke them with \/ai.*not erased by removing the features/,
-  );
+  expect(article.queryByText(/translation/i)).toBeNull();
+  expect(article.queryByText(/consent timestamps/)).toBeNull();
+  expect(article.queryByText(/\/ai\b/)).toBeNull();
   expect(article.queryByText(/OpenAI/)).toBeNull();
   expect(article.queryByText(/Anthropic/)).toBeNull();
 });

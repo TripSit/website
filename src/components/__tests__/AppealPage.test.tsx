@@ -88,6 +88,51 @@ test("explains a failed ban check and lets the user retry or log in again", asyn
   expect(screen.queryByText(/couldn't check your ban status/)).toBeNull();
 });
 
+// TripBot's /users/banned answers 200 with these when it can't ask Discord.
+test.each([
+  ["success: false", { success: false, banned: false, error: "Failed" }],
+  ["no ban flag", { success: true }],
+])(
+  "treats a ban check with %s as failed, not as not banned",
+  async (_, body) => {
+    sessionStorage.setItem("kc_token", validToken());
+    fetchMock.mockResolvedValueOnce(reply(body));
+    render(<AppealPage />);
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "We couldn't check your ban status.",
+    );
+    expect(screen.getByRole("button", { name: "Try again" })).toBeEnabled();
+    expect(screen.queryByRole("heading", { name: "Not Banned" })).toBeNull();
+  },
+);
+
+// TripBot counts an accepted appeal towards the 3 months between appeals, so someone
+// banned again soon after one can't send another until then.
+test.each([
+  [-1, "Appeal Again Later"],
+  [0, "Submit Ban Appeal"],
+])(
+  "waits 3 months after an accepted appeal before offering the form (offset %s)",
+  async (offset, heading) => {
+    jest.spyOn(Date, "now").mockReturnValue(Date.parse("2026-11-17T12:00:00Z"));
+    const threeMonths = 90 * 86_400_000;
+    const createdAt = new Date(Date.now() - threeMonths - offset).toISOString();
+    sessionStorage.setItem("kc_token", validToken());
+    fetchMock
+      .mockResolvedValueOnce(reply({ banned: true }))
+      .mockResolvedValueOnce(
+        reply({ ...appeal("ACCEPTED", 1), created_at: createdAt }),
+      );
+    render(<AppealPage />);
+    expect(await screen.findByRole("heading", { name: heading })).toBeVisible();
+    if (offset === 0) return;
+    expect(screen.queryByRole("button", { name: "Submit Appeal" })).toBeNull();
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      new Date(Date.parse(createdAt) + threeMonths).toLocaleString(),
+    );
+  },
+);
+
 test.each(["DENIED", "RECEIVED"])(
   "applies the shorter development waiting period to %s",
   async (status) => {
@@ -618,7 +663,8 @@ test.each([
 );
 
 test.each([
-  [true, "ACCEPTED", 1, "Submit Ban Appeal"],
+  [true, "ACCEPTED", 1, "Appeal Again Later"],
+  [true, "ACCEPTED", 100, "Submit Ban Appeal"],
   [true, "DENIED", 1, "Your Appeal Status"],
   [true, "DENIED", 100, "Submit New Ban Appeal"],
   [false, "ACCEPTED", 1, "Appeal History"],
@@ -820,6 +866,128 @@ test.each([
   fireEvent.click(submit);
   const alert = (await screen.findByText(text)).closest(".alert");
   expect(alert).toHaveClass(alertClass);
+});
+
+const answerQuestions = () => {
+  for (const label of [
+    /why you were banned/i,
+    /make amends/i,
+    /avoid repeating/i,
+  ]) {
+    fireEvent.change(screen.getByRole("textbox", { name: label }), {
+      target: { value: "Answer" },
+    });
+  }
+};
+
+// TripBot sends these refusals with a 200, success: false, a code in `error` and the
+// reason in `message` (TripBot's src/api/v2/appeals/appeals.routes.ts).
+test.each([
+  [
+    "COOLDOWN",
+    "You must wait 3 months between appeal submissions",
+    "You must wait 3 months between appeal submissions",
+  ],
+  [
+    "USER_NOT_FOUND",
+    "User not found in database",
+    "Your account could not be found.",
+  ],
+  [
+    "DATABASE_ERROR",
+    "Failed to create appeal due to a server error",
+    "An error occurred while submitting your appeal.",
+  ],
+])(
+  "reports an appeal refused with a 200 (%s) as an error and keeps the answers",
+  async (error, message, shown) => {
+    sessionStorage.setItem("kc_token", validToken());
+    fetchMock
+      .mockResolvedValueOnce(reply({ banned: true }))
+      .mockResolvedValueOnce(reply({ appeal: null }))
+      .mockResolvedValueOnce(reply({ success: false, error, message }));
+    render(<AppealPage />);
+    const submit = await screen.findByRole("button", { name: "Submit Appeal" });
+    answerQuestions();
+    fireEvent.click(submit);
+    const alert = (await screen.findByText(shown, { exact: false })).closest(
+      ".alert",
+    );
+    expect(alert).toHaveClass("alert-danger");
+    expect(screen.queryByText("Under Review")).toBeNull();
+    expect(
+      screen.getByRole("textbox", { name: /why you were banned/i }),
+    ).toHaveValue("Answer");
+    await waitFor(() => expect(submit).toBeEnabled());
+    // Nothing was saved, so there's no new appeal to load.
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+  },
+);
+
+test("shows the not-banned page when the ban was lifted before the appeal was sent", async () => {
+  sessionStorage.setItem("kc_token", validToken());
+  const message = "You are not currently banned from TripSit";
+  fetchMock
+    .mockResolvedValueOnce(reply({ banned: true }))
+    .mockResolvedValueOnce(reply({ appeal: null }))
+    .mockResolvedValueOnce(
+      reply({ success: false, error: "NOT_BANNED", message }),
+    )
+    .mockResolvedValueOnce(reply({ banned: false }))
+    .mockResolvedValueOnce(reply({ appeal: null }));
+  render(<AppealPage />);
+  const submit = await screen.findByRole("button", { name: "Submit Appeal" });
+  answerQuestions();
+  fireEvent.click(submit);
+  expect(
+    await screen.findByRole("heading", { name: "Not Banned" }),
+  ).toBeVisible();
+  expect(screen.getByText(message).closest(".alert")).toHaveClass(
+    "alert-danger",
+  );
+});
+
+test.each([
+  [
+    "a sent reminder",
+    { success: true, message: "Your reminder has been sent!" },
+    "alert-success",
+  ],
+  [
+    "a reminder that mentions 'sent' but failed",
+    {
+      success: false,
+      error: "REMIND_FAILED",
+      message: "Something went wrong. Your reminder was not sent.",
+    },
+    "alert-danger",
+  ],
+  [
+    "a reminder sent too soon",
+    {
+      success: false,
+      error: "REMIND_FAILED",
+      message: "You can send another reminder in 12 hours",
+    },
+    "alert-danger",
+  ],
+])("colours %s by its outcome", async (_, body, alertClass) => {
+  sessionStorage.setItem("kc_token", validToken());
+  const pending = appeal("RECEIVED", 4);
+  fetchMock
+    .mockResolvedValueOnce(reply({ banned: true }))
+    .mockResolvedValueOnce(reply(pending))
+    .mockResolvedValueOnce(reply(body))
+    .mockResolvedValueOnce(reply({ banned: true }))
+    .mockResolvedValueOnce(reply({ ...pending, reminded_at: daysAgo(0) }));
+  render(<AppealPage />);
+  fireEvent.click(await screen.findByRole("button", { name: "Send Reminder" }));
+  const alert = (await screen.findByText(body.message)).closest(".alert");
+  expect(alert).toHaveClass(alertClass);
+  // Only a reminder that was sent changes the appeal, so only then is it reloaded.
+  await waitFor(() =>
+    expect(fetchMock).toHaveBeenCalledTimes(body.success ? 5 : 3),
+  );
 });
 
 test("submits an appeal and refreshes its status", async () => {

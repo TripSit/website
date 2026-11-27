@@ -71,7 +71,34 @@ function parseLatestAppeal(data: unknown): Appeal | null {
 }
 
 type BanStatus =
-  "unknown" | "can_appeal" | "has_appeal" | "not_banned" | "can_reappeal";
+  | "unknown"
+  | "can_appeal"
+  | "has_appeal"
+  | "not_banned"
+  | "can_reappeal"
+  | "appeal_later";
+
+interface Notice {
+  text: string;
+  kind: "success" | "error";
+}
+
+// What TripBot's appeal routes send back. A request TripBot refuses (a cooldown, a user
+// who isn't banned, a database error, a reminder it couldn't post) can still arrive with
+// a 200: then `success` is false, `error` is a code and `message` says why.
+interface AppealReply {
+  success?: boolean;
+  error?: string;
+  message?: string;
+}
+
+const succeeded = (res: Response, reply: AppealReply) =>
+  res.ok && reply.success !== false;
+
+// The reason a request failed: in `message` for a refusal sent with a 200, in `error`
+// for one sent with an error status.
+const failureReason = (res: Response, reply: AppealReply) =>
+  res.ok ? reply.message : reply.error;
 
 function reminderAvailableAt(appeal: Appeal): Date {
   const baseTime = new Date(appeal.reminded_at ?? appeal.created_at).getTime();
@@ -80,14 +107,28 @@ function reminderAvailableAt(appeal: Appeal): Date {
   return new Date(baseTime + cooldown);
 }
 
+// TripBot takes a new appeal only once 3 months (30 seconds in development) have passed
+// since the last one was sent, whatever became of it.
+function nextAppealAt(appeal: Appeal): Date {
+  const cooldown =
+    process.env.NODE_ENV === "development" ? 30_000 : 90 * 24 * 60 * 60 * 1000;
+  return new Date(new Date(appeal.created_at).getTime() + cooldown);
+}
+
 // What a banned user can do next, based on their latest appeal (if any)
 function statusForBannedUser(
   appeal: Appeal | null,
   canReappeal: (appeal: Appeal) => boolean,
 ): BanStatus {
-  // No appeal yet, or the last one was accepted (so it was for an earlier ban)
-  if (!appeal || appeal.status === "ACCEPTED") {
+  if (!appeal) {
     return "can_appeal";
+  }
+  // The last appeal was accepted, so it was for an earlier ban. It still counts towards
+  // TripBot's wait, and a form sent before then would only be refused.
+  if (appeal.status === "ACCEPTED") {
+    return Date.now() >= nextAppealAt(appeal).getTime()
+      ? "can_appeal"
+      : "appeal_later";
   }
   // A denied appeal can be retried once the waiting period is over
   if (appeal.status === "DENIED" && canReappeal(appeal)) {
@@ -113,17 +154,14 @@ const AppealPage: React.FC = () => {
   const [latestAppeal, setLatestAppeal] = useState<Appeal | null>(null);
   const [reminderNow, setReminderNow] = useState(() => Date.now());
   const [submitting, setSubmitting] = useState(false);
-  const [message, setMessage] = useState<{
-    text: string;
-    kind: "success" | "error";
-  } | null>(null);
+  const [message, setMessage] = useState<Notice | null>(null);
   // Set when logging in or checking the ban fails, so the page can say so instead of
   // falling back to the login screen or an empty page.
   const [loginFailed, setLoginFailed] = useState(false);
   const [banCheckFailed, setBanCheckFailed] = useState(false);
   const [appealHistoryFailed, setAppealHistoryFailed] = useState(false);
   const [reminding, setReminding] = useState(false);
-  const [remindMessage, setRemindMessage] = useState<string | null>(null);
+  const [remindMessage, setRemindMessage] = useState<Notice | null>(null);
   const [showAppealContent, setShowAppealContent] = useState(false);
 
   useEffect(() => {
@@ -333,6 +371,15 @@ const AppealPage: React.FC = () => {
       }
 
       const currentBanStatus = await banRes.json();
+      // When TripBot can't reach Discord it still answers 200, with success: false and
+      // banned: false. That isn't "not banned", and reading it that way told banned people
+      // there was nothing to appeal.
+      if (
+        currentBanStatus?.success === false ||
+        typeof currentBanStatus?.banned !== "boolean"
+      ) {
+        throw new Error("Failed to check ban status");
+      }
 
       // Check for appeal history (works for both banned and not banned users)
       checkingHistory = true;
@@ -380,10 +427,10 @@ const AppealPage: React.FC = () => {
         body: JSON.stringify(data),
       });
 
-      if (res.ok) {
-        const successData = await res.json();
+      const reply: AppealReply = await res.json();
+      if (succeeded(res, reply)) {
         setMessage({
-          text: successData.message ?? "Your appeal has been submitted.",
+          text: reply.message ?? "Your appeal has been submitted.",
           kind: "success",
         });
         setBanStatus("has_appeal");
@@ -391,8 +438,9 @@ const AppealPage: React.FC = () => {
         void checkBan();
         setTimeout(() => setMessage(null), 3000);
       } else {
-        const errorData = await res.json();
-        let userMessage = errorData.error ?? "Failed to submit appeal";
+        // The form stays up with the answers in it, so the user can try again.
+        let userMessage =
+          failureReason(res, reply) ?? "Failed to submit appeal";
 
         // Make technical error messages more user-friendly
         if (userMessage.includes("User not found in database")) {
@@ -406,6 +454,8 @@ const AppealPage: React.FC = () => {
         }
 
         setMessage({ text: userMessage, kind: "error" });
+        // Unbanned since the page loaded: show the page for someone who isn't banned.
+        if (reply.error === "NOT_BANNED") void checkBan();
       }
     } catch (e) {
       if (e instanceof Error && e.message === "No valid token available") {
@@ -431,17 +481,23 @@ const AppealPage: React.FC = () => {
         headers: await getAuthHeaders(),
       });
 
-      const data = await res.json();
+      const reply: AppealReply = await res.json();
 
-      if (res.ok) {
-        setRemindMessage(data.message);
+      if (succeeded(res, reply)) {
+        setRemindMessage({
+          text: reply.message ?? "Your reminder has been sent!",
+          kind: "success",
+        });
         // Refresh the appeal data to get updated reminded_at
         void checkBan();
       } else {
-        setRemindMessage(data.error);
+        setRemindMessage({
+          text: failureReason(res, reply) ?? "Failed to send reminder",
+          kind: "error",
+        });
       }
     } catch {
-      setRemindMessage("Failed to send reminder");
+      setRemindMessage({ text: "Failed to send reminder", kind: "error" });
     } finally {
       setReminding(false);
     }
@@ -783,6 +839,41 @@ const AppealPage: React.FC = () => {
           </section>
         )}
 
+        {token && banStatus === "appeal_later" && latestAppeal && (
+          <section className="py-5" style={{ marginTop: "80px" }}>
+            <div className="container">
+              <div className="row justify-content-center">
+                <div className="col-lg-8">
+                  <div className="text-center mb-5">
+                    <h1 className="display-6">Appeal Again Later</h1>
+                  </div>
+                  <div className="card">
+                    <div className="card-body">
+                      <p className="mb-2">
+                        <strong>Your last appeal:</strong>{" "}
+                        {getStatusBadge(latestAppeal.status)}
+                      </p>
+                      <p className="text-muted mb-0">
+                        <small>
+                          <strong>Submitted:</strong>{" "}
+                          {new Date(latestAppeal.created_at).toLocaleString()}
+                        </small>
+                      </p>
+                      <div className="alert alert-info mt-3 mb-0" role="alert">
+                        <BiClock className="me-2" />
+                        You&apos;ve been banned again since your last appeal was
+                        accepted. Appeals must be 3 months apart, so you can
+                        send a new one from{" "}
+                        {nextAppealAt(latestAppeal).toLocaleString()}.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
         {token && banStatus === "has_appeal" && (
           <section className="py-5" style={{ marginTop: "80px" }}>
             <div className="container">
@@ -971,12 +1062,14 @@ const AppealPage: React.FC = () => {
                           </div>
                         )}
 
+                      {/* Coloured by the outcome, not the wording: a failed reminder
+                          says "Your reminder was not sent." */}
                       {remindMessage && (
                         <div
-                          className={`alert ${remindMessage.includes("sent") ? "alert-success" : "alert-danger"} mt-3`}
+                          className={`alert ${remindMessage.kind === "success" ? "alert-success" : "alert-danger"} mt-3`}
                           role="alert"
                         >
-                          {remindMessage}
+                          {remindMessage.text}
                         </div>
                       )}
                     </div>

@@ -2,6 +2,7 @@
 # Delivery controls require an independent code-owner approval.
 /.github/ @TripSit/website
 /.drone.yml @TripSit/website
+/.drone-uat.yml @TripSit/website
 /CICD-POLICY.md @TripSit/website
 /AGENTS.md @TripSit/website
 /Dockerfile @TripSit/website

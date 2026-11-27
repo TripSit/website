@@ -1,8 +1,12 @@
 # Website UAT deployment
 
 UAT uses a signed hook on its own host, matching the production deployment model.
-Both `.drone-uat.yml` and the UAT document in `.drone.yml` carry this pipeline,
-so existing and split-file Drone configurations use the same restricted runner.
+The pipeline lives only in `.drone-uat.yml`, which drone.tripsit.io must use as its
+repository "Configuration" setting; drone.tripsit.me reads `.drone.yml`, which holds
+only the production pipeline. Both servers receive every push and Drone creates a
+build for any pipeline whose branch and event match before it checks
+`trigger: instance`, so a pipeline for the other server in the same file leaves a
+build there that never runs (#287). Keep each server's pipelines in its own file.
 The infrastructure package is maintained in `TripSit/live`, under
 `docker/deploy-uat/`, with additive website-deployer/runner compose configuration.
 Provision and verify it before merging the corresponding `.drone.yml` change.

@@ -1,6 +1,7 @@
-# UAT-only config for drone.tripsit.io; .drone.yml also contains this pipeline
-# while existing UAT server settings transition to this path. Keep both UAT
-# copies in step. Production continues to use .drone.yml.
+# UAT-only config: drone.tripsit.io reads this file (its repository setting
+# "Configuration" is .drone-uat.yml) and drone.tripsit.me reads .drone.yml.
+# Keep each server's pipelines in its own file: Drone creates a build for any
+# pipeline whose branch and event match, before it looks at `trigger: instance`.
 
 kind: pipeline
 type: docker
@@ -86,6 +87,9 @@ steps:
 trigger:
   branch:
   - uat
+  # A guard in case another server is ever pointed at this file.
+  instance:
+  - drone.tripsit.io
   event:
   - custom
   - push

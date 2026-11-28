@@ -1,3 +1,9 @@
+# Production-only config for drone.tripsit.me. The UAT server (drone.tripsit.io) reads
+# .drone-uat.yml instead (its repository setting "Configuration"). Drone evaluates
+# `trigger: instance` only after it has created a build, so a UAT pipeline in this file
+# made the production server open a build for every uat push that never ran (#287).
+# Without one, a uat push matches nothing here and production creates no build.
+
 kind: pipeline
 type: docker
 name: Deploy Website
@@ -6,7 +12,7 @@ name: Deploy Website
 clone:
   disable: true
 
-# Run on this server's runner only (the UAT pipeline below pins env: uat)
+# Run on the production runner only.
 node:
   env: prod
 
@@ -93,94 +99,3 @@ trigger:
   # - tag
   # - promote
   # - rollback
-
----
-kind: pipeline
-type: docker
-name: Deploy Website UAT
-
-clone:
-  disable: true
-
-node:
-  env: uat
-  role: website-deploy
-
-steps:
-  - name: Rebuild Website UAT
-    # Built on the UAT host before cutover; this runner has no runtime-secret mounts or Docker API network.
-    image: local/tripsit-uat-deploy-client:1
-    pull: never
-    environment:
-      DEPLOY_HOOK_SECRET:
-        from_secret: WEBSITE_UAT_DEPLOY_HOOK_SECRET
-    commands:
-      - |
-        set -eu
-        [ "$DRONE_COMMIT_BRANCH" = uat ] || { echo "Refusing non-uat deployment" >&2; exit 1; }
-        case "$DRONE_BUILD_EVENT" in push|custom) ;; *) echo "Refusing unsupported UAT deployment event" >&2; exit 1 ;; esac
-        # The UAT website deployer serializes website requests and waits
-        # only about a minute for the one before it. Its "busy" answer means it started nothing,
-        # so that answer alone is retried: 6 attempts, 30 s apart, outlast one ~5 min deploy.
-        # Every other failure stops here, since the server may still be running it.
-        BUSY='DEPLOY_RESULT=failure (deployer busy; no deployment started)'
-        for ATTEMPT in 1 2 3 4 5 6; do
-          BODY=$(printf '{"target":"website","build":"%s","sha":"%s","ts":"%s"}' "$DRONE_BUILD_NUMBER" "$DRONE_COMMIT_SHA" "$(date +%s)")
-          SIG=$(printf '%s' "$BODY" | openssl dgst -sha256 -hmac "$DEPLOY_HOOK_SECRET" | sed 's/^.* //')
-          if HTTP_STATUS=$(curl -sS --connect-timeout 10 --max-time 3000 --retry 0 \
-            -o deploy.log -w '%{http_code}' -X POST -H 'Content-Type: application/json' \
-            -H "X-Signature: sha256=$SIG" --data-binary "$BODY" http://website-deployer:9000/hooks/deploy-website); then
-            :
-          else
-            RC=$?
-            echo "Deploy request failed (curl exit $RC); server may still be running it. No retry performed." >&2
-            exit "$RC"
-          fi
-          cat deploy.log
-          grep -qxF "$BUSY" deploy.log || break
-          if [ "$ATTEMPT" = 6 ]; then
-            echo "Deployer still busy after 6 attempts; giving up." >&2
-            break
-          fi
-          echo "Deployer busy (attempt $ATTEMPT of 6); retrying in 30 s." >&2
-          sleep 30
-        done
-        [ "$HTTP_STATUS" = 200 ] || { echo "Deploy hook HTTP $HTTP_STATUS" >&2; exit 1; }
-        grep -qx 'DEPLOY_RESULT=success' deploy.log
-        grep -qx "DEPLOY_COMMIT=$DRONE_COMMIT_SHA" deploy.log
-
-  - name: discord notification
-    when:
-      status: [success, failure]
-    image: appleboy/drone-discord:1.5.2@sha256:c850372e85a4b86465e8fa89876fe86263f7b1979f1f0c8d51243b78b792155c
-    settings:
-      webhook_id:
-        from_secret: WEBHOOK_ID
-      webhook_token:
-        from_secret: WEBHOOK_TOKEN
-      avatar_url: https://i.imgur.com/tnw3I34.png
-      username: 'Drone CI'
-      message: |
-        {{#success build.status}}
-        UAT build {{build.number}} succeeded.
-        {{else}}
-        UAT build {{build.number}} failed.
-        {{/success}}
-        Build time: {{build.started}}
-        Commit message: {{truncate commit.message 500}}
-        Commit author: {{commit.author}}
-        Commit branch: {{commit.branch}}
-        {{#success build.status}}
-        View logs: <{{build.link}}>
-        {{else}}
-        View failed job: <{{build.link}}>
-        {{/success}}
-
-trigger:
-  branch:
-  - uat
-  instance:
-  - drone.tripsit.io
-  event:
-  - custom
-  - push

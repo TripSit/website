@@ -8,6 +8,15 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
+## Run the Sonar precheck before opening a pull request
+
+Run `npm run sonar:precheck` before opening a pull request. SonarScan cannot analyze a PR before merge
+(the server is Community Build), so this script is the local stand-in for its new-code gate: it lints the
+source files changed against `uat` with cognitive complexity above 15 (S3776), duplicate strings (S1192),
+nested ternaries (S3358), and non-null assertions as errors. Fix every finding first. In Claude Code a
+`PreToolUse` hook in `.claude/settings.json` runs it automatically and blocks `gh pr create` while it fails.
+The matching script lives in `../tripbot/scripts/sonar-precheck.sh`; keep the two aligned.
+
 ## Keep website and TripBot CI/CD aligned
 
 When changing CI/CD in this repository, inspect the sibling `../tripbot` repository and apply the
